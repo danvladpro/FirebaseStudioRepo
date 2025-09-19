@@ -1,28 +1,22 @@
 "use client";
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, Sparkles, Trophy } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Trophy } from 'lucide-react';
 import { CHALLENGE_SETS } from '@/lib/challenges';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
-import { getRecommendationsAction } from '@/actions/get-recommendations';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Logo } from './logo';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
+
 
 export default function ResultsDisplay() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { stats, updateStats, getPerformanceDataForAI } = usePerformanceTracker();
+  const { stats, updateStats } = usePerformanceTracker();
   
   const [isNewRecord, setIsNewRecord] = useState(false);
-  const [recommendation, setRecommendation] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
-
+  
   const setId = searchParams.get('setId');
   const timeStr = searchParams.get('time');
   const time = timeStr ? parseFloat(timeStr) : null;
@@ -45,23 +39,8 @@ export default function ResultsDisplay() {
       }
       updateStats(setId, time);
     }
-  }, [setId, time, updateStats, isPerfectScore]);
+  }, [setId, time, updateStats, isPerfectScore, stats]);
 
-  const handleGetRecommendation = () => {
-    startTransition(async () => {
-      const performanceData = getPerformanceDataForAI();
-      if (Object.keys(performanceData).length === 0) {
-        setRecommendation("Complete at least one challenge set to get a recommendation.");
-        return;
-      }
-      const result = await getRecommendationsAction(performanceData);
-      if (result.success) {
-        setRecommendation(result.recommendations);
-      } else {
-        setRecommendation(result.error ?? 'An unknown error occurred.');
-      }
-    });
-  };
 
   if (!challengeSet || time === null) {
     return (
@@ -101,29 +80,6 @@ export default function ResultsDisplay() {
               {personalBest ? `${personalBest.toFixed(2)}s` : "N/A"}
             </p>
           </div>
-          
-           <Accordion type="single" collapsible className="w-full pt-4">
-            <AccordionItem value="item-1">
-              <AccordionTrigger onClick={handleGetRecommendation} disabled={isPending}>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-accent" />
-                  <span className="font-semibold">Get AI Training Plan</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="pt-4 text-left">
-                {isPending && <Skeleton className="h-24 w-full" />}
-                {recommendation && !isPending && (
-                  <Alert>
-                    <AlertTitle>Personalized Recommendations</AlertTitle>
-                    <AlertDescription className="whitespace-pre-wrap">
-                      {recommendation}
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
         </CardContent>
         <CardFooter className="flex gap-4">
           <Button variant="outline" className="w-full" onClick={() => router.push('/')}>

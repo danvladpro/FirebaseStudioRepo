@@ -69,15 +69,5 @@ export const usePerformanceTracker = () => {
     return `${diffDays} days ago`;
   };
 
-  const getPerformanceDataForAI = () => {
-    const performanceData: Record<string, number> = {};
-    CHALLENGE_SETS.forEach(set => {
-      if (stats[set.id] && stats[set.id].bestTime) {
-        performanceData[set.category] = stats[set.id].bestTime!;
-      }
-    });
-    return performanceData;
-  };
-
-  return { stats, isLoaded, updateStats, getOverallBestTime, getLastTrainedDate, getPerformanceDataForAI };
+  return { stats, isLoaded, updateStats, getOverallBestTime, getLastTrainedDate };
 };
