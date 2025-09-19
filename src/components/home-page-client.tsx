@@ -64,17 +64,18 @@ export function HomePageClient({ challengeSets }: HomePageClientProps) {
             </CardHeader>
             <CardContent className="flex justify-center">
               {isLoaded ? (
-                 <Calendar
-                    modifiers={{ trained: trainedDates }}
-                    modifiersStyles={{
-                      trained: { 
-                        color: 'hsl(var(--primary-foreground))',
-                        backgroundColor: 'hsl(var(--primary))'
-                      },
-                    }}
-                    className="p-0"
-                    
-                 />
+                 <div className="scale-90">
+                    <Calendar
+                        modifiers={{ trained: trainedDates }}
+                        modifiersStyles={{
+                          trained: { 
+                            color: 'hsl(var(--primary-foreground))',
+                            backgroundColor: 'hsl(var(--primary))'
+                          },
+                        }}
+                        className="p-0"
+                    />
+                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2 pt-2">
                   <Skeleton className="h-8 w-full" />
