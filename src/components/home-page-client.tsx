@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, CalendarDays, ArrowRight, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare } from "lucide-react";
+import { Trophy, CalendarDays, ArrowRight, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, BookMarked } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -18,13 +18,15 @@ const iconMap: Record<ChallengeSet["iconName"], React.FC<React.SVGProps<SVGSVGEl
     MousePointerSquareDashed,
     Pilcrow,
     FunctionSquare,
+    BookMarked,
 };
 
 interface HomePageClientProps {
   challengeSets: ChallengeSet[];
+  examSet: ChallengeSet;
 }
 
-export function HomePageClient({ challengeSets }: HomePageClientProps) {
+export function HomePageClient({ challengeSets, examSet }: HomePageClientProps) {
   const { isLoaded, getOverallBestTime, getTrainedDates } = usePerformanceTracker();
   
   const overallBestTime = getOverallBestTime();
@@ -84,6 +86,26 @@ export function HomePageClient({ challengeSets }: HomePageClientProps) {
               )}
             </CardContent>
           </Card>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold mb-6">Final Exam</h2>
+           <Card key={examSet.id} className="border-primary bg-primary/5">
+                <CardHeader className="flex-row gap-4 items-center">
+                    <BookMarked className="w-10 h-10 text-primary" />
+                    <div>
+                        <CardTitle>{examSet.name}</CardTitle>
+                        <CardDescription>{examSet.description}</CardDescription>
+                    </div>
+                </CardHeader>
+                <CardFooter>
+                    <Button asChild className="w-full">
+                        <Link href={`/challenge/${examSet.id}`}>
+                        Start Exam <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </CardFooter>
+            </Card>
         </section>
 
         <section>

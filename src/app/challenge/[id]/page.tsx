@@ -1,4 +1,4 @@
-import { CHALLENGE_SETS } from '@/lib/challenges';
+import { ALL_CHALLENGE_SETS } from '@/lib/challenges';
 import ChallengeUI from '@/components/challenge-ui';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -7,7 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 import { ChallengeSet } from '@/lib/types';
 
 export default function ChallengePage({ params }: { params: { id: string } }) {
-  const challengeSet = CHALLENGE_SETS.find(set => set.id === params.id) as ChallengeSet | undefined;
+  const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === params.id) as ChallengeSet | undefined;
 
   if (!challengeSet) {
     notFound();

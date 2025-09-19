@@ -62,3 +62,14 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     ],
   },
 ];
+
+export const EXAM_SET: ChallengeSet = {
+  id: "exam",
+  name: "Final Exam",
+  description: "A comprehensive test of all your Excel skills.",
+  category: "Exam",
+  iconName: "BookMarked",
+  challenges: CHALLENGE_SETS.flatMap(set => set.challenges)
+};
+
+export const ALL_CHALLENGE_SETS = [...CHALLENGE_SETS, EXAM_SET];
