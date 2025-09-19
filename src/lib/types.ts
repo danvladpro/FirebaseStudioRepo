@@ -3,6 +3,8 @@ import { type LucideIcon } from "lucide-react";
 export interface Challenge {
   description: string;
   keys: string[];
+  imageUrl: string;
+  imageHint: string;
 }
 
 export interface ChallengeSet {

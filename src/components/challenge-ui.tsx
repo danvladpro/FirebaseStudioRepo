@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { ChallengeSet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -40,6 +41,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const [skippedCount, setSkippedCount] = useState(0);
   
   const isAdvancing = useRef(false);
+  const keydownProcessed = useRef(false);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
 
@@ -65,6 +67,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             setCurrentChallengeIndex(prev => prev + 1);
             setFeedback(null);
             setPressedKeys(new Set());
+            keydownProcessed.current = false;
             isAdvancing.current = false;
         }
     }, 300);
@@ -80,6 +83,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     setTimeout(() => {
       setFeedback(null);
       setPressedKeys(new Set());
+      keydownProcessed.current = false;
     }, 500);
   };
   
@@ -88,59 +92,54 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     moveToNext();
   };
 
+  useEffect(() => {
+    if (startTime === 0) {
+      setStartTime(Date.now());
+    }
+  }, [startTime]);
 
   useEffect(() => {
-    setStartTime(Date.now());
-  }, []);
-
-  useEffect(() => {
-    if (startTime === 0) return;
     const timer = setInterval(() => {
-      if (!isAdvancing.current) {
         setElapsedTime((Date.now() - startTime) / 1000);
-      }
     }, 100);
-
     return () => clearInterval(timer);
   }, [startTime]);
   
   useEffect(() => {
-    if (isAdvancing.current) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
-      if (isAdvancing.current) return;
+      if (isAdvancing.current || keydownProcessed.current) return;
 
       const key = normalizeKey(e.key);
+      const newKeys = new Set(pressedKeys);
+      newKeys.add(key);
+      setPressedKeys(newKeys);
       
-      setPressedKeys(prev => {
-        const newKeys = new Set(prev);
-        newKeys.add(key);
-        
-        const requiredKeys = new Set(currentChallenge.keys.map(k => normalizeKey(k)));
-        
-        const sortedPressed = [...newKeys].sort().join(',');
-        const sortedRequired = [...requiredKeys].sort().join(',');
+      const requiredKeys = new Set(currentChallenge.keys.map(k => normalizeKey(k)));
+      
+      const sortedPressed = [...newKeys].sort().join(',');
+      const sortedRequired = [...requiredKeys].sort().join(',');
 
-        if (sortedPressed === sortedRequired) {
-          advanceChallenge();
-        } else if (newKeys.size >= requiredKeys.size) {
-          handleIncorrect();
-        }
-        
-        return newKeys;
-      });
+      if (sortedPressed === sortedRequired) {
+        keydownProcessed.current = true;
+        advanceChallenge();
+      } else if (newKeys.size >= requiredKeys.size) {
+        handleIncorrect();
+      }
     };
     
     const handleKeyUp = (e: KeyboardEvent) => {
         e.preventDefault();
+        if (isAdvancing.current) return;
+        
         const key = normalizeKey(e.key);
-        if (!isAdvancing.current) {
-            setPressedKeys(prev => {
-                const newKeys = new Set(prev);
-                newKeys.delete(key);
-                return newKeys;
-            });
+        const newKeys = new Set(pressedKeys);
+        
+        // On keyup, if we haven't processed a "correct" combo, we remove the key.
+        // This allows for pressing keys in any order, but they must all be held down.
+        if (!keydownProcessed.current) {
+            newKeys.delete(key);
+            setPressedKeys(newKeys);
         }
     };
 
@@ -151,7 +150,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [currentChallenge.keys, advanceChallenge]);
+  }, [pressedKeys, currentChallenge.keys, advanceChallenge]);
 
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;
@@ -173,8 +172,18 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
         <Progress value={progress} className="w-full" />
         <p className="text-sm text-muted-foreground text-center pt-2">{currentChallengeIndex + 1} of {set.challenges.length}</p>
       </CardHeader>
-      <CardContent className="text-center py-16">
-        <p className="text-xl md:text-3xl font-semibold text-foreground mb-8">{currentChallenge.description}</p>
+      <CardContent className="text-center py-12">
+        <p className="text-xl md:text-2xl font-semibold text-foreground mb-6">{currentChallenge.description}</p>
+        <div className="flex justify-center items-center h-24 bg-muted rounded-lg mb-6 overflow-hidden">
+             <Image
+                src={currentChallenge.imageUrl}
+                alt={currentChallenge.description}
+                width={200}
+                height={80}
+                className="object-contain"
+                data-ai-hint={currentChallenge.imageHint}
+              />
+        </div>
         <div className="flex items-center justify-center gap-2 h-10">
           {feedback === 'correct' && <CheckCircle className="h-10 w-10 text-green-500" />}
           {feedback === 'incorrect' && <XCircle className="h-10 w-10 text-destructive" />}
