@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -50,23 +51,28 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   };
 
   const moveToNext = useCallback(() => {
-    if (currentChallengeIndex < set.challenges.length - 1) {
-        setCurrentChallengeIndex(prev => prev + 1);
-        setFeedback(null);
-        setIsAdvancing(false);
-      } else {
-        const duration = (Date.now() - startTime) / 1000;
-        router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${skippedCount}`);
-      }
-      setPressedKeys(new Set());
-  }, [currentChallengeIndex, set.challenges.length, set.id, startTime, router, skippedCount]);
-
-  const advanceChallenge = useCallback(() => {
     if (isAdvancing) return;
     setIsAdvancing(true);
+
+    const isLastChallenge = currentChallengeIndex === set.challenges.length - 1;
+    
+    setTimeout(() => {
+        if (isLastChallenge) {
+            const duration = (Date.now() - startTime) / 1000;
+            router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${skippedCount}`);
+        } else {
+            setCurrentChallengeIndex(prev => prev + 1);
+            setFeedback(null);
+            setPressedKeys(new Set());
+            setIsAdvancing(false);
+        }
+    }, 300);
+  }, [currentChallengeIndex, set.challenges.length, set.id, startTime, router, skippedCount, isAdvancing]);
+
+  const advanceChallenge = useCallback(() => {
     setFeedback("correct");
-    setTimeout(moveToNext, 300);
-  }, [moveToNext, isAdvancing]);
+    moveToNext();
+  }, [moveToNext]);
   
   const handleIncorrect = () => {
     setFeedback("incorrect");
@@ -84,6 +90,10 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
   useEffect(() => {
     setStartTime(Date.now());
+  }, []);
+
+  useEffect(() => {
+    if (startTime === 0) return;
     const timer = setInterval(() => {
       setElapsedTime((Date.now() - startTime) / 1000);
     }, 100);
@@ -109,19 +119,22 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
       if (sortedPressed === sortedRequired) {
         advanceChallenge();
-      } else if (newKeys.size >= requiredKeys.size) {
+      } else if (newKeys.size >= requiredKeys.size && !isAdvancing) {
         handleIncorrect();
       }
     };
     
     const handleKeyUp = (e: KeyboardEvent) => {
-      e.preventDefault();
-      const key = normalizeKey(e.key);
-      setPressedKeys(prev => {
-          const newKeys = new Set(prev);
-          newKeys.delete(key);
-          return newKeys;
-      });
+        e.preventDefault();
+        const key = normalizeKey(e.key);
+        // Only remove the key if we are not advancing to the next challenge
+        if (!isAdvancing) {
+            setPressedKeys(prev => {
+                const newKeys = new Set(prev);
+                newKeys.delete(key);
+                return newKeys;
+            });
+        }
     };
 
     window.addEventListener("keydown", handleKeyDown);
