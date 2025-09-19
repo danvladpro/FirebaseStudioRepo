@@ -37,6 +37,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const [skippedCount, setSkippedCount] = useState(0);
+  const [isAdvancing, setIsAdvancing] = useState(false);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
 
@@ -52,6 +53,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     if (currentChallengeIndex < set.challenges.length - 1) {
         setCurrentChallengeIndex(prev => prev + 1);
         setFeedback(null);
+        setIsAdvancing(false);
       } else {
         const duration = (Date.now() - startTime) / 1000;
         router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${skippedCount}`);
@@ -60,9 +62,11 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, set.id, startTime, router, skippedCount]);
 
   const advanceChallenge = useCallback(() => {
+    if (isAdvancing) return;
+    setIsAdvancing(true);
     setFeedback("correct");
     setTimeout(moveToNext, 300);
-  }, [moveToNext]);
+  }, [moveToNext, isAdvancing]);
   
   const handleIncorrect = () => {
     setFeedback("incorrect");
@@ -88,51 +92,36 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   }, [startTime]);
   
   useEffect(() => {
+    if (isAdvancing) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
       const key = normalizeKey(e.key);
       
-      setPressedKeys(prev => {
-          const newKeys = new Set(prev);
-          newKeys.add(key);
-          
-          const requiredKeys = new Set(currentChallenge.keys.map(k => normalizeKey(k)));
-          
-          if (newKeys.size === requiredKeys.size) {
-              const sortedPressed = [...newKeys].sort().join(',');
-              const sortedRequired = [...requiredKeys].sort().join(',');
-              
-              if (sortedPressed === sortedRequired) {
-                  // The keys match, but we need to wait for keyup to avoid continuous firing
-              } else {
-                  handleIncorrect();
-              }
-          } else if (newKeys.size > requiredKeys.size) {
-              handleIncorrect();
-          }
-          
-          return newKeys;
-      });
+      const newKeys = new Set(pressedKeys);
+      newKeys.add(key);
+      setPressedKeys(newKeys);
+      
+      const requiredKeys = new Set(currentChallenge.keys.map(k => normalizeKey(k)));
+      
+      const sortedPressed = [...newKeys].sort().join(',');
+      const sortedRequired = [...requiredKeys].sort().join(',');
+
+      if (sortedPressed === sortedRequired) {
+        advanceChallenge();
+      } else if (newKeys.size >= requiredKeys.size) {
+        handleIncorrect();
+      }
     };
     
     const handleKeyUp = (e: KeyboardEvent) => {
-        e.preventDefault();
-        
-        const requiredKeys = new Set(currentChallenge.keys.map(k => normalizeKey(k)));
-        const sortedPressed = [...pressedKeys].sort().join(',');
-        const sortedRequired = [...requiredKeys].sort().join(',');
-
-        if (sortedPressed === sortedRequired) {
-            advanceChallenge();
-        }
-        
-        // Clear only the released key if not advancing. For simplicity, we clear all on advance/incorrect.
-        const key = normalizeKey(e.key);
-        setPressedKeys(prev => {
-            const newKeys = new Set(prev);
-            newKeys.delete(key);
-            return newKeys;
-        });
+      e.preventDefault();
+      const key = normalizeKey(e.key);
+      setPressedKeys(prev => {
+          const newKeys = new Set(prev);
+          newKeys.delete(key);
+          return newKeys;
+      });
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -142,7 +131,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, currentChallenge.keys, advanceChallenge]);
+  }, [pressedKeys, currentChallenge.keys, advanceChallenge, isAdvancing]);
 
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;
