@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ChallengeSet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
@@ -38,7 +38,8 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const [skippedCount, setSkippedCount] = useState(0);
-  const [isAdvancing, setIsAdvancing] = useState(false);
+  
+  const isAdvancing = useRef(false);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
 
@@ -51,8 +52,8 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   };
 
   const moveToNext = useCallback(() => {
-    if (isAdvancing) return;
-    setIsAdvancing(true);
+    if (isAdvancing.current) return;
+    isAdvancing.current = true;
 
     const isLastChallenge = currentChallengeIndex === set.challenges.length - 1;
     
@@ -64,10 +65,10 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             setCurrentChallengeIndex(prev => prev + 1);
             setFeedback(null);
             setPressedKeys(new Set());
-            setIsAdvancing(false);
+            isAdvancing.current = false;
         }
     }, 300);
-  }, [currentChallengeIndex, set.challenges.length, set.id, startTime, router, skippedCount, isAdvancing]);
+  }, [currentChallengeIndex, set.challenges.length, set.id, startTime, router, skippedCount]);
 
   const advanceChallenge = useCallback(() => {
     setFeedback("correct");
@@ -95,17 +96,21 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   useEffect(() => {
     if (startTime === 0) return;
     const timer = setInterval(() => {
-      setElapsedTime((Date.now() - startTime) / 1000);
+      if (!isAdvancing.current) {
+        setElapsedTime((Date.now() - startTime) / 1000);
+      }
     }, 100);
 
     return () => clearInterval(timer);
   }, [startTime]);
   
   useEffect(() => {
-    if (isAdvancing) return;
+    if (isAdvancing.current) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
+      if (isAdvancing.current) return;
+
       const key = normalizeKey(e.key);
       
       setPressedKeys(prev => {
@@ -119,7 +124,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
         if (sortedPressed === sortedRequired) {
           advanceChallenge();
-        } else if (newKeys.size >= requiredKeys.size && !isAdvancing) {
+        } else if (newKeys.size >= requiredKeys.size) {
           handleIncorrect();
         }
         
@@ -130,8 +135,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     const handleKeyUp = (e: KeyboardEvent) => {
         e.preventDefault();
         const key = normalizeKey(e.key);
-        // Only remove the key if we are not advancing to the next challenge
-        if (!isAdvancing) {
+        if (!isAdvancing.current) {
             setPressedKeys(prev => {
                 const newKeys = new Set(prev);
                 newKeys.delete(key);
@@ -147,7 +151,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [currentChallenge.keys, advanceChallenge, isAdvancing]);
+  }, [currentChallenge.keys, advanceChallenge]);
 
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;
