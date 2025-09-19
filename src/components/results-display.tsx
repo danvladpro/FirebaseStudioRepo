@@ -26,19 +26,26 @@ export default function ResultsDisplay() {
   const setId = searchParams.get('setId');
   const timeStr = searchParams.get('time');
   const time = timeStr ? parseFloat(timeStr) : null;
+  const skippedStr = searchParams.get('skipped');
+  const skippedCount = skippedStr ? parseInt(skippedStr, 10) : 0;
   
   const challengeSet = CHALLENGE_SETS.find(set => set.id === setId);
   const personalBest = stats[setId!]?.bestTime;
 
+  const totalChallenges = challengeSet?.challenges.length ?? 0;
+  const correctAnswers = totalChallenges - skippedCount;
+  const score = totalChallenges > 0 ? (correctAnswers / totalChallenges) * 100 : 0;
+  const isPerfectScore = skippedCount === 0;
+
   useEffect(() => {
-    if (setId && time !== null) {
+    if (setId && time !== null && isPerfectScore) {
       const oldBest = stats[setId]?.bestTime;
       if (oldBest === null || oldBest === undefined || time < oldBest) {
         setIsNewRecord(true);
       }
       updateStats(setId, time);
     }
-  }, [setId, time, updateStats]);
+  }, [setId, time, updateStats, isPerfectScore]);
 
   const handleGetRecommendation = () => {
     startTransition(async () => {
@@ -69,7 +76,7 @@ export default function ResultsDisplay() {
     <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-md text-center">
         <CardHeader>
-          {isNewRecord && (
+          {isNewRecord && isPerfectScore && (
             <Badge className="w-fit mx-auto mb-4 bg-accent text-accent-foreground hover:bg-accent/90">
               <Trophy className="mr-2 h-4 w-4"/> New Record!
             </Badge>
@@ -78,12 +85,18 @@ export default function ResultsDisplay() {
           <CardDescription>{challengeSet.name}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div>
-            <p className="text-sm text-muted-foreground">Your Time</p>
-            <p className="text-5xl font-bold tracking-tighter text-primary">{time.toFixed(2)}s</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Your Time</p>
+              <p className="text-5xl font-bold tracking-tighter text-primary">{time.toFixed(2)}s</p>
+            </div>
+             <div>
+              <p className="text-sm text-muted-foreground">Score</p>
+              <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
+            </div>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Personal Best</p>
+            <p className="text-sm text-muted-foreground">Personal Best (Time)</p>
             <p className="text-2xl font-semibold tracking-tight text-foreground">
               {personalBest ? `${personalBest.toFixed(2)}s` : "N/A"}
             </p>

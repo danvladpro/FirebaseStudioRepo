@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { ChallengeSet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Timer, Keyboard } from "lucide-react";
+import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -35,6 +36,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const [startTime, setStartTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
+  const [skippedCount, setSkippedCount] = useState(0);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
 
@@ -46,19 +48,21 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     return key;
   };
 
-  const advanceChallenge = useCallback(() => {
-    setFeedback("correct");
-    setTimeout(() => {
-      if (currentChallengeIndex < set.challenges.length - 1) {
+  const moveToNext = useCallback(() => {
+    if (currentChallengeIndex < set.challenges.length - 1) {
         setCurrentChallengeIndex(prev => prev + 1);
         setFeedback(null);
       } else {
         const duration = (Date.now() - startTime) / 1000;
-        router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}`);
+        router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${skippedCount}`);
       }
       setPressedKeys(new Set());
-    }, 300);
-  }, [currentChallengeIndex, set.challenges.length, set.id, startTime, router]);
+  }, [currentChallengeIndex, set.challenges.length, set.id, startTime, router, skippedCount]);
+
+  const advanceChallenge = useCallback(() => {
+    setFeedback("correct");
+    setTimeout(moveToNext, 300);
+  }, [moveToNext]);
   
   const handleIncorrect = () => {
     setFeedback("incorrect");
@@ -66,6 +70,11 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       setFeedback(null);
       setPressedKeys(new Set());
     }, 500);
+  };
+  
+  const handleSkip = () => {
+    setSkippedCount(prev => prev + 1);
+    moveToNext();
   };
 
 
@@ -163,12 +172,17 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
           {feedback === null && <Keyboard className="h-10 w-10 text-muted-foreground" />}
         </div>
       </CardContent>
-      <CardFooter className="bg-muted/50 min-h-[80px] flex items-center justify-center gap-2 flex-wrap p-4">
-        {pressedKeys.size > 0 ? (
-          Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} />)
-        ) : (
-          <span className="text-muted-foreground">Press the required keys...</span>
-        )}
+      <CardFooter className="bg-muted/50 min-h-[80px] flex items-center justify-between gap-2 flex-wrap p-4">
+        <div className="flex items-center justify-center gap-2">
+            {pressedKeys.size > 0 ? (
+            Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} />)
+            ) : (
+            <span className="text-muted-foreground">Press the required keys...</span>
+            )}
+        </div>
+        <Button variant="outline" size="sm" onClick={handleSkip}>
+            Skip <ChevronsRight className="ml-2 h-4 w-4" />
+        </Button>
       </CardFooter>
     </Card>
   );
