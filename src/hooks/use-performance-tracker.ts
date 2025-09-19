@@ -1,8 +1,8 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
 import { UserStats } from '@/lib/types';
-import { CHALLENGE_SETS } from '@/lib/challenges';
 
 const aDay = 1000 * 60 * 60 * 24;
 
@@ -69,5 +69,12 @@ export const usePerformanceTracker = () => {
     return `${diffDays} days ago`;
   };
 
-  return { stats, isLoaded, updateStats, getOverallBestTime, getLastTrainedDate };
+  const getTrainedDates = () => {
+     return Object.values(stats)
+      .map(stat => stat.lastTrained)
+      .filter((date): date is string => !!date)
+      .map(date => new Date(date));
+  }
+
+  return { stats, isLoaded, updateStats, getOverallBestTime, getLastTrainedDate, getTrainedDates };
 };

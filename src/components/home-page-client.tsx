@@ -1,6 +1,7 @@
+
 "use client";
 
-import { Trophy, Timer, ArrowRight, CalendarDays, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare } from "lucide-react";
+import { Trophy, CalendarDays, ArrowRight, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import { ChallengeSet } from "@/lib/types";
 import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
+import { Calendar } from "@/components/ui/calendar";
 
 const iconMap: Record<ChallengeSet["iconName"], React.FC<React.SVGProps<SVGSVGElement>>> = {
     ClipboardCopy,
@@ -23,10 +25,10 @@ interface HomePageClientProps {
 }
 
 export function HomePageClient({ challengeSets }: HomePageClientProps) {
-  const { isLoaded, getOverallBestTime, getLastTrainedDate } = usePerformanceTracker();
+  const { isLoaded, getOverallBestTime, getTrainedDates } = usePerformanceTracker();
   
   const overallBestTime = getOverallBestTime();
-  const lastTrained = getLastTrainedDate();
+  const trainedDates = getTrainedDates();
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -57,16 +59,28 @@ export function HomePageClient({ challengeSets }: HomePageClientProps) {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Last Trained</CardTitle>
+              <CardTitle className="text-sm font-medium">Training History</CardTitle>
               <CalendarDays className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex justify-center">
               {isLoaded ? (
-                <div className="text-2xl font-bold">{lastTrained ?? "Never"}</div>
+                 <Calendar
+                    modifiers={{ trained: trainedDates }}
+                    modifiersStyles={{
+                      trained: { 
+                        color: 'hsl(var(--primary-foreground))',
+                        backgroundColor: 'hsl(var(--primary))'
+                      },
+                    }}
+                    className="p-0"
+                    
+                 />
               ) : (
-                <Skeleton className="h-8 w-32" />
+                <div className="flex flex-col items-center gap-2 pt-2">
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-40 w-full" />
+                </div>
               )}
-              <p className="text-xs text-muted-foreground">Consistency is key to mastery.</p>
             </CardContent>
           </Card>
         </section>
