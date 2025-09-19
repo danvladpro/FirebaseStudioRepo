@@ -33,13 +33,14 @@ export default function ResultsDisplay() {
 
   useEffect(() => {
     if (setId && time !== null && isPerfectScore) {
-      const oldBest = stats[setId]?.bestTime;
+      const oldBest = personalBest;
       if (oldBest === null || oldBest === undefined || time < oldBest) {
         setIsNewRecord(true);
       }
       updateStats(setId, time);
     }
-  }, [setId, time, updateStats, isPerfectScore, stats]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setId, time, updateStats, isPerfectScore]);
 
 
   if (!challengeSet || time === null) {
