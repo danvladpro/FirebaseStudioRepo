@@ -42,6 +42,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   
   const isAdvancing = useRef(false);
   const keydownProcessed = useRef(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
 
@@ -52,10 +53,20 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     if (key === "Meta" || key === "MetaLeft" || key === "MetaRight") return "Meta";
     return key;
   };
+  
+  const handleSkip = useCallback(() => {
+    setSkippedCount(prev => prev + 1);
+    moveToNext();
+  }, []);
 
   const moveToNext = useCallback(() => {
     if (isAdvancing.current) return;
     isAdvancing.current = true;
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
 
     const isLastChallenge = currentChallengeIndex === set.challenges.length - 1;
     
@@ -87,11 +98,6 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     }, 500);
   };
   
-  const handleSkip = () => {
-    setSkippedCount(prev => prev + 1);
-    moveToNext();
-  };
-
   useEffect(() => {
     if (currentChallengeIndex === 0 && startTime === 0) {
       setStartTime(Date.now());
@@ -107,6 +113,22 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     return () => clearInterval(timer);
   }, [startTime]);
   
+    useEffect(() => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+            handleSkip();
+        }, 5000);
+
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, [currentChallengeIndex, handleSkip]);
+
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
