@@ -43,7 +43,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
             <CardContent>
               {isLoaded ? (
                 <div className="text-2xl font-bold">
-                  {examBestTime !== null ? `${examBestTime.toFixed(2)}s` : "N/A"}
+                  {examBestTime !== null ? `${examBestTime.toFixed(2)}s` : "Not taken yet"}
                 </div>
               ) : (
                 <Skeleton className="h-8 w-24" />
