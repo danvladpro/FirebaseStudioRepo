@@ -10,8 +10,9 @@ import { ChallengeSet } from '@/lib/types';
 import { Logo } from '@/components/logo';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ElementType } from 'react';
 
-const iconMap: Record<ChallengeSet["iconName"], React.ElementType> = {
+const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
     ArrowRightLeft,
     MousePointerSquareDashed,
