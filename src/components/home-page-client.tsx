@@ -32,8 +32,8 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
           </p>
         </header>
 
-        <section className="grid md:grid-cols-2 gap-6 mb-12">
-          <Card>
+        <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <Card className="lg:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Fastest Set Completion</CardTitle>
               <Trophy className="w-4 h-4 text-muted-foreground" />
@@ -49,7 +49,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
               <p className="text-xs text-muted-foreground">Your personal best across all sets.</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="lg:col-span-2">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Training History</CardTitle>
               <CalendarDays className="w-4 h-4 text-muted-foreground" />
@@ -78,34 +78,39 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
           </Card>
         </section>
 
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Final Exam</h2>
-           <Card key={examSet.id} className="border-primary bg-primary/5">
-                <CardHeader className="flex-row gap-4 items-center">
-                    <BookMarked className="w-10 h-10 text-primary" />
-                    <div>
-                        <CardTitle>{examSet.name}</CardTitle>
-                        <CardDescription>{examSet.description}</CardDescription>
-                    </div>
-                </CardHeader>
-                <CardFooter>
-                    <Button asChild className="w-full">
-                        <Link href={`/challenge/${examSet.id}`}>
-                        Start Exam <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                    </Button>
-                </CardFooter>
-            </Card>
-        </section>
-
-        <section className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Practice Challenges</h2>
-            <p className="text-muted-foreground mb-6">Ready to warm up? Select from individual challenge sets to practice specific skills.</p>
-            <Button asChild size="lg">
-                <Link href="/challenges">
-                    <Library className="mr-2" /> View All Challenges
-                </Link>
-            </Button>
+        <section className="grid md:grid-cols-2 gap-8">
+            <div className="flex flex-col">
+                 <h2 className="text-2xl font-bold mb-4">Final Exam</h2>
+                 <Card key={examSet.id} className="border-primary bg-primary/5 flex-grow">
+                    <CardHeader className="flex-row gap-4 items-center">
+                        <BookMarked className="w-10 h-10 text-primary" />
+                        <div>
+                            <CardTitle>{examSet.name}</CardTitle>
+                            <CardDescription>{examSet.description}</CardDescription>
+                        </div>
+                    </CardHeader>
+                    <CardFooter className="mt-auto">
+                        <Button asChild className="w-full">
+                            <Link href={`/challenge/${examSet.id}`}>
+                            Start Exam <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
+            <div className="flex flex-col">
+                <h2 className="text-2xl font-bold mb-4">Practice Challenges</h2>
+                 <Card className="flex-grow flex flex-col justify-center items-center text-center p-6">
+                     <CardContent className="p-0">
+                        <p className="text-muted-foreground mb-6">Ready to warm up? Select from individual challenge sets to practice specific skills.</p>
+                        <Button asChild size="lg">
+                            <Link href="/challenges">
+                                <Library className="mr-2" /> View All Challenges
+                            </Link>
+                        </Button>
+                     </CardContent>
+                 </Card>
+            </div>
         </section>
       </main>
     </div>
