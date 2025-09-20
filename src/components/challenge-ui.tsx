@@ -93,12 +93,14 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   };
 
   useEffect(() => {
-    if (startTime === 0) {
+    if (currentChallengeIndex === 0 && startTime === 0) {
       setStartTime(Date.now());
     }
-  }, [startTime]);
+  }, [currentChallengeIndex, startTime]);
 
   useEffect(() => {
+    if(startTime === 0) return;
+
     const timer = setInterval(() => {
         setElapsedTime((Date.now() - startTime) / 1000);
     }, 100);
@@ -130,16 +132,13 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     
     const handleKeyUp = (e: KeyboardEvent) => {
         e.preventDefault();
-        if (isAdvancing.current) return;
         
-        const key = normalizeKey(e.key);
-        const newKeys = new Set(pressedKeys);
-        
-        // On keyup, if we haven't processed a "correct" combo, we remove the key.
-        // This allows for pressing keys in any order, but they must all be held down.
+        // This is the crucial part. If the user releases any key
+        // and a correct combination hasn't been processed yet,
+        // we reset the pressed keys. This forces the user to press
+        // all keys simultaneously.
         if (!keydownProcessed.current) {
-            newKeys.delete(key);
-            setPressedKeys(newKeys);
+            setPressedKeys(new Set());
         }
     };
 

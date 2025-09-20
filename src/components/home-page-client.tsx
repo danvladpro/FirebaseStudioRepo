@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, CalendarDays, ArrowRight, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, BookMarked } from "lucide-react";
+import { Trophy, CalendarDays, ArrowRight, BookMarked, Library } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -12,21 +12,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
 import { Calendar } from "@/components/ui/calendar";
 
-const iconMap: Record<ChallengeSet["iconName"], React.FC<React.SVGProps<SVGSVGElement>>> = {
-    ClipboardCopy,
-    ArrowRightLeft,
-    MousePointerSquareDashed,
-    Pilcrow,
-    FunctionSquare,
-    BookMarked,
-};
-
 interface HomePageClientProps {
-  challengeSets: ChallengeSet[];
   examSet: ChallengeSet;
 }
 
-export function HomePageClient({ challengeSets, examSet }: HomePageClientProps) {
+export function HomePageClient({ examSet }: HomePageClientProps) {
   const { isLoaded, getOverallBestTime, getTrainedDates } = usePerformanceTracker();
   
   const overallBestTime = getOverallBestTime();
@@ -108,33 +98,14 @@ export function HomePageClient({ challengeSets, examSet }: HomePageClientProps) 
             </Card>
         </section>
 
-        <section>
-          <h2 className="text-2xl font-bold mb-6">Choose Your Challenge</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {challengeSets.map((set) => {
-              const Icon = iconMap[set.iconName];
-              return (
-              <Card key={set.id} className="flex flex-col">
-                <CardHeader className="flex-row gap-4 items-center">
-                  <Icon className="w-10 h-10 text-primary" />
-                  <div>
-                    <CardTitle>{set.name}</CardTitle>
-                    <CardDescription>{set.description}</CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <p className="text-sm text-muted-foreground font-semibold">{set.category}</p>
-                </CardContent>
-                <CardFooter>
-                  <Button asChild className="w-full">
-                    <Link href={`/challenge/${set.id}`}>
-                      Start Challenge <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            )})}
-          </div>
+        <section className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Practice Challenges</h2>
+            <p className="text-muted-foreground mb-6">Ready to warm up? Select from individual challenge sets to practice specific skills.</p>
+            <Button asChild size="lg">
+                <Link href="/challenges">
+                    <Library className="mr-2" /> View All Challenges
+                </Link>
+            </Button>
         </section>
       </main>
     </div>
