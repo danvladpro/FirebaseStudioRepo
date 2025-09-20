@@ -3,7 +3,6 @@
 
 import { Trophy, CheckSquare, ArrowRight, BookMarked, Library, Layers } from "lucide-react";
 import Link from "next/link";
-import { Logo } from "@/components/logo";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChallengeSet } from "@/lib/types";
@@ -11,6 +10,7 @@ import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
 import { CHALLENGE_SETS } from "@/lib/challenges";
+import { AppHeader } from "@/components/app-header";
 
 
 interface HomePageClientProps {
@@ -26,7 +26,8 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      <main className="flex-1 container py-8 md:py-12">
+      <AppHeader />
+      <main className="flex-1 container py-8 md:py-12 mt-16">
         <header className="mb-8 md:mb-12 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>
