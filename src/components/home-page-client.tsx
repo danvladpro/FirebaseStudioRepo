@@ -4,7 +4,7 @@
 import { Trophy, CheckSquare, ArrowRight, BookMarked, Library, Layers } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChallengeSet } from "@/lib/types";
 import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
