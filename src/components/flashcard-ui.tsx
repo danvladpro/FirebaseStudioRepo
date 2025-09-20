@@ -15,6 +15,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { Button } from "./ui/button";
 
 interface FlashcardUIProps {
   challenges: Challenge[];
@@ -43,7 +44,7 @@ interface FlashcardProps {
 function Flashcard({ challenge }: FlashcardProps) {
   const [isFlipped, setIsFlipped] = React.useState(false);
 
-  const handleCardClick = () => {
+  const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
   
@@ -54,8 +55,7 @@ function Flashcard({ challenge }: FlashcardProps) {
 
   return (
     <div
-      className="flashcard-container w-full h-full cursor-pointer group"
-      onClick={handleCardClick}
+      className="flashcard-container w-full h-full group"
     >
       <div
         className={cn("flashcard relative w-full h-full transition-transform duration-500", isFlipped ? 'is-flipped' : '')}
@@ -73,12 +73,12 @@ function Flashcard({ challenge }: FlashcardProps) {
               data-ai-hint={challenge.imageHint}
             />
           </div>
-          <p className="text-muted-foreground text-sm flex items-center gap-2">
-             Click card to reveal shortcut
-          </p>
+          <Button onClick={handleFlip}>
+             Reveal Shortcut
+          </Button>
         </Card>
         {/* Back of the card */}
-        <Card className="flashcard-back absolute w-full h-full flex flex-col items-center justify-center text-center p-6 bg-secondary">
+        <Card className="flashcard-back absolute w-full h-full flex flex-col items-center justify-center text-center p-6 bg-secondary cursor-pointer" onClick={handleFlip}>
           <p className="text-xl md:text-2xl font-semibold text-secondary-foreground mb-6">Shortcut:</p>
           <div className="flex items-center justify-center gap-2">
             {challenge.keys.map((key, index) => <KeyDisplay key={`${key}-${index}`} value={key} />)}
