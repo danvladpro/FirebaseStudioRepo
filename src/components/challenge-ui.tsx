@@ -119,7 +119,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
         }
         timeoutRef.current = setTimeout(() => {
             handleSkip();
-        }, 5000);
+        }, 8000);
 
         return () => {
             if (timeoutRef.current) {
