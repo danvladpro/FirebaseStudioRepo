@@ -11,7 +11,7 @@ import { Logo } from '@/components/logo';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const iconMap: Record<ChallengeSet["iconName"], React.FC<React.SVGProps<SVGSVGElement>>> = {
+const iconMap: Record<ChallengeSet["iconName"], React.ElementType> = {
     ClipboardCopy,
     ArrowRightLeft,
     MousePointerSquareDashed,
