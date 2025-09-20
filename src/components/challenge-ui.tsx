@@ -40,9 +40,12 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const [skippedCount, setSkippedCount] = useState(0);
   
+  const [countdown, setCountdown] = useState(8);
+
   const isAdvancing = useRef(false);
   const keydownProcessed = useRef(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
 
@@ -54,11 +57,6 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     return key;
   };
   
-  const handleSkip = useCallback(() => {
-    setSkippedCount(prev => prev + 1);
-    moveToNext();
-  }, []);
-
   const moveToNext = useCallback(() => {
     if (isAdvancing.current) return;
     isAdvancing.current = true;
@@ -66,6 +64,11 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
+    }
+    
+    if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
     }
 
     const isLastChallenge = currentChallengeIndex === set.challenges.length - 1;
@@ -78,11 +81,17 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             setCurrentChallengeIndex(prev => prev + 1);
             setFeedback(null);
             setPressedKeys(new Set());
+            setCountdown(8);
             keydownProcessed.current = false;
             isAdvancing.current = false;
         }
     }, 300);
   }, [currentChallengeIndex, set.challenges.length, set.id, startTime, router, skippedCount]);
+
+  const handleSkip = useCallback(() => {
+    setSkippedCount(prev => prev + 1);
+    moveToNext();
+  }, [moveToNext]);
 
   const advanceChallenge = useCallback(() => {
     setFeedback("correct");
@@ -114,17 +123,22 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   }, [startTime]);
   
     useEffect(() => {
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+
+        setCountdown(8);
+
         timeoutRef.current = setTimeout(() => {
             handleSkip();
         }, 8000);
+        
+        intervalRef.current = setInterval(() => {
+            setCountdown(prev => Math.max(0, prev - 1));
+        }, 1000);
 
         return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            if (intervalRef.current) clearInterval(intervalRef.current);
         };
     }, [currentChallengeIndex, handleSkip]);
 
@@ -157,10 +171,6 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     const handleKeyUp = (e: KeyboardEvent) => {
         e.preventDefault();
         
-        // This is the crucial part. If the user releases any key
-        // and a correct combination hasn't been processed yet,
-        // we reset the pressed keys. This forces the user to press
-        // all keys simultaneously.
         if (!keydownProcessed.current) {
             setPressedKeys(new Set());
         }
@@ -199,10 +209,18 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     )}>
       <CardHeader>
         <div className="flex justify-between items-center mb-2">
-          <CardTitle className="text-2xl">{set.name}</CardTitle>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Timer className="h-4 w-4" />
-            <span>{elapsedTime.toFixed(1)}s</span>
+            <div className="flex items-center gap-2 text-sm">
+                <CardTitle className="text-2xl">{set.name}</CardTitle>
+            </div>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className={cn("flex items-center gap-2 transition-colors", countdown <= 3 && "text-destructive")}>
+              <Timer className="h-4 w-4" />
+              <span className="font-mono text-lg font-semibold">{countdown}</span>
+            </div>
+            <div className="flex items-center gap-2">
+                <Timer className="h-4 w-4" />
+                <span>{elapsedTime.toFixed(1)}s</span>
+            </div>
           </div>
         </div>
         <Progress value={progress} className="w-full" />
@@ -241,3 +259,5 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     </Card>
   );
 }
+
+    
