@@ -63,7 +63,7 @@ function Flashcard({ challenge }: FlashcardProps) {
         style={{ transformStyle: "preserve-3d" }}
       >
         {/* Front of the card */}
-        <div className="absolute w-full h-full backface-hidden flex flex-col items-center justify-center text-center p-6">
+        <div className="absolute w-full h-full backface-hidden flex flex-col items-center justify-center text-center p-6 bg-card">
           <p className="text-xl md:text-2xl font-semibold text-foreground mb-6">{challenge.description}</p>
           <div className="flex justify-center items-center h-24 bg-muted rounded-lg mb-6 overflow-hidden px-4">
             <Image
@@ -76,7 +76,7 @@ function Flashcard({ challenge }: FlashcardProps) {
             />
           </div>
           <p className="text-muted-foreground text-sm flex items-center gap-2">
-            <RefreshCw className="w-4 h-4 animate-spin" /> Click card to reveal shortcut
+             Click card to reveal shortcut
           </p>
         </div>
         {/* Back of the card */}
