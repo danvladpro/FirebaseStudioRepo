@@ -6,7 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, RefreshCw, Trophy, AlertTriangle } from 'lucide-react';
-import { CHALLENGE_SETS } from '@/lib/challenges';
+import { ALL_CHALLENGE_SETS } from '@/lib/challenges';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from './ui/separator';
@@ -26,7 +26,7 @@ export default function ResultsDisplay() {
   const skippedCount = skippedStr ? parseInt(skippedStr, 10) : 0;
   const skippedIndicesStr = searchParams.get('skippedIndices');
 
-  const challengeSet = CHALLENGE_SETS.find(set => set.id === setId);
+  const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === setId);
   const personalBest = stats[setId!]?.bestTime;
 
   const totalChallenges = challengeSet?.challenges.length ?? 0;
@@ -56,7 +56,7 @@ export default function ResultsDisplay() {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center gap-4">
         <p>Invalid results data.</p>
-        <Button onClick={() => router.push('/')}>Go Home</Button>
+        <Button onClick={() => router.push('/dashboard')}>Go Home</Button>
       </div>
     );
   }
@@ -108,8 +108,8 @@ export default function ResultsDisplay() {
           )}
         </CardContent>
         <CardFooter className="flex gap-4">
-          <Button variant="outline" className="w-full" onClick={() => router.push('/')}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Go Home
+          <Button variant="outline" className="w-full" onClick={() => router.push('/dashboard')}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Go to Dashboard
           </Button>
           <Button className="w-full" onClick={() => router.push(`/challenge/${setId}`)}>
             <RefreshCw className="mr-2 h-4 w-4" /> Play Again

@@ -4,14 +4,13 @@
 import { Trophy, CheckSquare, ArrowRight, BookMarked, Library, Layers } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChallengeSet } from "@/lib/types";
 import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
 import { CHALLENGE_SETS } from "@/lib/challenges";
-import { ModeToggle } from "./mode-toggle";
 
 
 interface HomePageClientProps {
@@ -30,12 +29,11 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
       <main className="flex-1 container py-8 md:py-12">
         <header className="mb-8 md:mb-12 flex items-center justify-between">
           <div>
-            <Logo />
-            <p className="text-muted-foreground mt-2">
-              Sharpen your skills and become an Excel master.
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="text-muted-foreground mt-1">
+              Welcome back! Here's your progress at a glance.
             </p>
           </div>
-          <ModeToggle />
         </header>
 
         <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">

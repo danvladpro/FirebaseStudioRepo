@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
 import { ChallengeSet } from '@/lib/types';
-import { Logo } from '@/components/logo';
 import { ElementType } from 'react';
+import { AppHeader } from '@/components/app-header';
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -23,24 +23,24 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
 export default function FlashcardsPage() {
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
-            <main className="flex-1 container py-8 md:py-12">
+            <AppHeader />
+            <main className="flex-1 container py-8 md:py-12 mt-16">
                 <header className="mb-8 md:mb-12 flex items-center justify-between">
                     <div>
-                        <Logo />
-                        <p className="text-muted-foreground mt-2">
+                        <h1 className="text-3xl font-bold">Flashcard Decks</h1>
+                        <p className="text-muted-foreground mt-1">
                             Choose a set to study with flashcards.
                         </p>
                     </div>
                     <Button asChild variant="outline">
-                        <Link href="/">
+                        <Link href="/dashboard">
                             <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Home
+                            Back to Dashboard
                         </Link>
                     </Button>
                 </header>
 
                 <section>
-                    <h2 className="text-2xl font-bold mb-6">Choose a Deck</h2>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {CHALLENGE_SETS.map((set) => {
                             const Icon = iconMap[set.iconName];
