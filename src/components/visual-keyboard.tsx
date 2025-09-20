@@ -31,15 +31,15 @@ const keyDisplayMap: Record<string, string> = {
 };
 
 const keyWidths: Record<string, string> = {
-    'backspace': '2.5rem',
-    'tab': '1.75rem',
-    'capslock': '2rem',
-    'enter': '2.75rem',
-    'shift': '3rem',
-    'control': '1.75rem',
-    'meta': '1.75rem',
-    'alt': '1.75rem',
-    ' ': '8rem'
+    'backspace': '4.5rem',
+    'tab': '3.5rem',
+    'capslock': '4rem',
+    'enter': '5rem',
+    'shift': '5.5rem',
+    'control': '2.5rem',
+    'meta': '2.5rem',
+    'alt': '2.5rem',
+    ' ': '12rem'
 };
 
 const normalizeKey = (key: string) => {
@@ -55,10 +55,10 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
     const normalizedHighlights = new Set(highlightedKeys.map(normalizeKey));
 
     return (
-        <div className="p-4 bg-muted/50 rounded-lg border">
-            <div className="flex flex-col gap-1.5">
+        <div className="p-4 bg-muted/50 rounded-lg border overflow-x-auto">
+            <div className="flex flex-col gap-2 min-w-max">
                 {keyboardLayout.map((row, rowIndex) => (
-                    <div key={rowIndex} className="flex justify-center gap-1.5">
+                    <div key={rowIndex} className="flex justify-center gap-2">
                         {row.map((key, keyIndex) => {
                             const isHighlighted = normalizedHighlights.has(key);
                             const width = keyWidths[key];
@@ -67,18 +67,18 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
                                 <div
                                     key={`${rowIndex}-${keyIndex}-${key}`}
                                     className={cn(
-                                        "h-10 rounded-md flex items-center justify-center text-xs font-sans border-b-2",
+                                        "h-12 rounded-md flex items-center justify-center text-sm font-sans border-b-4",
                                         "transition-colors duration-200",
                                         isHighlighted
                                             ? "bg-primary text-primary-foreground border-primary/80"
                                             : "bg-background/50 text-foreground border-border",
                                     )}
                                     style={{ 
-                                        width: width || '1.5rem', 
+                                        width: width || '2.25rem',
                                         flexGrow: key === ' ' ? 1 : 0 
                                     }}
                                 >
-                                    <span className="truncate px-1">{keyDisplayMap[key] || key.toUpperCase()}</span>
+                                    <span className="truncate px-2">{keyDisplayMap[key] || key.toUpperCase()}</span>
                                 </div>
                             );
                         })}
