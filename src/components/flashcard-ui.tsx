@@ -54,16 +54,14 @@ function Flashcard({ challenge }: FlashcardProps) {
 
   return (
     <div
-      className="flashcard-container w-full h-full cursor-pointer"
+      className="flashcard-container w-full h-full cursor-pointer group"
       onClick={handleCardClick}
-      style={{ perspective: "1000px" }}
     >
       <Card
-        className={cn("flashcard w-full h-full transition-transform duration-500", isFlipped ? 'is-flipped' : '')}
-        style={{ transformStyle: "preserve-3d" }}
+        className={cn("flashcard relative w-full h-full transition-transform duration-500", isFlipped ? 'is-flipped' : '')}
       >
         {/* Front of the card */}
-        <div className="absolute w-full h-full backface-hidden flex flex-col items-center justify-center text-center p-6 bg-card">
+        <div className="flashcard-front absolute w-full h-full flex flex-col items-center justify-center text-center p-6 bg-card">
           <p className="text-xl md:text-2xl font-semibold text-foreground mb-6">{challenge.description}</p>
           <div className="flex justify-center items-center h-24 bg-muted rounded-lg mb-6 overflow-hidden px-4">
             <Image
@@ -80,10 +78,10 @@ function Flashcard({ challenge }: FlashcardProps) {
           </p>
         </div>
         {/* Back of the card */}
-        <div className="absolute w-full h-full backface-hidden [transform:rotateY(180deg)] flex flex-col items-center justify-center text-center p-6 bg-secondary">
+        <div className="flashcard-back absolute w-full h-full flex flex-col items-center justify-center text-center p-6 bg-secondary">
           <p className="text-xl md:text-2xl font-semibold text-secondary-foreground mb-6">Shortcut:</p>
           <div className="flex items-center justify-center gap-2">
-            {challenge.keys.map(key => <KeyDisplay key={key} value={key} />)}
+            {challenge.keys.map((key, index) => <KeyDisplay key={`${key}-${index}`} value={key} />)}
           </div>
         </div>
       </Card>
@@ -137,12 +135,21 @@ export function FlashcardUI({ challenges, title }: FlashcardUIProps) {
             Card {current} of {count}
         </div>
         <style jsx>{`
+            .flashcard-container {
+                perspective: 1000px;
+            }
+            .flashcard {
+                transform-style: preserve-3d;
+            }
             .flashcard.is-flipped {
                 transform: rotateY(180deg);
             }
-            .backface-hidden {
+            .flashcard-front, .flashcard-back {
                 -webkit-backface-visibility: hidden;
                 backface-visibility: hidden;
+            }
+            .flashcard-back {
+                transform: rotateY(180deg);
             }
         `}</style>
     </div>
