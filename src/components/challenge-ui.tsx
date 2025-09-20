@@ -214,11 +214,11 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className={cn("flex items-center gap-2 transition-colors", countdown <= 3 && "text-destructive")}>
-              <Timer className="h-4 w-4" />
+              Remaining time:
               <span className="font-mono text-lg font-semibold">{countdown}</span>
             </div>
             <div className="flex items-center gap-2">
-                <Timer className="h-4 w-4" />
+                Total time: <Timer className="h-4 w-4" />
                 <span>{elapsedTime.toFixed(1)}s</span>
             </div>
           </div>
@@ -259,5 +259,3 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     </Card>
   );
 }
-
-    
