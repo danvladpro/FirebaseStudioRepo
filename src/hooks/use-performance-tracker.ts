@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { UserStats } from '@/lib/types';
+import { CHALLENGE_SETS } from '@/lib/challenges';
 
 const aDay = 1000 * 60 * 60 * 24;
 
@@ -58,24 +59,6 @@ export const usePerformanceTracker = () => {
     return allTimes.length > 0 ? Math.min(...allTimes) : null;
   };
   
-  const getLastTrainedDate = () => {
-    const allDates = Object.values(stats)
-      .map(stat => stat.lastTrained)
-      .filter((date): date is string => date !== null)
-      .map(date => new Date(date));
-      
-    if (allDates.length === 0) return null;
-
-    const mostRecentDate = new Date(Math.max(...allDates.map(d => d.getTime())));
-    const today = new Date();
-    
-    const diffDays = Math.floor((today.getTime() - mostRecentDate.getTime()) / aDay);
-
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    return `${diffDays} days ago`;
-  };
-
   const getTrainedDates = () => {
      return Object.values(stats)
       .map(stat => stat.lastTrained)
@@ -83,5 +66,10 @@ export const usePerformanceTracker = () => {
       .map(date => new Date(date));
   }
 
-  return { stats, isLoaded, updateStats, getOverallBestTime, getLastTrainedDate, getTrainedDates };
+  const getCompletedSetsCount = () => {
+    const practiceSetIds = new Set(CHALLENGE_SETS.map(s => s.id));
+    return Object.keys(stats).filter(setId => practiceSetIds.has(setId) && stats[setId].lastTrained).length;
+  }
+
+  return { stats, isLoaded, updateStats, getOverallBestTime, getTrainedDates, getCompletedSetsCount };
 };
