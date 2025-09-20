@@ -19,6 +19,7 @@ export interface ChallengeSet {
 export interface PerformanceRecord {
   bestTime: number | null;
   lastTrained: string | null;
+  lastScore?: number | null;
 }
 
 export interface UserStats {

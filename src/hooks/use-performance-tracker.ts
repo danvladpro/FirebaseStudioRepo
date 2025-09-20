@@ -22,15 +22,22 @@ export const usePerformanceTracker = () => {
     setIsLoaded(true);
   }, []);
 
-  const updateStats = useCallback((setId: string, time: number) => {
+  const updateStats = useCallback((setId: string, time: number, score: number) => {
     setStats(prevStats => {
       const newStats = { ...prevStats };
       const currentSetStats = newStats[setId];
-      const newBestTime = currentSetStats?.bestTime ? Math.min(currentSetStats.bestTime, time) : time;
+      
+      const isPerfectScore = score === 100;
+      let newBestTime = currentSetStats?.bestTime;
+
+      if(isPerfectScore) {
+          newBestTime = currentSetStats?.bestTime ? Math.min(currentSetStats.bestTime, time) : time;
+      }
 
       newStats[setId] = {
         bestTime: newBestTime,
         lastTrained: new Date().toISOString(),
+        lastScore: score,
       };
 
       try {

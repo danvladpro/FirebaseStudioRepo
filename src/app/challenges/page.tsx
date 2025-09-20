@@ -48,6 +48,7 @@ export default function ChallengesPage() {
                             const setStats = stats[set.id];
                             const hasBeenCompleted = !!setStats?.lastTrained;
                             const bestTime = setStats?.bestTime;
+                            const lastScore = setStats?.lastScore;
 
                             return (
                                 <Card key={set.id}>
@@ -64,9 +65,13 @@ export default function ChallengesPage() {
                                             </div>
                                             <div>
                                                 {isLoaded ? (
-                                                    hasBeenCompleted ? <CheckCircle className="h-7 w-7 text-green-500 mx-auto" /> : <p className="font-bold text-lg">-</p>
+                                                    lastScore !== undefined && lastScore !== null ? (
+                                                        <p className="font-bold text-lg">{lastScore.toFixed(0)}%</p>
+                                                    ) : (
+                                                        <p className="font-bold text-lg">-</p>
+                                                    )
                                                 ) : <Skeleton className="h-7 w-12 mx-auto" />}
-                                                <p className="text-muted-foreground">Completed</p>
+                                                <p className="text-muted-foreground">Last Score</p>
                                             </div>
                                             <div>
                                                 {isLoaded ? (

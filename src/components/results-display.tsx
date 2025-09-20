@@ -32,15 +32,17 @@ export default function ResultsDisplay() {
   const isPerfectScore = skippedCount === 0;
 
   useEffect(() => {
-    if (setId && time !== null && isPerfectScore) {
-      const oldBest = personalBest;
-      if (oldBest === null || oldBest === undefined || time < oldBest) {
-        setIsNewRecord(true);
+    if (setId && time !== null) {
+      if (isPerfectScore) {
+        const oldBest = personalBest;
+        if (oldBest === null || oldBest === undefined || time < oldBest) {
+          setIsNewRecord(true);
+        }
       }
-      updateStats(setId, time);
+      updateStats(setId, time, score);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setId, time, updateStats, isPerfectScore]);
+  }, [setId, time, score, isPerfectScore, personalBest]);
 
 
   if (!challengeSet || time === null) {
