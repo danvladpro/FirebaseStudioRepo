@@ -57,11 +57,11 @@ function Flashcard({ challenge }: FlashcardProps) {
       className="flashcard-container w-full h-full cursor-pointer group"
       onClick={handleCardClick}
     >
-      <Card
+      <div
         className={cn("flashcard relative w-full h-full transition-transform duration-500", isFlipped ? 'is-flipped' : '')}
       >
         {/* Front of the card */}
-        <div className="flashcard-front absolute w-full h-full flex flex-col items-center justify-center text-center p-6 bg-card">
+        <Card className="flashcard-front absolute w-full h-full flex flex-col items-center justify-center text-center p-6 bg-card">
           <p className="text-xl md:text-2xl font-semibold text-foreground mb-6">{challenge.description}</p>
           <div className="flex justify-center items-center h-24 bg-muted rounded-lg mb-6 overflow-hidden px-4">
             <Image
@@ -76,15 +76,15 @@ function Flashcard({ challenge }: FlashcardProps) {
           <p className="text-muted-foreground text-sm flex items-center gap-2">
              Click card to reveal shortcut
           </p>
-        </div>
+        </Card>
         {/* Back of the card */}
-        <div className="flashcard-back absolute w-full h-full flex flex-col items-center justify-center text-center p-6 bg-secondary">
+        <Card className="flashcard-back absolute w-full h-full flex flex-col items-center justify-center text-center p-6 bg-secondary">
           <p className="text-xl md:text-2xl font-semibold text-secondary-foreground mb-6">Shortcut:</p>
           <div className="flex items-center justify-center gap-2">
             {challenge.keys.map((key, index) => <KeyDisplay key={`${key}-${index}`} value={key} />)}
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -145,6 +145,9 @@ export function FlashcardUI({ challenges, title }: FlashcardUIProps) {
                 transform: rotateY(180deg);
             }
             .flashcard-front, .flashcard-back {
+                width: 100%;
+                height: 100%;
+                position: absolute;
                 -webkit-backface-visibility: hidden;
                 backface-visibility: hidden;
             }
