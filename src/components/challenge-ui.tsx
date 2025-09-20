@@ -49,6 +49,13 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
   const currentChallenge = set.challenges[currentChallengeIndex];
 
+  const finishChallenge = useCallback((finalSkipped: number[]) => {
+      const duration = (Date.now() - startTime) / 1000;
+      const skippedParam = finalSkipped.join(',');
+      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}`);
+  },[router, set.id, startTime]);
+
+
   const normalizeKey = (key: string) => {
     if (key === "Control" || key === "ControlLeft" || key === "ControlRight") return "Control";
     if (key === "Shift" || key === "ShiftLeft" || key === "ShiftRight") return "Shift";
@@ -57,7 +64,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     return key;
   };
   
-  const moveToNext = useCallback(() => {
+  const moveToNext = useCallback((updatedSkippedIndices?: number[]) => {
     if (isAdvancing.current) return;
     isAdvancing.current = true;
 
@@ -75,9 +82,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     
     setTimeout(() => {
         if (isLastChallenge) {
-            const duration = (Date.now() - startTime) / 1000;
-            const skippedParam = skippedIndices.join(',');
-            router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${skippedIndices.length}&skippedIndices=${skippedParam}`);
+           finishChallenge(updatedSkippedIndices || skippedIndices);
         } else {
             setCurrentChallengeIndex(prev => prev + 1);
             setFeedback(null);
@@ -87,12 +92,13 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             isAdvancing.current = false;
         }
     }, 300);
-  }, [currentChallengeIndex, set.challenges.length, set.id, startTime, router, skippedIndices]);
+  }, [currentChallengeIndex, set.challenges.length, finishChallenge, skippedIndices]);
 
   const handleSkip = useCallback(() => {
-    setSkippedIndices(prev => [...prev, currentChallengeIndex]);
-    moveToNext();
-  }, [moveToNext, currentChallengeIndex]);
+    const newSkipped = [...skippedIndices, currentChallengeIndex];
+    setSkippedIndices(newSkipped);
+    moveToNext(newSkipped);
+  }, [moveToNext, currentChallengeIndex, skippedIndices]);
 
   const advanceChallenge = useCallback(() => {
     setFeedback("correct");
