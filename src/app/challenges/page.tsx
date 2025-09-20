@@ -1,9 +1,9 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, BookMarked, ArrowRight, CheckCircle, Timer } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, BookMarked, ArrowRight, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
 import { ChallengeSet } from '@/lib/types';
 import { Logo } from '@/components/logo';
@@ -42,7 +42,7 @@ export default function ChallengesPage() {
 
                 <section>
                     <h2 className="text-2xl font-bold mb-6">Choose Your Challenge</h2>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="flex flex-col gap-4">
                         {CHALLENGE_SETS.map((set) => {
                             const Icon = iconMap[set.iconName];
                             const setStats = stats[set.id];
@@ -50,42 +50,38 @@ export default function ChallengesPage() {
                             const bestTime = setStats?.bestTime;
 
                             return (
-                                <Card key={set.id} className="flex flex-col">
-                                    <CardHeader className="flex-row gap-4 items-start">
-                                        <Icon className="w-10 h-10 text-primary mt-1" />
-                                        <div className='flex-1'>
-                                            <CardTitle>{set.name}</CardTitle>
-                                            <CardDescription>{set.description}</CardDescription>
+                                <Card key={set.id}>
+                                    <CardContent className="p-4 grid md:grid-cols-[auto_1fr_auto] items-center gap-4">
+                                        <Icon className="w-10 h-10 text-primary" />
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-lg">{set.name}</h3>
+                                            <p className="text-sm text-muted-foreground">{set.description}</p>
                                         </div>
-                                    </CardHeader>
-                                    <CardContent className="flex-grow space-y-4">
-                                         <p className="text-sm text-muted-foreground font-semibold">{set.category}</p>
-                                         <div className="text-sm text-muted-foreground space-y-2">
-                                            <div className="flex items-center justify-between">
-                                                <span>Questions:</span>
-                                                <span className="font-bold text-foreground">{set.challenges.length}</span>
+                                        <div className="grid grid-cols-3 gap-x-4 text-sm text-center">
+                                            <div>
+                                                <p className="font-bold text-lg">{set.challenges.length}</p>
+                                                <p className="text-muted-foreground">Questions</p>
                                             </div>
-                                            <div className="flex items-center justify-between">
-                                                <span>Completed:</span>
+                                            <div>
                                                 {isLoaded ? (
-                                                    hasBeenCompleted ? <CheckCircle className="h-5 w-5 text-green-500" /> : <span className="font-bold text-foreground">No</span>
-                                                ) : <Skeleton className="h-5 w-8" />}
+                                                    hasBeenCompleted ? <CheckCircle className="h-7 w-7 text-green-500 mx-auto" /> : <p className="font-bold text-lg">-</p>
+                                                ) : <Skeleton className="h-7 w-12 mx-auto" />}
+                                                <p className="text-muted-foreground">Completed</p>
                                             </div>
-                                             <div className="flex items-center justify-between">
-                                                <span>Best Time:</span>
+                                            <div>
                                                 {isLoaded ? (
-                                                     <span className="font-bold text-foreground">{bestTime ? `${bestTime.toFixed(2)}s` : 'N/A'}</span>
-                                                ) : <Skeleton className="h-5 w-12" />}
+                                                    <p className="font-bold text-lg">{bestTime ? `${bestTime.toFixed(2)}s` : 'N/A'}</p>
+                                                ) : <Skeleton className="h-7 w-12 mx-auto" />}
+                                                <p className="text-muted-foreground">Best Time</p>
                                             </div>
                                         </div>
-                                    </CardContent>
-                                    <CardFooter>
-                                        <Button asChild className="w-full">
+                                        <Button asChild size="sm" className="md:col-start-4">
                                             <Link href={`/challenge/${set.id}`}>
-                                                {hasBeenCompleted ? 'Try Again' : 'Start Challenge'} <ArrowRight className="ml-2 h-4 w-4" />
+                                                {hasBeenCompleted ? 'Try Again' : 'Start'}
+                                                <ArrowRight className="ml-2 h-4 w-4" />
                                             </Link>
                                         </Button>
-                                    </CardFooter>
+                                    </CardContent>
                                 </Card>
                             )
                         })}
