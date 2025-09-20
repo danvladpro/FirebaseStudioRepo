@@ -130,6 +130,8 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
 
   useEffect(() => {
+    if (!currentChallenge) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
       if (isAdvancing.current || keydownProcessed.current) return;
@@ -171,10 +173,23 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, currentChallenge.keys, advanceChallenge]);
+  }, [pressedKeys, currentChallenge, advanceChallenge]);
 
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;
+  
+  if (!currentChallenge) {
+    return (
+        <Card className="w-full max-w-2xl">
+            <CardHeader>
+                <CardTitle>Loading...</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p>Preparing the next challenge...</p>
+            </CardContent>
+        </Card>
+    );
+  }
 
   return (
     <Card className={cn(
