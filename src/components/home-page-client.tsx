@@ -18,9 +18,9 @@ interface HomePageClientProps {
 }
 
 export function HomePageClient({ examSet }: HomePageClientProps) {
-  const { isLoaded, getOverallBestTime, getCompletedSetsCount } = usePerformanceTracker();
+  const { isLoaded, stats, getCompletedSetsCount } = usePerformanceTracker();
   
-  const overallBestTime = getOverallBestTime();
+  const examBestTime = stats['exam']?.bestTime ?? null;
   const completedSetsCount = getCompletedSetsCount();
   const totalPracticeSets = CHALLENGE_SETS.length;
 
@@ -37,18 +37,18 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
         <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           <Card className="lg:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Fastest Set Completion</CardTitle>
+              <CardTitle className="text-sm font-medium">Fastest Exam Completion</CardTitle>
               <Trophy className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               {isLoaded ? (
                 <div className="text-2xl font-bold">
-                  {overallBestTime !== null ? `${overallBestTime.toFixed(2)}s` : "N/A"}
+                  {examBestTime !== null ? `${examBestTime.toFixed(2)}s` : "N/A"}
                 </div>
               ) : (
                 <Skeleton className="h-8 w-24" />
               )}
-              <p className="text-xs text-muted-foreground">Your personal best across all sets.</p>
+              <p className="text-xs text-muted-foreground">Your personal best for the exam.</p>
             </CardContent>
           </Card>
           <Card className="lg:col-span-2">

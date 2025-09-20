@@ -50,14 +50,6 @@ export const usePerformanceTracker = () => {
       return newStats;
     });
   }, []);
-
-  const getOverallBestTime = () => {
-    const allTimes = Object.values(stats)
-      .map(stat => stat.bestTime)
-      .filter((time): time is number => time !== null);
-
-    return allTimes.length > 0 ? Math.min(...allTimes) : null;
-  };
   
   const getTrainedDates = () => {
      return Object.values(stats)
@@ -71,5 +63,5 @@ export const usePerformanceTracker = () => {
     return Object.keys(stats).filter(setId => practiceSetIds.has(setId) && stats[setId].lastTrained).length;
   }
 
-  return { stats, isLoaded, updateStats, getOverallBestTime, getTrainedDates, getCompletedSetsCount };
+  return { stats, isLoaded, updateStats, getTrainedDates, getCompletedSetsCount };
 };
