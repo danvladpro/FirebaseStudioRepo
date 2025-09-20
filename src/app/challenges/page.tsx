@@ -75,7 +75,7 @@ export default function ChallengesPage() {
                                                 <p className="text-muted-foreground">Best Time</p>
                                             </div>
                                         </div>
-                                        <Button asChild size="sm" className="md:col-start-4">
+                                        <Button asChild size="sm" className="md:col-start-4" variant={hasBeenCompleted ? "warning" : "default"}>
                                             <Link href={`/challenge/${set.id}`}>
                                                 {hasBeenCompleted ? 'Try Again' : 'Start'}
                                                 <ArrowRight className="ml-2 h-4 w-4" />
