@@ -1,13 +1,14 @@
 
-import { ALL_CHALLENGE_SETS } from '@/lib/challenges';
-import { FlashcardUI } from '@/components/flashcard-ui';
+import { ALL_CHALLENGE_SETS, CHALLENGE_SETS } from '@/lib/challenges';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
+import { FlashcardClientPage } from '@/components/flashcard-client-page';
+import { Challenge } from '@/lib/types';
 
 export default function FlashcardsPage() {
-    const allChallenges = ALL_CHALLENGE_SETS.flatMap(set => set.id !== 'exam' ? set.challenges : []);
+    const allChallenges: Challenge[] = ALL_CHALLENGE_SETS.flatMap(set => set.id !== 'exam' ? set.challenges : []);
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -25,8 +26,8 @@ export default function FlashcardsPage() {
                     </Link>
                 </Button>
             </header>
-            <main className="flex-1 flex flex-col items-center justify-center pb-12">
-                <FlashcardUI challenges={allChallenges} />
+            <main className="flex-1 flex flex-col items-center pb-12 container">
+                <FlashcardClientPage allChallenges={allChallenges} challengeSets={CHALLENGE_SETS} />
             </main>
         </div>
     );
