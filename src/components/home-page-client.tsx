@@ -11,6 +11,7 @@ import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
 import { CHALLENGE_SETS } from "@/lib/challenges";
+import { ModeToggle } from "./mode-toggle";
 
 
 interface HomePageClientProps {
@@ -27,11 +28,14 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <main className="flex-1 container py-8 md:py-12">
-        <header className="mb-8 md:mb-12">
-          <Logo />
-          <p className="text-muted-foreground mt-2">
-            Sharpen your skills and become an Excel master.
-          </p>
+        <header className="mb-8 md:mb-12 flex items-center justify-between">
+          <div>
+            <Logo />
+            <p className="text-muted-foreground mt-2">
+              Sharpen your skills and become an Excel master.
+            </p>
+          </div>
+          <ModeToggle />
         </header>
 
         <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
