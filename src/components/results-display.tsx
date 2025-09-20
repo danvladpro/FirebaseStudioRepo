@@ -1,13 +1,15 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, Trophy } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Trophy, AlertTriangle } from 'lucide-react';
 import { CHALLENGE_SETS } from '@/lib/challenges';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from './ui/separator';
 
 
 export default function ResultsDisplay() {
@@ -22,7 +24,8 @@ export default function ResultsDisplay() {
   const time = timeStr ? parseFloat(timeStr) : null;
   const skippedStr = searchParams.get('skipped');
   const skippedCount = skippedStr ? parseInt(skippedStr, 10) : 0;
-  
+  const skippedIndicesStr = searchParams.get('skippedIndices');
+
   const challengeSet = CHALLENGE_SETS.find(set => set.id === setId);
   const personalBest = stats[setId!]?.bestTime;
 
@@ -30,6 +33,10 @@ export default function ResultsDisplay() {
   const correctAnswers = totalChallenges - skippedCount;
   const score = totalChallenges > 0 ? (correctAnswers / totalChallenges) * 100 : 0;
   const isPerfectScore = skippedCount === 0;
+
+  const skippedChallenges = skippedIndicesStr && challengeSet
+    ? skippedIndicesStr.split(',').filter(Boolean).map(i => challengeSet.challenges[parseInt(i)])
+    : [];
 
   useEffect(() => {
     if (setId && time !== null) {
@@ -83,6 +90,22 @@ export default function ResultsDisplay() {
               {personalBest ? `${personalBest.toFixed(2)}s` : "N/A"}
             </p>
           </div>
+          {skippedChallenges.length > 0 && (
+            <div className="space-y-4">
+              <Separator />
+              <div className="text-left">
+                  <h3 className="font-semibold flex items-center gap-2 justify-center text-destructive mb-2">
+                    <AlertTriangle className="w-4 h-4"/>
+                    Areas for Improvement
+                  </h3>
+                  <ul className="text-sm text-muted-foreground list-disc list-inside bg-muted/50 p-3 rounded-md">
+                      {skippedChallenges.map((challenge, index) => (
+                          <li key={index}>{challenge.description}</li>
+                      ))}
+                  </ul>
+              </div>
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex gap-4">
           <Button variant="outline" className="w-full" onClick={() => router.push('/')}>

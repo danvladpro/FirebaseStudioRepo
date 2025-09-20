@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ChallengeSet } from "@/lib/types";
+import { Challenge, ChallengeSet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight } from "lucide-react";
@@ -38,7 +38,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const [startTime, setStartTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
-  const [skippedCount, setSkippedCount] = useState(0);
+  const [skippedIndices, setSkippedIndices] = useState<number[]>([]);
   
   const [countdown, setCountdown] = useState(8);
 
@@ -76,7 +76,8 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     setTimeout(() => {
         if (isLastChallenge) {
             const duration = (Date.now() - startTime) / 1000;
-            router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${skippedCount}`);
+            const skippedParam = skippedIndices.join(',');
+            router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${skippedIndices.length}&skippedIndices=${skippedParam}`);
         } else {
             setCurrentChallengeIndex(prev => prev + 1);
             setFeedback(null);
@@ -86,12 +87,12 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             isAdvancing.current = false;
         }
     }, 300);
-  }, [currentChallengeIndex, set.challenges.length, set.id, startTime, router, skippedCount]);
+  }, [currentChallengeIndex, set.challenges.length, set.id, startTime, router, skippedIndices]);
 
   const handleSkip = useCallback(() => {
-    setSkippedCount(prev => prev + 1);
+    setSkippedIndices(prev => [...prev, currentChallengeIndex]);
     moveToNext();
-  }, [moveToNext]);
+  }, [moveToNext, currentChallengeIndex]);
 
   const advanceChallenge = useCallback(() => {
     setFeedback("correct");
