@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight, Eye, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { VisualKeyboard } from "./visual-keyboard";
 
 interface FlashcardClientPageProps {
     set: ChallengeSet;
@@ -49,7 +50,7 @@ export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
     };
 
     return (
-        <div className="w-full max-w-2xl flex flex-col items-center">
+        <div className="w-full max-w-4xl flex flex-col items-center">
             <Card className="w-full min-h-[420px] flex flex-col justify-between">
                 <CardContent className="p-6 md:p-8 text-center flex-grow flex flex-col items-center justify-center">
                     <p className="text-xl md:text-2xl font-semibold text-foreground mb-4">
@@ -94,6 +95,10 @@ export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
                     </Button>
                 </div>
             </Card>
+
+            <div className="w-full mt-8">
+                 <VisualKeyboard highlightedKeys={isAnswerShown ? currentChallenge.keys : []} />
+            </div>
         </div>
     );
 }
