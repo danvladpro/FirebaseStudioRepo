@@ -1,3 +1,4 @@
+
 import { type LucideIcon } from "lucide-react";
 
 export interface Challenge {
@@ -13,7 +14,7 @@ export interface ChallengeSet {
   description: string;
   category: string;
   challenges: Challenge[];
-  iconName: "ClipboardCopy" | "ArrowRightLeft" | "MousePointerSquareDashed" | "Pilcrow" | "FunctionSquare" | "BookMarked";
+  iconName: "ClipboardCopy" | "ArrowRightLeft" | "MousePointerSquareDashed" | "Pilcrow" | "FunctionSquare" | "BookMarked" | "Layers";
 }
 
 export interface PerformanceRecord {

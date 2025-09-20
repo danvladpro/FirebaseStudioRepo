@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, CalendarDays, ArrowRight, BookMarked, Library } from "lucide-react";
+import { Trophy, CalendarDays, ArrowRight, BookMarked, Library, Layers } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -78,10 +78,10 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
           </Card>
         </section>
 
-        <section className="grid md:grid-cols-2 gap-8">
+        <section className="grid md:grid-cols-3 gap-8">
             <div className="flex flex-col">
                  <h2 className="text-2xl font-bold mb-4">Final Exam</h2>
-                 <Card key={examSet.id} className="border-primary bg-primary/5 flex-grow">
+                 <Card key={examSet.id} className="border-primary bg-primary/5 flex-grow flex flex-col">
                     <CardHeader className="flex-row gap-4 items-center">
                         <BookMarked className="w-10 h-10 text-primary" />
                         <div>
@@ -101,11 +101,24 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
             <div className="flex flex-col">
                 <h2 className="text-2xl font-bold mb-4">Practice Challenges</h2>
                  <Card className="flex-grow flex flex-col justify-center items-center text-center p-6">
-                     <CardContent className="p-0">
+                     <CardContent className="p-0 flex flex-col items-center justify-center flex-grow">
                         <p className="text-muted-foreground mb-6">Ready to warm up? Select from individual challenge sets to practice specific skills.</p>
                         <Button asChild size="lg">
                             <Link href="/challenges">
                                 <Library className="mr-2" /> View All Challenges
+                            </Link>
+                        </Button>
+                     </CardContent>
+                 </Card>
+            </div>
+             <div className="flex flex-col">
+                <h2 className="text-2xl font-bold mb-4">Learn</h2>
+                 <Card className="flex-grow flex flex-col justify-center items-center text-center p-6">
+                     <CardContent className="p-0 flex flex-col items-center justify-center flex-grow">
+                        <p className="text-muted-foreground mb-6">Review all the shortcuts using interactive flashcards to build muscle memory.</p>
+                        <Button asChild size="lg" variant="secondary">
+                            <Link href="/flashcards">
+                                <Layers className="mr-2" /> Study Flashcards
                             </Link>
                         </Button>
                      </CardContent>
