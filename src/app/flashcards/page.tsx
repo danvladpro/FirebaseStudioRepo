@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
 import { ChallengeSet } from '@/lib/types';
-import { ElementType }. from 'react';
+import { ElementType } from 'react';
 import { AppHeader } from '@/components/app-header';
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
