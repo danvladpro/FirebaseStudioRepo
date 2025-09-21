@@ -64,7 +64,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       { description: "Redo the last action", keys: ["Control", "y"], imageUrl: "https://picsum.photos/seed/redo/200/80", imageHint: "redo arrow" },
     ],
   },
-    {
+  {
     id: "formula-wizardry",
     name: "Formula Wizardry",
     description: "Handle formulas with speed and precision.",
@@ -77,6 +77,22 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       { description: "Toggle displaying formulas or values", keys: ["Control", "`"], imageUrl: "https://picsum.photos/seed/showformulas/200/80", imageHint: "code formula" },
       { description: "Open the Function Arguments dialog", keys: ["Control", "Shift", "a"], imageUrl: "https://picsum.photos/seed/functionargs/200/80", imageHint: "function arguments" },
       { description: "Edit the active cell", keys: ["F2"], imageUrl: "https://picsum.photos/seed/editcell/200/80", imageHint: "pencil edit" },
+    ],
+  },
+  {
+    id: "row-column-management",
+    name: "Row & Column Management",
+    description: "Efficiently manage rows and columns.",
+    category: "Management",
+    iconName: "Layers",
+    challenges: [
+      { description: "Insert new row(s)", keys: ["Control", "Shift", "+"], imageUrl: "https://picsum.photos/seed/insertrow/200/80", imageHint: "insert row" },
+      { description: "Delete selected row(s)", keys: ["Control", "-"], imageUrl: "https://picsum.photos/seed/deleterow/200/80", imageHint: "delete row" },
+      { description: "Hide the selected rows", keys: ["Control", "9"], imageUrl: "https://picsum.photos/seed/hiderow/200/80", imageHint: "hide eye" },
+      { description: "Unhide any hidden rows within the selection", keys: ["Control", "Shift", "9"], imageUrl: "https://picsum.photos/seed/unhiderow/200/80", imageHint: "show eye" },
+      { description: "Hide the selected columns", keys: ["Control", "0"], imageUrl: "https://picsum.photos/seed/hidecolumn/200/80", imageHint: "hide eye" },
+      { description: "Group rows or columns", keys: ["Alt", "Shift", "ArrowRight"], imageUrl: "https://picsum.photos/seed/grouprows/200/80", imageHint: "group objects" },
+      { description: "Ungroup rows or columns", keys: ["Alt", "Shift", "ArrowLeft"], imageUrl: "https://picsum.photos/seed/ungrouprows/200/80", imageHint: "ungroup objects" },
     ],
   },
 ];
