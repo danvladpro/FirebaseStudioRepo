@@ -24,7 +24,7 @@ export default function ResultsDisplay() {
   const time = timeStr ? parseFloat(timeStr) : null;
   const skippedStr = searchParams.get('skipped');
   const skippedCount = skippedStr ? parseInt(skippedStr, 10) : 0;
-  const skippedIndicesStr = search-params.get('skippedIndices');
+  const skippedIndicesStr = searchParams.get('skippedIndices');
 
   const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === setId);
   const personalBest = stats[setId!]?.bestTime;
