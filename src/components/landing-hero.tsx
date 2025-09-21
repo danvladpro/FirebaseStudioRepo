@@ -22,7 +22,7 @@ export function LandingHero() {
                     </div>
                 </div>
                 <Image
-                    src="https://picsum.photos/seed/hero/1200/800"
+                    src="/hero-image.png"
                     width="600"
                     height="400"
                     alt="Hero"
