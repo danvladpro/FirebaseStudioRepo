@@ -10,15 +10,13 @@ function initializeFirebaseAdmin() {
       throw new Error('Missing Firebase Admin SDK credentials. Please check your environment variables.');
     }
 
-    const serviceAccount: admin.ServiceAccount = {
-      projectId,
-      clientEmail,
-      privateKey,
-    };
-
     if (!admin.apps.length) {
       admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
+        credential: admin.credential.cert({
+          projectId,
+          clientEmail,
+          privateKey,
+        }),
       });
     }
     
