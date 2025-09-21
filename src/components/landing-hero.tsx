@@ -22,7 +22,7 @@ export function LandingHero() {
                     </div>
                 </div>
                 <Image
-                    src="/hero-image.png"
+                    src="/HomePage.png"
                     width="600"
                     height="400"
                     alt="Hero"
