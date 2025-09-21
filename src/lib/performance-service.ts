@@ -21,5 +21,7 @@ export async function getPerformanceStats(userId: string): Promise<UserStats> {
 export async function updateUserStats(userId: string, setId: string, record: PerformanceRecord): Promise<void> {
   const performanceDocRef = db.collection(USERS_COLLECTION).doc(userId).collection(PERFORMANCE_SUBCOLLECTION).doc(setId);
   
+  // Use merge:true to avoid overwriting the entire document if only some fields are provided.
+  // This is safer for partial updates.
   await performanceDocRef.set(record, { merge: true });
 }
