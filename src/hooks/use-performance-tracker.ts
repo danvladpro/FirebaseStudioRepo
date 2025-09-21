@@ -4,52 +4,64 @@
 import { useState, useEffect, useCallback } from 'react';
 import { UserStats } from '@/lib/types';
 import { CHALLENGE_SETS } from '@/lib/challenges';
-
-const aDay = 1000 * 60 * 60 * 24;
+import { useAuth } from '@/components/auth-provider';
+import { getPerformanceStats, updateUserStats } from '@/lib/performance-service';
 
 export const usePerformanceTracker = () => {
   const [stats, setStats] = useState<UserStats>({});
   const [isLoaded, setIsLoaded] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
-    try {
-      const savedStats = localStorage.getItem('excel-ninja-stats');
-      if (savedStats) {
-        setStats(JSON.parse(savedStats));
+    const fetchStats = async () => {
+      if (user) {
+        try {
+          const fetchedStats = await getPerformanceStats(user.uid);
+          setStats(fetchedStats);
+        } catch (error) {
+          console.error("Could not load stats from Firestore", error);
+        } finally {
+          setIsLoaded(true);
+        }
+      } else {
+        // Not logged in, no stats to fetch from DB
+        setIsLoaded(true);
+        setStats({});
       }
-    } catch (error) {
-      console.error("Could not load stats from local storage", error);
+    };
+
+    fetchStats();
+  }, [user]);
+
+  const updateStats = useCallback(async (setId: string, time: number, score: number) => {
+    if (!user) return;
+
+    const currentSetStats = stats[setId];
+    const isPerfectScore = score === 100;
+    let newBestTime = currentSetStats?.bestTime ?? null;
+
+    if (isPerfectScore) {
+      newBestTime = currentSetStats?.bestTime ? Math.min(currentSetStats.bestTime, time) : time;
     }
-    setIsLoaded(true);
-  }, []);
+    
+    const newRecord = {
+      bestTime: newBestTime,
+      lastTrained: new Date().toISOString(),
+      lastScore: score,
+    };
 
-  const updateStats = useCallback((setId: string, time: number, score: number) => {
-    setStats(prevStats => {
-      const newStats = { ...prevStats };
-      const currentSetStats = newStats[setId];
-      
-      const isPerfectScore = score === 100;
-      let newBestTime = currentSetStats?.bestTime;
+    setStats(prevStats => ({
+      ...prevStats,
+      [setId]: newRecord,
+    }));
 
-      if(isPerfectScore) {
-          newBestTime = currentSetStats?.bestTime ? Math.min(currentSetStats.bestTime, time) : time;
-      }
-
-      newStats[setId] = {
-        bestTime: newBestTime,
-        lastTrained: new Date().toISOString(),
-        lastScore: score,
-      };
-
-      try {
-        localStorage.setItem('excel-ninja-stats', JSON.stringify(newStats));
-      } catch (error) {
-        console.error("Could not save stats to local storage", error);
-      }
-
-      return newStats;
-    });
-  }, []);
+    try {
+      await updateUserStats(user.uid, setId, newRecord);
+    } catch (error) {
+      console.error("Could not save stats to Firestore", error);
+      // Optionally revert state or show an error to the user
+    }
+  }, [user, stats]);
   
   const getTrainedDates = () => {
      return Object.values(stats)
