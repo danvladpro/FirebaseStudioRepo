@@ -41,11 +41,6 @@ export function LandingPricing() {
                                 </li>
                             </ul>
                         </CardContent>
-                        <CardFooter>
-                            <Button className="w-full" asChild>
-                                <Link href="/signup">Get Started</Link>
-                            </Button>
-                        </CardFooter>
                     </Card>
                     <Card className="flex flex-col border-primary">
                          <CardHeader>

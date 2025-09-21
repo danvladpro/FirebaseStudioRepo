@@ -28,14 +28,9 @@ export function LandingHeader() {
                             <Link href="/dashboard">Go to Dashboard</Link>
                         </Button>
                     ) : (
-                        <>
-                            <Button variant="ghost" asChild>
-                                <Link href="/login">Sign In</Link>
-                            </Button>
-                            <Button asChild>
-                                <Link href="/signup">Sign Up</Link>
-                            </Button>
-                        </>
+                        <Button variant="ghost" asChild>
+                            <Link href="/login">Sign In</Link>
+                        </Button>
                     )}
                 </div>
             </div>

@@ -15,11 +15,6 @@ export function LandingHero() {
                             Stop wasting time with your mouse. Our interactive challenges make learning Excel shortcuts fast, fun, and effective.
                         </p>
                     </div>
-                    <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                        <Button asChild size="lg">
-                            <Link href="/signup">Start Learning for Free</Link>
-                        </Button>
-                    </div>
                 </div>
                 <Image
                     src="/HomePage.png"
