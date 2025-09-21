@@ -1,15 +1,14 @@
 "use server";
 
-import { db } from './firebase';
-import { collection, doc, getDocs, setDoc, getDoc } from 'firebase/firestore';
+import { db } from './firebase-admin';
 import { UserStats, PerformanceRecord } from './types';
 
 const USERS_COLLECTION = 'users';
 const PERFORMANCE_SUBCOLLECTION = 'performance';
 
 export async function getPerformanceStats(userId: string): Promise<UserStats> {
-  const performanceCollectionRef = collection(db, USERS_COLLECTION, userId, PERFORMANCE_SUBCOLLECTION);
-  const snapshot = await getDocs(performanceCollectionRef);
+  const performanceCollectionRef = db.collection(USERS_COLLECTION).doc(userId).collection(PERFORMANCE_SUBCOLLECTION);
+  const snapshot = await performanceCollectionRef.get();
   
   const stats: UserStats = {};
   snapshot.forEach(doc => {
@@ -20,8 +19,7 @@ export async function getPerformanceStats(userId: string): Promise<UserStats> {
 }
 
 export async function updateUserStats(userId: string, setId: string, record: PerformanceRecord): Promise<void> {
-  const userDocRef = doc(db, USERS_COLLECTION, userId);
-  const performanceDocRef = doc(userDocRef, PERFORMANCE_SUBCOLLECTION, setId);
+  const performanceDocRef = db.collection(USERS_COLLECTION).doc(userId).collection(PERFORMANCE_SUBCOLLECTION).doc(setId);
   
-  await setDoc(performanceDocRef, record, { merge: true });
+  await performanceDocRef.set(record, { merge: true });
 }
