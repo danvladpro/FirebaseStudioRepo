@@ -24,7 +24,7 @@ export default function ResultsDisplay() {
   const time = timeStr ? parseFloat(timeStr) : null;
   const skippedStr = searchParams.get('skipped');
   const skippedCount = skippedStr ? parseInt(skippedStr, 10) : 0;
-  const skippedIndicesStr = searchParams.get('skippedIndices');
+  const skippedIndicesStr = search-params.get('skippedIndices');
 
   const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === setId);
   const personalBest = stats[setId!]?.bestTime;
@@ -49,7 +49,7 @@ export default function ResultsDisplay() {
       updateStats(setId, time, score);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setId, time, score, isPerfectScore, personalBest]);
+  }, [setId, time, score, isPerfectScore]);
 
 
   if (!challengeSet || time === null) {
@@ -84,12 +84,14 @@ export default function ResultsDisplay() {
               <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
             </div>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Personal Best (Time)</p>
-            <p className="text-2xl font-semibold tracking-tight text-foreground">
-              {personalBest ? `${personalBest.toFixed(2)}s` : "N/A"}
-            </p>
-          </div>
+          {personalBest && (
+            <div>
+              <p className="text-sm text-muted-foreground">Personal Best (Time)</p>
+              <p className="text-2xl font-semibold tracking-tight text-foreground">
+                {personalBest.toFixed(2)}s
+              </p>
+            </div>
+          )}
           {skippedChallenges.length > 0 && (
             <div className="space-y-4">
               <Separator />
