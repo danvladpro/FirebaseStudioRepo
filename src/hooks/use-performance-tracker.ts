@@ -5,37 +5,44 @@ import { useState, useEffect, useCallback } from 'react';
 import { UserStats } from '@/lib/types';
 import { CHALLENGE_SETS } from '@/lib/challenges';
 import { useAuth } from '@/components/auth-provider';
-import { getPerformanceStats, updateUserStats } from '@/lib/performance-service';
+
+const getInitialStats = (): UserStats => {
+  if (typeof window === 'undefined') {
+    return {};
+  }
+  try {
+    const item = window.localStorage.getItem('excel-ninja-stats');
+    return item ? JSON.parse(item) : {};
+  } catch (error) {
+    console.error("Could not load stats from localStorage", error);
+    return {};
+  }
+};
 
 export const usePerformanceTracker = () => {
-  const [stats, setStats] = useState<UserStats>({});
+  const [stats, setStats] = useState<UserStats>(getInitialStats());
   const [isLoaded, setIsLoaded] = useState(false);
   const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      if (user) {
-        try {
-          const fetchedStats = await getPerformanceStats(user.uid);
-          setStats(fetchedStats);
-        } catch (error) {
-          console.error("Could not load stats from Firestore", error);
-        } finally {
-          setIsLoaded(true);
-        }
-      } else {
-        // Not logged in, no stats to fetch from DB
-        setIsLoaded(true);
-        setStats({});
-      }
-    };
 
-    fetchStats();
+  useEffect(() => {
+    // When user changes, reload stats from localStorage
+    setStats(getInitialStats());
+    setIsLoaded(true);
   }, [user]);
 
-  const updateStats = useCallback(async (setId: string, time: number, score: number) => {
-    if (!user) return;
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isLoaded) {
+      try {
+        window.localStorage.setItem('excel-ninja-stats', JSON.stringify(stats));
+      } catch (error) {
+        console.error("Could not save stats to localStorage", error);
+      }
+    }
+  }, [stats, isLoaded]);
+
+  const updateStats = useCallback((setId: string, time: number, score: number) => {
     const currentSetStats = stats[setId];
     const isPerfectScore = score === 100;
     let newBestTime = currentSetStats?.bestTime ?? null;
@@ -44,24 +51,15 @@ export const usePerformanceTracker = () => {
       newBestTime = currentSetStats?.bestTime ? Math.min(currentSetStats.bestTime, time) : time;
     }
     
-    const newRecord = {
-      bestTime: newBestTime,
-      lastTrained: new Date().toISOString(),
-      lastScore: score,
-    };
-
     setStats(prevStats => ({
       ...prevStats,
-      [setId]: newRecord,
+      [setId]: {
+        bestTime: newBestTime,
+        lastTrained: new Date().toISOString(),
+        lastScore: score,
+      },
     }));
-
-    try {
-      await updateUserStats(user.uid, setId, newRecord);
-    } catch (error) {
-      console.error("Could not save stats to Firestore", error);
-      // Optionally revert state or show an error to the user
-    }
-  }, [user, stats]);
+  }, [stats]);
   
   const getTrainedDates = () => {
      return Object.values(stats)
@@ -77,3 +75,4 @@ export const usePerformanceTracker = () => {
 
   return { stats, isLoaded, updateStats, getTrainedDates, getCompletedSetsCount };
 };
+
