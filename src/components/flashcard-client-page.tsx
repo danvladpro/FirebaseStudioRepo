@@ -1,14 +1,14 @@
 
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { Challenge, ChallengeSet } from "@/lib/types";
+import { useState, ElementType } from "react";
+import { ChallengeSet } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight, Eye, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VisualKeyboard } from "./visual-keyboard";
+import * as icons from "lucide-react";
 
 interface FlashcardClientPageProps {
     set: ChallengeSet;
@@ -49,6 +49,8 @@ export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
         setIsAnswerShown(!isAnswerShown);
     };
 
+    const ChallengeIcon = icons[currentChallenge.iconName] as ElementType;
+
     return (
         <div className="w-full max-w-4xl flex flex-col items-center">
             <Card className="w-full min-h-[420px] flex flex-col justify-between">
@@ -57,14 +59,7 @@ export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
                         {currentChallenge.description}
                     </p>
                     <div className="flex justify-center items-center h-24 bg-muted rounded-lg mb-4 overflow-hidden px-4 w-full max-w-sm">
-                        <Image
-                            src={currentChallenge.imageUrl}
-                            alt={currentChallenge.description}
-                            width={200}
-                            height={80}
-                            className="object-contain"
-                            data-ai-hint={currentChallenge.imageHint}
-                        />
+                        {ChallengeIcon && <ChallengeIcon className="w-16 h-16 text-primary" />}
                     </div>
 
                     <div className="h-16 flex items-center justify-center">

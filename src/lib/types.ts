@@ -1,11 +1,11 @@
 
-import { type LucideIcon } from "lucide-react";
+import { type LucideIcon, type LucideProps } from "lucide-react";
+import { ElementType } from "react";
 
 export interface Challenge {
   description: string;
   keys: string[];
-  imageUrl: string;
-  imageHint: string;
+  iconName: keyof typeof import("lucide-react");
 }
 
 export interface ChallengeSet {

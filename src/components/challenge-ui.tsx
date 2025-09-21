@@ -1,15 +1,16 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, ElementType } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Challenge, ChallengeSet } from "@/lib/types";
+import { ChallengeSet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
+import * as icons from "lucide-react";
+
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -208,6 +209,8 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     );
   }
 
+  const ChallengeIcon = icons[currentChallenge.iconName] as ElementType;
+
   return (
     <Card className={cn(
         "w-full max-w-2xl transform transition-transform duration-500",
@@ -236,14 +239,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       <CardContent className="text-center py-12">
         <p className="text-xl md:text-2xl font-semibold text-foreground mb-6">{currentChallenge.description}</p>
         <div className="flex justify-center items-center h-24 bg-muted rounded-lg mb-6 overflow-hidden">
-             <Image
-                src={currentChallenge.imageUrl}
-                alt={currentChallenge.description}
-                width={200}
-                height={80}
-                className="object-contain"
-                data-ai-hint={currentChallenge.imageHint}
-              />
+             {ChallengeIcon && <ChallengeIcon className="w-16 h-16 text-primary" />}
         </div>
         <div className="flex items-center justify-center gap-2 h-10">
           {feedback === 'correct' && <CheckCircle className="h-10 w-10 text-green-500" />}
