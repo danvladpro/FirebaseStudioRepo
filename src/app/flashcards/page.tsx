@@ -2,12 +2,12 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, BookMarked } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, BookMarked, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
 import { ChallengeSet } from '@/lib/types';
-import { ElementType } from 'react';
+import { ElementType }. from 'react';
 import { AppHeader } from '@/components/app-header';
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
@@ -18,6 +18,7 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     FunctionSquare,
     BookMarked,
     Layers,
+    Filter,
 };
 
 export default function FlashcardsPage() {

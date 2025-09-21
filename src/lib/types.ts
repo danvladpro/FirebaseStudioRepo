@@ -14,7 +14,7 @@ export interface ChallengeSet {
   description: string;
   category: string;
   challenges: Challenge[];
-  iconName: "ClipboardCopy" | "ArrowRightLeft" | "MousePointerSquareDashed" | "Pilcrow" | "FunctionSquare" | "BookMarked" | "Layers";
+  iconName: "ClipboardCopy" | "ArrowRightLeft" | "MousePointerSquareDashed" | "Pilcrow" | "FunctionSquare" | "BookMarked" | "Layers" | "Filter";
 }
 
 export interface PerformanceRecord {

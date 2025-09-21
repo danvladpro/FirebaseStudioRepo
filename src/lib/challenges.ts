@@ -95,6 +95,21 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       { description: "Ungroup rows or columns", keys: ["Alt", "Shift", "ArrowLeft"], imageUrl: "https://picsum.photos/seed/ungrouprows/200/80", imageHint: "ungroup objects" },
     ],
   },
+  {
+    id: "data-operations",
+    name: "Data Operations",
+    description: "Sort, filter, and manage data with ease.",
+    category: "Data",
+    iconName: "Filter",
+    challenges: [
+      { description: "Apply or clear the filter", keys: ["Control", "Shift", "l"], imageUrl: "https://picsum.photos/seed/filter/200/80", imageHint: "filter icon" },
+      { description: "Open the Create Table dialog", keys: ["Control", "t"], imageUrl: "https://picsum.photos/seed/createtable/200/80", imageHint: "table icon" },
+      { description: "Automatically fill values down", keys: ["Control", "d"], imageUrl: "https://picsum.photos/seed/filldown/200/80", imageHint: "arrow down" },
+      { description: "Automatically fill values to the right", keys: ["Control", "r"], imageUrl: "https://picsum.photos/seed/fillright/200/80", imageHint: "arrow right" },
+      { description: "Use Flash Fill to automatically fill a column", keys: ["Control", "e"], imageUrl: "https://picsum.photos/seed/flashfill/200/80", imageHint: "magic wand" },
+      { description: "Select only the visible cells in a selection", keys: ["Alt", ";"], imageUrl: "https://picsum.photos/seed/visiblecells/200/80", imageHint: "selection box" }
+    ],
+  }
 ];
 
 export const EXAM_SET: ChallengeSet = {
