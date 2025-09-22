@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -5,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { ModeToggle } from "./mode-toggle";
 import { useAuth } from "./auth-provider";
+import { Suspense } from "react";
 
-export function LandingHeader() {
+function HeaderContent() {
     const { user } = useAuth();
 
     return (
@@ -28,7 +30,7 @@ export function LandingHeader() {
                             <Link href="/dashboard">Go to Dashboard</Link>
                         </Button>
                     ) : (
-                        <Button variant="ghost" asChild>
+                        <Button asChild>
                             <Link href="/login">Sign In</Link>
                         </Button>
                     )}
@@ -36,4 +38,13 @@ export function LandingHeader() {
             </div>
         </header>
     );
+}
+
+
+export function LandingHeader() {
+    return (
+        <Suspense>
+            <HeaderContent />
+        </Suspense>
+    )
 }

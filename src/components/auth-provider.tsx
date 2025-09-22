@@ -1,23 +1,26 @@
+
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { useRouter, usePathname } from 'next/navigation';
-import { Skeleton } from './ui/skeleton';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isGuest: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true });
+const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isGuest: false });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isGuest = searchParams.get('guest') === 'true';
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -32,40 +35,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const isAuthPage = pathname === '/login' || pathname === '/signup';
     const isLandingPage = pathname === '/';
+    
+    // Allow guest access to certain pages
+    const isGuestAllowedPath = ['/dashboard', '/challenges', '/flashcards', '/challenge', '/results'].some(p => pathname.startsWith(p));
+    
+    if (isGuest && isGuestAllowedPath) {
+      // If in guest mode and on an allowed path, do nothing.
+      return;
+    }
+
     const isProtectedRoute = !isAuthPage && !isLandingPage;
 
     if (!user && isProtectedRoute) {
       router.push('/login');
     }
-    if (user && isAuthPage) {
+    if (user && (isAuthPage || isGuest)) {
       router.push('/dashboard');
     }
-  }, [user, loading, pathname, router]);
-
-  // While loading, and on a protected route, show a skeleton to avoid layout shifts
-  if (loading && !pathname.startsWith('/_next') && pathname !== '/' && pathname !== '/login' && pathname !== '/signup') {
-    return (
-      <div className="flex min-h-screen w-full flex-col bg-muted/40">
-          <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
-            <div className="container flex items-center justify-between h-16">
-              <Skeleton className="h-8 w-32" />
-              <Skeleton className="h-8 w-8 rounded-full" />
-            </div>
-          </header>
-          <main className="flex-1 container py-8 md:py-12 mt-16">
-            <Skeleton className="h-10 w-64 mb-8" />
-            <div className="space-y-4">
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-24 w-full" />
-            </div>
-          </main>
-      </div>
-    );
-  }
+  }, [user, loading, pathname, router, isGuest]);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, isGuest }}>
       {children}
     </AuthContext.Provider>
   );

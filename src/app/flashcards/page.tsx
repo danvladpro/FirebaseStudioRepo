@@ -2,13 +2,16 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, BookMarked, Filter } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, BookMarked, Filter, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
 import { ChallengeSet } from '@/lib/types';
 import { ElementType } from 'react';
 import { AppHeader } from '@/components/app-header';
+import { useAuth } from '@/components/auth-provider';
+import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -22,6 +25,13 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
 };
 
 export default function FlashcardsPage() {
+    const { isGuest } = useAuth();
+    const GUEST_ALLOWED_SET_ID = 'formatting-basics';
+
+    const setsToDisplay = isGuest 
+      ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== GUEST_ALLOWED_SET_ID }))
+      : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
+
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <AppHeader />
@@ -30,7 +40,7 @@ export default function FlashcardsPage() {
                     <div>
                         <h1 className="text-3xl font-bold">Flashcard Decks</h1>
                         <p className="text-muted-foreground mt-1">
-                            Choose a set to study with flashcards.
+                             {isGuest ? "Try the 'Formatting Basics' deck below. Sign up for full access." : "Choose a set to study with flashcards."}
                         </p>
                     </div>
                     <Button asChild variant="outline">
@@ -42,33 +52,53 @@ export default function FlashcardsPage() {
                 </header>
 
                 <section>
+                    <TooltipProvider>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {CHALLENGE_SETS.map((set) => {
+                        {setsToDisplay.map((set) => {
                             const Icon = iconMap[set.iconName];
-                            return (
-                                <Card key={set.id} className="flex flex-col">
+
+                             const cardContent = (
+                                <Card key={set.id} className={cn("flex flex-col", set.isLocked && "bg-muted/50 text-muted-foreground")}>
                                     <CardContent className="p-6 flex-grow">
                                         <div className="flex items-start gap-4">
-                                            <Icon className="w-10 h-10 text-primary mt-1" />
+                                            <Icon className={cn("w-10 h-10 mt-1", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                                             <div>
-                                                <h3 className="font-semibold text-lg">{set.name}</h3>
-                                                <p className="text-sm text-muted-foreground mt-1">{set.description}</p>
-                                                <p className="text-sm font-semibold text-primary mt-2">{set.challenges.length} cards</p>
+                                                <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
+                                                <p className="text-sm mt-1">{set.description}</p>
+                                                <p className={cn("text-sm font-semibold mt-2", set.isLocked ? "text-muted-foreground" : "text-primary")}>
+                                                    {isGuest && set.id === GUEST_ALLOWED_SET_ID ? '5 cards (Demo)' : `${set.challenges.length} cards`}
+                                                </p>
                                             </div>
                                         </div>
                                     </CardContent>
                                     <div className="p-6 pt-0 mt-auto">
-                                        <Button asChild className="w-full">
-                                            <Link href={`/flashcards/${set.id}`}>
-                                                Study this set
-                                                <ArrowRight className="ml-2 h-4 w-4" />
+                                        <Button asChild className="w-full" disabled={set.isLocked}>
+                                            <Link href={set.isLocked ? "#" : `/flashcards/${set.id}${isGuest ? '?guest=true' : ''}`}>
+                                                {set.isLocked ? <Lock className="mr-2"/> : "Study this set"}
+                                                {!set.isLocked && <ArrowRight className="ml-2 h-4 w-4" />}
                                             </Link>
                                         </Button>
                                     </div>
                                 </Card>
-                            )
+                            );
+
+                            if (set.isLocked) {
+                                return (
+                                    <Tooltip key={set.id}>
+                                        <TooltipTrigger asChild>
+                                            <div className="cursor-not-allowed w-full h-full">{cardContent}</div>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Sign up to unlock this deck.</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                );
+                            }
+
+                            return cardContent;
                         })}
                     </div>
+                    </TooltipProvider>
                 </section>
             </main>
         </div>

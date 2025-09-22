@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { ChallengeSet } from '@/lib/types';
 import { AppHeader } from '@/components/app-header';
+import { Suspense } from 'react';
 
-export default function ChallengePage({ params }: { params: { id: string } }) {
+function ChallengePageContent({ params }: { params: { id: string } }) {
   const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === params.id) as ChallengeSet | undefined;
 
   if (!challengeSet) {
@@ -22,4 +23,12 @@ export default function ChallengePage({ params }: { params: { id: string } }) {
       </main>
     </>
   );
+}
+
+export default function ChallengePage({ params }: { params: { id: string } }) {
+  return (
+    <Suspense>
+      <ChallengePageContent params={params} />
+    </Suspense>
+  )
 }

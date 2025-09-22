@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -17,9 +18,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ModeToggle } from './mode-toggle';
+import { User } from 'lucide-react';
 
 export function AppHeader() {
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -32,15 +34,17 @@ export function AppHeader() {
     return email.substring(0, 2).toUpperCase();
   }
 
+  const dashboardHref = isGuest ? "/dashboard?guest=true" : "/dashboard";
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
       <div className="container flex items-center justify-between h-16">
-        <Link href="/dashboard">
+        <Link href={dashboardHref}>
           <Logo />
         </Link>
         <div className="flex items-center gap-4">
           <ModeToggle />
-           {user && (
+           {user ? (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -64,6 +68,12 @@ export function AppHeader() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+           ) : (
+            isGuest && (
+              <Button asChild>
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            )
            )}
         </div>
       </div>

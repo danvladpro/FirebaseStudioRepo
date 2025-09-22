@@ -9,6 +9,7 @@ import { ChevronLeft, ChevronRight, Eye, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VisualKeyboard } from "./visual-keyboard";
 import * as icons from "lucide-react";
+import { useAuth } from "./auth-provider";
 
 interface FlashcardClientPageProps {
     set: ChallengeSet;
@@ -32,17 +33,21 @@ const KeyDisplay = ({ value }: { value: string }) => {
 export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnswerShown, setIsAnswerShown] = useState(false);
+    const { isGuest } = useAuth();
+    
+    // For guest mode, limit to 5 cards
+    const challenges = isGuest ? set.challenges.slice(0, 5) : set.challenges;
 
-    const currentChallenge = set.challenges[currentIndex];
+    const currentChallenge = challenges[currentIndex];
 
     const handleNext = () => {
         setIsAnswerShown(false);
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % set.challenges.length);
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % challenges.length);
     };
 
     const handlePrevious = () => {
         setIsAnswerShown(false);
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + set.challenges.length) % set.challenges.length);
+        setCurrentIndex((prevIndex) => (prevIndex - 1 + challenges.length) % challenges.length);
     };
 
     const toggleAnswer = () => {
@@ -83,7 +88,7 @@ export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
                         <ChevronLeft />
                     </Button>
                     <p className="text-sm text-muted-foreground">
-                        Card {currentIndex + 1} of {set.challenges.length}
+                        Card {currentIndex + 1} of {challenges.length}
                     </p>
                     <Button variant="ghost" size="icon" onClick={handleNext}>
                         <ChevronRight />
