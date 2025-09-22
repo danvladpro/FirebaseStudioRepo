@@ -44,7 +44,7 @@ export default function FlashcardsPage() {
                         </p>
                     </div>
                     <Button asChild variant="outline">
-                        <Link href="/dashboard">
+                        <Link href={isGuest ? "/dashboard?guest=true" : "/dashboard"}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Dashboard
                         </Link>
