@@ -25,6 +25,7 @@ export default function ResultsDisplay() {
   const skippedStr = searchParams.get('skipped');
   const skippedCount = skippedStr ? parseInt(skippedStr, 10) : 0;
   const skippedIndicesStr = searchParams.get('skippedIndices');
+  const isGuest = searchParams.get('guest') === 'true';
 
   const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === setId);
   const personalBest = stats[setId!]?.bestTime;
@@ -39,7 +40,7 @@ export default function ResultsDisplay() {
     : [];
 
   useEffect(() => {
-    if (setId && time !== null) {
+    if (setId && time !== null && !isGuest) {
       if (isPerfectScore) {
         const oldBest = personalBest;
         if (oldBest === null || oldBest === undefined || time < oldBest) {
@@ -49,23 +50,26 @@ export default function ResultsDisplay() {
       updateStats(setId, time, score);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setId, time, score, isPerfectScore]);
+  }, [setId, time, score, isPerfectScore, isGuest]);
 
 
   if (!challengeSet || time === null) {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center gap-4">
         <p>Invalid results data.</p>
-        <Button onClick={() => router.push('/dashboard')}>Go Home</Button>
+        <Button onClick={() => router.push(isGuest ? '/dashboard?guest=true' : '/dashboard')}>Go Home</Button>
       </div>
     );
   }
+
+  const dashboardPath = isGuest ? '/dashboard?guest=true' : '/dashboard';
+  const challengePath = isGuest ? `/challenge/${setId}?guest=true` : `/challenge/${setId}`;
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-md text-center">
         <CardHeader>
-          {isNewRecord && isPerfectScore && (
+          {isNewRecord && isPerfectScore && !isGuest && (
             <Badge className="w-fit mx-auto mb-4 bg-accent text-accent-foreground hover:bg-accent/90">
               <Trophy className="mr-2 h-4 w-4"/> New Record!
             </Badge>
@@ -84,7 +88,7 @@ export default function ResultsDisplay() {
               <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
             </div>
           </div>
-          {personalBest && (
+          {personalBest && !isGuest && (
             <div>
               <p className="text-sm text-muted-foreground">Personal Best (Time)</p>
               <p className="text-2xl font-semibold tracking-tight text-foreground">
@@ -110,10 +114,10 @@ export default function ResultsDisplay() {
           )}
         </CardContent>
         <CardFooter className="flex gap-4">
-          <Button variant="outline" className="w-full" onClick={() => router.push('/dashboard')}>
+          <Button variant="outline" className="w-full" onClick={() => router.push(dashboardPath)}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Go to Dashboard
           </Button>
-          <Button className="w-full" onClick={() => router.push(`/challenge/${setId}`)}>
+          <Button className="w-full" onClick={() => router.push(challengePath)}>
             <RefreshCw className="mr-2 h-4 w-4" /> Play Again
           </Button>
         </CardFooter>

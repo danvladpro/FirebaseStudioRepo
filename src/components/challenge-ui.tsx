@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChallengeSet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -34,6 +34,7 @@ const KeyDisplay = ({ value }: { value: string }) => {
 
 export default function ChallengeUI({ set }: ChallengeUIProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [startTime, setStartTime] = useState(0);
@@ -48,13 +49,15 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  const isGuest = searchParams.get('guest') === 'true';
   const currentChallenge = set.challenges[currentChallengeIndex];
 
   const finishChallenge = useCallback((finalSkipped: number[]) => {
       const duration = (Date.now() - startTime) / 1000;
       const skippedParam = finalSkipped.join(',');
-      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}`);
-  },[router, set.id, startTime]);
+      const guestParam = isGuest ? '&guest=true' : '';
+      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}${guestParam}`);
+  },[router, set.id, startTime, isGuest]);
 
 
   const normalizeKey = (key: string) => {
@@ -96,6 +99,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge, skippedIndices]);
 
   const handleSkip = useCallback(() => {
+    if (isAdvancing.current) return;
     const newSkipped = [...skippedIndices, currentChallengeIndex];
     setSkippedIndices(newSkipped);
     moveToNext(newSkipped);
@@ -255,7 +259,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             <span className="text-muted-foreground">Press the required keys...</span>
             )}
         </div>
-        <Button variant="outline" size="sm" onClick={handleSkip}>
+        <Button variant="outline" size="sm" onClick={handleSkip} disabled={isAdvancing.current}>
             Skip <ChevronsRight className="ml-2 h-4 w-4" />
         </Button>
       </CardFooter>
