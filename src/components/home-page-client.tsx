@@ -39,9 +39,10 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
         </CardHeader>
         <CardFooter className="mt-auto">
             <Button asChild className="w-full" disabled={isGuest}>
-                <Link href={`/challenge/${examSet.id}`}>
+                <Link href={isGuest ? "#" : `/challenge/${examSet.id}`}>
                 {isGuest && <Lock className="mr-2" />}
-                Start Exam <ArrowRight className="ml-2 h-4 w-4" />
+                {isGuest ? "Locked" : "Start Exam"}
+                {!isGuest && <ArrowRight className="ml-2 h-4 w-4" />}
                 </Link>
             </Button>
         </CardFooter>
@@ -107,7 +108,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <div className="h-full">{examCardContent}</div>
+                                <div className="h-full cursor-not-allowed">{examCardContent}</div>
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p>Sign up to unlock the final exam.</p>
