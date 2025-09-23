@@ -29,7 +29,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
   const totalPracticeSets = CHALLENGE_SETS.length;
 
   const examCardContent = (
-     <Card key={examSet.id} className={cn("border-primary bg-primary/5 flex-grow flex flex-col", isGuest && "bg-muted/50 border-dashed text-muted-foreground")}>
+     <Card key={examSet.id} className={cn("border-primary bg-primary/5 flex flex-col", isGuest && "bg-muted/50 border-dashed text-muted-foreground")}>
         <CardHeader className="flex-row gap-4 items-center">
             <BookMarked className={cn("w-10 h-10", isGuest ? "text-muted-foreground" : "text-primary")} />
             <div>
@@ -38,13 +38,19 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
             </div>
         </CardHeader>
         <CardFooter className="mt-auto">
-            <Button asChild className="w-full" disabled={isGuest}>
-                <Link href={isGuest ? "#" : `/challenge/${examSet.id}`}>
-                {isGuest && <Lock className="mr-2" />}
-                {isGuest ? "Locked" : "Start Exam"}
-                {!isGuest && <ArrowRight className="ml-2 h-4 w-4" />}
-                </Link>
-            </Button>
+            {isGuest ? (
+                 <Button className="w-full" disabled variant="secondary">
+                    <Lock className="mr-2" />
+                    Locked
+                 </Button>
+            ) : (
+                <Button asChild className="w-full">
+                    <Link href={`/challenge/${examSet.id}`}>
+                        Start Exam
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+            )}
         </CardFooter>
     </Card>
   );
