@@ -40,9 +40,19 @@ export function AppHeader() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
       <div className="container flex items-center justify-between h-16">
-        <Link href="/dashboard">
-          <Logo />
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link href={isGuest ? "/dashboard?guest=true" : "/dashboard"}>
+            <Logo />
+          </Link>
+          <nav className="hidden md:flex items-center gap-4">
+            <Button variant="link" asChild className="text-muted-foreground hover:text-foreground">
+              <Link href="/">Home</Link>
+            </Button>
+            <Button variant="link" asChild className="text-muted-foreground hover:text-foreground">
+              <Link href={isGuest ? "/dashboard?guest=true" : "/dashboard"}>Dashboard</Link>
+            </Button>
+          </nav>
+        </div>
         <div className="flex items-center gap-4">
           <ModeToggle />
            {user ? (
