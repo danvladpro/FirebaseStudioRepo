@@ -9,13 +9,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Suspense } from 'react';
-import { headers } from 'next/headers';
 
 function FlashcardSetPageContent({ params }: { params: { id: string } }) {
   const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === params.id) as ChallengeSet | undefined;
-  const headersList = headers();
-  const searchParams = new URLSearchParams(headersList.get('x-search-params') || '');
-  const isGuest = searchParams.get('guest') === 'true';
 
   if (!challengeSet) {
     notFound();
@@ -31,7 +27,7 @@ function FlashcardSetPageContent({ params }: { params: { id: string } }) {
             <p className="text-muted-foreground mt-1">Study the shortcuts for this set.</p>
           </div>
            <Button asChild variant="outline">
-              <Link href={isGuest ? "/flashcards?guest=true" : "/flashcards"}>
+              <Link href="/flashcards">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to All Decks
               </Link>

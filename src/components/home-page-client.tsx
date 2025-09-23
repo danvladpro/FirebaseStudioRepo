@@ -131,7 +131,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                      <CardContent className="p-0 flex flex-col items-center justify-center flex-grow">
                         <p className="text-muted-foreground mb-6">{isGuest ? "Try a free challenge set to get a feel for the exercises." : "Ready to warm up? Select from individual challenge sets to practice specific skills."}</p>
                         <Button asChild size="lg">
-                            <Link href={`/challenges${isGuest ? '?guest=true' : ''}`}>
+                            <Link href="/challenges">
                                 <Library className="mr-2" /> {isGuest ? "Try a Challenge Set" : "View All Challenges"}
                             </Link>
                         </Button>
@@ -144,7 +144,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                      <CardContent className="p-0 flex flex-col items-center justify-center flex-grow">
                         <p className="text-muted-foreground mb-6">{isGuest ? "Study a sample flashcard deck to learn the basics." : "Review all the shortcuts using interactive flashcards to build muscle memory."}</p>
                         <Button asChild size="lg" variant="secondary">
-                            <Link href={`/flashcards${isGuest ? '?guest=true' : ''}`}>
+                            <Link href="/flashcards">
                                 <Layers className="mr-2" /> {isGuest ? "Try Flashcards" : "Study Flashcards"}
                             </Link>
                         </Button>

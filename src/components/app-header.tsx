@@ -26,6 +26,9 @@ export function AppHeader() {
 
   const handleLogout = async () => {
     await signOut(auth);
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.removeItem('isGuest');
+    }
     router.push('/');
   };
   
@@ -34,12 +37,10 @@ export function AppHeader() {
     return email.substring(0, 2).toUpperCase();
   }
 
-  const dashboardHref = isGuest ? "/dashboard?guest=true" : "/dashboard";
-
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
       <div className="container flex items-center justify-between h-16">
-        <Link href={dashboardHref}>
+        <Link href="/dashboard">
           <Logo />
         </Link>
         <div className="flex items-center gap-4">

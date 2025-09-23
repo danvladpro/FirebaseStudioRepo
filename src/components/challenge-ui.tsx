@@ -10,6 +10,7 @@ import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight } from "lucide-rea
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
+import { useAuth } from "./auth-provider";
 
 
 interface ChallengeUIProps {
@@ -34,7 +35,7 @@ const KeyDisplay = ({ value }: { value: string }) => {
 
 export default function ChallengeUI({ set }: ChallengeUIProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const { isGuest } = useAuth();
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [startTime, setStartTime] = useState(0);
@@ -49,15 +50,13 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const isGuest = searchParams.get('guest') === 'true';
   const currentChallenge = set.challenges[currentChallengeIndex];
 
   const finishChallenge = useCallback((finalSkipped: number[]) => {
       const duration = (Date.now() - startTime) / 1000;
       const skippedParam = finalSkipped.join(',');
-      const guestParam = isGuest ? '&guest=true' : '';
-      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}${guestParam}`);
-  },[router, set.id, startTime, isGuest]);
+      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}`);
+  },[router, set.id, startTime]);
 
 
   const normalizeKey = (key: string) => {

@@ -44,7 +44,7 @@ export default function FlashcardsPage() {
                         </p>
                     </div>
                     <Button asChild variant="outline">
-                        <Link href={isGuest ? "/dashboard?guest=true" : "/dashboard"}>
+                        <Link href="/dashboard">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Dashboard
                         </Link>
@@ -73,7 +73,7 @@ export default function FlashcardsPage() {
                                     </CardContent>
                                     <div className="p-6 pt-0 mt-auto">
                                         <Button asChild className="w-full" disabled={set.isLocked}>
-                                            <Link href={set.isLocked ? "#" : `/flashcards/${set.id}${isGuest ? '?guest=true' : ''}`}>
+                                            <Link href={set.isLocked ? "#" : `/flashcards/${set.id}`}>
                                                 {set.isLocked ? <Lock className="mr-2"/> : "Study this set"}
                                                 {!set.isLocked && <ArrowRight className="ml-2 h-4 w-4" />}
                                             </Link>

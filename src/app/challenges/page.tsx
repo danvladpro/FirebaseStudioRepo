@@ -48,7 +48,7 @@ export default function ChallengesPage() {
                         </p>
                     </div>
                      <Button asChild variant="outline">
-                        <Link href={isGuest ? "/dashboard?guest=true" : "/dashboard"}>
+                        <Link href="/dashboard">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Dashboard
                         </Link>
@@ -98,7 +98,7 @@ export default function ChallengesPage() {
                                             </div>
                                         </div>
                                         <Button asChild size="sm" className="md:col-start-4" variant={hasBeenCompleted && !set.isLocked ? "warning" : "default"} disabled={set.isLocked}>
-                                            <Link href={set.isLocked ? "#" : `/challenge/${set.id}${isGuest ? '?guest=true' : ''}`}>
+                                            <Link href={set.isLocked ? "#" : `/challenge/${set.id}`}>
                                                 {set.isLocked ? <Lock /> : (hasBeenCompleted ? 'Try Again' : 'Start')}
                                                 {!set.isLocked && <ArrowRight className="ml-2 h-4 w-4" />}
                                             </Link>

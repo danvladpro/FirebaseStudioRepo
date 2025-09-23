@@ -10,12 +10,14 @@ import { ALL_CHALLENGE_SETS } from '@/lib/challenges';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from './ui/separator';
+import { useAuth } from './auth-provider';
 
 
 export default function ResultsDisplay() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { stats, updateStats } = usePerformanceTracker();
+  const { isGuest } = useAuth();
   
   const [isNewRecord, setIsNewRecord] = useState(false);
   
@@ -25,7 +27,6 @@ export default function ResultsDisplay() {
   const skippedStr = searchParams.get('skipped');
   const skippedCount = skippedStr ? parseInt(skippedStr, 10) : 0;
   const skippedIndicesStr = searchParams.get('skippedIndices');
-  const isGuest = searchParams.get('guest') === 'true';
 
   const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === setId);
   const personalBest = stats[setId!]?.bestTime;
@@ -57,13 +58,13 @@ export default function ResultsDisplay() {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center gap-4">
         <p>Invalid results data.</p>
-        <Button onClick={() => router.push(isGuest ? '/dashboard?guest=true' : '/dashboard')}>Go Home</Button>
+        <Button onClick={() => router.push('/dashboard')}>Go Home</Button>
       </div>
     );
   }
 
-  const dashboardPath = isGuest ? '/dashboard?guest=true' : '/dashboard';
-  const challengePath = isGuest ? `/challenge/${setId}?guest=true` : `/challenge/${setId}`;
+  const dashboardPath = '/dashboard';
+  const challengePath = `/challenge/${setId}`;
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">
