@@ -39,9 +39,9 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
         </CardHeader>
         <CardFooter className="mt-auto">
             {isGuest ? (
-                 <Button className="w-full" disabled variant="secondary">
+                 <Button className="w-full" disabled variant="warning">
                     <Lock className="mr-2" />
-                    Locked
+                    Sign Up to Unlock
                  </Button>
             ) : (
                 <Button asChild className="w-full">
