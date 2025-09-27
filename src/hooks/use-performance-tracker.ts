@@ -72,7 +72,18 @@ export const usePerformanceTracker = () => {
     const practiceSetIds = new Set(CHALLENGE_SETS.map(s => s.id));
     return Object.keys(stats).filter(setId => practiceSetIds.has(setId) && stats[setId].lastTrained).length;
   }
+  
+  const resetAllStats = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.removeItem('excel-ninja-stats');
+        setStats({}); // Reset the state to an empty object
+      } catch (error) {
+        console.error("Could not reset stats in localStorage", error);
+      }
+    }
+  }, []);
 
-  return { stats, isLoaded, updateStats, getTrainedDates, getCompletedSetsCount };
+  return { stats, isLoaded, updateStats, getTrainedDates, getCompletedSetsCount, resetAllStats };
 };
 

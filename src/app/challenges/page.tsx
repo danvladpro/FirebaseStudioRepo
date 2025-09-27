@@ -2,18 +2,30 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, BookMarked, ArrowRight, Layers, Filter, Lock } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, BookMarked, ArrowRight, Layers, Filter, Lock, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
 import { ChallengeSet } from '@/lib/types';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ElementType } from 'react';
+import { ElementType, useState } from 'react';
 import { AppHeader } from '@/components/app-header';
 import { useAuth } from '@/components/auth-provider';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -27,14 +39,20 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
 };
 
 export default function ChallengesPage() {
-    const { stats, isLoaded } = usePerformanceTracker();
+    const { stats, isLoaded, resetAllStats } = usePerformanceTracker();
     const { isGuest } = useAuth();
+    const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+
     const GUEST_ALLOWED_SET_ID = 'formatting-basics';
 
     const setsToDisplay = isGuest 
       ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== GUEST_ALLOWED_SET_ID }))
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
-
+    
+    const handleReset = () => {
+        resetAllStats();
+        setIsResetDialogOpen(false);
+    }
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -47,12 +65,35 @@ export default function ChallengesPage() {
                             {isGuest ? "Try the 'Formatting Basics' set below. Sign up for full access." : "Choose a set to practice specific skills."}
                         </p>
                     </div>
-                     <Button asChild variant="outline">
-                        <Link href="/dashboard">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Dashboard
-                        </Link>
-                    </Button>
+                     <div className="flex items-center gap-2">
+                        {!isGuest && (
+                           <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" size="sm">
+                                        <Trash2 className="mr-2 h-4 w-4" /> Reset Progress
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete all your challenge progress, including best times and scores.
+                                    </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleReset}>Confirm Reset</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )}
+                        <Button asChild variant="outline">
+                            <Link href="/dashboard">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back to Dashboard
+                            </Link>
+                        </Button>
+                    </div>
                 </header>
 
                 <section>
