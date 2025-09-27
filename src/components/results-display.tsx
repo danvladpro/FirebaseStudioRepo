@@ -33,7 +33,7 @@ const KeyDisplay = ({ value }: { value: string }) => {
 export default function ResultsDisplay() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { stats, updateStats } = usePerformanceTracker();
+  const { stats, updateStats, isLoaded } = usePerformanceTracker();
   const { isGuest } = useAuth();
   
   const [isNewRecord, setIsNewRecord] = useState(false);
@@ -106,7 +106,7 @@ export default function ResultsDisplay() {
               <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
             </div>
           </div>
-          {personalBest && !isGuest && (
+          {isLoaded && personalBest && !isGuest && (
             <div>
               <p className="text-sm text-muted-foreground">Personal Best (Time)</p>
               <p className="text-2xl font-semibold tracking-tight text-foreground">
