@@ -19,10 +19,17 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ModeToggle } from './mode-toggle';
 import { User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export function AppHeader() {
   const { user, isGuest } = useAuth();
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -82,7 +89,7 @@ export function AppHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
            ) : (
-            isGuest && (
+            isClient && isGuest && (
               <Button asChild>
                 <Link href="/signup">Sign Up</Link>
               </Button>
