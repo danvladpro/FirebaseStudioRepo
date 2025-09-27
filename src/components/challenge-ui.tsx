@@ -55,8 +55,9 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const finishChallenge = useCallback((finalSkipped: number[]) => {
       const duration = (Date.now() - startTime) / 1000;
       const skippedParam = finalSkipped.join(',');
-      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}`);
-  },[router, set.id, startTime]);
+      const guestParam = isGuest ? '&guest=true' : '';
+      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}${guestParam}`);
+  },[router, set.id, startTime, isGuest]);
 
 
   const normalizeKey = (key: string) => {
@@ -99,6 +100,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
   const handleSkip = useCallback(() => {
     if (isAdvancing.current) return;
+    isAdvancing.current = true; // Immediately mark as advancing
     const newSkipped = [...skippedIndices, currentChallengeIndex];
     setSkippedIndices(newSkipped);
     moveToNext(newSkipped);
