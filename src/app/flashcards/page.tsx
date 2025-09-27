@@ -73,12 +73,19 @@ export default function FlashcardsPage() {
                                         </div>
                                     </CardContent>
                                     <div className="p-6 pt-0 mt-auto">
-                                        <Button asChild className="w-full" disabled={set.isLocked}>
-                                            <Link href={set.isLocked ? "#" : `/flashcards/${set.id}${guestQuery}`}>
-                                                {set.isLocked ? <Lock className="mr-2"/> : "Study this set"}
-                                                {!set.isLocked && <ArrowRight className="ml-2 h-4 w-4" />}
-                                            </Link>
-                                        </Button>
+                                      {set.isLocked && isGuest ? (
+                                          <Button className="w-full" disabled variant="warning">
+                                              <Lock className="mr-2" />
+                                              Sign Up to Unlock
+                                          </Button>
+                                      ) : (
+                                          <Button asChild className="w-full" disabled={set.isLocked}>
+                                              <Link href={set.isLocked ? "#" : `/flashcards/${set.id}${guestQuery}`}>
+                                                  {set.isLocked ? <Lock className="mr-2"/> : "Study this set"}
+                                                  {!set.isLocked && <ArrowRight className="ml-2 h-4 w-4" />}
+                                              </Link>
+                                          </Button>
+                                      )}
                                     </div>
                                 </Card>
                             );
