@@ -132,9 +132,9 @@ export default function ChallengesPage() {
                                             </div>
                                             <div>
                                                 {isLoaded && !isGuest ? (
-                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestTime ? `${bestTime.toFixed(2)}s` : 'N/A'}</p>
+                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestTime ? `${bestTime.toFixed(2)}s` : '-'}</p>
                                                 ) : <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />}
-                                                {isGuest && <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>N/A</p>}
+                                                {isGuest && <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>}
                                                 <p>Best Time</p>
                                             </div>
                                         </div>
