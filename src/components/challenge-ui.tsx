@@ -55,9 +55,8 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const finishChallenge = useCallback((finalSkipped: number[]) => {
       const duration = (Date.now() - startTime) / 1000;
       const skippedParam = finalSkipped.join(',');
-      const guestParam = isGuest ? '&guest=true' : '';
-      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}${guestParam}`);
-  },[router, set.id, startTime, isGuest]);
+      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}`);
+  },[router, set.id, startTime]);
 
 
   const normalizeKey = (key: string) => {
@@ -84,17 +83,18 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
     const isLastChallenge = currentChallengeIndex === set.challenges.length - 1;
     
+    if (isLastChallenge) {
+        finishChallenge(skippedIndices);
+        return;
+    }
+
     setTimeout(() => {
-        if (isLastChallenge) {
-           finishChallenge(skippedIndices);
-        } else {
-            setCurrentChallengeIndex(prev => prev + 1);
-            setFeedback(null);
-            setPressedKeys(new Set());
-            setCountdown(8);
-            keydownProcessed.current = false;
-            isAdvancing.current = false;
-        }
+        setCurrentChallengeIndex(prev => prev + 1);
+        setFeedback(null);
+        setPressedKeys(new Set());
+        setCountdown(8);
+        keydownProcessed.current = false;
+        isAdvancing.current = false;
     }, 300);
   }, [currentChallengeIndex, set.challenges.length, finishChallenge, skippedIndices]);
 
@@ -269,3 +269,5 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     </Card>
   );
 }
+
+    
