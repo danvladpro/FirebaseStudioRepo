@@ -68,7 +68,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     return key;
   };
   
-  const moveToNext = useCallback((updatedSkippedIndices?: number[]) => {
+  const moveToNext = useCallback(() => {
     if (isAdvancing.current) return;
     isAdvancing.current = true;
 
@@ -86,7 +86,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     
     setTimeout(() => {
         if (isLastChallenge) {
-           finishChallenge(updatedSkippedIndices || skippedIndices);
+           finishChallenge(skippedIndices);
         } else {
             setCurrentChallengeIndex(prev => prev + 1);
             setFeedback(null);
@@ -99,11 +99,9 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge, skippedIndices]);
 
   const handleSkip = useCallback(() => {
-    if (isAdvancing.current) return;
-    isAdvancing.current = true; // Immediately mark as advancing
     const newSkipped = [...skippedIndices, currentChallengeIndex];
     setSkippedIndices(newSkipped);
-    moveToNext(newSkipped);
+    moveToNext();
   }, [moveToNext, currentChallengeIndex, skippedIndices]);
 
   const advanceChallenge = useCallback(() => {
@@ -141,9 +139,13 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
         setCountdown(8);
 
-        timeoutRef.current = setTimeout(() => {
-            handleSkip();
-        }, 8000);
+        const autoSkip = () => {
+             const newSkipped = [...skippedIndices, currentChallengeIndex];
+             setSkippedIndices(newSkipped);
+             moveToNext();
+        }
+
+        timeoutRef.current = setTimeout(autoSkip, 8000);
         
         intervalRef.current = setInterval(() => {
             setCountdown(prev => Math.max(0, prev - 1));
@@ -153,7 +155,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             if (timeoutRef.current) clearTimeout(timeoutRef.current);
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [currentChallengeIndex, handleSkip]);
+    }, [currentChallengeIndex, skippedIndices, moveToNext]);
 
 
   useEffect(() => {
