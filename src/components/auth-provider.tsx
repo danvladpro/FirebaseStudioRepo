@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // A protected route is any route that isn't the landing page or an auth page
     const isProtectedRoute = !isAuthPage && !isLandingPage;
 
-    if (!user && isProtectedRoute) {
+    if (!user && isProtectedRoute && !isGuest) {
       router.push('/login');
     }
     
