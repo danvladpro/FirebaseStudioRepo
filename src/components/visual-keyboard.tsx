@@ -37,9 +37,9 @@ const keyWidths: Record<string, string> = {
     'enter': '5rem',
     'shift': '5.5rem',
     'control': '2.5rem',
-    'meta': '2.5rem',
+    'meta': '3.5rem',
     'alt': '2.5rem',
-    ' ': '12rem'
+    ' ': '9.5rem'
 };
 
 const normalizeKey = (key: string) => {
@@ -78,7 +78,7 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
                                         flexGrow: key === ' ' ? 1 : 0 
                                     }}
                                 >
-                                    <span className="truncate px-2">{keyDisplayMap[key] || key.toUpperCase()}</span>
+                                    <span className="px-1">{keyDisplayMap[key] || key.toUpperCase()}</span>
                                 </div>
                             );
                         })}
@@ -88,3 +88,4 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
         </div>
     );
 };
+
