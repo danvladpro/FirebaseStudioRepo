@@ -67,28 +67,22 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     return key;
   };
   
-  const moveToNext = useCallback(() => {
+  const moveToNext = useCallback((updatedSkippedIndices: number[]) => {
     if (isAdvancing.current) return;
     isAdvancing.current = true;
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    
-    if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (intervalRef.current) clearInterval(intervalRef.current);
 
     const isLastChallenge = currentChallengeIndex === set.challenges.length - 1;
     
     if (isLastChallenge) {
-        finishChallenge(skippedIndices);
+        finishChallenge(updatedSkippedIndices);
         return;
     }
 
     setTimeout(() => {
+        setSkippedIndices(updatedSkippedIndices);
         setCurrentChallengeIndex(prev => prev + 1);
         setFeedback(null);
         setPressedKeys(new Set());
@@ -96,18 +90,18 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
         keydownProcessed.current = false;
         isAdvancing.current = false;
     }, 300);
-  }, [currentChallengeIndex, set.challenges.length, finishChallenge, skippedIndices]);
+  }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const handleSkip = useCallback(() => {
     const newSkipped = [...skippedIndices, currentChallengeIndex];
-    setSkippedIndices(newSkipped);
-    moveToNext();
+    moveToNext(newSkipped);
   }, [moveToNext, currentChallengeIndex, skippedIndices]);
 
   const advanceChallenge = useCallback(() => {
     setFeedback("correct");
-    moveToNext();
-  }, [moveToNext]);
+    // When a challenge is answered correctly, we pass the *current* skipped list
+    moveToNext(skippedIndices);
+  }, [moveToNext, skippedIndices]);
   
   const handleIncorrect = () => {
     setFeedback("incorrect");
@@ -140,9 +134,8 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
         setCountdown(8);
 
         const autoSkip = () => {
-             const newSkipped = [...skippedIndices, currentChallengeIndex];
-             setSkippedIndices(newSkipped);
-             moveToNext();
+            const newSkipped = [...skippedIndices, currentChallengeIndex];
+            moveToNext(newSkipped);
         }
 
         timeoutRef.current = setTimeout(autoSkip, 8000);
