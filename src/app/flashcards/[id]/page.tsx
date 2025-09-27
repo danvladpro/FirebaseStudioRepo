@@ -9,9 +9,13 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Suspense } from 'react';
+import { useAuth } from '@/components/auth-provider';
+
 
 function FlashcardSetPageContent({ params }: { params: { id: string } }) {
   const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === params.id) as ChallengeSet | undefined;
+  const { isGuest } = useAuth();
+  const guestQuery = isGuest ? '?guest=true' : '';
 
   if (!challengeSet) {
     notFound();
@@ -27,7 +31,7 @@ function FlashcardSetPageContent({ params }: { params: { id: string } }) {
             <p className="text-muted-foreground mt-1">Study the shortcuts for this set.</p>
           </div>
            <Button asChild variant="outline">
-              <Link href="/flashcards">
+              <Link href={`/flashcards${guestQuery}`}>
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to All Decks
               </Link>
@@ -43,7 +47,7 @@ function FlashcardSetPageContent({ params }: { params: { id: string } }) {
 export default function FlashcardSetPage({ params }: { params: { id: string } }) {
   return (
     <Suspense>
-      <FlashcardSetPageContent params={params} />
+        <FlashcardSetPageContent params={params} />
     </Suspense>
   );
 }

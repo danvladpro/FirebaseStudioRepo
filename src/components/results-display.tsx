@@ -80,8 +80,9 @@ export default function ResultsDisplay() {
     );
   }
 
-  const dashboardPath = "/dashboard";
-  const challengePath = `/challenge/${setId}`;
+  const guestQuery = isGuest ? '?guest=true' : '';
+  const dashboardPath = `/dashboard${guestQuery}`;
+  const challengePath = `/challenge/${setId}${guestQuery}`;
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">

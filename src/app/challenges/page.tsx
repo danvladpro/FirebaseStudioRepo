@@ -44,6 +44,7 @@ export default function ChallengesPage() {
     const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
 
     const GUEST_ALLOWED_SET_ID = 'formatting-basics';
+    const guestQuery = isGuest ? '?guest=true' : '';
 
     const setsToDisplay = isGuest 
       ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== GUEST_ALLOWED_SET_ID }))
@@ -88,7 +89,7 @@ export default function ChallengesPage() {
                             </AlertDialog>
                         )}
                         <Button asChild variant="outline">
-                            <Link href="/dashboard">
+                            <Link href={`/dashboard${guestQuery}`}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Dashboard
                             </Link>
@@ -139,7 +140,7 @@ export default function ChallengesPage() {
                                             </div>
                                         </div>
                                         <Button asChild size="sm" className="md:col-start-4" variant={hasBeenCompleted && !set.isLocked ? "warning" : "default"} disabled={set.isLocked}>
-                                            <Link href={set.isLocked ? "#" : `/challenge/${set.id}`}>
+                                            <Link href={set.isLocked ? "#" : `/challenge/${set.id}${guestQuery}`}>
                                                 {set.isLocked ? <Lock /> : (hasBeenCompleted ? 'Try Again' : 'Start')}
                                                 {!set.isLocked && <ArrowRight className="ml-2 h-4 w-4" />}
                                             </Link>
