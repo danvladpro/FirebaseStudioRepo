@@ -127,15 +127,21 @@ export default function ChallengesPage() {
                                                     ) : (
                                                         <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
                                                     )
-                                                ) : <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />}
-                                                 {isGuest && <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>}
+                                                ) : isGuest ? (
+                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
+                                                ) : (
+                                                    <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
+                                                )}
                                                 <p>Last Score</p>
                                             </div>
                                             <div>
                                                 {isLoaded && !isGuest ? (
-                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestTime ? `${bestTime.toFixed(2)}s` : '-'}</p>
-                                                ) : <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />}
-                                                {isGuest && <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>}
+                                                     <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestTime ? `${bestTime.toFixed(2)}s` : '-'}</p>
+                                                ) : isGuest ? (
+                                                     <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
+                                                ) : (
+                                                    <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
+                                                )}
                                                 <p>Best Time</p>
                                             </div>
                                         </div>
