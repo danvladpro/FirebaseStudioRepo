@@ -11,6 +11,23 @@ import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from './ui/separator';
 import { useAuth } from './auth-provider';
+import { cn } from '@/lib/utils';
+
+
+const KeyDisplay = ({ value }: { value: string }) => {
+    const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
+    const isLetter = value.length === 1 && value.match(/[a-z]/i);
+
+    return (
+        <kbd className={cn(
+            "px-1.5 py-1 text-xs font-semibold text-muted-foreground bg-muted rounded-md border-b-2",
+            isModifier ? "min-w-[3rem] text-center" : "",
+            isLetter ? "uppercase" : ""
+        )}>
+            {value === " " ? "Space" : value}
+        </kbd>
+    );
+};
 
 
 export default function ResultsDisplay() {
@@ -63,12 +80,12 @@ export default function ResultsDisplay() {
     );
   }
 
-  const dashboardPath = '/dashboard';
-  const challengePath = `/challenge/${setId}`;
+  const dashboardPath = isGuest ? "/dashboard?guest=true" : "/dashboard";
+  const challengePath = isGuest ? `/challenge/${setId}?guest=true` : `/challenge/${setId}`;
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">
-      <Card className="w-full max-w-md text-center">
+      <Card className="w-full max-w-lg text-center">
         <CardHeader>
           {isNewRecord && isPerfectScore && !isGuest && (
             <Badge className="w-fit mx-auto mb-4 bg-accent text-accent-foreground hover:bg-accent/90">
@@ -105,9 +122,14 @@ export default function ResultsDisplay() {
                     <AlertTriangle className="w-4 h-4"/>
                     Areas for Improvement
                   </h3>
-                  <ul className="text-sm text-muted-foreground list-disc list-inside bg-muted/50 p-3 rounded-md">
+                  <ul className="text-sm text-muted-foreground space-y-3 bg-muted/50 p-4 rounded-md">
                       {skippedChallenges.map((challenge, index) => (
-                          <li key={index}>{challenge.description}</li>
+                          <li key={index} className="flex justify-between items-center">
+                            <span>{challenge.description}</span>
+                            <div className="flex items-center gap-1.5">
+                              {challenge.keys.map(key => <KeyDisplay key={key} value={key} />)}
+                            </div>
+                          </li>
                       ))}
                   </ul>
               </div>
