@@ -80,8 +80,8 @@ export default function ResultsDisplay() {
     );
   }
 
-  const dashboardPath = isGuest ? "/dashboard?guest=true" : "/dashboard";
-  const challengePath = isGuest ? `/challenge/${setId}?guest=true` : `/challenge/${setId}`;
+  const dashboardPath = "/dashboard";
+  const challengePath = `/challenge/${setId}`;
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">
@@ -106,7 +106,7 @@ export default function ResultsDisplay() {
               <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
             </div>
           </div>
-          {isLoaded && personalBest && !isGuest && (
+          {isLoaded && isPerfectScore && personalBest && !isGuest && (
             <div>
               <p className="text-sm text-muted-foreground">Personal Best (Time)</p>
               <p className="text-2xl font-semibold tracking-tight text-foreground">
