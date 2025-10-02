@@ -1,9 +1,11 @@
+
 "use client";
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { doc, setDoc } from "firebase/firestore"; 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,7 +33,16 @@ export default function SignupPage() {
       return;
     }
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Create a user document in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        premium: false,
+        expirationDate: null,
+      });
+
       router.push('/dashboard');
     } catch (error: any) {
        toast({
