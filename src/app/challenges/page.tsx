@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, BookMarked, ArrowRight, Layers, Filter, Lock, Trash2 } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, BookMarked, ArrowRight, Layers, Filter, Lock, Trash2, GalleryVerticalEnd } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
@@ -36,6 +36,7 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     BookMarked,
     Layers,
     Filter,
+    GalleryVerticalEnd
 };
 
 export default function ChallengesPage() {

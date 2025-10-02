@@ -6,6 +6,7 @@ export interface Challenge {
   description: string;
   keys: string[];
   iconName: keyof typeof import("lucide-react");
+  isSequential?: boolean;
 }
 
 export interface ChallengeSet {
@@ -14,7 +15,7 @@ export interface ChallengeSet {
   description: string;
   category: string;
   challenges: Challenge[];
-  iconName: "ClipboardCopy" | "ArrowRightLeft" | "MousePointerSquareDashed" | "Pilcrow" | "FunctionSquare" | "BookMarked" | "Layers" | "Filter";
+  iconName: "ClipboardCopy" | "ArrowRightLeft" | "MousePointerSquareDashed" | "Pilcrow" | "FunctionSquare" | "BookMarked" | "Layers" | "Filter" | "GalleryVerticalEnd";
 }
 
 export interface PerformanceRecord {

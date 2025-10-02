@@ -64,6 +64,21 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       { description: "Redo the last action", keys: ["Control", "y"], iconName: "Redo2" },
     ],
   },
+    {
+    id: "ribbon-power-user",
+    name: "Ribbon Power User",
+    description: "Navigate the ribbon using keyboard sequences.",
+    category: "Ribbon",
+    iconName: "GalleryVerticalEnd",
+    challenges: [
+      { description: "Center align cell contents", keys: ["Alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true },
+      { description: "Merge and center cells", keys: ["Alt", "h", "m", "c"], iconName: "Merge", isSequential: true },
+      { description: "Apply all borders to selection", keys: ["Alt", "h", "b", "a"], iconName: "Grid", isSequential: true },
+      { description: "Apply a thick box border", keys: ["Alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true },
+      { description: "Wrap text in a cell", keys: ["Alt", "h", "w"], iconName: "WrapText", isSequential: true },
+      { description: "Set column width", keys: ["Alt", "h", "o", "w"], iconName: "Columns", isSequential: true },
+    ],
+  },
   {
     id: "formula-wizardry",
     name: "Formula Wizardry",

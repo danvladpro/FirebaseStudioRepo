@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ChallengeSet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -10,20 +10,19 @@ import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight } from "lucide-rea
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
-import { useAuth } from "./auth-provider";
-
 
 interface ChallengeUIProps {
   set: ChallengeSet;
 }
 
-const KeyDisplay = ({ value }: { value: string }) => {
+const KeyDisplay = ({ value, isNext }: { value: string, isNext?: boolean }) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
     return (
         <kbd className={cn(
-            "px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted rounded-md border-b-2",
+            "px-2 py-1.5 text-xs font-semibold rounded-md border-b-2",
+             isNext ? "text-primary-foreground bg-primary" : "text-muted-foreground bg-muted",
             isModifier ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
@@ -35,9 +34,9 @@ const KeyDisplay = ({ value }: { value: string }) => {
 
 export default function ChallengeUI({ set }: ChallengeUIProps) {
   const router = useRouter();
-  const { isGuest } = useAuth();
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+  const [sequence, setSequence] = useState<string[]>([]);
   const [startTime, setStartTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
@@ -86,6 +85,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
         setCurrentChallengeIndex(prev => prev + 1);
         setFeedback(null);
         setPressedKeys(new Set());
+        setSequence([]);
         setCountdown(8);
         keydownProcessed.current = false;
         isAdvancing.current = false;
@@ -99,7 +99,6 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
   const advanceChallenge = useCallback(() => {
     setFeedback("correct");
-    // When a challenge is answered correctly, we pass the *current* skipped list
     moveToNext(skippedIndices);
   }, [moveToNext, skippedIndices]);
   
@@ -108,6 +107,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     setTimeout(() => {
       setFeedback(null);
       setPressedKeys(new Set());
+      setSequence([]);
       keydownProcessed.current = false;
     }, 500);
   };
@@ -153,33 +153,54 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
   useEffect(() => {
     if (!currentChallenge) return;
-
+    
     const handleKeyDown = (e: KeyboardEvent) => {
-      e.preventDefault();
-      if (isAdvancing.current || keydownProcessed.current) return;
+        e.preventDefault();
+        if (isAdvancing.current || keydownProcessed.current) return;
 
-      const key = normalizeKey(e.key);
-      const newKeys = new Set(pressedKeys);
-      newKeys.add(key);
-      setPressedKeys(newKeys);
-      
-      const requiredKeys = new Set(currentChallenge.keys.map(k => normalizeKey(k)));
-      
-      const sortedPressed = [...newKeys].sort().join(',');
-      const sortedRequired = [...requiredKeys].sort().join(',');
+        const key = normalizeKey(e.key);
 
-      if (sortedPressed === sortedRequired) {
-        keydownProcessed.current = true;
-        advanceChallenge();
-      } else if (newKeys.size >= requiredKeys.size) {
-        handleIncorrect();
-      }
+        if (currentChallenge.isSequential) {
+            const newSequence = [...sequence, key];
+            setSequence(newSequence);
+
+            const requiredSequence = currentChallenge.keys.map(k => normalizeKey(k));
+            
+            // Check if the current sequence is a valid prefix
+            for(let i = 0; i < newSequence.length; i++) {
+                if (newSequence[i] !== requiredSequence[i]) {
+                    handleIncorrect();
+                    return;
+                }
+            }
+            
+            if (newSequence.length === requiredSequence.length) {
+                keydownProcessed.current = true;
+                advanceChallenge();
+            }
+        } else {
+            const newKeys = new Set(pressedKeys);
+            newKeys.add(key);
+            setPressedKeys(newKeys);
+            
+            const requiredKeys = new Set(currentChallenge.keys.map(k => normalizeKey(k)));
+            
+            const sortedPressed = [...newKeys].sort().join(',');
+            const sortedRequired = [...requiredKeys].sort().join(',');
+
+            if (sortedPressed === sortedRequired) {
+                keydownProcessed.current = true;
+                advanceChallenge();
+            } else if (newKeys.size >= requiredKeys.size) {
+                handleIncorrect();
+            }
+        }
     };
     
     const handleKeyUp = (e: KeyboardEvent) => {
         e.preventDefault();
         
-        if (!keydownProcessed.current) {
+        if (!currentChallenge.isSequential && !keydownProcessed.current) {
             setPressedKeys(new Set());
         }
     };
@@ -191,7 +212,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, currentChallenge, advanceChallenge]);
+  }, [pressedKeys, sequence, currentChallenge, advanceChallenge]);
 
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;
@@ -249,10 +270,16 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       </CardContent>
       <CardFooter className="bg-muted/50 min-h-[80px] flex items-center justify-between gap-2 flex-wrap p-4">
         <div className="flex items-center justify-center gap-2">
-            {pressedKeys.size > 0 ? (
-            Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} />)
+            {currentChallenge.isSequential ? (
+              sequence.length > 0 ? (
+                sequence.map((key, index) => <KeyDisplay key={index} value={key} />)
+              ) : <span className="text-muted-foreground">Press the required keys in sequence...</span>
             ) : (
-            <span className="text-muted-foreground">Press the required keys...</span>
+              pressedKeys.size > 0 ? (
+                Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} />)
+              ) : (
+                <span className="text-muted-foreground">Press the required keys...</span>
+              )
             )}
         </div>
         <Button variant="outline" size="sm" onClick={handleSkip} disabled={isAdvancing.current}>
