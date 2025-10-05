@@ -63,8 +63,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // A guest is allowed on these specific paths
     const isGuestAllowedPath = ['/dashboard', '/challenges', '/flashcards', '/results'].some(p => pathname.startsWith(p)) || pathname.startsWith('/challenge/') || pathname.startsWith('/flashcards/');
     
+
     if (isGuest && isGuestAllowedPath) {
-      // If in guest mode and on an allowed path, do nothing.
+      //If in guest mode and on an allowed path, do nothing.
       return;
     }
 
