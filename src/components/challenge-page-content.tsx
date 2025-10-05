@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -8,8 +9,11 @@ import { AppHeader } from '@/components/app-header';
 import ChallengeUI from '@/components/challenge-ui';
 import { useAuth } from '@/components/auth-provider';
 
+// NOTE: Auth has been temporarily disabled for debugging.
+const useAuthBypass = () => ({ isGuest: true });
+
 export function ChallengePageContent({ challengeSet }: { challengeSet: ChallengeSet }) {
-  const { isGuest } = useAuth();
+  const { isGuest } = useAuthBypass();
   const guestQuery = isGuest ? '?guest=true' : '';
 
   return (

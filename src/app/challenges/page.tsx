@@ -39,9 +39,12 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     GalleryVerticalEnd
 };
 
+// NOTE: Auth has been temporarily disabled for debugging.
+const useAuthBypass = () => ({ isGuest: true });
+
 export default function ChallengesPage() {
     const { stats, isLoaded, resetAllStats } = usePerformanceTracker();
-    const { isGuest } = useAuth();
+    const { isGuest } = useAuthBypass();
     const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
 
     const GUEST_ALLOWED_SET_ID = 'formatting-basics';

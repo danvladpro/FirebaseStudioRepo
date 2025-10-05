@@ -20,9 +20,12 @@ interface HomePageClientProps {
   examSet: ChallengeSet;
 }
 
+// NOTE: Auth has been temporarily disabled for debugging.
+const useAuthBypass = () => ({ isGuest: true });
+
 export function HomePageClient({ examSet }: HomePageClientProps) {
   const { isLoaded, stats, getCompletedSetsCount } = usePerformanceTracker();
-  const { isGuest } = useAuth();
+  const { isGuest } = useAuthBypass();
   
   const examBestTime = stats['exam']?.bestTime ?? null;
   const completedSetsCount = getCompletedSetsCount();

@@ -30,10 +30,13 @@ const KeyDisplay = ({ value }: { value: string }) => {
     );
 };
 
+// NOTE: Auth has been temporarily disabled for debugging.
+const useAuthBypass = () => ({ isGuest: true });
+
 export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnswerShown, setIsAnswerShown] = useState(false);
-    const { isGuest } = useAuth();
+    const { isGuest } = useAuthBypass();
     
     // For guest mode, limit to 5 cards
     const challenges = isGuest ? set.challenges.slice(0, 5) : set.challenges;

@@ -24,8 +24,11 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     Filter,
 };
 
+// NOTE: Auth has been temporarily disabled for debugging.
+const useAuthBypass = () => ({ isGuest: true });
+
 export default function FlashcardsPage() {
-    const { isGuest } = useAuth();
+    const { isGuest } = useAuthBypass();
     const GUEST_ALLOWED_SET_ID = 'formatting-basics';
     const guestQuery = isGuest ? '?guest=true' : '';
 

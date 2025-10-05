@@ -29,12 +29,14 @@ const KeyDisplay = ({ value }: { value: string }) => {
     );
 };
 
+// NOTE: Auth has been temporarily disabled for debugging.
+const useAuthBypass = () => ({ isGuest: true });
 
 export default function ResultsDisplay() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { stats, updateStats, isLoaded } = usePerformanceTracker();
-  const { isGuest } = useAuth();
+  const { isGuest } = useAuthBypass();
   
   const [isNewRecord, setIsNewRecord] = useState(false);
   
