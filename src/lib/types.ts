@@ -27,9 +27,3 @@ export interface PerformanceRecord {
 export interface UserStats {
   [setId: string]: PerformanceRecord;
 }
-
-export interface UserProfile {
-  email: string | null;
-  premium: boolean;
-  expirationDate: Date | null;
-}
