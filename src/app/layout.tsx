@@ -28,12 +28,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* <Suspense fallback={<div>Loading...</div>}>
-            <AuthProvider> */}
+          <Suspense fallback={<div>Loading...</div>}>
+            <AuthProvider>
               {children}
               <Toaster />
-            {/* </AuthProvider>
-          </Suspense> */}
+            </AuthProvider>
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>
