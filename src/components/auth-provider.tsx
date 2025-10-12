@@ -3,16 +3,19 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { UserProfile } from '@/lib/types';
 
 interface AuthContextType {
   user: User | null;
+  userProfile: UserProfile | null;
   loading: boolean;
   isGuest: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isGuest: false });
+const AuthContext = createContext<AuthContextType>({ user: null, userProfile: null, loading: true, isGuest: false });
 
 // Helper to check sessionStorage safely on the client
 const isGuestSessionActive = () => {
@@ -22,6 +25,7 @@ const isGuestSessionActive = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -40,18 +44,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [searchParams]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      setLoading(true);
       if (user) {
+        setUser(user);
         // If a user signs in, they are no longer a guest.
         if (typeof window !== 'undefined') {
           window.sessionStorage.removeItem('isGuest');
         }
         setIsGuest(false);
+
+        // Fetch user profile from Firestore
+        const userDocRef = doc(db, 'users', user.uid);
+        const unsubscribeSnapshot = onSnapshot(userDocRef, (docSnap) => {
+          if (docSnap.exists()) {
+            setUserProfile(docSnap.data() as UserProfile);
+          } else {
+            console.log("No such user document!");
+            setUserProfile(null);
+          }
+           setLoading(false);
+        });
+
+        // Detach listener when user logs out
+        return () => unsubscribeSnapshot();
+      } else {
+        setUser(null);
+        setUserProfile(null);
+        setLoading(false);
       }
-      setUser(user);
-      setLoading(false);
     });
-    return () => unsubscribe();
+
+    return () => unsubscribeAuth();
   }, []);
 
   useEffect(() => {
@@ -84,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [user, loading, pathname, router, isGuest, searchParams]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, isGuest }}>
+    <AuthContext.Provider value={{ user, userProfile, loading, isGuest }}>
       {children}
     </AuthContext.Provider>
   );

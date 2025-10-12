@@ -27,3 +27,9 @@ export interface PerformanceRecord {
 export interface UserStats {
   [setId: string]: PerformanceRecord;
 }
+
+export interface UserProfile {
+  email: string;
+  isPremium: boolean;
+  stripeCustomerId?: string;
+}
