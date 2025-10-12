@@ -1,3 +1,4 @@
+
 import './globals.css';
 import { AuthProvider } from '@/components/auth-provider';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -18,11 +19,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Suspense>
-            <AuthProvider>
-              {children}
-            </AuthProvider>
-          </Suspense>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
           <Toaster />
         </ThemeProvider>
       </body>

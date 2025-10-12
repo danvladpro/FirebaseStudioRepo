@@ -41,13 +41,12 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
 
 export default function ChallengesPage() {
     const { stats, isLoaded, resetAllStats } = usePerformanceTracker();
-    const { user, userProfile, isGuest } = useAuth();
+    const { user, userProfile } = useAuth();
     const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
 
-    const isLimited = isGuest || (user && userProfile && !userProfile.isPremium);
+    const isLimited = !userProfile?.isPremium;
 
     const GUEST_ALLOWED_SET_ID = 'formatting-basics';
-    const guestQuery = isGuest ? '?guest=true' : '';
 
     const setsToDisplay = isLimited 
       ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== GUEST_ALLOWED_SET_ID }))
@@ -77,7 +76,7 @@ export default function ChallengesPage() {
                         </p>
                     </div>
                      <div className="flex items-center gap-2">
-                        {!isGuest && user && (
+                        {user && (
                            <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
                                 <AlertDialogTrigger asChild>
                                     <Button variant="destructive" size="sm">
@@ -99,7 +98,7 @@ export default function ChallengesPage() {
                             </AlertDialog>
                         )}
                         <Button asChild variant="outline">
-                            <Link href={`/dashboard${guestQuery}`}>
+                            <Link href="/dashboard">
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Dashboard
                             </Link>
@@ -131,24 +130,20 @@ export default function ChallengesPage() {
                                                 <p>Questions</p>
                                             </div>
                                             <div>
-                                                {isLoaded && !isGuest ? (
+                                                {isLoaded ? (
                                                     lastScore !== undefined && lastScore !== null ? (
                                                         <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{lastScore.toFixed(0)}%</p>
                                                     ) : (
                                                         <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
                                                     )
-                                                ) : isGuest ? (
-                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
                                                 ) : (
                                                     <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
                                                 )}
                                                 <p>Last Score</p>
                                             </div>
                                             <div>
-                                                {isLoaded && !isGuest ? (
+                                                {isLoaded ? (
                                                      <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestTime ? `${bestTime.toFixed(2)}s` : '-'}</p>
-                                                ) : isGuest ? (
-                                                     <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
                                                 ) : (
                                                     <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
                                                 )}
@@ -159,11 +154,11 @@ export default function ChallengesPage() {
                                             {set.isLocked && isLimited ? (
                                                 <Button className="w-full" disabled variant="warning">
                                                     <Lock className="mr-2" />
-                                                    {isGuest ? 'Sign Up to Unlock' : 'Upgrade to Unlock'}
+                                                    Upgrade to Unlock
                                                 </Button>
                                             ) : (
                                                 <Button asChild size="sm" className="w-full" variant={hasBeenCompleted ? 'warning' : 'default'}>
-                                                    <Link href={`/challenge/${set.id}${guestQuery}`}>
+                                                    <Link href={`/challenge/${set.id}`}>
                                                         {hasBeenCompleted ? 'Try Again' : 'Start'}
                                                         <ArrowRight className="ml-2 h-4 w-4" />
                                                     </Link>
@@ -181,7 +176,7 @@ export default function ChallengesPage() {
                                             <div className="cursor-not-allowed">{cardContent}</div>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>{isGuest ? 'Sign up' : 'Upgrade'} to unlock this challenge set.</p>
+                                            <p>Upgrade to unlock this challenge set.</p>
                                         </TooltipContent>
                                     </Tooltip>
                                 );

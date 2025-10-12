@@ -33,10 +33,10 @@ const KeyDisplay = ({ value }: { value: string }) => {
 export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnswerShown, setIsAnswerShown] = useState(false);
-    const { isGuest } = useAuth();
+    const { userProfile } = useAuth();
     
-    // For guest mode, limit to 5 cards
-    const challenges = isGuest ? set.challenges.slice(0, 5) : set.challenges;
+    const isLimited = !userProfile?.isPremium;
+    const challenges = isLimited ? set.challenges.slice(0, 5) : set.challenges;
 
     const currentChallenge = challenges[currentIndex];
 

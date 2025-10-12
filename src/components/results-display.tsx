@@ -33,7 +33,7 @@ export default function ResultsDisplay() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { stats, updateStats, isLoaded } = usePerformanceTracker();
-  const { isGuest } = useAuth();
+  const { user } = useAuth();
   
   const [isNewRecord, setIsNewRecord] = useState(false);
   
@@ -57,7 +57,7 @@ export default function ResultsDisplay() {
     : [];
 
   useEffect(() => {
-    if (setId && time !== null && !isGuest) {
+    if (setId && time !== null && user) {
       if (isPerfectScore) {
         const oldBest = personalBest;
         if (oldBest === null || oldBest === undefined || time < oldBest) {
@@ -67,7 +67,7 @@ export default function ResultsDisplay() {
       updateStats(setId, time, score);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setId, time, score, isPerfectScore, isGuest]);
+  }, [setId, time, score, isPerfectScore, user]);
 
 
   if (!challengeSet || time === null) {
@@ -79,15 +79,14 @@ export default function ResultsDisplay() {
     );
   }
 
-  const guestQuery = isGuest ? '?guest=true' : '';
-  const dashboardPath = `/dashboard${guestQuery}`;
-  const challengePath = `/challenge/${setId}${guestQuery}`;
+  const dashboardPath = `/dashboard`;
+  const challengePath = `/challenge/${setId}`;
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-lg text-center">
         <CardHeader>
-          {isNewRecord && isPerfectScore && !isGuest && (
+          {isNewRecord && isPerfectScore && user && (
             <Badge className="w-fit mx-auto mb-4 bg-accent text-accent-foreground hover:bg-accent/90">
               <Trophy className="mr-2 h-4 w-4"/> New Record!
             </Badge>
@@ -106,7 +105,7 @@ export default function ResultsDisplay() {
               <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
             </div>
           </div>
-          {isLoaded && isPerfectScore && personalBest && !isGuest && (
+          {isLoaded && isPerfectScore && personalBest && user && (
             <div>
               <p className="text-sm text-muted-foreground">Personal Best (Time)</p>
               <p className="text-2xl font-semibold tracking-tight text-foreground">

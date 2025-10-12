@@ -18,24 +18,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ModeToggle } from './mode-toggle';
-import { User } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 export function AppHeader() {
-  const { user, isGuest } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
 
   const handleLogout = async () => {
     await signOut(auth);
-    if (typeof window !== 'undefined') {
-      window.sessionStorage.removeItem('isGuest');
-    }
     router.push('/');
   };
   
@@ -44,13 +33,11 @@ export function AppHeader() {
     return email.substring(0, 2).toUpperCase();
   }
 
-  const guestQuery = isGuest ? '?guest=true' : '';
-
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
       <div className="container flex items-center justify-between h-16">
         <div className="flex items-center gap-6">
-          <Link href={`/dashboard${guestQuery}`}>
+          <Link href="/dashboard">
             <Logo />
           </Link>
           <nav className="hidden md:flex items-center gap-4">
@@ -58,7 +45,7 @@ export function AppHeader() {
               <Link href="/">Home</Link>
             </Button>
             <Button variant="link" asChild className="text-muted-foreground hover:text-foreground">
-              <Link href={`/dashboard${guestQuery}`}>Dashboard</Link>
+              <Link href="/dashboard">Dashboard</Link>
             </Button>
           </nav>
         </div>
@@ -89,11 +76,9 @@ export function AppHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
            ) : (
-            isClient && isGuest && (
               <Button asChild>
                 <Link href="/signup">Sign Up</Link>
               </Button>
-            )
            )}
         </div>
       </div>

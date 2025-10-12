@@ -28,14 +28,9 @@ function HeroContent() {
                                 <Link href="/dashboard">Go to Dashboard</Link>
                             </Button>
                         ) : (
-                            <>
-                                <Button asChild size="lg">
-                                    <Link href="/signup">Sign Up for Free</Link>
-                                </Button>
-                                <Button asChild size="lg" variant="secondary">
-                                    <Link href="/dashboard?guest=true">Try a Demo</Link>
-                                </Button>
-                            </>
+                            <Button asChild size="lg">
+                                <Link href="/signup">Sign Up for Free</Link>
+                            </Button>
                         )}
                     </div>
                 </div>

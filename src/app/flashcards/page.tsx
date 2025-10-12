@@ -26,13 +26,12 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
 };
 
 export default function FlashcardsPage() {
-    const { user, userProfile, isGuest } = useAuth();
+    const { userProfile } = useAuth();
 
-    const isLimited = isGuest || (user && userProfile && !userProfile.isPremium);
+    const isLimited = !userProfile?.isPremium;
 
     const GUEST_ALLOWED_SET_ID = 'formatting-basics';
-    const guestQuery = isGuest ? '?guest=true' : '';
-
+    
     const setsToDisplay = isLimited
       ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== GUEST_ALLOWED_SET_ID }))
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
@@ -56,7 +55,7 @@ export default function FlashcardsPage() {
                         </p>
                     </div>
                     <Button asChild variant="outline">
-                        <Link href={`/dashboard${guestQuery}`}>
+                        <Link href="/dashboard">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Dashboard
                         </Link>
@@ -87,11 +86,11 @@ export default function FlashcardsPage() {
                                       {set.isLocked && isLimited ? (
                                           <Button className="w-full" disabled variant="warning">
                                               <Lock className="mr-2" />
-                                              {isGuest ? 'Sign Up to Unlock' : 'Upgrade to Unlock'}
+                                              Upgrade to Unlock
                                           </Button>
                                       ) : (
                                           <Button asChild className="w-full">
-                                              <Link href={`/flashcards/${set.id}${guestQuery}`}>
+                                              <Link href={`/flashcards/${set.id}`}>
                                                   Study this set
                                                   <ArrowRight className="ml-2 h-4 w-4" />
                                               </Link>
@@ -108,7 +107,7 @@ export default function FlashcardsPage() {
                                             <div className="cursor-not-allowed w-full h-full">{cardContent}</div>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>{isGuest ? 'Sign up' : 'Upgrade'} to unlock this deck.</p>
+                                            <p>Upgrade to unlock this deck.</p>
                                         </TooltipContent>
                                     </Tooltip>
                                 );

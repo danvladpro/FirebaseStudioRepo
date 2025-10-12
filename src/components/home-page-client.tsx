@@ -22,9 +22,9 @@ interface HomePageClientProps {
 
 export function HomePageClient({ examSet }: HomePageClientProps) {
   const { isLoaded, stats, getCompletedSetsCount } = usePerformanceTracker();
-  const { user, userProfile, isGuest } = useAuth();
+  const { user, userProfile } = useAuth();
   
-  const isLimited = isGuest || (user && userProfile && !userProfile.isPremium);
+  const isLimited = !userProfile?.isPremium;
 
   const examBestTime = stats['exam']?.bestTime ?? null;
   const completedSetsCount = getCompletedSetsCount();
@@ -43,7 +43,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
             {isLimited ? (
                  <Button className="w-full" disabled variant="warning">
                     <Lock className="mr-2" />
-                    {isGuest ? 'Sign Up to Unlock' : 'Upgrade to Unlock'}
+                    Upgrade to Unlock
                  </Button>
             ) : (
                 <Button asChild className="w-full">
@@ -57,17 +57,13 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
     </Card>
   );
   
-  const guestQuery = isGuest ? '?guest=true' : '';
-
   const getDashboardTitle = () => {
-    if (isGuest) return "Guest Dashboard";
     if (userProfile && !userProfile.isPremium) return "Basic Dashboard";
     if (userProfile && userProfile.isPremium) return "Premium Dashboard";
     return "Dashboard";
   }
 
   const getDashboardSubtitle = () => {
-    if (isGuest) return "Welcome! Here's a sample of what Excel Ninja offers.";
     if (userProfile && !userProfile.isPremium) return "Welcome! Upgrade to premium to unlock all features.";
     return "Welcome back! Here's your progress at a glance.";
   }
@@ -105,7 +101,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
               ) : (
                  <div className="text-2xl font-bold text-muted-foreground">Locked</div>
               )}
-              <p className="text-xs text-muted-foreground">{isLimited ? (isGuest ? "Sign up to unlock the exam." : "Upgrade to unlock the exam.") : "Your personal best for the exam."}</p>
+              <p className="text-xs text-muted-foreground">{isLimited ? "Upgrade to unlock the exam." : "Your personal best for the exam."}</p>
             </CardContent>
           </Card>
           <Card className="lg:col-span-2">
@@ -114,7 +110,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
               <CheckSquare className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="flex flex-col items-center justify-center">
-              {isLoaded && !isGuest ? (
+              {isLoaded ? (
                  <div className="text-center">
                     <span className="text-4xl font-bold text-primary">{completedSetsCount}</span>
                     <span className="text-2xl text-muted-foreground">/{totalPracticeSets}</span>
@@ -122,8 +118,8 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                  </div>
               ) : (
                 <div className="flex flex-col items-center gap-2 pt-2 text-center">
-                    <div className="text-2xl font-bold text-muted-foreground">Locked</div>
-                    <p className="text-xs text-muted-foreground mt-2">{isGuest ? "Sign up" : "Upgrade"} to track your progress.</p>
+                    <Skeleton className="w-24 h-8" />
+                    <Skeleton className="w-20 h-4 mt-1" />
                 </div>
               )}
             </CardContent>
@@ -140,7 +136,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                                 <div className="h-full cursor-not-allowed">{examCardContent}</div>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>{isGuest ? "Sign up" : "Upgrade"} to unlock the final exam.</p>
+                                <p>Upgrade to unlock the final exam.</p>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
@@ -154,7 +150,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                      <CardContent className="p-0 flex flex-col items-center justify-center flex-grow">
                         <p className="text-muted-foreground mb-6">{isLimited ? "Try a free challenge set to get a feel for the exercises." : "Ready to warm up? Select from individual challenge sets to practice specific skills."}</p>
                         <Button asChild size="lg">
-                            <Link href={`/challenges${guestQuery}`}>
+                            <Link href="/challenges">
                                 <Library className="mr-2" /> {isLimited ? "Try a Challenge Set" : "View All Challenges"}
                             </Link>
                         </Button>
@@ -167,7 +163,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                      <CardContent className="p-0 flex flex-col items-center justify-center flex-grow">
                         <p className="text-muted-foreground mb-6">{isLimited ? "Study a sample flashcard deck to learn the basics." : "Review all the shortcuts using interactive flashcards to build muscle memory."}</p>
                         <Button asChild size="lg" variant="secondary">
-                            <Link href={`/flashcards${guestQuery}`}>
+                            <Link href="/flashcards">
                                 <Layers className="mr-2" /> {isLimited ? "Try Flashcards" : "Study Flashcards"}
                             </Link>
                         </Button>

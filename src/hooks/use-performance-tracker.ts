@@ -6,12 +6,12 @@ import { UserStats } from '@/lib/types';
 import { CHALLENGE_SETS } from '@/lib/challenges';
 import { useAuth } from '@/components/auth-provider';
 
-const getInitialStats = (): UserStats => {
-  if (typeof window === 'undefined') {
+const getInitialStats = (userId: string | null): UserStats => {
+  if (typeof window === 'undefined' || !userId) {
     return {};
   }
   try {
-    const item = window.localStorage.getItem('excel-ninja-stats');
+    const item = window.localStorage.getItem(`excel-ninja-stats-${userId}`);
     return item ? JSON.parse(item) : {};
   } catch (error) {
     console.error("Could not load stats from localStorage", error);
@@ -20,27 +20,26 @@ const getInitialStats = (): UserStats => {
 };
 
 export const usePerformanceTracker = () => {
-  const [stats, setStats] = useState<UserStats>(getInitialStats());
-  const [isLoaded, setIsLoaded] = useState(false);
   const { user } = useAuth();
-
+  const [stats, setStats] = useState<UserStats>({});
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // When user changes, reload stats from localStorage
-    setStats(getInitialStats());
+    // When user changes, reload stats from localStorage for that user
+    setStats(getInitialStats(user?.uid || null));
     setIsLoaded(true);
   }, [user]);
 
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && isLoaded) {
+    if (typeof window !== 'undefined' && isLoaded && user) {
       try {
-        window.localStorage.setItem('excel-ninja-stats', JSON.stringify(stats));
+        window.localStorage.setItem(`excel-ninja-stats-${user.uid}`, JSON.stringify(stats));
       } catch (error) {
         console.error("Could not save stats to localStorage", error);
       }
     }
-  }, [stats, isLoaded]);
+  }, [stats, isLoaded, user]);
 
   const updateStats = useCallback((setId: string, time: number, score: number) => {
     const currentSetStats = stats[setId];
@@ -74,16 +73,15 @@ export const usePerformanceTracker = () => {
   }
   
   const resetAllStats = useCallback(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && user) {
       try {
-        window.localStorage.removeItem('excel-ninja-stats');
+        window.localStorage.removeItem(`excel-ninja-stats-${user.uid}`);
         setStats({}); // Reset the state to an empty object
       } catch (error) {
         console.error("Could not reset stats in localStorage", error);
       }
     }
-  }, []);
+  }, [user]);
 
   return { stats, isLoaded, updateStats, getTrainedDates, getCompletedSetsCount, resetAllStats };
 };
-
