@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, BookMarked, ArrowRight, Layers, Filter, Lock, Trash2, GalleryVerticalEnd } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, BookMarked, ArrowRight, Layers, Filter, Lock, Trash2, GalleryVerticalEnd, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
@@ -23,7 +23,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
 
@@ -41,19 +40,28 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
 
 export default function ChallengesPage() {
     const { stats, isLoaded, resetAllStats } = usePerformanceTracker();
-    const { isGuest } = useAuth();
+    const { user, userProfile, isGuest } = useAuth();
     const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+
+    const isLimited = isGuest || (user && userProfile && !userProfile.isPremium);
 
     const GUEST_ALLOWED_SET_ID = 'formatting-basics';
     const guestQuery = isGuest ? '?guest=true' : '';
 
-    const setsToDisplay = isGuest 
+    const setsToDisplay = isLimited 
       ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== GUEST_ALLOWED_SET_ID }))
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
     
     const handleReset = () => {
         resetAllStats();
         setIsResetDialogOpen(false);
+    }
+    
+    const getSubtitle = () => {
+        if (isLimited) {
+            return "Try 'Formatting Basics' below. Go premium for full access.";
+        }
+        return "Choose a set to practice specific skills.";
     }
 
     return (
@@ -64,11 +72,11 @@ export default function ChallengesPage() {
                     <div>
                         <h1 className="text-3xl font-bold">Practice Challenges</h1>
                         <p className="text-muted-foreground mt-1">
-                            {isGuest ? "Try the 'Formatting Basics' set below. Sign up for full access." : "Choose a set to practice specific skills."}
+                            {getSubtitle()}
                         </p>
                     </div>
                      <div className="flex items-center gap-2">
-                        {!isGuest && (
+                        {!isGuest && user && (
                            <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
                                 <AlertDialogTrigger asChild>
                                     <Button variant="destructive" size="sm">
@@ -146,12 +154,21 @@ export default function ChallengesPage() {
                                                 <p>Best Time</p>
                                             </div>
                                         </div>
-                                        <Button asChild size="sm" className="md:col-start-4" variant={hasBeenCompleted && !set.isLocked ? "warning" : "default"} disabled={set.isLocked}>
-                                            <Link href={set.isLocked ? "#" : `/challenge/${set.id}${guestQuery}`}>
-                                                {set.isLocked ? <Lock /> : (hasBeenCompleted ? 'Try Again' : 'Start')}
-                                                {!set.isLocked && <ArrowRight className="ml-2 h-4 w-4" />}
-                                            </Link>
-                                        </Button>
+                                        <div className="md:col-start-4">
+                                            {set.isLocked && isLimited ? (
+                                                <Button className="w-full" disabled variant="warning">
+                                                    <Lock className="mr-2" />
+                                                    {isGuest ? 'Sign Up to Unlock' : 'Upgrade to Unlock'}
+                                                </Button>
+                                            ) : (
+                                                <Button asChild size="sm" className="w-full" variant={hasBeenCompleted ? 'warning' : 'default'}>
+                                                    <Link href={`/challenge/${set.id}${guestQuery}`}>
+                                                        {hasBeenCompleted ? 'Try Again' : 'Start'}
+                                                        <ArrowRight className="ml-2 h-4 w-4" />
+                                                    </Link>
+                                                </Button>
+                                            )}
+                                        </div>
                                     </CardContent>
                                 </Card>
                             );
@@ -163,7 +180,7 @@ export default function ChallengesPage() {
                                             <div className="cursor-not-allowed">{cardContent}</div>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>Sign up to unlock this challenge set.</p>
+                                            <p>{isGuest ? 'Sign up' : 'Upgrade'} to unlock this challenge set.</p>
                                         </TooltipContent>
                                     </Tooltip>
                                 );

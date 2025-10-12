@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, BookMarked, Filter, Lock } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, BookMarked, Filter, Lock, GalleryVerticalEnd } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
@@ -22,16 +22,27 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     BookMarked,
     Layers,
     Filter,
+    GalleryVerticalEnd
 };
 
 export default function FlashcardsPage() {
-    const { isGuest } = useAuth();
+    const { user, userProfile, isGuest } = useAuth();
+
+    const isLimited = isGuest || (user && userProfile && !userProfile.isPremium);
+
     const GUEST_ALLOWED_SET_ID = 'formatting-basics';
     const guestQuery = isGuest ? '?guest=true' : '';
 
-    const setsToDisplay = isGuest 
+    const setsToDisplay = isLimited
       ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== GUEST_ALLOWED_SET_ID }))
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
+      
+    const getSubtitle = () => {
+        if (isLimited) {
+            return "Try 'Formatting Basics' below. Go premium for full access.";
+        }
+        return "Choose a set to study with flashcards.";
+    }
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -41,7 +52,7 @@ export default function FlashcardsPage() {
                     <div>
                         <h1 className="text-3xl font-bold">Flashcard Decks</h1>
                         <p className="text-muted-foreground mt-1">
-                             {isGuest ? "Try the 'Formatting Basics' deck below. Sign up for full access." : "Choose a set to study with flashcards."}
+                            {getSubtitle()}
                         </p>
                     </div>
                     <Button asChild variant="outline">
@@ -67,22 +78,22 @@ export default function FlashcardsPage() {
                                                 <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
                                                 <p className="text-sm mt-1">{set.description}</p>
                                                 <p className={cn("text-sm font-semibold mt-2", set.isLocked ? "text-muted-foreground" : "text-primary")}>
-                                                    {isGuest && set.id === GUEST_ALLOWED_SET_ID ? '5 cards (Demo)' : `${set.challenges.length} cards`}
+                                                    {set.id === GUEST_ALLOWED_SET_ID && isLimited ? '5 cards (Demo)' : `${set.challenges.length} cards`}
                                                 </p>
                                             </div>
                                         </div>
                                     </CardContent>
                                     <div className="p-6 pt-0 mt-auto">
-                                      {set.isLocked && isGuest ? (
+                                      {set.isLocked && isLimited ? (
                                           <Button className="w-full" disabled variant="warning">
                                               <Lock className="mr-2" />
-                                              Sign Up to Unlock
+                                              {isGuest ? 'Sign Up to Unlock' : 'Upgrade to Unlock'}
                                           </Button>
                                       ) : (
-                                          <Button asChild className="w-full" disabled={set.isLocked}>
-                                              <Link href={set.isLocked ? "#" : `/flashcards/${set.id}${guestQuery}`}>
-                                                  {set.isLocked ? <Lock className="mr-2"/> : "Study this set"}
-                                                  {!set.isLocked && <ArrowRight className="ml-2 h-4 w-4" />}
+                                          <Button asChild className="w-full">
+                                              <Link href={`/flashcards/${set.id}${guestQuery}`}>
+                                                  Study this set
+                                                  <ArrowRight className="ml-2 h-4 w-4" />
                                               </Link>
                                           </Button>
                                       )}
@@ -97,7 +108,7 @@ export default function FlashcardsPage() {
                                             <div className="cursor-not-allowed w-full h-full">{cardContent}</div>
                                         </TooltipTrigger>
                                         <TooltipContent>
-                                            <p>Sign up to unlock this deck.</p>
+                                            <p>{isGuest ? 'Sign up' : 'Upgrade'} to unlock this deck.</p>
                                         </TooltipContent>
                                     </Tooltip>
                                 );

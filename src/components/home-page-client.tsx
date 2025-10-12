@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, CheckSquare, ArrowRight, BookMarked, Library, Layers, Lock } from "lucide-react";
+import { Trophy, CheckSquare, ArrowRight, BookMarked, Library, Layers, Lock, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,26 +22,28 @@ interface HomePageClientProps {
 
 export function HomePageClient({ examSet }: HomePageClientProps) {
   const { isLoaded, stats, getCompletedSetsCount } = usePerformanceTracker();
-  const { isGuest } = useAuth();
+  const { user, userProfile, isGuest } = useAuth();
   
+  const isLimited = isGuest || (user && userProfile && !userProfile.isPremium);
+
   const examBestTime = stats['exam']?.bestTime ?? null;
   const completedSetsCount = getCompletedSetsCount();
   const totalPracticeSets = CHALLENGE_SETS.length;
 
   const examCardContent = (
-     <Card key={examSet.id} className={cn("border-primary bg-primary/5 flex flex-col", isGuest && "bg-muted/50 border-dashed text-muted-foreground")}>
+     <Card key={examSet.id} className={cn("border-primary bg-primary/5 flex flex-col", isLimited && "bg-muted/50 border-dashed text-muted-foreground")}>
         <CardHeader className="flex-row gap-4 items-center">
-            <BookMarked className={cn("w-10 h-10", isGuest ? "text-muted-foreground" : "text-primary")} />
+            <BookMarked className={cn("w-10 h-10", isLimited ? "text-muted-foreground" : "text-primary")} />
             <div>
-                <CardTitle className={cn(isGuest && "text-muted-foreground")}>{examSet.name}</CardTitle>
+                <CardTitle className={cn(isLimited && "text-muted-foreground")}>{examSet.name}</CardTitle>
                 <CardDescription>{examSet.description}</CardDescription>
             </div>
         </CardHeader>
         <CardFooter className="mt-auto">
-            {isGuest ? (
+            {isLimited ? (
                  <Button className="w-full" disabled variant="warning">
                     <Lock className="mr-2" />
-                    Sign Up to Unlock
+                    {isGuest ? 'Sign Up to Unlock' : 'Upgrade to Unlock'}
                  </Button>
             ) : (
                 <Button asChild className="w-full">
@@ -57,17 +59,36 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
   
   const guestQuery = isGuest ? '?guest=true' : '';
 
+  const getDashboardTitle = () => {
+    if (isGuest) return "Guest Dashboard";
+    if (userProfile && !userProfile.isPremium) return "Basic Dashboard";
+    if (userProfile && userProfile.isPremium) return "Premium Dashboard";
+    return "Dashboard";
+  }
+
+  const getDashboardSubtitle = () => {
+    if (isGuest) return "Welcome! Here's a sample of what Excel Ninja offers.";
+    if (userProfile && !userProfile.isPremium) return "Welcome! Upgrade to premium to unlock all features.";
+    return "Welcome back! Here's your progress at a glance.";
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <AppHeader />
       <main className="flex-1 container py-8 md:py-12 mt-16">
         <header className="mb-8 md:mb-12 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">{isGuest ? "Guest Dashboard" : "Dashboard"}</h1>
+            <h1 className="text-3xl font-bold">{getDashboardTitle()}</h1>
             <p className="text-muted-foreground mt-1">
-              {isGuest ? "Welcome! Here's a sample of what Excel Ninja offers." : "Welcome back! Here's your progress at a glance."}
+              {getDashboardSubtitle()}
             </p>
           </div>
+          {user && userProfile && !userProfile.isPremium && (
+            <Button variant="premium">
+              <Sparkles className="mr-2 h-4 w-4"/>
+              Go Premium
+            </Button>
+          )}
         </header>
 
         <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
@@ -77,14 +98,14 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
               <Trophy className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              {isLoaded && !isGuest ? (
+              {isLoaded && !isLimited ? (
                 <div className="text-2xl font-bold">
                   {examBestTime !== null ? `${examBestTime.toFixed(2)}s` : "Not taken yet"}
                 </div>
               ) : (
                  <div className="text-2xl font-bold text-muted-foreground">Locked</div>
               )}
-              <p className="text-xs text-muted-foreground">{isGuest ? "Sign up to unlock the exam." : "Your personal best for the exam."}</p>
+              <p className="text-xs text-muted-foreground">{isLimited ? (isGuest ? "Sign up to unlock the exam." : "Upgrade to unlock the exam.") : "Your personal best for the exam."}</p>
             </CardContent>
           </Card>
           <Card className="lg:col-span-2">
@@ -102,7 +123,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
               ) : (
                 <div className="flex flex-col items-center gap-2 pt-2 text-center">
                     <div className="text-2xl font-bold text-muted-foreground">Locked</div>
-                    <p className="text-xs text-muted-foreground mt-2">Sign up to track your progress.</p>
+                    <p className="text-xs text-muted-foreground mt-2">{isGuest ? "Sign up" : "Upgrade"} to track your progress.</p>
                 </div>
               )}
             </CardContent>
@@ -112,14 +133,14 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
         <section className="grid md:grid-cols-3 gap-8">
             <div className="flex flex-col">
                  <h2 className="text-2xl font-bold mb-4">Final Exam</h2>
-                 {isGuest ? (
+                 {isLimited ? (
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <div className="h-full cursor-not-allowed">{examCardContent}</div>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>Sign up to unlock the final exam.</p>
+                                <p>{isGuest ? "Sign up" : "Upgrade"} to unlock the final exam.</p>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
@@ -131,10 +152,10 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                 <h2 className="text-2xl font-bold mb-4">Practice Challenges</h2>
                  <Card className="flex-grow flex flex-col justify-center items-center text-center p-6">
                      <CardContent className="p-0 flex flex-col items-center justify-center flex-grow">
-                        <p className="text-muted-foreground mb-6">{isGuest ? "Try a free challenge set to get a feel for the exercises." : "Ready to warm up? Select from individual challenge sets to practice specific skills."}</p>
+                        <p className="text-muted-foreground mb-6">{isLimited ? "Try a free challenge set to get a feel for the exercises." : "Ready to warm up? Select from individual challenge sets to practice specific skills."}</p>
                         <Button asChild size="lg">
                             <Link href={`/challenges${guestQuery}`}>
-                                <Library className="mr-2" /> {isGuest ? "Try a Challenge Set" : "View All Challenges"}
+                                <Library className="mr-2" /> {isLimited ? "Try a Challenge Set" : "View All Challenges"}
                             </Link>
                         </Button>
                      </CardContent>
@@ -144,10 +165,10 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                 <h2 className="text-2xl font-bold mb-4">Learn</h2>
                  <Card className="flex-grow flex flex-col justify-center items-center text-center p-6">
                      <CardContent className="p-0 flex flex-col items-center justify-center flex-grow">
-                        <p className="text-muted-foreground mb-6">{isGuest ? "Study a sample flashcard deck to learn the basics." : "Review all the shortcuts using interactive flashcards to build muscle memory."}</p>
+                        <p className="text-muted-foreground mb-6">{isLimited ? "Study a sample flashcard deck to learn the basics." : "Review all the shortcuts using interactive flashcards to build muscle memory."}</p>
                         <Button asChild size="lg" variant="secondary">
                             <Link href={`/flashcards${guestQuery}`}>
-                                <Layers className="mr-2" /> {isGuest ? "Try Flashcards" : "Study Flashcards"}
+                                <Layers className="mr-2" /> {isLimited ? "Try Flashcards" : "Study Flashcards"}
                             </Link>
                         </Button>
                      </CardContent>
