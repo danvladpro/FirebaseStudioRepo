@@ -21,11 +21,8 @@ import { ModeToggle } from './mode-toggle';
 import { User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-// NOTE: Auth has been temporarily disabled for debugging.
-const useAuthBypass = () => ({ user: null, isGuest: true });
-
 export function AppHeader() {
-  const { user, isGuest } = useAuthBypass();
+  const { user, isGuest } = useAuth();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
 
@@ -35,7 +32,7 @@ export function AppHeader() {
 
 
   const handleLogout = async () => {
-    // await signOut(auth);
+    await signOut(auth);
     if (typeof window !== 'undefined') {
       window.sessionStorage.removeItem('isGuest');
     }

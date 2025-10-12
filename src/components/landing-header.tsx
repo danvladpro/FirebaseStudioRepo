@@ -20,15 +20,12 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 
-// NOTE: Auth has been temporarily disabled for debugging.
-const useAuthBypass = () => ({ user: null });
-
 function HeaderContent() {
-    const { user } = useAuthBypass();
+    const { user } = useAuth();
     const router = useRouter();
 
     const handleLogout = async () => {
-        // await signOut(auth);
+        await signOut(auth);
         router.push('/');
     };
 

@@ -9,11 +9,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/components/auth-provider';
 
-// NOTE: Auth has been temporarily disabled for debugging.
-const useAuthBypass = () => ({ isGuest: true });
-
 export function FlashcardSetPageContent({ challengeSet }: { challengeSet: ChallengeSet }) {
-  const { isGuest } = useAuthBypass();
+  const { isGuest } = useAuth();
   const guestQuery = isGuest ? '?guest=true' : '';
 
   return (

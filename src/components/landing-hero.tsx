@@ -7,11 +7,8 @@ import Image from "next/image";
 import { useAuth } from "./auth-provider";
 import { Suspense } from "react";
 
-// NOTE: Auth has been temporarily disabled for debugging.
-const useAuthBypass = () => ({ user: null });
-
 function HeroContent() {
-    const { user } = useAuthBypass();
+    const { user } = useAuth();
 
     return (
         <section className="w-full pt-24 md:pt-32 lg:pt-40 border-b">
