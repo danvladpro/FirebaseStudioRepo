@@ -18,8 +18,9 @@ const nextConfig: NextConfig = {
   // ✅ Moved out of "experimental"
   allowedDevOrigins: ['https://*.cloudworkstations.dev', 'http://localhost:9002', 'http://localhost:9000'],
 
-  // ✅ Removed deprecated "devIndicators"
-  experimental: {},
+  experimental: {
+    devtools: true,
+  },
 };
 
 export default nextConfig;
