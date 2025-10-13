@@ -49,7 +49,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
 
   const examCardContent = (
-     <Card key={examSet.id} className={cn("border-primary bg-primary/5 flex flex-col", isLimited && "bg-muted/50 border-dashed text-muted-foreground")}>
+     <Card key={examSet.id} className={cn("border-primary bg-primary/5", isLimited && "bg-muted/50 border-dashed text-muted-foreground")}>
         <CardHeader className="flex-row gap-4 items-center p-4">
             <BookMarked className={cn("w-8 h-8", isLimited ? "text-muted-foreground" : "text-primary")} />
             <div>
@@ -104,6 +104,24 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
             </Button>
           )}
         </header>
+
+         <section className="mb-8">
+             <h2 className="text-2xl font-bold mb-4">Final Exam</h2>
+                {isLimited ? (
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="cursor-not-allowed">{examCardContent}</div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Upgrade to unlock the final exam.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                ) : (
+                    examCardContent
+                )}
+         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <section className="lg:col-span-2">
@@ -217,23 +235,6 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                         </div>
                     </CardContent>
                 </Card>
-                 <div className="flex flex-col">
-                    <h2 className="text-2xl font-bold mb-4">Final Exam</h2>
-                    {isLimited ? (
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <div className="cursor-not-allowed">{examCardContent}</div>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>Upgrade to unlock the final exam.</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    ) : (
-                        examCardContent
-                    )}
-                </div>
             </aside>
         </div>
       </main>
@@ -241,4 +242,5 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
   );
 }
 
+    
     
