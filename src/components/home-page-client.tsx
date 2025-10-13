@@ -75,13 +75,13 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
   );
   
   const getDashboardTitle = () => {
-    if (userProfile && !userProfile.isPremium) return "Basic Dashboard";
+    if (userProfile && !userProfile.isPremium) return "Start Your Journey to Shortcut Mastery";
     if (userProfile && userProfile.isPremium) return "Unleash Your Shortcut Speed";
     return "Dashboard";
   }
 
   const getDashboardSubtitle = () => {
-    if (userProfile && !userProfile.isPremium) return "Welcome! Upgrade to premium to unlock all features.";
+    if (userProfile && !userProfile.isPremium) return "Learn the basics and upgrade to unlock your full potential.";
     if (userProfile && userProfile.isPremium) return "Master the keyboard, boost your productivity, and leave the mouse behind.";
     return "Welcome back! Here's your progress at a glance.";
   }
