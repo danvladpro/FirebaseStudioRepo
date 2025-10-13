@@ -49,7 +49,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
 
   const examCardContent = (
-     <Card key={examSet.id} className={cn("border-primary bg-primary/5 flex flex-col", isLimited && "bg-muted/50 border-dashed text-muted-foreground")}>
+     <Card key={examSet.id} className={cn("border-primary bg-primary/5 flex flex-col h-full", isLimited && "bg-muted/50 border-dashed text-muted-foreground")}>
         <CardHeader className="flex-row gap-4 items-center">
             <BookMarked className={cn("w-10 h-10", isLimited ? "text-muted-foreground" : "text-primary")} />
             <div>
@@ -106,11 +106,11 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
         </header>
 
         <section className="grid md:grid-cols-3 gap-6 mb-12">
-          <Card className="md:col-span-2">
+          <Card className="md:col-span-2 flex flex-col">
              <CardHeader>
                 <CardTitle>Progress Overview</CardTitle>
              </CardHeader>
-             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow">
                 <div className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-lg">
                     <Trophy className="w-8 h-8 text-yellow-500 mb-2" />
                     <p className="text-sm font-medium text-muted-foreground">Fastest Exam Completion</p>
@@ -239,5 +239,3 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
     </div>
   );
 }
-
-    
