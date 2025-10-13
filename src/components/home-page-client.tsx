@@ -205,7 +205,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                     </div>
                 </TooltipProvider>
             </section>
-            <aside className="lg:col-span-1 space-y-8">
+            <aside className="lg:col-span-1">
                 <h2 className="text-2xl font-bold mb-4">Progress Overview</h2>
                  <Card>
                     <CardContent className="grid grid-cols-2 gap-4 p-4">
