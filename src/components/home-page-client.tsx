@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, CheckSquare, ArrowRight, BookMarked, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter } from "lucide-react";
+import { Trophy, CheckSquare, ArrowRight, BookMarked, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -76,12 +76,13 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
   
   const getDashboardTitle = () => {
     if (userProfile && !userProfile.isPremium) return "Basic Dashboard";
-    if (userProfile && userProfile.isPremium) return "Premium Dashboard";
+    if (userProfile && userProfile.isPremium) return "Unleash Your Shortcut Speed";
     return "Dashboard";
   }
 
   const getDashboardSubtitle = () => {
     if (userProfile && !userProfile.isPremium) return "Welcome! Upgrade to premium to unlock all features.";
+    if (userProfile && userProfile.isPremium) return "Master the keyboard, boost your productivity, and leave the mouse behind.";
     return "Welcome back! Here's your progress at a glance.";
   }
 
@@ -91,7 +92,10 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
       <main className="flex-1 container py-8 md:py-12 mt-16">
         <header className="mb-8 md:mb-12 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">{getDashboardTitle()}</h1>
+            <div className="flex items-center gap-3">
+              {userProfile?.isPremium && <Rocket className="w-8 h-8 text-primary" />}
+              <h1 className="text-3xl font-bold">{getDashboardTitle()}</h1>
+            </div>
             <p className="text-muted-foreground mt-1">
               {getDashboardSubtitle()}
             </p>
@@ -240,3 +244,5 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
     </div>
   );
 }
+
+    
