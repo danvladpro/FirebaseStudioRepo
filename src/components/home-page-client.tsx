@@ -110,29 +110,29 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
              <CardHeader>
                 <CardTitle>Progress Overview</CardTitle>
              </CardHeader>
-             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-lg">
-                    <Trophy className="w-8 h-8 text-yellow-500 mb-2" />
-                    <p className="text-sm font-medium text-muted-foreground">Fastest Exam Completion</p>
+             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col items-center justify-center p-4 bg-muted/50 rounded-lg">
+                    <Trophy className="w-6 h-6 text-yellow-500 mb-2" />
+                    <p className="text-sm font-medium text-muted-foreground">Fastest Exam Time</p>
                     {isLoaded && !isLimited ? (
-                        <p className="text-3xl font-bold mt-1">
-                        {examBestTime !== null ? `${examBestTime.toFixed(2)}s` : "N/A"}
+                        <p className="text-2xl font-bold">
+                          {examBestTime !== null ? `${examBestTime.toFixed(2)}s` : "N/A"}
                         </p>
                     ) : (
-                        <p className="text-3xl font-bold mt-1 text-muted-foreground">Locked</p>
+                        <p className="text-2xl font-bold text-muted-foreground">Locked</p>
                     )}
                 </div>
-                <div className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-lg">
-                    <CheckSquare className="w-8 h-8 text-primary mb-2" />
+                <div className="flex flex-col items-center justify-center p-4 bg-muted/50 rounded-lg">
+                    <CheckSquare className="w-6 h-6 text-primary mb-2" />
                      <p className="text-sm font-medium text-muted-foreground">Practice Progress</p>
                     {isLoaded ? (
-                        <div className="mt-1">
-                            <span className="text-3xl font-bold text-primary">{completedSetsCount}</span>
-                            <span className="text-xl text-muted-foreground">/{totalPracticeSets}</span>
-                            <span className="text-sm text-muted-foreground ml-2">sets completed</span>
+                        <div>
+                            <span className="text-2xl font-bold text-primary">{completedSetsCount}</span>
+                            <span className="text-lg text-muted-foreground">/{totalPracticeSets}</span>
+                            <span className="text-xs text-muted-foreground ml-1">sets done</span>
                         </div>
                     ) : (
-                       <Skeleton className="w-32 h-8 mt-1" />
+                       <Skeleton className="w-24 h-7" />
                     )}
                 </div>
              </CardContent>
@@ -239,3 +239,5 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
     </div>
   );
 }
+
+    
