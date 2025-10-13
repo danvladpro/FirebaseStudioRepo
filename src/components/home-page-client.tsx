@@ -1,7 +1,6 @@
-
 "use client";
 
-import { Trophy, CheckSquare, ArrowRight, BookMarked, Library, Layers, Lock, Sparkles } from "lucide-react";
+import { Trophy, CheckSquare, ArrowRight, BookMarked, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,19 @@ import { AppHeader } from "@/components/app-header";
 import { useAuth } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "@/lib/utils";
+import { ElementType } from "react";
+
+const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
+    ClipboardCopy,
+    ArrowRightLeft,
+    MousePointerSquareDashed,
+    Pilcrow,
+    FunctionSquare,
+    BookMarked,
+    Layers,
+    Filter,
+    GalleryVerticalEnd
+};
 
 
 interface HomePageClientProps {
@@ -29,6 +41,10 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
   const examBestTime = stats['exam']?.bestTime ?? null;
   const completedSetsCount = getCompletedSetsCount();
   const totalPracticeSets = CHALLENGE_SETS.length;
+
+  const setsToDisplay = isLimited 
+      ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== 'formatting-basics' }))
+      : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
 
   const examCardContent = (
      <Card key={examSet.id} className={cn("border-primary bg-primary/5 flex flex-col", isLimited && "bg-muted/50 border-dashed text-muted-foreground")}>
@@ -104,7 +120,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
               <p className="text-xs text-muted-foreground">{isLimited ? "Upgrade to unlock the exam." : "Your personal best for the exam."}</p>
             </CardContent>
           </Card>
-          <Card className="lg:col-span-2">
+          <Card className="lg:col-span-1">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Practice Progress</CardTitle>
               <CheckSquare className="w-4 h-4 text-muted-foreground" />
@@ -124,52 +140,104 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
               )}
             </CardContent>
           </Card>
+          <div className="flex flex-col">
+             <h2 className="text-2xl font-bold mb-4">Final Exam</h2>
+             {isLimited ? (
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="h-full cursor-not-allowed">{examCardContent}</div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Upgrade to unlock the final exam.</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+             ) : (
+                examCardContent
+             )}
+          </div>
         </section>
 
-        <section className="grid md:grid-cols-3 gap-8">
-            <div className="flex flex-col">
-                 <h2 className="text-2xl font-bold mb-4">Final Exam</h2>
-                 {isLimited ? (
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="h-full cursor-not-allowed">{examCardContent}</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Upgrade to unlock the final exam.</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                 ) : (
-                    examCardContent
-                 )}
-            </div>
-            <div className="flex flex-col">
-                <h2 className="text-2xl font-bold mb-4">Practice Challenges</h2>
-                 <Card className="flex-grow flex flex-col justify-center items-center text-center p-6">
-                     <CardContent className="p-0 flex flex-col items-center justify-center flex-grow">
-                        <p className="text-muted-foreground mb-6">{isLimited ? "Try a free challenge set to get a feel for the exercises." : "Ready to warm up? Select from individual challenge sets to practice specific skills."}</p>
-                        <Button asChild size="lg">
-                            <Link href="/challenges">
-                                <Library className="mr-2" /> {isLimited ? "Try a Challenge Set" : "View All Challenges"}
-                            </Link>
-                        </Button>
-                     </CardContent>
-                 </Card>
-            </div>
-             <div className="flex flex-col">
-                <h2 className="text-2xl font-bold mb-4">Learn</h2>
-                 <Card className="flex-grow flex flex-col justify-center items-center text-center p-6">
-                     <CardContent className="p-0 flex flex-col items-center justify-center flex-grow">
-                        <p className="text-muted-foreground mb-6">{isLimited ? "Study a sample flashcard deck to learn the basics." : "Review all the shortcuts using interactive flashcards to build muscle memory."}</p>
-                        <Button asChild size="lg" variant="secondary">
-                            <Link href="/flashcards">
-                                <Layers className="mr-2" /> {isLimited ? "Try Flashcards" : "Study Flashcards"}
-                            </Link>
-                        </Button>
-                     </CardContent>
-                 </Card>
-            </div>
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Practice & Learn</h2>
+          <TooltipProvider>
+              <div className="flex flex-col gap-4">
+                  {setsToDisplay.map((set) => {
+                      const Icon = iconMap[set.iconName];
+                      const setStats = stats[set.id];
+                      const lastScore = setStats?.lastScore;
+
+                      const cardContent = (
+                          <Card key={set.id} className={cn("grid md:grid-cols-[auto_1fr_auto_auto] items-center gap-4", set.isLocked && "bg-muted/50 text-muted-foreground")}>
+                              <CardContent className="p-4 flex items-center gap-4">
+                                  <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
+                                  <div className="flex-1">
+                                      <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
+                                      <p className="text-sm">{set.description}</p>
+                                  </div>
+                              </CardContent>
+                              
+                              <div className="grid grid-cols-2 gap-x-4 text-sm text-center">
+                                  <div>
+                                      <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{set.challenges.length}</p>
+                                      <p>Items</p>
+                                  </div>
+                                  <div>
+                                      {isLoaded ? (
+                                          lastScore !== undefined && lastScore !== null ? (
+                                              <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{lastScore.toFixed(0)}%</p>
+                                          ) : (
+                                              <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
+                                          )
+                                      ) : (
+                                          <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
+                                      )}
+                                      <p>Last Score</p>
+                                  </div>
+                              </div>
+                              
+                              <div className="p-4 flex flex-col md:flex-row gap-2">
+                                  {set.isLocked ? (
+                                      <Button className="w-full" disabled variant="warning">
+                                          <Lock className="mr-2" />
+                                          Upgrade
+                                      </Button>
+                                  ) : (
+                                    <>
+                                      <Button asChild size="sm" className="w-full">
+                                          <Link href={`/challenge/${set.id}`}>
+                                              <Library className="mr-2 h-4 w-4" /> Practice
+                                          </Link>
+                                      </Button>
+                                       <Button asChild size="sm" variant="secondary" className="w-full">
+                                          <Link href={`/flashcards/${set.id}`}>
+                                              <Layers className="mr-2 h-4 w-4" /> Study
+                                          </Link>
+                                      </Button>
+                                    </>
+                                  )}
+                              </div>
+                          </Card>
+                      );
+                      
+                       if (set.isLocked) {
+                          return (
+                              <Tooltip key={set.id}>
+                                  <TooltipTrigger asChild>
+                                      <div className="cursor-not-allowed">{cardContent}</div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                      <p>Upgrade to unlock this set.</p>
+                                  </TooltipContent>
+                              </Tooltip>
+                          );
+                      }
+
+                      return cardContent;
+                  })}
+              </div>
+              </TooltipProvider>
         </section>
       </main>
     </div>

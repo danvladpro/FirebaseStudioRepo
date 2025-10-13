@@ -1,4 +1,3 @@
-
 "use client";
 
 import { ChallengeSet } from '@/lib/types';
@@ -7,8 +6,18 @@ import { AppHeader } from '@/components/app-header';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { useAuth } from './auth-provider';
 
 export function FlashcardSetPageContent({ challengeSet }: { challengeSet: ChallengeSet }) {
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
+        <div className="flex min-h-screen w-full flex-col items-center justify-center bg-muted/40">
+            <p>Please log in to study flashcards.</p>
+        </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -20,9 +29,9 @@ export function FlashcardSetPageContent({ challengeSet }: { challengeSet: Challe
             <p className="text-muted-foreground mt-1">Study the shortcuts for this set.</p>
           </div>
            <Button asChild variant="outline">
-              <Link href="/flashcards">
+              <Link href="/dashboard">
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to All Decks
+                  Back to Dashboard
               </Link>
           </Button>
         </header>
