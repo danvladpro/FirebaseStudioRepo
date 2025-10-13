@@ -15,7 +15,6 @@ import { useAuth } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ElementType } from "react";
-import { Separator } from "./ui/separator";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -104,10 +103,11 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
             </Button>
           )}
         </header>
-
-         <section className="mb-8">
+        
+        <section className="mb-8">
              <h2 className="text-2xl font-bold mb-4">Final Exam</h2>
-                {isLimited ? (
+                <div className="max-w-sm">
+                 {isLimited ? (
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -121,6 +121,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                 ) : (
                     examCardContent
                 )}
+                </div>
          </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -205,11 +206,9 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                 </TooltipProvider>
             </section>
             <aside className="lg:col-span-1 space-y-8">
+                <h2 className="text-2xl font-bold mb-4">Progress Overview</h2>
                  <Card>
-                    <CardHeader className="p-4">
-                        <CardTitle className="text-xl">Progress Overview</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-2 gap-4 p-4 pt-0">
+                    <CardContent className="grid grid-cols-2 gap-4 p-4">
                         <div className="flex flex-col items-center justify-center p-2 bg-muted/50 rounded-lg">
                             <Trophy className="w-5 h-5 text-yellow-500 mb-1" />
                             <p className="text-xs font-medium text-muted-foreground">Fastest Exam</p>
@@ -241,6 +240,3 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
     </div>
   );
 }
-
-    
-    
