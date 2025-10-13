@@ -197,9 +197,9 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                                       <p>Last Score</p>
                                   </div>
                               
-                                  <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 flex flex-col md:flex-row gap-2">
+                                  <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
                                       {set.isLocked ? (
-                                          <Button className="w-full" disabled variant="warning">
+                                          <Button className="w-full col-span-2" disabled variant="warning">
                                               <Lock className="mr-2" />
                                               Upgrade
                                           </Button>
