@@ -15,6 +15,7 @@ import { useAuth } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ElementType } from "react";
+import { Separator } from "./ui/separator";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -104,45 +105,39 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
           )}
         </header>
 
-        <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <Card className="lg:col-span-1">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Fastest Exam Completion</CardTitle>
-              <Trophy className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {isLoaded && !isLimited ? (
-                <div className="text-2xl font-bold">
-                  {examBestTime !== null ? `${examBestTime.toFixed(2)}s` : "Not taken yet"}
+        <section className="grid md:grid-cols-3 gap-6 mb-12">
+          <Card className="md:col-span-2">
+             <CardHeader>
+                <CardTitle>Progress Overview</CardTitle>
+             </CardHeader>
+             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-lg">
+                    <Trophy className="w-8 h-8 text-yellow-500 mb-2" />
+                    <p className="text-sm font-medium text-muted-foreground">Fastest Exam Completion</p>
+                    {isLoaded && !isLimited ? (
+                        <p className="text-3xl font-bold mt-1">
+                        {examBestTime !== null ? `${examBestTime.toFixed(2)}s` : "N/A"}
+                        </p>
+                    ) : (
+                        <p className="text-3xl font-bold mt-1 text-muted-foreground">Locked</p>
+                    )}
                 </div>
-              ) : (
-                 <div className="text-2xl font-bold text-muted-foreground">Locked</div>
-              )}
-              <p className="text-xs text-muted-foreground">{isLimited ? "Upgrade to unlock the exam." : "Your personal best for the exam."}</p>
-            </CardContent>
-          </Card>
-          <Card className="lg:col-span-1">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Practice Progress</CardTitle>
-              <CheckSquare className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="flex flex-col items-center justify-center">
-              {isLoaded ? (
-                 <div className="text-center">
-                    <span className="text-4xl font-bold text-primary">{completedSetsCount}</span>
-                    <span className="text-2xl text-muted-foreground">/{totalPracticeSets}</span>
-                    <p className="text-xs text-muted-foreground mt-2">sets completed</p>
-                 </div>
-              ) : (
-                <div className="flex flex-col items-center gap-2 pt-2 text-center">
-                    <Skeleton className="w-24 h-8" />
-                    <Skeleton className="w-20 h-4 mt-1" />
+                <div className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-lg">
+                    <CheckSquare className="w-8 h-8 text-primary mb-2" />
+                     <p className="text-sm font-medium text-muted-foreground">Practice Progress</p>
+                    {isLoaded ? (
+                        <div className="mt-1">
+                            <span className="text-3xl font-bold text-primary">{completedSetsCount}</span>
+                            <span className="text-xl text-muted-foreground">/{totalPracticeSets}</span>
+                            <span className="text-sm text-muted-foreground ml-2">sets completed</span>
+                        </div>
+                    ) : (
+                       <Skeleton className="w-32 h-8 mt-1" />
+                    )}
                 </div>
-              )}
-            </CardContent>
+             </CardContent>
           </Card>
           <div className="flex flex-col">
-             <h2 className="text-2xl font-bold mb-4">Final Exam</h2>
              {isLimited ? (
                 <TooltipProvider>
                     <Tooltip>
