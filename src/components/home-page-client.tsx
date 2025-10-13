@@ -106,11 +106,11 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
         </header>
 
         <section className="grid md:grid-cols-3 gap-6 mb-12">
-          <Card className="md:col-span-2 flex flex-col">
+          <Card className="md:col-span-2">
              <CardHeader>
                 <CardTitle>Progress Overview</CardTitle>
              </CardHeader>
-             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow">
+             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col items-center justify-center p-6 bg-muted/50 rounded-lg">
                     <Trophy className="w-8 h-8 text-yellow-500 mb-2" />
                     <p className="text-sm font-medium text-muted-foreground">Fastest Exam Completion</p>
