@@ -49,15 +49,15 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
 
   const examCardContent = (
-     <Card key={examSet.id} className={cn("border-primary bg-primary/5 flex flex-col h-full", isLimited && "bg-muted/50 border-dashed text-muted-foreground")}>
-        <CardHeader className="flex-row gap-4 items-center">
-            <BookMarked className={cn("w-10 h-10", isLimited ? "text-muted-foreground" : "text-primary")} />
+     <Card key={examSet.id} className={cn("border-primary bg-primary/5 flex flex-col", isLimited && "bg-muted/50 border-dashed text-muted-foreground")}>
+        <CardHeader className="flex-row gap-4 items-center p-4">
+            <BookMarked className={cn("w-8 h-8", isLimited ? "text-muted-foreground" : "text-primary")} />
             <div>
-                <CardTitle className={cn(isLimited && "text-muted-foreground")}>{examSet.name}</CardTitle>
-                <CardDescription>{examSet.description}</CardDescription>
+                <CardTitle className={cn("text-xl", isLimited && "text-muted-foreground")}>{examSet.name}</CardTitle>
+                <CardDescription className="text-xs">{examSet.description}</CardDescription>
             </div>
         </CardHeader>
-        <CardFooter className="mt-auto">
+        <CardFooter className="mt-auto p-4">
             {isLimited ? (
                  <Button className="w-full" disabled variant="warning">
                     <Lock className="mr-2" />
@@ -105,136 +105,137 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
           )}
         </header>
 
-        <section className="grid md:grid-cols-3 gap-6 mb-12">
-          <Card className="md:col-span-2">
-             <CardHeader>
-                <CardTitle>Progress Overview</CardTitle>
-             </CardHeader>
-             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col items-center justify-center p-4 bg-muted/50 rounded-lg">
-                    <Trophy className="w-6 h-6 text-yellow-500 mb-2" />
-                    <p className="text-sm font-medium text-muted-foreground">Fastest Exam Time</p>
-                    {isLoaded && !isLimited ? (
-                        <p className="text-2xl font-bold">
-                          {examBestTime !== null ? `${examBestTime.toFixed(2)}s` : "N/A"}
-                        </p>
-                    ) : (
-                        <p className="text-2xl font-bold text-muted-foreground">Locked</p>
-                    )}
-                </div>
-                <div className="flex flex-col items-center justify-center p-4 bg-muted/50 rounded-lg">
-                    <CheckSquare className="w-6 h-6 text-primary mb-2" />
-                     <p className="text-sm font-medium text-muted-foreground">Practice Progress</p>
-                    {isLoaded ? (
-                        <div>
-                            <span className="text-2xl font-bold text-primary">{completedSetsCount}</span>
-                            <span className="text-lg text-muted-foreground">/{totalPracticeSets}</span>
-                            <span className="text-xs text-muted-foreground ml-1">sets done</span>
-                        </div>
-                    ) : (
-                       <Skeleton className="w-24 h-7" />
-                    )}
-                </div>
-             </CardContent>
-          </Card>
-          <div className="flex flex-col">
-             {isLimited ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <section className="lg:col-span-2">
+                <h2 className="text-2xl font-bold mb-4">Practice & Learn</h2>
                 <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="h-full cursor-not-allowed">{examCardContent}</div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Upgrade to unlock the final exam.</p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <div className="flex flex-col gap-4">
+                        {setsToDisplay.map((set) => {
+                            const Icon = iconMap[set.iconName];
+                            const setStats = stats[set.id];
+                            const lastScore = setStats?.lastScore;
+
+                            const cardContent = (
+                                <Card key={set.id} className={cn("grid md:grid-cols-[1fr_auto] items-center gap-4", set.isLocked && "bg-muted/50 text-muted-foreground")}>
+                                    <CardContent className="p-4 flex items-center gap-4">
+                                        <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
+                                        <div className="flex-1">
+                                            <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
+                                            <p className="text-sm">{set.description}</p>
+                                        </div>
+                                    </CardContent>
+                                    
+                                    <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto_auto] items-center justify-end gap-x-4 text-sm text-center">
+                                        <div className="flex flex-col items-center">
+                                            <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{set.challenges.length}</p>
+                                            <p>Items</p>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            {isLoaded ? (
+                                                lastScore !== undefined && lastScore !== null ? (
+                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{lastScore.toFixed(0)}%</p>
+                                                ) : (
+                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
+                                                )
+                                            ) : (
+                                                <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
+                                            )}
+                                            <p>Last Score</p>
+                                        </div>
+                                    
+                                        <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
+                                            {set.isLocked ? (
+                                                <Button className="w-full col-span-2" disabled variant="warning">
+                                                    <Lock className="mr-2" />
+                                                    Upgrade
+                                                </Button>
+                                            ) : (
+                                                <>
+                                                <Button asChild size="sm" className="w-full">
+                                                    <Link href={`/challenge/${set.id}`}>
+                                                        <Library className="mr-2 h-4 w-4" /> Practice
+                                                    </Link>
+                                                </Button>
+                                                <Button asChild size="sm" variant="secondary" className="w-full">
+                                                    <Link href={`/flashcards/${set.id}`}>
+                                                        <Layers className="mr-2 h-4 w-4" /> Study
+                                                    </Link>
+                                                </Button>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Card>
+                            );
+                            
+                            if (set.isLocked) {
+                                return (
+                                    <Tooltip key={set.id}>
+                                        <TooltipTrigger asChild>
+                                            <div className="cursor-not-allowed">{cardContent}</div>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Upgrade to unlock this set.</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                );
+                            }
+
+                            return cardContent;
+                        })}
+                    </div>
                 </TooltipProvider>
-             ) : (
-                examCardContent
-             )}
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Practice & Learn</h2>
-          <TooltipProvider>
-              <div className="flex flex-col gap-4">
-                  {setsToDisplay.map((set) => {
-                      const Icon = iconMap[set.iconName];
-                      const setStats = stats[set.id];
-                      const lastScore = setStats?.lastScore;
-
-                      const cardContent = (
-                          <Card key={set.id} className={cn("grid md:grid-cols-[1fr_auto] items-center gap-4", set.isLocked && "bg-muted/50 text-muted-foreground")}>
-                              <CardContent className="p-4 flex items-center gap-4">
-                                  <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
-                                  <div className="flex-1">
-                                      <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
-                                      <p className="text-sm">{set.description}</p>
-                                  </div>
-                              </CardContent>
-                              
-                              <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto_auto] items-center justify-end gap-x-4 text-sm text-center">
-                                  <div className="flex flex-col items-center">
-                                      <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{set.challenges.length}</p>
-                                      <p>Items</p>
-                                  </div>
-                                  <div className="flex flex-col items-center">
-                                      {isLoaded ? (
-                                          lastScore !== undefined && lastScore !== null ? (
-                                              <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{lastScore.toFixed(0)}%</p>
-                                          ) : (
-                                              <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
-                                          )
-                                      ) : (
-                                          <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
-                                      )}
-                                      <p>Last Score</p>
-                                  </div>
-                              
-                                  <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
-                                      {set.isLocked ? (
-                                          <Button className="w-full col-span-2" disabled variant="warning">
-                                              <Lock className="mr-2" />
-                                              Upgrade
-                                          </Button>
-                                      ) : (
-                                        <>
-                                          <Button asChild size="sm" className="w-full">
-                                              <Link href={`/challenge/${set.id}`}>
-                                                  <Library className="mr-2 h-4 w-4" /> Practice
-                                              </Link>
-                                          </Button>
-                                           <Button asChild size="sm" variant="secondary" className="w-full">
-                                              <Link href={`/flashcards/${set.id}`}>
-                                                  <Layers className="mr-2 h-4 w-4" /> Study
-                                              </Link>
-                                          </Button>
-                                        </>
-                                      )}
-                                  </div>
-                              </div>
-                          </Card>
-                      );
-                      
-                       if (set.isLocked) {
-                          return (
-                              <Tooltip key={set.id}>
-                                  <TooltipTrigger asChild>
-                                      <div className="cursor-not-allowed">{cardContent}</div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                      <p>Upgrade to unlock this set.</p>
-                                  </TooltipContent>
-                              </Tooltip>
-                          );
-                      }
-
-                      return cardContent;
-                  })}
-              </div>
-              </TooltipProvider>
-        </section>
+            </section>
+            <aside className="lg:col-span-1 space-y-8">
+                 <Card>
+                    <CardHeader className="p-4">
+                        <CardTitle className="text-xl">Progress Overview</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 gap-4 p-4 pt-0">
+                        <div className="flex flex-col items-center justify-center p-2 bg-muted/50 rounded-lg">
+                            <Trophy className="w-5 h-5 text-yellow-500 mb-1" />
+                            <p className="text-xs font-medium text-muted-foreground">Fastest Exam</p>
+                            {isLoaded && !isLimited ? (
+                                <p className="text-lg font-bold">
+                                {examBestTime !== null ? `${examBestTime.toFixed(2)}s` : "N/A"}
+                                </p>
+                            ) : (
+                                <p className="text-lg font-bold text-muted-foreground">Locked</p>
+                            )}
+                        </div>
+                        <div className="flex flex-col items-center justify-center p-2 bg-muted/50 rounded-lg">
+                            <CheckSquare className="w-5 h-5 text-primary mb-1" />
+                            <p className="text-xs font-medium text-muted-foreground">Sets Done</p>
+                            {isLoaded ? (
+                                <div>
+                                    <span className="text-lg font-bold text-primary">{completedSetsCount}</span>
+                                    <span className="text-sm text-muted-foreground">/{totalPracticeSets}</span>
+                                </div>
+                            ) : (
+                            <Skeleton className="w-16 h-6" />
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+                 <div className="flex flex-col">
+                    <h2 className="text-2xl font-bold mb-4">Final Exam</h2>
+                    {isLimited ? (
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="cursor-not-allowed">{examCardContent}</div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Upgrade to unlock the final exam.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    ) : (
+                        examCardContent
+                    )}
+                </div>
+            </aside>
+        </div>
       </main>
     </div>
   );
