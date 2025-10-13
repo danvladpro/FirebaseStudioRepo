@@ -1,6 +1,7 @@
+
 "use client";
 
-import { Trophy, CheckSquare, ArrowRight, BookMarked, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter } from "lucide-react";
+import { Trophy, CheckSquare, ArrowRight, BookMarked, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
 import { CHALLENGE_SETS } from "@/lib/challenges";
 import { AppHeader } from "@/components/app-header";
-import { useAuth } from "./auth-provider";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { useAuth } from "../auth-provider";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ElementType } from "react";
 
@@ -169,7 +170,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                       const lastScore = setStats?.lastScore;
 
                       const cardContent = (
-                          <Card key={set.id} className={cn("grid md:grid-cols-[auto_1fr_auto_auto] items-center gap-4", set.isLocked && "bg-muted/50 text-muted-foreground")}>
+                          <Card key={set.id} className={cn("grid md:grid-cols-[1fr_auto] items-center gap-4", set.isLocked && "bg-muted/50 text-muted-foreground")}>
                               <CardContent className="p-4 flex items-center gap-4">
                                   <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                                   <div className="flex-1">
@@ -178,12 +179,12 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                                   </div>
                               </CardContent>
                               
-                              <div className="grid grid-cols-2 gap-x-4 text-sm text-center">
-                                  <div>
+                              <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto_auto] items-center justify-end gap-x-4 text-sm text-center">
+                                  <div className="flex flex-col items-center">
                                       <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{set.challenges.length}</p>
                                       <p>Items</p>
                                   </div>
-                                  <div>
+                                  <div className="flex flex-col items-center">
                                       {isLoaded ? (
                                           lastScore !== undefined && lastScore !== null ? (
                                               <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{lastScore.toFixed(0)}%</p>
@@ -195,28 +196,28 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                                       )}
                                       <p>Last Score</p>
                                   </div>
-                              </div>
                               
-                              <div className="p-4 flex flex-col md:flex-row gap-2">
-                                  {set.isLocked ? (
-                                      <Button className="w-full" disabled variant="warning">
-                                          <Lock className="mr-2" />
-                                          Upgrade
-                                      </Button>
-                                  ) : (
-                                    <>
-                                      <Button asChild size="sm" className="w-full">
-                                          <Link href={`/challenge/${set.id}`}>
-                                              <Library className="mr-2 h-4 w-4" /> Practice
-                                          </Link>
-                                      </Button>
-                                       <Button asChild size="sm" variant="secondary" className="w-full">
-                                          <Link href={`/flashcards/${set.id}`}>
-                                              <Layers className="mr-2 h-4 w-4" /> Study
-                                          </Link>
-                                      </Button>
-                                    </>
-                                  )}
+                                  <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 flex flex-col md:flex-row gap-2">
+                                      {set.isLocked ? (
+                                          <Button className="w-full" disabled variant="warning">
+                                              <Lock className="mr-2" />
+                                              Upgrade
+                                          </Button>
+                                      ) : (
+                                        <>
+                                          <Button asChild size="sm" className="w-full">
+                                              <Link href={`/challenge/${set.id}`}>
+                                                  <Library className="mr-2 h-4 w-4" /> Practice
+                                              </Link>
+                                          </Button>
+                                           <Button asChild size="sm" variant="secondary" className="w-full">
+                                              <Link href={`/flashcards/${set.id}`}>
+                                                  <Layers className="mr-2 h-4 w-4" /> Study
+                                              </Link>
+                                          </Button>
+                                        </>
+                                      )}
+                                  </div>
                               </div>
                           </Card>
                       );
