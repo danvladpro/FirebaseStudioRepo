@@ -59,24 +59,23 @@ export function AppHeader() {
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <div className={cn(
-                    "relative rounded-full h-9 w-9",
-                    isPremium && "p-0.5 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
-                  )}>
-                    <Avatar className={cn(
-                      "h-full w-full",
-                      isPremium && "border-2 border-background"
-                    )}>
-                      <AvatarFallback>{getInitials(user.email)}</AvatarFallback>
-                    </Avatar>
-                    {isPremium && (
-                       <div className="absolute bottom-[-4px] right-[-4px] bg-background p-0.5 rounded-full">
-                         <div className="bg-yellow-400 text-yellow-900 rounded-full h-5 w-5 flex items-center justify-center">
-                            <Crown className="h-3 w-3" />
-                         </div>
-                       </div>
-                    )}
-                  </div>
+                  <Avatar className="h-9 w-9">
+                     <div className={cn(
+                        "w-full h-full rounded-full flex items-center justify-center",
+                        isPremium && "p-0.5 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
+                      )}>
+                        <div className={cn("w-full h-full rounded-full flex items-center justify-center", isPremium && "bg-background")}>
+                           <AvatarFallback>{getInitials(user.email)}</AvatarFallback>
+                        </div>
+                     </div>
+                  </Avatar>
+                  {isPremium && (
+                      <div className="absolute bottom-[-2px] right-[-2px] bg-background p-0.5 rounded-full border">
+                        <div className="bg-yellow-400 text-yellow-900 rounded-full h-4 w-4 flex items-center justify-center">
+                          <Crown className="h-2.5 w-2.5" />
+                        </div>
+                      </div>
+                  )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -84,7 +83,7 @@ export function AppHeader() {
                   <div className="flex flex-col space-y-1">
                     <div className='flex items-center justify-between'>
                        <p className="text-sm font-medium leading-none">My Account</p>
-                       {isPremium && <span className='text-xs font-semibold bg-yellow-400/20 text-yellow-600 px-2 py-0.5 rounded-md'>Premium</span>}
+                       {isPremium && <span className='text-xs font-semibold bg-yellow-400/20 text-yellow-600 px-2 py-0.5 rounded-md flex items-center gap-1'><Crown className="w-3 h-3" />Premium</span>}
                     </div>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user.email}
