@@ -43,6 +43,9 @@ function HeaderContent() {
                         <Link href="#features" className="text-muted-foreground hover:text-foreground">
                             Features
                         </Link>
+                        <Link href="#benefits" className="text-muted-foreground hover:text-foreground">
+                            Benefits
+                        </Link>
                         <Link href="#pricing" className="text-muted-foreground hover:text-foreground">
                             Pricing
                         </Link>

@@ -1,4 +1,5 @@
 
+import { LandingBenefits } from "@/components/landing-benefits";
 import { LandingDonation } from "@/components/landing-donation";
 import { LandingFeatures } from "@/components/landing-features";
 import { LandingFooter } from "@/components/landing-footer";
@@ -14,6 +15,7 @@ export default function Home() {
       <main className="flex-1">
         <LandingHero />
         <LandingFeatures />
+        <LandingBenefits />
         <LandingPricing />
         <LandingDonation />
       </main>
