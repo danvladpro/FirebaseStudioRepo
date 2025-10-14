@@ -65,7 +65,7 @@ export default function SignupPage() {
             <Logo />
             <CardTitle className="mt-4">Create an Account</CardTitle>
             <CardDescription>Start your journey to becoming an Excel Ninja</CardDescription>
-        </Header>
+        </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-2">
