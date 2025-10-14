@@ -70,43 +70,50 @@ const normalizeKey = (key: string) => {
     if (['meta', 'command', 'cmd', 'win'].includes(lowerKey)) return 'meta';
     if (['alt', 'option'].includes(lowerKey)) return 'alt';
     if (lowerKey === 'escape') return 'esc';
-    if (lowerKey === 'enter') return 'enter';
-    if (lowerKey === 'backspace') return 'backspace';
+    if (lowerKey === 'enter' || lowerKey === 'return') return isMac ? 'return' : 'enter';
+    if (lowerKey === 'backspace' || lowerKey === 'delete') return isMac ? 'delete' : 'backspace';
     return lowerKey;
 };
 
+
+let isMac = false;
+if (typeof window !== 'undefined') {
+  isMac = navigator.userAgent.toLowerCase().includes('mac');
+}
+
 export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
-    const [isMac, setIsMac] = useState(false);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
+        setIsClient(true);
+        isMac = navigator.userAgent.toLowerCase().includes('mac');
     }, []);
 
     const layout = isMac ? macLayout : windowsLayout;
     const displayMap = isMac ? keyDisplayMap : windowsKeyDisplayMap;
+
     const normalizedHighlights = new Set(highlightedKeys.map(key => {
-        const lower = key.toLowerCase();
-        // On Mac, Control in challenges often means Command (Meta)
-        if (isMac && lower === 'control') return 'meta';
-        return normalizeKey(key);
-    }));
-
-    // Special handling for Mac where Excel shortcuts use 'Control' but the key is displayed as '⌃'
-    if (isMac) {
-      const macControlEquivalent = 'control';
-      if (highlightedKeys.map(k => k.toLowerCase()).includes(macControlEquivalent)) {
-          normalizedHighlights.add('control');
+      const lower = key.toLowerCase();
+      // This maps the key from the challenge definition to the key on the virtual keyboard layout
+      if (isMac) {
+        if (lower === 'control') return 'control'; // Keep Control for strikethrough etc.
+        if (lower === 'meta') return 'meta';
+        if (lower === 'enter') return 'return';
+      } else {
+        if (lower === 'meta') return 'meta'; // Win key
+        if (lower === 'control') return 'control';
+        if (lower === 'enter') return 'enter';
       }
-    }
-
+      return normalizeKey(key);
+    }));
 
     return (
         <div className="p-4 bg-muted/50 rounded-lg border overflow-x-auto">
             <div className="flex flex-col gap-2 min-w-max">
-                {layout.map((row, rowIndex) => (
+                {isClient && layout.map((row, rowIndex) => (
                     <div key={rowIndex} className="flex justify-center gap-2">
                         {row.map((key, keyIndex) => {
-                            const isHighlighted = normalizedHighlights.has(key) || (isMac && key === 'return' && normalizedHighlights.has('enter'));
+                            const isHighlighted = normalizedHighlights.has(key);
                             const width = keyWidths[key];
                             const display = displayMap[key] || key.toUpperCase();
 

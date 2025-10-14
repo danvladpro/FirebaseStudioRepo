@@ -73,18 +73,24 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
 
   const normalizeKey = (key: string) => {
-    if (key === "Control" || key === "ControlLeft" || key === "ControlRight") return isMac ? "Control" : "Control"; // Keep as control, but map later
+    if (key === "Control" || key === "ControlLeft" || key === "ControlRight") return "Control";
     if (key === "Shift" || key === "ShiftLeft" || key === "ShiftRight") return "Shift";
-    if (key === "Alt" || key === "AltLeft" || key === "AltRight") return isMac ? "Alt" : "Alt";
-    if (key === "Meta" || key === "MetaLeft" || key === "MetaRight") return isMac ? "Meta" : "Meta";
+    if (key === "Alt" || key === "AltLeft" || key === "AltRight") return "Alt";
+    if (key === "Meta" || key === "MetaLeft" || key === "MetaRight") return "Meta";
     return key;
   };
 
-   const getRequiredKeys = useCallback(() => {
+  const getRequiredKeys = useCallback(() => {
     if (!currentChallenge) return new Set();
+
+    // Strikethrough (Ctrl+5) is an exception, it's the same on Mac and Windows.
+    const isStrikethrough = currentChallenge.description.toLowerCase().includes('strikethrough');
+
     const keys = currentChallenge.keys.map(k => {
       if (isMac) {
-        if (k.toLowerCase() === 'control') return 'Meta'; // On Mac, 'Control' from challenges should map to 'Command' (Meta) key
+        if (k.toLowerCase() === 'control' && !isStrikethrough) {
+          return 'Meta'; // On Mac, 'Control' from challenges should map to 'Command' (Meta) key
+        }
       }
       return k;
     });
@@ -315,5 +321,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     </Card>
   );
 }
+
+    
 
     

@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from './ui/separator';
 import { useAuth } from './auth-provider';
 import { cn } from '@/lib/utils';
+import { Challenge } from '@/lib/types';
 
 const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
@@ -65,9 +66,14 @@ export default function ResultsDisplay() {
   const score = totalChallenges > 0 ? (correctAnswers / totalChallenges) * 100 : 0;
   const isPerfectScore = skippedCount === 0;
 
-  const getOsKeys = (keys: string[], forMac: boolean) => {
-    return keys.map(key => {
-        if (forMac && key.toLowerCase() === 'control') return 'Meta';
+  const getOsKeys = (challenge: Challenge, isMac: boolean) => {
+    // Strikethrough is an exception, it's the same on Mac and Windows.
+    const isStrikethrough = challenge.description.toLowerCase().includes('strikethrough');
+    
+    return challenge.keys.map(key => {
+        if (isMac && key.toLowerCase() === 'control' && !isStrikethrough) {
+            return 'Meta';
+        }
         return key;
     });
   }
@@ -146,7 +152,7 @@ export default function ResultsDisplay() {
                           <li key={index} className="flex justify-between items-center">
                             <span>{challenge.description}</span>
                             <div className="flex items-center gap-1.5">
-                              {getOsKeys(challenge.keys, isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
+                              {getOsKeys(challenge, isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
                             </div>
                           </li>
                       ))}
@@ -167,3 +173,5 @@ export default function ResultsDisplay() {
     </div>
   );
 }
+
+    

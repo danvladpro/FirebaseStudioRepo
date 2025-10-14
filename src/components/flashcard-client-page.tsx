@@ -2,10 +2,10 @@
 "use client";
 
 import { useState, ElementType, useEffect } from "react";
-import { ChallengeSet } from "@/lib/types";
+import { Challenge, ChallengeSet } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
-import { ChevronLeft, ChevronRight, Eye, Lightbulb } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VisualKeyboard } from "./visual-keyboard";
 import * as icons from "lucide-react";
@@ -73,15 +73,20 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
         setIsAnswerShown(!isAnswerShown);
     };
 
-    const getOsKeys = (keys: string[], isMac: boolean) => {
-        return keys.map(key => {
-            if (isMac && key.toLowerCase() === 'control') return 'Meta';
+    const getOsKeys = (challenge: Challenge, isMac: boolean) => {
+        // Strikethrough is an exception, it's the same on Mac and Windows.
+        const isStrikethrough = challenge.description.toLowerCase().includes('strikethrough');
+        
+        return challenge.keys.map(key => {
+            if (isMac && key.toLowerCase() === 'control' && !isStrikethrough) {
+                return 'Meta';
+            }
             return key;
         });
     }
 
-    const windowsKeys = getOsKeys(currentChallenge.keys, false);
-    const macKeys = getOsKeys(currentChallenge.keys, true);
+    const windowsKeys = getOsKeys(currentChallenge, false);
+    const macKeys = getOsKeys(currentChallenge, true);
 
     const ChallengeIcon = icons[currentChallenge.iconName] as ElementType;
 
@@ -138,8 +143,10 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
             </Card>
 
             <div className="w-full mt-8">
-                 <VisualKeyboard highlightedKeys={isAnswerShown ? getOsKeys(currentChallenge.keys, isMac) : []} />
+                 <VisualKeyboard highlightedKeys={isAnswerShown ? getOsKeys(currentChallenge, isMac) : []} />
             </div>
         </div>
     );
 }
+
+    
