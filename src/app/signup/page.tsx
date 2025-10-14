@@ -42,7 +42,7 @@ export default function SignupPage() {
         isPremium: false,
       });
 
-      router.push('/dashboard');
+      router.push('/survey');
     } catch (error: any) {
        toast({
         title: "Signup Failed",
@@ -65,7 +65,7 @@ export default function SignupPage() {
             <Logo />
             <CardTitle className="mt-4">Create an Account</CardTitle>
             <CardDescription>Start your journey to becoming an Excel Ninja</CardDescription>
-        </CardHeader>
+        </Header>
         <CardContent>
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-2">
