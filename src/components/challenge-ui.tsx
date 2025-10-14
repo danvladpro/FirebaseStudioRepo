@@ -16,8 +16,17 @@ interface ChallengeUIProps {
 }
 
 const KeyDisplay = ({ value, isNext }: { value: string, isNext?: boolean }) => {
-    const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
+    const isModifier = ["Control", "Shift", "Alt", "Meta", "Command", "Option"].includes(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
+
+    const displayValue: Record<string, string> = {
+        'Control': 'Ctrl',
+        'Meta': 'Cmd',
+        'Command': 'Cmd',
+        'Alt': 'Alt',
+        'Option': 'Opt',
+        ' ': 'Space'
+    }
 
     return (
         <kbd className={cn(
@@ -26,7 +35,7 @@ const KeyDisplay = ({ value, isNext }: { value: string, isNext?: boolean }) => {
             isModifier ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
-            {value === " " ? "Space" : value}
+            {displayValue[value] || value}
         </kbd>
     );
 };
@@ -43,6 +52,11 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const [skippedIndices, setSkippedIndices] = useState<number[]>([]);
   
   const [countdown, setCountdown] = useState(8);
+  const [isMac, setIsMac] = useState(false);
+
+  useEffect(() => {
+    setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
+  }, []);
 
   const isAdvancing = useRef(false);
   const keydownProcessed = useRef(false);
@@ -59,12 +73,24 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
 
   const normalizeKey = (key: string) => {
-    if (key === "Control" || key === "ControlLeft" || key === "ControlRight") return "Control";
+    if (key === "Control" || key === "ControlLeft" || key === "ControlRight") return isMac ? "Control" : "Control"; // Keep as control, but map later
     if (key === "Shift" || key === "ShiftLeft" || key === "ShiftRight") return "Shift";
-    if (key === "Alt" || key === "AltLeft" || key === "AltRight") return "Alt";
-    if (key === "Meta" || key === "MetaLeft" || key === "MetaRight") return "Meta";
+    if (key === "Alt" || key === "AltLeft" || key === "AltRight") return isMac ? "Alt" : "Alt";
+    if (key === "Meta" || key === "MetaLeft" || key === "MetaRight") return isMac ? "Meta" : "Meta";
     return key;
   };
+
+   const getRequiredKeys = useCallback(() => {
+    if (!currentChallenge) return new Set();
+    const keys = currentChallenge.keys.map(k => {
+      if (isMac) {
+        if (k.toLowerCase() === 'control') return 'Meta'; // On Mac, 'Control' from challenges should map to 'Command' (Meta) key
+      }
+      return k;
+    });
+    return new Set(keys.map(k => normalizeKey(k)));
+  }, [currentChallenge, isMac]);
+
   
   const moveToNext = useCallback((updatedSkippedIndices: number[]) => {
     if (isAdvancing.current) return;
@@ -164,7 +190,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             const newSequence = [...sequence, key];
             setSequence(newSequence);
 
-            const requiredSequence = currentChallenge.keys.map(k => normalizeKey(k));
+            const requiredSequence = Array.from(getRequiredKeys()).map(k => normalizeKey(k));
             
             // Check if the current sequence is a valid prefix
             for(let i = 0; i < newSequence.length; i++) {
@@ -183,7 +209,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             newKeys.add(key);
             setPressedKeys(newKeys);
             
-            const requiredKeys = new Set(currentChallenge.keys.map(k => normalizeKey(k)));
+            const requiredKeys = getRequiredKeys();
             
             const sortedPressed = [...newKeys].sort().join(',');
             const sortedRequired = [...requiredKeys].sort().join(',');
@@ -212,7 +238,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, sequence, currentChallenge, advanceChallenge]);
+  }, [pressedKeys, sequence, currentChallenge, advanceChallenge, getRequiredKeys]);
 
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;
@@ -289,3 +315,5 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     </Card>
   );
 }
+
+    
