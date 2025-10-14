@@ -11,8 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
 import { CHALLENGE_SETS } from "@/lib/challenges";
 import { AppHeader } from "@/components/app-header";
-import { useAuth } from "../auth-provider";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { useAuth } from "@/components/auth-provider";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ElementType } from "react";
 
@@ -244,3 +244,5 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
     </div>
   );
 }
+
+    
