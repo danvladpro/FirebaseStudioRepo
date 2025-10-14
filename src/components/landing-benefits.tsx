@@ -1,10 +1,9 @@
 
 import { Building, User, TrendingUp, Briefcase, BrainCircuit, ShieldCheck } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 
 export function LandingBenefits() {
   return (
-    <section id="benefits" className="w-full py-12 md:py-24 lg:py-32">
+    <section id="benefits" className="w-full py-12 md:py-24 lg:py-32 bg-muted/40">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
           <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
@@ -19,15 +18,15 @@ export function LandingBenefits() {
             productivity and career growth.
           </p>
         </div>
-        <div className="mx-auto grid max-w-5xl items-start gap-8 lg:grid-cols-2 lg:gap-12">
-          <Card className="h-full">
-            <CardHeader className="flex flex-row items-center gap-4">
+        <div className="mx-auto grid max-w-5xl items-start gap-12 lg:grid-cols-2">
+          <div className="grid gap-6">
+            <div className="flex items-center gap-4">
               <div className="rounded-full bg-primary/10 p-3 text-primary">
                 <User className="h-6 w-6" />
               </div>
-              <CardTitle>For Individuals</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm text-muted-foreground">
+              <h3 className="text-xl font-bold">For Individuals</h3>
+            </div>
+            <div className="space-y-4 text-sm text-muted-foreground">
               <div className="flex items-start gap-3">
                 <TrendingUp className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
                 <p>
@@ -46,7 +45,7 @@ export function LandingBenefits() {
                   A study by Capitalize Analytics found that 82% of jobs in middle-skill positions require digital skills like Excel. Listing advanced proficiency on your resume makes you a more attractive candidate.
                 </p>
               </div>
-               <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3">
                 <BrainCircuit className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
                 <p>
                   <span className="font-semibold text-foreground">
@@ -55,16 +54,16 @@ export function LandingBenefits() {
                   By committing shortcuts to muscle memory, you reduce the mental effort of hunting through menus, allowing you to stay focused on the analytical task itself.
                 </p>
               </div>
-            </CardContent>
-          </Card>
-          <Card className="h-full">
-            <CardHeader className="flex flex-row items-center gap-4">
+            </div>
+          </div>
+          <div className="grid gap-6">
+            <div className="flex items-center gap-4">
               <div className="rounded-full bg-primary/10 p-3 text-primary">
                 <Building className="h-6 w-6" />
               </div>
-              <CardTitle>For Companies</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm text-muted-foreground">
+              <h3 className="text-xl font-bold">For Companies</h3>
+            </div>
+            <div className="space-y-4 text-sm text-muted-foreground">
               <div className="flex items-start gap-3">
                 <TrendingUp className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
                 <p>
@@ -74,7 +73,7 @@ export function LandingBenefits() {
                   According to Forrester Research, proficient users complete tasks up to 50% faster. In a team of 10, that's like adding an extra team member for every 10 people, without the cost.
                 </p>
               </div>
-               <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3">
                 <ShieldCheck className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
                 <p>
                   <span className="font-semibold text-foreground">
@@ -92,8 +91,8 @@ export function LandingBenefits() {
                   Investing in practical skills like shortcut mastery fosters a culture of efficiency and continuous improvement, empowering employees to work smarter, not harder.
                 </p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </section>
