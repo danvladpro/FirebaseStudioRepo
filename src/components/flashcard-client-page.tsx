@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, ElementType } from "react";
+import { useState, ElementType, useEffect } from "react";
 import { ChallengeSet } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
@@ -11,29 +11,48 @@ import { VisualKeyboard } from "./visual-keyboard";
 import * as icons from "lucide-react";
 import { useAuth } from "./auth-provider";
 
-interface FlashcardClientPageProps {
-    set: ChallengeSet;
+interface KeyDisplayProps {
+    value: string;
+    isMac?: boolean;
 }
 
-const KeyDisplay = ({ value }: { value: string }) => {
+const KeyDisplay = ({ value, isMac = false }: KeyDisplayProps) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
+
+    const displayMap: Record<string, string> = {
+        'Control': isMac ? '⌃' : 'Ctrl',
+        'Meta': isMac ? '⌘' : 'Win',
+        'Alt': isMac ? '⌥' : 'Alt',
+        ' ': 'Space',
+        'enter': 'Enter',
+        'return': 'Return',
+        'backspace': 'Backspace',
+        'delete': 'Delete',
+        'escape': 'Esc',
+    };
 
     return (
         <kbd className={cn(
             "px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted rounded-md border-b-2",
-            isModifier ? "min-w-[4rem] text-center" : "",
+            isModifier ? "min-w-[2.5rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
-            {value === " " ? "Space" : value}
+            {displayMap[value] || value}
         </kbd>
     );
 };
 
-export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
+
+export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnswerShown, setIsAnswerShown] = useState(false);
     const { userProfile } = useAuth();
+    const [isMac, setIsMac] = useState(false);
+
+    useEffect(() => {
+        setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
+    }, []);
     
     const isLimited = !userProfile?.isPremium;
     const challenges = isLimited ? set.challenges.slice(0, 5) : set.challenges;
@@ -54,6 +73,16 @@ export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
         setIsAnswerShown(!isAnswerShown);
     };
 
+    const getOsKeys = (keys: string[], isMac: boolean) => {
+        return keys.map(key => {
+            if (isMac && key.toLowerCase() === 'control') return 'Meta';
+            return key;
+        });
+    }
+
+    const windowsKeys = getOsKeys(currentChallenge.keys, false);
+    const macKeys = getOsKeys(currentChallenge.keys, true);
+
     const ChallengeIcon = icons[currentChallenge.iconName] as ElementType;
 
     return (
@@ -67,13 +96,25 @@ export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
                         {ChallengeIcon && <ChallengeIcon className="w-16 h-16 text-primary" />}
                     </div>
 
-                    <div className="h-16 flex items-center justify-center">
+                    <div className="h-24 flex items-center justify-center">
                         {isAnswerShown ? (
-                            <div className="flex items-center justify-center gap-2 animate-in fade-in">
-                                <Lightbulb className="w-6 h-6 text-yellow-400" />
-                                {currentChallenge.keys.map((key, index) => (
-                                    <KeyDisplay key={`${key}-${index}`} value={key} />
-                                ))}
+                            <div className="flex flex-col items-center justify-center gap-2 animate-in fade-in">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-semibold w-16">Windows:</span>
+                                    <div className="flex items-center justify-center gap-1">
+                                        {windowsKeys.map((key, index) => (
+                                            <KeyDisplay key={`win-${key}-${index}`} value={key} isMac={false} />
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                     <span className="text-sm font-semibold w-16">macOS:</span>
+                                    <div className="flex items-center justify-center gap-1">
+                                        {macKeys.map((key, index) => (
+                                            <KeyDisplay key={`mac-${key}-${index}`} value={key} isMac={true} />
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                             <Button onClick={toggleAnswer} variant="outline">
@@ -97,7 +138,7 @@ export function FlashcardClientPage({ set }: FlashcardClientPageProps) {
             </Card>
 
             <div className="w-full mt-8">
-                 <VisualKeyboard highlightedKeys={isAnswerShown ? currentChallenge.keys : []} />
+                 <VisualKeyboard highlightedKeys={isAnswerShown ? getOsKeys(currentChallenge.keys, isMac) : []} />
             </div>
         </div>
     );

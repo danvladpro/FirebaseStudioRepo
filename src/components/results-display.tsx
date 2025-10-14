@@ -13,10 +13,18 @@ import { Separator } from './ui/separator';
 import { useAuth } from './auth-provider';
 import { cn } from '@/lib/utils';
 
-
-const KeyDisplay = ({ value }: { value: string }) => {
+const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
+
+    const displayMap: Record<string, string> = {
+        'Control': isMac ? '⌃' : 'Ctrl',
+        'Meta': isMac ? '⌘' : 'Win',
+        'Alt': isMac ? '⌥' : 'Alt',
+        ' ': 'Space'
+    };
+    
+    const displayValue = displayMap[value] || value;
 
     return (
         <kbd className={cn(
@@ -24,7 +32,7 @@ const KeyDisplay = ({ value }: { value: string }) => {
             isModifier ? "min-w-[3rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
-            {value === " " ? "Space" : value}
+            {displayValue}
         </kbd>
     );
 };
@@ -36,6 +44,11 @@ export default function ResultsDisplay() {
   const { user } = useAuth();
   
   const [isNewRecord, setIsNewRecord] = useState(false);
+  const [isMac, setIsMac] = useState(false);
+
+  useEffect(() => {
+    setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
+  }, []);
   
   const setId = searchParams.get('setId');
   const timeStr = searchParams.get('time');
@@ -51,6 +64,13 @@ export default function ResultsDisplay() {
   const correctAnswers = totalChallenges - skippedCount;
   const score = totalChallenges > 0 ? (correctAnswers / totalChallenges) * 100 : 0;
   const isPerfectScore = skippedCount === 0;
+
+  const getOsKeys = (keys: string[], forMac: boolean) => {
+    return keys.map(key => {
+        if (forMac && key.toLowerCase() === 'control') return 'Meta';
+        return key;
+    });
+  }
 
   const skippedChallenges = skippedIndicesStr && challengeSet
     ? skippedIndicesStr.split(',').filter(Boolean).map(i => challengeSet.challenges[parseInt(i)])
@@ -126,7 +146,7 @@ export default function ResultsDisplay() {
                           <li key={index} className="flex justify-between items-center">
                             <span>{challenge.description}</span>
                             <div className="flex items-center gap-1.5">
-                              {challenge.keys.map(key => <KeyDisplay key={key} value={key} />)}
+                              {getOsKeys(challenge.keys, isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
                             </div>
                           </li>
                       ))}
