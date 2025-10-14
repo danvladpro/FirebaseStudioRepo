@@ -58,9 +58,9 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
         </CardHeader>
         <CardFooter className="mt-auto p-4">
             {isLimited ? (
-                 <Button className="w-full" disabled variant="warning">
-                    <Lock className="mr-2" />
-                    Upgrade to Unlock
+                 <Button className="w-full" variant="premium">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Go Premium
                  </Button>
             ) : (
                 <Button asChild className="w-full">
@@ -168,9 +168,9 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                                     
                                         <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
                                             {set.isLocked ? (
-                                                <Button className="w-full col-span-2" disabled variant="warning">
-                                                    <Lock className="mr-2" />
-                                                    Upgrade
+                                                <Button className="w-full col-span-2" variant="premium">
+                                                    <Sparkles className="mr-2 h-4 w-4" />
+                                                    Go Premium
                                                 </Button>
                                             ) : (
                                                 <>

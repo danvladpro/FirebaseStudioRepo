@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, BookMarked, Filter, Lock, GalleryVerticalEnd } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, BookMarked, Filter, Lock, GalleryVerticalEnd, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
@@ -84,9 +84,9 @@ export default function FlashcardsPage() {
                                     </CardContent>
                                     <div className="p-6 pt-0 mt-auto">
                                       {set.isLocked && isLimited ? (
-                                          <Button className="w-full" disabled variant="warning">
-                                              <Lock className="mr-2" />
-                                              Upgrade to Unlock
+                                          <Button className="w-full" variant="premium">
+                                              <Sparkles className="mr-2 h-4 w-4" />
+                                              Go Premium
                                           </Button>
                                       ) : (
                                           <Button asChild className="w-full">
