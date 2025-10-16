@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -9,7 +8,7 @@ import { Check, Loader2, Sparkles, Star, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "./auth-provider";
 import { toast } from "@/hooks/use-toast";
-import { createCheckoutSessionFlow } from "@/ai/flows/create-checkout-session";
+import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
 import { STRIPE_PRICES } from "@/lib/stripe-prices";
 
 interface PremiumModalProps {
@@ -43,7 +42,7 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
                 throw new Error("Stripe price ID is not configured.");
             }
 
-            const { url } = await createCheckoutSessionFlow({
+            const { url } = await createCheckoutSession({
                 priceId: priceId,
                 userId: user.uid,
                 userEmail: user.email,
