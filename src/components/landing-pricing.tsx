@@ -16,7 +16,7 @@ export function LandingPricing() {
                         Whether you're an individual looking to level up or a team aiming for peak efficiency, we have a plan for you.
                     </p>
                 </div>
-                <div className="grid w-full grid-cols-1 md:grid-cols-2 gap-8 pt-8">
+                <div className="grid w-full grid-cols-1 md:grid-cols-2 gap-8 pt-8 max-w-4xl mx-auto">
                     <Card className="flex flex-col">
                         <CardHeader>
                             <CardTitle>Lifetime</CardTitle>
@@ -42,6 +42,11 @@ export function LandingPricing() {
                                 </li>
                             </ul>
                         </CardContent>
+                        <CardFooter>
+                           <Button asChild className="w-full">
+                                <Link href="/signup">Get Started</Link>
+                           </Button>
+                        </CardFooter>
                     </Card>
                     <Card className="flex flex-col border-primary">
                          <CardHeader>

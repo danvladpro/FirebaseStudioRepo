@@ -15,6 +15,7 @@ import { useAuth } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ElementType } from "react";
+import { PremiumModal } from "./premium-modal";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -36,6 +37,7 @@ interface HomePageClientProps {
 export function HomePageClient({ examSet }: HomePageClientProps) {
   const { isLoaded, stats, getCompletedSetsCount } = usePerformanceTracker();
   const { user, userProfile } = useAuth();
+  const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
   
   const isLimited = !userProfile?.isPremium;
 
@@ -58,7 +60,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
         </CardHeader>
         <CardFooter className="mt-auto p-4">
             {isLimited ? (
-                 <Button className="w-full" variant="premium">
+                 <Button className="w-full" variant="premium" onClick={() => setIsPremiumModalOpen(true)}>
                     <Sparkles className="mr-2 h-4 w-4" />
                     Go Premium
                  </Button>
@@ -87,6 +89,8 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
   }
 
   return (
+    <>
+    <PremiumModal isOpen={isPremiumModalOpen} onOpenChange={setIsPremiumModalOpen} />
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <AppHeader />
       <main className="flex-1 container py-8 md:py-12 mt-16">
@@ -162,7 +166,7 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
                                     
                                         <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
                                             {set.isLocked ? (
-                                                <Button className="w-full col-span-2" variant="premium">
+                                                <Button className="w-full col-span-2" variant="premium" onClick={() => setIsPremiumModalOpen(true)}>
                                                     <Sparkles className="mr-2 h-4 w-4" />
                                                     Go Premium
                                                 </Button>
@@ -236,5 +240,6 @@ export function HomePageClient({ examSet }: HomePageClientProps) {
         </div>
       </main>
     </div>
+    </>
   );
 }
