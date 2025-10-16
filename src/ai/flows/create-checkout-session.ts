@@ -5,7 +5,7 @@
 
 import { z } from 'zod';
 import Stripe from 'stripe';
-import { headers }s from 'next/headers';
+import { headers } from 'next/headers';
 
 const CreateCheckoutSessionInputSchema = z.object({
   priceId: z.string(),
