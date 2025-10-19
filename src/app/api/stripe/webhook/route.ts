@@ -4,7 +4,7 @@ import { db } from '@/lib/firebase-admin';
 
 // Initialize Stripe with the secret key and a matching API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2024-06-20',
+    apiVersion: '2025-09-30.clover' as any,
 });
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 

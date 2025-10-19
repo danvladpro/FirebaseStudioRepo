@@ -19,7 +19,7 @@ export type CreateCheckoutSessionInput = z.infer<
 
 // Initialize Stripe with the secret key and a matching API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-09-30.clover' as any,
 });
 
 export async function createCheckoutSession(input: CreateCheckoutSessionInput) {
