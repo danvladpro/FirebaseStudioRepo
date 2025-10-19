@@ -2,14 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { db } from '@/lib/firebase-admin';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+// Initialize Stripe with the secret key and a matching API version
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2024-06-20',
+});
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   const userId = session.metadata?.firebaseUID;
 
   if (!userId) {
-    console.error('Webhook Error: Missing firebaseUID in session metadata.');
+    console.error('Webhook Error: Missing firebaseUID in session metadata for session:', session.id);
     // A 400 error tells Stripe not to retry this event.
     return NextResponse.json({ error: 'Missing user ID in metadata' }, { status: 400 });
   }
@@ -40,7 +43,7 @@ export async function POST(req: NextRequest) {
     signature = req.headers.get('stripe-signature');
 
     if (!signature) {
-      console.error('Missing Stripe-Signature header.');
+      console.error('Webhook Error: Missing Stripe-Signature header.');
       return NextResponse.json({ error: 'Missing Stripe-Signature header' }, { status: 400 });
     }
 
