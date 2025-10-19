@@ -54,7 +54,7 @@ export async function createCheckoutSession(input: CreateCheckoutSessionInput) {
         quantity: 1,
       },
     ],
-    mode: priceId === process.env.NEXT_PUBLIC_STRIPE_LIFETIME_PRICE_ID ? 'payment' : 'subscription',
+    mode: 'payment',
     success_url: `${YOUR_DOMAIN}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${YOUR_DOMAIN}/checkout/cancel`,
     metadata: {
