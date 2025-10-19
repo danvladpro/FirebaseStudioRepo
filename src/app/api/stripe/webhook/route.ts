@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { headers } from 'next/headers';
@@ -8,42 +9,57 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
-  let userId = session.metadata?.firebaseUID;
-
-  // For subscriptions, metadata is on the subscription, not the session.
-  if (session.mode === 'subscription' && session.subscription) {
-    try {
-      const subscription = await stripe.subscriptions.retrieve(
-        session.subscription as string
-      );
-      userId = subscription.metadata?.firebaseUID;
-    } catch (error) {
-      console.error('Error retrieving subscription:', error);
-      // Exit without erroring, as we can't process it.
-      return; 
-    }
-  }
+  const userId = session.metadata?.firebaseUID;
+  const stripeCustomerId = session.customer;
+  const stripeSubscriptionId = session.subscription;
 
   if (!userId) {
-    console.error('Webhook Error: Missing firebaseUID in session metadata or related subscription.');
-    // Return a 400 status to indicate a client-side error to Stripe
+    console.error('Webhook Error: Missing firebaseUID in session metadata.');
     return NextResponse.json({ error: 'Missing user ID in metadata' }, { status: 400 });
   }
 
   try {
     const userRef = db.collection('users').doc(userId);
-    await userRef.update({
-      isPremium: true,
-      stripeCustomerId: session.customer,
-      stripeSubscriptionId: session.subscription, // Store subscription ID for future management
-    });
+    const updateData: { isPremium: boolean; stripeCustomerId?: string | Stripe.Customer | null; stripeSubscriptionId?: string | Stripe.Subscription | null } = {
+        isPremium: true,
+        stripeCustomerId: stripeCustomerId,
+    };
+    
+    if (session.mode === 'subscription') {
+        updateData.stripeSubscriptionId = stripeSubscriptionId;
+    }
+
+    await userRef.update(updateData);
+
     console.log(`Successfully updated user ${userId} to premium.`);
   } catch (error) {
     console.error(`Error updating user ${userId} in Firestore:`, error);
-    // Return a 500 status to indicate a server-side error
     return NextResponse.json({ error: 'Failed to update user in database' }, { status: 500 });
   }
 }
+
+async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
+    const isSubscriptionActive = ['active', 'trialing'].includes(subscription.status);
+    const stripeCustomerId = subscription.customer as string;
+
+    try {
+        const usersRef = db.collection('users');
+        const snapshot = await usersRef.where('stripeCustomerId', '==', stripeCustomerId).limit(1).get();
+
+        if (snapshot.empty) {
+            console.warn(`Webhook Warning: No user found for stripeCustomerId: ${stripeCustomerId}`);
+            return;
+        }
+        
+        const userDoc = snapshot.docs[0];
+        await userDoc.ref.update({ isPremium: isSubscriptionActive });
+        console.log(`Updated premium status for user ${userDoc.id} to ${isSubscriptionActive} based on subscription ${subscription.id}`);
+    } catch (error) {
+        console.error(`Error updating user for stripeCustomerId ${stripeCustomerId}:`, error);
+        return NextResponse.json({ error: 'Failed to update user subscription status' }, { status: 500 });
+    }
+}
+
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -62,31 +78,20 @@ export async function POST(req: NextRequest) {
   switch (event.type) {
     case 'checkout.session.completed':
       const session = event.data.object as Stripe.Checkout.Session;
+      // This handles both one-time payments and the creation of a subscription
       const response = await handleCheckoutSessionCompleted(session);
-      // If the handler returned an error response, forward it.
       if (response) {
         return response;
       }
       break;
     
-    // You can handle other event types here, like subscription updates or cancellations
-    // For example, when a user's subscription ends.
     case 'customer.subscription.deleted':
     case 'customer.subscription.updated':
+      // This handles renewals, cancellations, etc.
       const subscription = event.data.object as Stripe.Subscription;
-      const customerId = subscription.customer as string;
-      const isSubscriptionActive = subscription.status === 'active' || subscription.status === 'trialing';
-
-      // Find user by stripeCustomerId
-      const usersRef = db.collection('users');
-      const snapshot = await usersRef.where('stripeCustomerId', '==', customerId).limit(1).get();
-      
-      if (!snapshot.empty) {
-        const userDoc = snapshot.docs[0];
-        await userDoc.ref.update({ isPremium: isSubscriptionActive });
-        console.log(`Updated premium status for user ${userDoc.id} to ${isSubscriptionActive}`);
-      } else {
-        console.warn(`Webhook Warning: No user found for stripeCustomerId: ${customerId}`);
+      const subResponse = await handleSubscriptionUpdate(subscription);
+       if (subResponse) {
+        return subResponse;
       }
       break;
 
