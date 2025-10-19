@@ -32,4 +32,5 @@ export interface UserProfile {
   email: string;
   isPremium: boolean;
   stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
 }

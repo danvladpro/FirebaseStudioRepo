@@ -10,6 +10,9 @@ import { useAuth } from "./auth-provider";
 import { toast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
 import { STRIPE_PRICES } from "@/lib/stripe-prices";
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface PremiumModalProps {
     isOpen: boolean;
@@ -42,17 +45,27 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
                 throw new Error("Stripe price ID is not configured.");
             }
 
-            const { url } = await createCheckoutSession({
+            const { sessionId } = await createCheckoutSession({
                 priceId: priceId,
                 userId: user.uid,
                 userEmail: user.email,
             });
 
-            if (url) {
-                window.location.href = url;
-            } else {
-                throw new Error("Could not create a checkout session.");
+            if (!sessionId) {
+                 throw new Error("Could not create a checkout session ID.");
             }
+
+            const stripe = await stripePromise;
+            if (!stripe) {
+                throw new Error("Stripe.js has not loaded yet.");
+            }
+            
+            const { error } = await stripe.redirectToCheckout({ sessionId });
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
         } catch (error: any) {
             toast({
                 title: "Checkout Error",
