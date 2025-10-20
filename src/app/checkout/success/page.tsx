@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -15,7 +14,6 @@ const POLLING_TIMEOUT = 10000; // 10 seconds
 export default function CheckoutSuccessPage() {
   const { userProfile, loading: authLoading } = useAuth();
   const [status, setStatus] = useState<Status>('polling');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -24,17 +22,11 @@ export default function CheckoutSuccessPage() {
       setStatus('success');
       return;
     }
-    
-    if (userProfile?.stripeError) {
-      setStatus('error');
-      setErrorMessage(userProfile.stripeError);
-      return;
-    }
 
     const timeoutId = setTimeout(() => {
+      // Check one last time before declaring timeout
       if (!userProfile?.isPremium) {
         setStatus('error');
-        setErrorMessage("We're experiencing a delay updating your account. Please check back in a few minutes.");
       }
     }, POLLING_TIMEOUT);
 
@@ -64,8 +56,8 @@ export default function CheckoutSuccessPage() {
         return {
           icon: <div className="mx-auto bg-destructive/10 text-destructive rounded-full p-3 w-fit"><AlertTriangle className="h-12 w-12" /></div>,
           title: "Update Issue",
-          description: "Your payment was successful, but we encountered an issue.",
-          content: errorMessage || "If your premium status doesn't appear shortly, please contact support with your order details.",
+          description: "Your payment was successful, but we encountered a delay updating your account.",
+          content: "If your premium status doesn't appear shortly, please contact support with your order details.",
           footer: <Button asChild className="w-full"><Link href="/dashboard">Check Your Dashboard<ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
         };
     }

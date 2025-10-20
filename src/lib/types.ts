@@ -33,5 +33,4 @@ export interface UserProfile {
   isPremium: boolean;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
-  stripeError?: string; // Add this field
 }
