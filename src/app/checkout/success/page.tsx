@@ -1,53 +1,92 @@
 
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Loader2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/components/auth-provider';
 
+type Status = 'polling' | 'success' | 'error';
+
+const POLLING_TIMEOUT = 10000; // 10 seconds
+
 export default function CheckoutSuccessPage() {
-  const router = useRouter();
-  const { userProfile, loading } = useAuth();
+  const { userProfile, loading: authLoading } = useAuth();
+  const [status, setStatus] = useState<Status>('polling');
 
   useEffect(() => {
-    // Redirect non-premium users away if they land here by mistake
-    if (!loading && !userProfile?.isPremium) {
-       // A small delay to allow webhook to potentially process
-       setTimeout(() => {
-            // Re-check after delay, maybe redirect to dashboard if still not premium
-       }, 3000);
-    }
-  }, [userProfile, loading, router]);
+    if (authLoading) return;
 
+    if (userProfile?.isPremium) {
+      setStatus('success');
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      // If after the timeout the user is still not premium, show an error.
+      // The auth provider's onSnapshot listener will update userProfile in real-time.
+      if (!userProfile?.isPremium) {
+        setStatus('error');
+      }
+    }, POLLING_TIMEOUT);
+
+    // If the user becomes premium before the timeout, the component will re-render
+    // and the first `if` condition will set the status to 'success'.
+
+    return () => clearTimeout(timeoutId);
+
+  }, [userProfile, authLoading]);
+
+  const renderContent = () => {
+    switch (status) {
+      case 'polling':
+        return {
+          icon: <Loader2 className="h-12 w-12 animate-spin text-primary" />,
+          title: "Finalizing Your Upgrade...",
+          description: "Please wait a moment while we update your account.",
+          content: "This shouldn't take more than a few seconds. Please don't refresh the page.",
+          footer: <Button className="w-full" disabled><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please Wait</Button>
+        };
+      case 'success':
+        return {
+          icon: <div className="mx-auto bg-primary/10 text-primary rounded-full p-3 w-fit"><CheckCircle2 className="h-12 w-12" /></div>,
+          title: "Payment Successful!",
+          description: "Welcome to Premium! Your account has been upgraded.",
+          content: "You now have unlimited access to all challenges, flashcards, and the final exam. Let's get started!",
+          footer: <Button asChild className="w-full"><Link href="/dashboard">Go to Your Dashboard<ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+        };
+      case 'error':
+        return {
+          icon: <div className="mx-auto bg-destructive/10 text-destructive rounded-full p-3 w-fit"><AlertTriangle className="h-12 w-12" /></div>,
+          title: "Update Delayed",
+          description: "Your payment was successful, but we're experiencing a delay updating your account.",
+          content: "Please check your dashboard in a few minutes. If your premium status doesn't appear shortly, please contact support with your order details.",
+          footer: <Button asChild className="w-full"><Link href="/dashboard">Check Your Dashboard<ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+        };
+    }
+  };
+
+  const { icon, title, description, content, footer } = renderContent();
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-muted/40">
+    <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
       <Card className="w-full max-w-md text-center">
         <CardHeader>
-          <div className="mx-auto bg-primary/10 text-primary rounded-full p-3 w-fit">
-            <CheckCircle2 className="h-12 w-12" />
-          </div>
-          <CardTitle className="mt-4 text-2xl">Payment Successful!</CardTitle>
+          {icon}
+          <CardTitle className="mt-4 text-2xl">{title}</CardTitle>
           <CardDescription>
-            Welcome to Premium! Your account has been upgraded.
+            {description}
           </CardDescription>
         </CardHeader>
         <CardContent>
-            <p className="text-muted-foreground">
-                You now have unlimited access to all challenges, flashcards, and the final exam. Let's get started!
+            <p className="text-muted-foreground text-sm">
+                {content}
             </p>
         </CardContent>
         <CardFooter>
-          <Button asChild className="w-full">
-            <Link href="/dashboard">
-              Go to Your Dashboard
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          {footer}
         </CardFooter>
       </Card>
     </div>
