@@ -2,60 +2,71 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { db } from '@/lib/firebase-admin';
 
-// Initialize Stripe with the secret key and a matching API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-09-30.clover' as any,
+  apiVersion: '2025-09-30.clover' as any,
 });
+
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(req: NextRequest) {
-  let body: string;
-  let signature: string | null;
+  const sig = req.headers.get('stripe-signature');
   let event: Stripe.Event;
 
   try {
-    body = await req.text();
-    signature = req.headers.get('Stripe-Signature');
-
-    if (!signature) {
-      console.error('Webhook Error: Missing Stripe-Signature header.');
-      return NextResponse.json(
-        { error: 'Missing Stripe-Signature header' }, 
-        { status: 400 });
+    const body = await req.text();
+    if (!sig || !webhookSecret) {
+      console.error('Webhook Error: Missing Stripe signature or secret.');
+      return NextResponse.json({ error: 'Webhook configuration error.' }, { status: 400 });
     }
-
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (err: any) {
     console.error(`Webhook signature verification failed: ${err.message}`);
-    return NextResponse.json(
-      { error: `Webhook signature verification failed: ${err.message}` },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: `Webhook error: ${err.message}` }, { status: 400 });
   }
+  
+  // These will be used in the catch block if needed
+  let userId: string | undefined;
+  let customerId: string | undefined;
 
-  const response = NextResponse.json({ received: true }, { status: 200 });
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        userId = session.metadata?.firebaseUID;
+        customerId = typeof session.customer === 'string' ? session.customer : session.customer?.id;
 
-  // --- Handle the event ---
-  (async () => {
-    try {
-      switch (event.type) {
-        case 'checkout.session.completed': {
-          const session = event.data.object as Stripe.Checkout.Session;
-          const userId = session.metadata?.firebaseUID;
-          if (!userId) {
-            console.error('Missing firebaseUID for session:', session.id);
-            return;
-          }
-          await db.collection('users').doc(userId).update({ isPremium: true });
-          console.log(`User ${userId} upgraded to premium`);
-          break;
+        if (!userId) {
+          throw new Error('Missing firebaseUID in session metadata.');
         }
-        default:
-          console.log(`ℹ️ Unhandled event type: ${event.type}`);
+
+        if (!customerId) {
+          throw new Error('Missing customer ID in session.');
+        }
+
+        await db.collection('users').doc(userId).update({
+          isPremium: true,
+          stripeCustomerId: customerId,
+          stripeError: null, // Clear any previous errors
+        });
+        console.log(`User ${userId} upgraded to premium.`);
+        break;
       }
-    } catch (err) {
-      console.error(`💥 Error processing event ${event.type}:`, err);
+      default:
+        console.log(`ℹ️  Unhandled event type: ${event.type}`);
     }
-  })();
-  return response;
+    return NextResponse.json({ received: true });
+  } catch (err: any) {
+    console.error(`💥 Error processing event ${event.type}:`, err);
+    // If we have a userId, store the error in their document
+    if (userId) {
+      try {
+        await db.collection('users').doc(userId).update({
+          stripeError: `Webhook failed: ${err.message}`,
+        });
+      } catch (dbError: any) {
+         console.error(`💥💥 Could not write error to user ${userId} document:`, dbError);
+      }
+    }
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
 }

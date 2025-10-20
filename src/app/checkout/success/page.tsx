@@ -15,6 +15,7 @@ const POLLING_TIMEOUT = 10000; // 10 seconds
 export default function CheckoutSuccessPage() {
   const { userProfile, loading: authLoading } = useAuth();
   const [status, setStatus] = useState<Status>('polling');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -23,17 +24,19 @@ export default function CheckoutSuccessPage() {
       setStatus('success');
       return;
     }
+    
+    if (userProfile?.stripeError) {
+      setStatus('error');
+      setErrorMessage(userProfile.stripeError);
+      return;
+    }
 
     const timeoutId = setTimeout(() => {
-      // If after the timeout the user is still not premium, show an error.
-      // The auth provider's onSnapshot listener will update userProfile in real-time.
       if (!userProfile?.isPremium) {
         setStatus('error');
+        setErrorMessage("We're experiencing a delay updating your account. Please check back in a few minutes.");
       }
     }, POLLING_TIMEOUT);
-
-    // If the user becomes premium before the timeout, the component will re-render
-    // and the first `if` condition will set the status to 'success'.
 
     return () => clearTimeout(timeoutId);
 
@@ -60,9 +63,9 @@ export default function CheckoutSuccessPage() {
       case 'error':
         return {
           icon: <div className="mx-auto bg-destructive/10 text-destructive rounded-full p-3 w-fit"><AlertTriangle className="h-12 w-12" /></div>,
-          title: "Update Delayed",
-          description: "Your payment was successful, but we're experiencing a delay updating your account.",
-          content: "Please check your dashboard in a few minutes. If your premium status doesn't appear shortly, please contact support with your order details.",
+          title: "Update Issue",
+          description: "Your payment was successful, but we encountered an issue.",
+          content: errorMessage || "If your premium status doesn't appear shortly, please contact support with your order details.",
           footer: <Button asChild className="w-full"><Link href="/dashboard">Check Your Dashboard<ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
         };
     }
