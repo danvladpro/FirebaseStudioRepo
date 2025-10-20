@@ -1,6 +1,7 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { db } from '@/lib/firebase-admin';
+import { adminDb } from '@/lib/firebase-admin';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-09-30.clover' as any,
@@ -15,6 +16,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.text();
     if (!sig || !webhookSecret) {
+      console.error('Webhook secret not configured');
       return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 400 });
     }
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
@@ -38,10 +40,12 @@ export async function POST(req: NextRequest) {
           throw new Error('Missing customer ID in session.');
         }
 
-        await db.collection('users').doc(userId).update({
+        const userDocRef = adminDb.collection('users').doc(userId);
+        await userDocRef.update({
           isPremium: true,
           stripeCustomerId: customerId,
         });
+
         console.log(`User ${userId} upgraded to premium.`);
         break;
       }
@@ -51,6 +55,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true });
   } catch (err: any) {
     console.error(`💥 Error processing event ${event.type}:`, err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'An internal server error occurred.' }, { status: 500 });
   }
 }
