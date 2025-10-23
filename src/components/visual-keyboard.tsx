@@ -108,37 +108,37 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
     }));
 
     return (
-        <div className="p-4 bg-muted/50 rounded-lg border overflow-x-auto">
-            <div className="flex flex-col gap-2 min-w-max">
-                {isClient && layout.map((row, rowIndex) => (
-                    <div key={rowIndex} className="flex justify-center gap-2">
-                        {row.map((key, keyIndex) => {
-                            const isHighlighted = normalizedHighlights.has(key);
-                            const width = keyWidths[key];
-                            const display = displayMap[key] || key.toUpperCase();
+        <div className="p-3 bg-muted/50 rounded-lg border overflow-x-auto scale-[0.95]">
+        <div className="flex flex-col gap-1.5 min-w-max">
+            {isClient && layout.map((row, rowIndex) => (
+            <div key={rowIndex} className="flex justify-center gap-1.5">
+                {row.map((key, keyIndex) => {
+                const isHighlighted = normalizedHighlights.has(key);
+                const width = keyWidths[key];
+                const display = displayMap[key] || key.toUpperCase();
 
-                            return (
-                                <div
-                                    key={`${rowIndex}-${keyIndex}-${key}`}
-                                    className={cn(
-                                        "h-12 rounded-md flex items-center justify-center text-sm font-sans border-b-4",
-                                        "transition-colors duration-200",
-                                        isHighlighted
-                                            ? "bg-primary text-primary-foreground border-primary/80"
-                                            : "bg-background/50 text-foreground border-border",
-                                    )}
-                                    style={{ 
-                                        width: width || '2.25rem',
-                                        flexGrow: key === ' ' ? 1 : 0 
-                                    }}
-                                >
-                                    <span className="px-1">{display}</span>
-                                </div>
-                            );
-                        })}
+                return (
+                    <div
+                    key={`${rowIndex}-${keyIndex}-${key}`}
+                    className={cn(
+                        "h-9 rounded-md flex items-center justify-center text-xs font-medium border-b-2",
+                        "transition-colors duration-200",
+                        isHighlighted
+                        ? "bg-primary text-primary-foreground border-primary/70"
+                        : "bg-background/60 text-foreground border-border/70",
+                    )}
+                    style={{ 
+                        width: key === ' ' ? '20rem' : width || '2rem',
+                        
+                    }}
+                    >
+                    <span className="px-0.5">{display}</span>
                     </div>
-                ))}
+                );
+                })}
             </div>
+            ))}
+        </div>
         </div>
     );
 };

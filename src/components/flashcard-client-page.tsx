@@ -92,7 +92,7 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
 
     return (
         <div className="w-full max-w-4xl flex flex-col items-center">
-            <Card className="w-full min-h-[380px] flex flex-col justify-center relative">
+            <Card className="w-full min-h-[300px] flex flex-col justify-center relative">
                 <p className="absolute top-4 right-4 text-sm text-muted-foreground font-medium">
                     Card {currentIndex + 1} of {challenges.length}
                 </p>
@@ -101,38 +101,39 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                     <ChevronLeft />
                 </Button>
 
-                <CardContent className="py-8 px-6 md:px-8 text-center flex-grow flex flex-col items-center justify-center">
-                    <p className="text-xl md:text-2xl font-semibold text-foreground mb-4">
+                <CardContent className="py-2 px-6 md:px-8 text-center flex flex-col items-center">
+                    <p className="text-xl md:text-2xl font-semibold text-foreground mb-3">
                         {currentChallenge.description}
                     </p>
-                    <div className="flex justify-center items-center h-24 bg-muted rounded-lg mb-4 overflow-hidden px-4 w-full max-w-sm">
-                        {ChallengeIcon && <ChallengeIcon className="w-16 h-16 text-primary" />}
+
+                    <div className="flex justify-center items-center bg-muted rounded-lg mb-3 overflow-hidden px-4 py-4 w-full max-w-sm">
+                        {ChallengeIcon && <ChallengeIcon className="w-14 h-14 text-primary" />}
                     </div>
 
-                    <div className="h-20 flex items-center justify-center">
+                    <div className="flex flex-col items-center justify-center gap-2">
                         {isAnswerShown ? (
-                            <div className="flex flex-col items-center justify-center gap-2 animate-in fade-in">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm font-semibold w-16">Windows:</span>
-                                    <div className="flex items-center justify-center gap-1">
-                                        {windowsKeys.map((key, index) => (
-                                            <KeyDisplay key={`win-${key}-${index}`} value={key} isMac={false} />
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                     <span className="text-sm font-semibold w-16">macOS:</span>
-                                    <div className="flex items-center justify-center gap-1">
-                                        {macKeys.map((key, index) => (
-                                            <KeyDisplay key={`mac-${key}-${index}`} value={key} isMac={true} />
-                                        ))}
-                                    </div>
-                                </div>
+                        <div className="flex flex-col items-center justify-center gap-2 animate-in fade-in">
+                            <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold w-16">Windows:</span>
+                            <div className="flex items-center justify-center gap-1">
+                                {windowsKeys.map((key, index) => (
+                                <KeyDisplay key={`win-${key}-${index}`} value={key} isMac={false} />
+                                ))}
                             </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold w-16">macOS:</span>
+                            <div className="flex items-center justify-center gap-1">
+                                {macKeys.map((key, index) => (
+                                <KeyDisplay key={`mac-${key}-${index}`} value={key} isMac={true} />
+                                ))}
+                            </div>
+                            </div>
+                        </div>
                         ) : (
-                            <Button onClick={toggleAnswer} variant="outline">
-                                <Eye className="mr-2" /> Show Shortcut
-                            </Button>
+                        <Button onClick={toggleAnswer} variant="outline" className="mt-2">
+                            <Eye className="mr-2" /> Show Shortcut
+                        </Button>
                         )}
                     </div>
                 </CardContent>

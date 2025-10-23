@@ -9,13 +9,16 @@ export interface Challenge {
   isSequential?: boolean;
 }
 
+export type ChallengeLevel = "Beginner" | "Intermediate" | "Advanced";
+
 export interface ChallengeSet {
   id: string;
   name: string;
   description: string;
   category: string;
   challenges: Challenge[];
-  iconName: "ClipboardCopy" | "ArrowRightLeft" | "MousePointerSquareDashed" | "Pilcrow" | "FunctionSquare" | "BookMarked" | "Layers" | "Filter" | "GalleryVerticalEnd";
+  iconName: keyof typeof import("lucide-react");
+  level?: ChallengeLevel;
 }
 
 export interface PerformanceRecord {
@@ -32,5 +35,4 @@ export interface UserProfile {
   email: string;
   isPremium: boolean;
   stripeCustomerId?: string;
-  stripeSubscriptionId?: string;
 }

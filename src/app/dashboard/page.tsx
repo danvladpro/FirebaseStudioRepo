@@ -1,8 +1,9 @@
-import { EXAM_SET } from '@/lib/challenges';
+
+import { ALL_EXAM_SETS } from '@/lib/challenges';
 import { HomePageClient } from '@/components/home-page-client';
 
 export default function DashboardPage() {
   return (
-    <HomePageClient examSet={EXAM_SET} />
+    <HomePageClient examSets={ALL_EXAM_SETS} />
   );
 }

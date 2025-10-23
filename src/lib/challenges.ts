@@ -1,11 +1,12 @@
 
-import { ChallengeSet } from "./types";
+import { ChallengeSet, ChallengeLevel } from "./types";
 
 export const CHALLENGE_SETS: ChallengeSet[] = [
   {
     id: "formatting-basics",
     name: "Formatting Basics",
     description: "Learn the most common formatting shortcuts.",
+    level: "Beginner",
     category: "Formatting",
     iconName: "Pilcrow",
     challenges: [
@@ -14,15 +15,13 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       { description: "Underline the current selection", keys: ["Control", "u"], iconName: "Underline" },
       { description: "Apply or remove strikethrough", keys: ["Control", "5"], iconName: "Strikethrough" },
       { description: "Open the Format Cells dialog", keys: ["Control", "1"], iconName: "Settings2" },
-      { description: "Apply the General number format", keys: ["Control", "Shift", "`"], iconName: "Hash" },
-      { description: "Apply the Currency format", keys: ["Control", "Shift", "4"], iconName: "DollarSign" },
-      { description: "Apply the Percentage format", keys: ["Control", "Shift", "5"], iconName: "Percent" },
     ],
   },
   {
     id: "essential-navigation",
     name: "Essential Navigation",
     description: "Move around your worksheet like a pro.",
+    level: "Beginner",
     category: "Navigation",
     iconName: "ArrowRightLeft",
     challenges: [
@@ -36,9 +35,25 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     ],
   },
   {
+    id: "clipboard-mastery",
+    name: "Clipboard Mastery",
+    description: "Master the art of copy, cut, and paste.",
+    level: "Beginner",
+    category: "Clipboard",
+    iconName: "ClipboardCopy",
+    challenges: [
+      { description: "Copy the selection", keys: ["Control", "c"], iconName: "Copy" },
+      { description: "Cut the selection", keys: ["Control", "x"], iconName: "Scissors" },
+      { description: "Paste content", keys: ["Control", "v"], iconName: "ClipboardPaste" },
+      { description: "Undo the last action", keys: ["Control", "z"], iconName: "Undo2" },
+      { description: "Redo the last action", keys: ["Control", "y"], iconName: "Redo2" },
+    ],
+  },
+  {
     id: "quick-selection",
     name: "Quick Selection",
     description: "Select data ranges without using your mouse.",
+    level: "Intermediate",
     category: "Selection",
     iconName: "MousePointerSquareDashed",
     challenges: [
@@ -49,25 +64,42 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       { description: "Add non-adjacent cells to selection", keys: ["Shift", "F8"], iconName: "PlusSquare" },
     ],
   },
-  {
-    id: "clipboard-mastery",
-    name: "Clipboard Mastery",
-    description: "Master the art of copy, cut, and paste.",
-    category: "Clipboard",
-    iconName: "ClipboardCopy",
+    {
+    id: "formula-wizardry",
+    name: "Formula Wizardry",
+    description: "Handle formulas with speed and precision.",
+    level: "Intermediate",
+    category: "Formulas",
+    iconName: "FunctionSquare",
     challenges: [
-      { description: "Copy the selection", keys: ["Control", "c"], iconName: "Copy" },
-      { description: "Cut the selection", keys: ["Control", "x"], iconName: "Scissors" },
-      { description: "Paste content", keys: ["Control", "v"], iconName: "ClipboardPaste" },
-      { description: "Open Paste Special dialog", keys: ["Control", "Alt", "v"], iconName: "ClipboardSignature" },
-      { description: "Undo the last action", keys: ["Control", "z"], iconName: "Undo2" },
-      { description: "Redo the last action", keys: ["Control", "y"], iconName: "Redo2" },
+      { description: "Start a formula", keys: ["="], iconName: "Sigma" },
+      { description: "Toggle absolute/relative references", keys: ["F4"], iconName: "Anchor" },
+      { description: "Insert the AutoSum formula", keys: ["Alt", "="], iconName: "Calculator" },
+      { description: "Toggle displaying formulas or values", keys: ["Control", "`"], iconName: "FileCode" },
+      { description: "Edit the active cell", keys: ["F2"], iconName: "Pencil" },
     ],
   },
-    {
+  {
+    id: "data-operations",
+    name: "Data Operations",
+    description: "Sort, filter, and manage data with ease.",
+    level: "Intermediate",
+category: "Data",
+    iconName: "Filter",
+    challenges: [
+      { description: "Apply or clear the filter", keys: ["Control", "Shift", "l"], iconName: "Filter" },
+      { description: "Open the Create Table dialog", keys: ["Control", "t"], iconName: "Table" },
+      { description: "Automatically fill values down", keys: ["Control", "d"], iconName: "ArrowDownSquare" },
+      { description: "Automatically fill values to the right", keys: ["Control", "r"], iconName: "ArrowRightSquare" },
+      { description: "Use Flash Fill to automatically fill a column", keys: ["Control", "e"], iconName: "Wand2" },
+      { description: "Select only the visible cells in a selection", keys: ["Alt", ";"], iconName: "Aperture" }
+    ],
+  },
+  {
     id: "ribbon-power-user",
     name: "Ribbon Power User",
     description: "Navigate the ribbon using keyboard sequences.",
+    level: "Advanced",
     category: "Ribbon",
     iconName: "GalleryVerticalEnd",
     challenges: [
@@ -77,27 +109,15 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       { description: "Apply a thick box border", keys: ["Alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true },
       { description: "Wrap text in a cell", keys: ["Alt", "h", "w"], iconName: "WrapText", isSequential: true },
       { description: "Set column width", keys: ["Alt", "h", "o", "w"], iconName: "Columns", isSequential: true },
-    ],
-  },
-  {
-    id: "formula-wizardry",
-    name: "Formula Wizardry",
-    description: "Handle formulas with speed and precision.",
-    category: "Formulas",
-    iconName: "FunctionSquare",
-    challenges: [
-      { description: "Start a formula", keys: ["="], iconName: "Sigma" },
-      { description: "Toggle absolute/relative references", keys: ["F4"], iconName: "Anchor" },
-      { description: "Insert the AutoSum formula", keys: ["Alt", "="], iconName: "Calculator" },
-      { description: "Toggle displaying formulas or values", keys: ["Control", "`"], iconName: "FileCode" },
-      { description: "Open the Function Arguments dialog", keys: ["Control", "Shift", "a"], iconName: "Binary" },
-      { description: "Edit the active cell", keys: ["F2"], iconName: "Pencil" },
+      { description: "Apply the Currency format", keys: ["Control", "Shift", "4"], iconName: "DollarSign" },
+      { description: "Apply the Percentage format", keys: ["Control", "Shift", "5"], iconName: "Percent" },
     ],
   },
   {
     id: "row-column-management",
     name: "Row & Column Management",
     description: "Efficiently manage rows and columns.",
+    level: "Advanced",
     category: "Management",
     iconName: "Layers",
     challenges: [
@@ -108,32 +128,42 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       { description: "Hide the selected columns", keys: ["Control", "0"], iconName: "EyeOff" },
       { description: "Group rows or columns", keys: ["Alt", "Shift", "ArrowRight"], iconName: "Group" },
       { description: "Ungroup rows or columns", keys: ["Alt", "Shift", "ArrowLeft"], iconName: "Ungroup" },
+      { description: "Open Paste Special dialog", keys: ["Control", "Alt", "v"], iconName: "ClipboardSignature" },
     ],
   },
-  {
-    id: "data-operations",
-    name: "Data Operations",
-    description: "Sort, filter, and manage data with ease.",
-    category: "Data",
-    iconName: "Filter",
-    challenges: [
-      { description: "Apply or clear the filter", keys: ["Control", "Shift", "l"], iconName: "Filter" },
-      { description: "Open the Create Table dialog", keys: ["Control", "t"], iconName: "Table" },
-      { description: "Automatically fill values down", keys: ["Control", "d"], iconName: "ArrowDownSquare" },
-      { description: "Automatically fill values to the right", keys: ["Control", "r"], iconName: "ArrowRightSquare" },
-      { description: "Use Flash Fill to automatically fill a column", keys: ["Control", "e"], iconName: "Wand2" },
-      { description: "Select only the visible cells in a selection", keys: ["Alt", ";"], iconName: "Aperture" }
-    ],
-  }
 ];
 
-export const EXAM_SET: ChallengeSet = {
-  id: "exam",
-  name: "Final Exam",
-  description: "A comprehensive test of all your Excel skills.",
+const getChallengesByLevel = (level: ChallengeLevel) => {
+  return CHALLENGE_SETS.filter(set => set.level === level).flatMap(set => set.challenges);
+}
+
+export const BASIC_EXAM: ChallengeSet = {
+  id: "exam-basic",
+  name: "Basic Exam",
+  description: "Test your knowledge of fundamental shortcuts.",
   category: "Exam",
-  iconName: "BookMarked",
-  challenges: CHALLENGE_SETS.flatMap(set => set.challenges)
+  iconName: "Award",
+  challenges: getChallengesByLevel("Beginner")
 };
 
-export const ALL_CHALLENGE_SETS = [...CHALLENGE_SETS, EXAM_SET];
+export const INTERMEDIATE_EXAM: ChallengeSet = {
+  id: "exam-intermediate",
+  name: "Intermediate Exam",
+  description: "Test your skills with navigation and data handling.",
+  category: "Exam",
+  iconName: "Medal",
+  challenges: getChallengesByLevel("Intermediate")
+};
+
+export const ADVANCED_EXAM: ChallengeSet = {
+  id: "exam-advanced",
+  name: "Advanced Exam",
+  description: "A comprehensive test of all your Excel skills.",
+  category: "Exam",
+  iconName: "Trophy",
+  challenges: getChallengesByLevel("Advanced")
+};
+
+export const ALL_EXAM_SETS = [BASIC_EXAM, INTERMEDIATE_EXAM, ADVANCED_EXAM];
+
+export const ALL_CHALLENGE_SETS = [...CHALLENGE_SETS, ...ALL_EXAM_SETS];
