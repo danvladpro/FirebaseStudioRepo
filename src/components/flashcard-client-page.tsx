@@ -92,7 +92,7 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
 
     return (
         <div className="w-full max-w-4xl flex flex-col items-center">
-            <Card className="w-full min-h-[420px] flex flex-col justify-center relative">
+            <Card className="w-full min-h-[380px] flex flex-col justify-center relative">
                 <p className="absolute top-4 right-4 text-sm text-muted-foreground font-medium">
                     Card {currentIndex + 1} of {challenges.length}
                 </p>
@@ -101,7 +101,7 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                     <ChevronLeft />
                 </Button>
 
-                <CardContent className="p-6 md:p-8 text-center flex-grow flex flex-col items-center justify-center">
+                <CardContent className="py-8 px-6 md:px-8 text-center flex-grow flex flex-col items-center justify-center">
                     <p className="text-xl md:text-2xl font-semibold text-foreground mb-4">
                         {currentChallenge.description}
                     </p>
@@ -109,7 +109,7 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                         {ChallengeIcon && <ChallengeIcon className="w-16 h-16 text-primary" />}
                     </div>
 
-                    <div className="h-24 flex items-center justify-center">
+                    <div className="h-20 flex items-center justify-center">
                         {isAnswerShown ? (
                             <div className="flex flex-col items-center justify-center gap-2 animate-in fade-in">
                                 <div className="flex items-center gap-2">
