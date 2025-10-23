@@ -92,7 +92,15 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
 
     return (
         <div className="w-full max-w-4xl flex flex-col items-center">
-            <Card className="w-full min-h-[420px] flex flex-col justify-between">
+            <Card className="w-full min-h-[420px] flex flex-col justify-center relative">
+                <p className="absolute top-4 right-4 text-sm text-muted-foreground font-medium">
+                    Card {currentIndex + 1} of {challenges.length}
+                </p>
+
+                <Button variant="ghost" size="icon" onClick={handlePrevious} className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+                    <ChevronLeft />
+                </Button>
+
                 <CardContent className="p-6 md:p-8 text-center flex-grow flex flex-col items-center justify-center">
                     <p className="text-xl md:text-2xl font-semibold text-foreground mb-4">
                         {currentChallenge.description}
@@ -127,19 +135,11 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                             </Button>
                         )}
                     </div>
-
                 </CardContent>
-                <div className="bg-muted/50 p-4 flex items-center justify-between border-t">
-                    <Button variant="ghost" size="icon" onClick={handlePrevious}>
-                        <ChevronLeft />
-                    </Button>
-                    <p className="text-sm text-muted-foreground">
-                        Card {currentIndex + 1} of {challenges.length}
-                    </p>
-                    <Button variant="ghost" size="icon" onClick={handleNext}>
-                        <ChevronRight />
-                    </Button>
-                </div>
+
+                <Button variant="ghost" size="icon" onClick={handleNext} className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+                    <ChevronRight />
+                </Button>
             </Card>
 
             <div className="w-full mt-8">
@@ -148,5 +148,3 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
         </div>
     );
 }
-
-    
