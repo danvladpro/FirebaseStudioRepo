@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, Trophy, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Trophy, AlertTriangle, Linkedin } from 'lucide-react';
 import { ALL_CHALLENGE_SETS } from '@/lib/challenges';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
@@ -67,7 +67,6 @@ export default function ResultsDisplay() {
   const isPerfectScore = skippedCount === 0;
 
   const getOsKeys = (challenge: Challenge, isMac: boolean) => {
-    // Strikethrough is an exception, it's the same on Mac and Windows.
     const isStrikethrough = challenge.description.toLowerCase().includes('strikethrough');
     
     return challenge.keys.map(key => {
@@ -95,6 +94,33 @@ export default function ResultsDisplay() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setId, time, score, isPerfectScore, user]);
 
+  const buildLinkedInUrl = () => {
+    if (!challengeSet || !user) return "";
+
+    const certName = `Excel Ninja: ${challengeSet.name}`;
+    const certId = `${user.uid.slice(0, 8)}-${challengeSet.id}-${Date.now()}`;
+    const issueDate = new Date();
+    const issueYear = issueDate.getFullYear();
+    const issueMonth = issueDate.getMonth() + 1;
+
+    const linkedInUrl = new URL("https://www.linkedin.com/profile/add");
+    linkedInUrl.searchParams.append("startTask", "CERTIFICATION_NAME");
+    linkedInUrl.searchParams.append("name", certName);
+    // You can register your organization on LinkedIn and get an ID
+    // linkedInUrl.searchParams.append("organizationId", "YOUR_LINKEDIN_ORG_ID");
+    linkedInUrl.searchParams.append("issueYear", issueYear.toString());
+    linkedInUrl.searchParams.append("issueMonth", issueMonth.toString());
+    linkedInUrl.searchParams.append("certId", certId);
+    
+    // The URL to a page where someone can verify the certificate.
+    // This could be a future feature. For now, we'll link to the dashboard.
+    const certUrl = `${window.location.origin}/dashboard`;
+    linkedInUrl.searchParams.append("certUrl", certUrl);
+
+    return linkedInUrl.toString();
+  };
+
+  const isExam = challengeSet?.category === 'Exam';
 
   if (!challengeSet || time === null) {
     return (
@@ -139,6 +165,18 @@ export default function ResultsDisplay() {
               </p>
             </div>
           )}
+          {isExam && isPerfectScore && (
+             <div className="space-y-4 pt-4">
+                <Separator />
+                 <h3 className="font-semibold pt-2">Congratulations!</h3>
+                <p className="text-sm text-muted-foreground">You've passed the {challengeSet.name}. Add your achievement to your professional profile.</p>
+                 <Button asChild className="bg-[#0A66C2] hover:bg-[#0A66C2]/90">
+                    <a href={buildLinkedInUrl()} target="_blank" rel="noopener noreferrer">
+                        <Linkedin className="mr-2 h-5 w-5" /> Add to LinkedIn
+                    </a>
+                </Button>
+            </div>
+          )}
           {skippedChallenges.length > 0 && (
             <div className="space-y-4">
               <Separator />
@@ -173,5 +211,3 @@ export default function ResultsDisplay() {
     </div>
   );
 }
-
-    
