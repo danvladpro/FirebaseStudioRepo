@@ -275,21 +275,21 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         <CardTitle className="text-lg">Best Exam Times</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4 p-4">
-                        <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1", getExamStatusBg('exam-basic', examStats.basic))}>
+                        <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-basic', examStats.basic))}>
                            <div className="flex items-center gap-3">
                                <Award className="w-5 h-5 text-yellow-500" />
                                <p className="font-medium text-sm">Basic Exam</p>
                            </div>
                            {renderExamStatus('exam-basic', examStats.basic)}
                         </div>
-                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1", getExamStatusBg('exam-intermediate', examStats.intermediate))}>
+                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-intermediate', examStats.intermediate))}>
                            <div className="flex items-center gap-3">
                                <Medal className="w-5 h-5 text-slate-400" />
                                <p className="font-medium text-sm">Intermediate</p>
                            </div>
                            {renderExamStatus('exam-intermediate', examStats.intermediate)}
                         </div>
-                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1", getExamStatusBg('exam-advanced', examStats.advanced))}>
+                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-advanced', examStats.advanced))}>
                            <div className="flex items-center gap-3">
                                <Trophy className="w-5 h-5 text-amber-500" />
                                <p className="font-medium text-sm">Advanced</p>
@@ -325,4 +325,3 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   );
 }
 
-    
