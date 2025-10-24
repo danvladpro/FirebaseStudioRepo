@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, BookMarked, Filter, Lock, GalleryVerticalEnd, Sparkles } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, BookMarked, Filter, Lock, GalleryVerticalEnd, Sparkles, Award, Medal, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
@@ -12,6 +12,8 @@ import { AppHeader } from '@/components/app-header';
 import { useAuth } from '@/components/auth-provider';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { PremiumModal } from '@/components/premium-modal';
+import React from 'react';
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -19,14 +21,18 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     MousePointerSquareDashed,
     Pilcrow,
     FunctionSquare,
-    BookMarked,
+    BookMarked: Layers,
     Layers,
     Filter,
-    GalleryVerticalEnd
+    GalleryVerticalEnd,
+    Award,
+    Medal,
+    Trophy
 };
 
 export default function FlashcardsPage() {
     const { userProfile } = useAuth();
+    const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
 
     const isLimited = !userProfile?.isPremium;
 
@@ -44,6 +50,8 @@ export default function FlashcardsPage() {
     }
 
     return (
+        <>
+        <PremiumModal isOpen={isPremiumModalOpen} onOpenChange={setIsPremiumModalOpen} />
         <div className="flex min-h-screen w-full flex-col bg-muted/40">
             <AppHeader />
             <main className="flex-1 container py-8 md:py-12 mt-16">
@@ -84,7 +92,7 @@ export default function FlashcardsPage() {
                                     </CardContent>
                                     <div className="p-6 pt-0 mt-auto">
                                       {set.isLocked && isLimited ? (
-                                          <Button className="w-full" variant="premium">
+                                          <Button className="w-full" variant="premium" onClick={() => setIsPremiumModalOpen(true)}>
                                               <Sparkles className="mr-2 h-4 w-4" />
                                               Go Premium
                                           </Button>
@@ -120,5 +128,8 @@ export default function FlashcardsPage() {
                 </section>
             </main>
         </div>
+        </>
     );
 }
+
+    

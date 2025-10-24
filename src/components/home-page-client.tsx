@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, CheckSquare, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,14 +53,29 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const totalPracticeSets = CHALLENGE_SETS.length;
 
   const setsToDisplay = isLimited 
-      ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.level !== 'Beginner' }))
+      ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== 'formatting-basics' }))
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
 
-  const renderExamCard = (examSet: ChallengeSet, index: number) => {
-    const isExamLocked = isLimited && examSet.id !== 'exam-basic';
+  const getIsExamLocked = (examId: string) => {
+    if (isLimited) return true;
+    if (examId === 'exam-intermediate' && !examStats.basic) return true;
+    if (examId === 'exam-advanced' && !examStats.intermediate) return true;
+    return false;
+  };
+  
+  const getExamLockTooltip = (examId: string) => {
+    if (isLimited) return "Upgrade to Premium to unlock exams.";
+    if (examId === 'exam-intermediate' && !examStats.basic) return "Complete the Basic Exam to unlock.";
+    if (examId === 'exam-advanced' && !examStats.intermediate) return "Complete the Intermediate Exam to unlock.";
+    return "";
+  }
+
+
+  const renderExamCard = (examSet: ChallengeSet) => {
+    const isExamLocked = getIsExamLocked(examSet.id);
     const Icon = iconMap[examSet.iconName];
 
-    return (
+    const cardContent = (
      <Card key={examSet.id} className={cn("border-primary/50 bg-primary/5 flex flex-col", isExamLocked && "bg-muted/50 border-dashed text-muted-foreground")}>
         <CardHeader className="flex-row gap-4 items-center p-4">
             <Icon className={cn("w-8 h-8", isExamLocked ? "text-muted-foreground" : "text-primary")} />
@@ -71,9 +86,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
         </CardHeader>
         <CardFooter className="mt-auto p-4">
             {isExamLocked ? (
-                 <Button className="w-full" variant="premium" onClick={() => setIsPremiumModalOpen(true)}>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Go Premium
+                 <Button className="w-full" variant={isLimited ? "premium" : "secondary"} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited}>
+                    {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
+                    {isLimited ? "Go Premium" : "Locked"}
                  </Button>
             ) : (
                 <Button asChild className="w-full">
@@ -86,6 +101,20 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
         </CardFooter>
     </Card>
     );
+
+    if (isExamLocked) {
+      return (
+        <Tooltip key={examSet.id}>
+            <TooltipTrigger asChild>
+                <div className="cursor-not-allowed h-full">{cardContent}</div>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>{getExamLockTooltip(examSet.id)}</p>
+            </TooltipContent>
+        </Tooltip>
+      )
+    }
+    return cardContent;
   }
   
   const getDashboardTitle = () => {
@@ -122,23 +151,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             <h2 className="text-2xl font-bold mb-4">Exams</h2>
             <TooltipProvider>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {examSets.map((examSet, index) => {
-                  const isExamLocked = isLimited && examSet.id !== 'exam-basic';
-                  const examCard = renderExamCard(examSet, index);
-                  if (isExamLocked) {
-                    return (
-                       <Tooltip key={examSet.id}>
-                          <TooltipTrigger asChild>
-                              <div className="cursor-not-allowed">{examCard}</div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                              <p>Upgrade to unlock this exam.</p>
-                          </TooltipContent>
-                      </Tooltip>
-                    )
-                  }
-                  return examCard;
-                })}
+                {examSets.map((examSet) => renderExamCard(examSet))}
               </div>
             </TooltipProvider>
          </section>
@@ -236,14 +249,17 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                <Award className="w-5 h-5 text-yellow-500" />
                                <p className="font-medium text-sm">Basic Exam</p>
                            </div>
-                           <p className="text-sm font-bold">{isLoaded ? (examStats.basic ? `${examStats.basic.toFixed(2)}s` : "N/A") : <Skeleton className="w-12 h-5"/>}</p>
+                           {getIsExamLocked('exam-basic') ?
+                                <Lock className="w-4 h-4 text-muted-foreground"/> :
+                                <p className="text-sm font-bold">{isLoaded ? (examStats.basic ? `${examStats.basic.toFixed(2)}s` : "N/A") : <Skeleton className="w-12 h-5"/>}</p>
+                           }
                         </div>
                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                            <div className="flex items-center gap-3">
                                <Medal className="w-5 h-5 text-slate-400" />
                                <p className="font-medium text-sm">Intermediate</p>
                            </div>
-                           {isLimited ? 
+                           {getIsExamLocked('exam-intermediate') ? 
                                 <Lock className="w-4 h-4 text-muted-foreground"/> :
                                 <p className="text-sm font-bold">{isLoaded ? (examStats.intermediate ? `${examStats.intermediate.toFixed(2)}s` : "N/A") : <Skeleton className="w-12 h-5"/>}</p>
                            }
@@ -253,7 +269,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                <Trophy className="w-5 h-5 text-amber-500" />
                                <p className="font-medium text-sm">Advanced</p>
                            </div>
-                           {isLimited ? 
+                           {getIsExamLocked('exam-advanced') ? 
                                 <Lock className="w-4 h-4 text-muted-foreground"/> :
                                 <p className="text-sm font-bold">{isLoaded ? (examStats.advanced ? `${examStats.advanced.toFixed(2)}s` : "N/A") : <Skeleton className="w-12 h-5"/>}</p>
                            }
@@ -286,3 +302,5 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
+    
