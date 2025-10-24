@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Certificate } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -128,6 +128,27 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     if (userProfile && userProfile.isPremium) return "Master the keyboard, boost your productivity, and leave the mouse behind.";
     return "Welcome back! Here's your progress at a glance.";
   }
+  
+  const renderExamStatus = (examId: 'exam-basic' | 'exam-intermediate' | 'exam-advanced', bestTime: number | null) => {
+    if (getIsExamLocked(examId)) {
+        return <Button variant="ghost" size="sm" disabled className="text-muted-foreground text-xs"><Certificate className="mr-2 h-4 w-4" /> Claim Certificate</Button>
+    }
+    
+    if (isLoaded) {
+        if (bestTime) {
+            return <p className="text-sm font-bold">{`${bestTime.toFixed(2)}s`}</p>;
+        } else {
+            return (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Unlock className="w-3 h-3"/>
+                    <span>Complete to get certificate</span>
+                </div>
+            )
+        }
+    }
+    
+    return <Skeleton className="w-20 h-5" />;
+  }
 
   return (
     <>
@@ -249,51 +270,21 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                <Award className="w-5 h-5 text-yellow-500" />
                                <p className="font-medium text-sm">Basic Exam</p>
                            </div>
-                           {getIsExamLocked('exam-basic') ? (
-                                <Lock className="w-4 h-4 text-muted-foreground"/>
-                            ) : isLoaded ? (
-                                examStats.basic ? (
-                                <p className="text-sm font-bold">{`${examStats.basic.toFixed(2)}s`}</p>
-                                ) : (
-                                <Unlock className="w-4 h-4 text-muted-foreground" />
-                                )
-                            ) : (
-                                <Skeleton className="w-12 h-5" />
-                            )}
+                           {renderExamStatus('exam-basic', examStats.basic)}
                         </div>
                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                            <div className="flex items-center gap-3">
                                <Medal className="w-5 h-5 text-slate-400" />
                                <p className="font-medium text-sm">Intermediate</p>
                            </div>
-                           {getIsExamLocked('exam-intermediate') ? (
-                                <Lock className="w-4 h-4 text-muted-foreground"/>
-                            ) : isLoaded ? (
-                                examStats.intermediate ? (
-                                <p className="text-sm font-bold">{`${examStats.intermediate.toFixed(2)}s`}</p>
-                                ) : (
-                                <Unlock className="w-4 h-4 text-muted-foreground" />
-                                )
-                            ) : (
-                                <Skeleton className="w-12 h-5" />
-                            )}
+                           {renderExamStatus('exam-intermediate', examStats.intermediate)}
                         </div>
                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                            <div className="flex items-center gap-3">
                                <Trophy className="w-5 h-5 text-amber-500" />
                                <p className="font-medium text-sm">Advanced</p>
                            </div>
-                           {getIsExamLocked('exam-advanced') ? (
-                                <Lock className="w-4 h-4 text-muted-foreground"/>
-                            ) : isLoaded ? (
-                                examStats.advanced ? (
-                                <p className="text-sm font-bold">{`${examStats.advanced.toFixed(2)}s`}</p>
-                                ) : (
-                                <Unlock className="w-4 h-4 text-muted-foreground" />
-                                )
-                            ) : (
-                                <Skeleton className="w-12 h-5" />
-                            )}
+                           {renderExamStatus('exam-advanced', examStats.advanced)}
                         </div>
                     </CardContent>
                 </Card>
@@ -323,5 +314,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
+    
 
     
