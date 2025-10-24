@@ -130,7 +130,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   }
   
   const renderExamStatus = (examId: 'exam-basic' | 'exam-intermediate' | 'exam-advanced', bestTime: number | null) => {
-    if (getIsExamLocked(examId)) {
+    const isLocked = getIsExamLocked(examId);
+
+    if (isLocked) {
         return <Button variant="ghost" size="sm" disabled className="text-muted-foreground text-xs"><Ribbon className="mr-2 h-4 w-4" /> Claim Certificate</Button>
     }
     
@@ -140,14 +142,22 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
         } else {
             return (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Unlock className="w-3 h-3"/>
-                    <span>Complete to get certificate</span>
+                    <Unlock className="w-3 h-3 text-primary"/>
+                    <span className="text-primary font-semibold">Complete to get certificate</span>
                 </div>
             )
         }
     }
     
     return <Skeleton className="w-20 h-5" />;
+  }
+  
+  const getExamStatusBg = (examId: 'exam-basic' | 'exam-intermediate' | 'exam-advanced', bestTime: number | null) => {
+    const isLocked = getIsExamLocked(examId);
+    if (!isLocked && !bestTime) {
+        return "bg-primary/5 border border-primary/20";
+    }
+    return "bg-muted/50";
   }
 
   return (
@@ -264,22 +274,22 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                     <CardHeader>
                         <CardTitle className="text-lg">Best Exam Times</CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-1 gap-4 p-4">
-                        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <CardContent className="flex flex-col gap-4 p-4">
+                        <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1", getExamStatusBg('exam-basic', examStats.basic))}>
                            <div className="flex items-center gap-3">
                                <Award className="w-5 h-5 text-yellow-500" />
                                <p className="font-medium text-sm">Basic Exam</p>
                            </div>
                            {renderExamStatus('exam-basic', examStats.basic)}
                         </div>
-                         <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1", getExamStatusBg('exam-intermediate', examStats.intermediate))}>
                            <div className="flex items-center gap-3">
                                <Medal className="w-5 h-5 text-slate-400" />
                                <p className="font-medium text-sm">Intermediate</p>
                            </div>
                            {renderExamStatus('exam-intermediate', examStats.intermediate)}
                         </div>
-                         <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1", getExamStatusBg('exam-advanced', examStats.advanced))}>
                            <div className="flex items-center gap-3">
                                <Trophy className="w-5 h-5 text-amber-500" />
                                <p className="font-medium text-sm">Advanced</p>
