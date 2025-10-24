@@ -23,7 +23,6 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     MousePointerSquareDashed,
     Pilcrow,
     FunctionSquare,
-    BookMarked: Layers,
     Layers,
     Filter,
     GalleryVerticalEnd,
@@ -53,9 +52,9 @@ export default function ChallengesPage() {
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
       
   const getIsExamLocked = (examId: string) => {
-    if (isLimited) return true;
-    if (examId === 'exam-intermediate' && !examStats.basic) return true;
-    if (examId === 'exam-advanced' && !examStats.intermediate) return true;
+    if (examId === 'exam-basic' && isLimited) return true;
+    if (examId === 'exam-intermediate' && (isLimited || !examStats.basic)) return true;
+    if (examId === 'exam-advanced' && (isLimited || !examStats.intermediate)) return true;
     return false;
   };
   
@@ -82,8 +81,8 @@ export default function ChallengesPage() {
         </CardHeader>
         <CardFooter className="mt-auto p-4">
             {isExamLocked ? (
-                 <Button className="w-full" variant="premium" onClick={() => setIsPremiumModalOpen(true)}>
-                    <Sparkles className="mr-2 h-4 w-4" />
+                 <Button className="w-full" variant={isLimited ? "premium" : "secondary"} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited}>
+                    {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
                     {isLimited ? "Go Premium" : "Locked"}
                  </Button>
             ) : (
@@ -295,5 +294,7 @@ export default function ChallengesPage() {
     </>
   );
 }
+
+    
 
     

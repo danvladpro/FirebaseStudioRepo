@@ -57,9 +57,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
 
   const getIsExamLocked = (examId: string) => {
-    if (isLimited) return true;
-    if (examId === 'exam-intermediate' && !examStats.basic) return true;
-    if (examId === 'exam-advanced' && !examStats.intermediate) return true;
+    if (examId === 'exam-basic' && isLimited) return true;
+    if (examId === 'exam-intermediate' && (isLimited || !examStats.basic)) return true;
+    if (examId === 'exam-advanced' && (isLimited || !examStats.intermediate)) return true;
     return false;
   };
   
@@ -323,3 +323,5 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
+    
