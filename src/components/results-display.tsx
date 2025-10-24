@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, Trophy, AlertTriangle, Linkedin } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Trophy, AlertTriangle, Linkedin, Lock } from 'lucide-react';
 import { ALL_CHALLENGE_SETS } from '@/lib/challenges';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
@@ -165,16 +165,28 @@ export default function ResultsDisplay() {
               </p>
             </div>
           )}
-          {isExam && isPerfectScore && (
+          {isExam && (
              <div className="space-y-4 pt-4">
                 <Separator />
-                 <h3 className="font-semibold pt-2">Congratulations!</h3>
-                <p className="text-sm text-muted-foreground">You've passed the {challengeSet.name}. Add your achievement to your professional profile.</p>
-                 <Button asChild className="bg-[#0A66C2] hover:bg-[#0A66C2]/90">
-                    <a href={buildLinkedInUrl()} target="_blank" rel="noopener noreferrer">
-                        <Linkedin className="mr-2 h-5 w-5" /> Add to LinkedIn
-                    </a>
-                </Button>
+                {isPerfectScore ? (
+                  <>
+                    <h3 className="font-semibold pt-2">Congratulations!</h3>
+                    <p className="text-sm text-muted-foreground">You've passed the {challengeSet.name}. Add your achievement to your professional profile.</p>
+                    <Button asChild className="bg-[#0A66C2] hover:bg-[#0A66C2]/90">
+                        <a href={buildLinkedInUrl()} target="_blank" rel="noopener noreferrer">
+                            <Linkedin className="mr-2 h-5 w-5" /> Add to LinkedIn
+                        </a>
+                    </Button>
+                  </>
+                ) : (
+                   <>
+                    <h3 className="font-semibold pt-2">Almost there!</h3>
+                    <p className="text-sm text-muted-foreground">Achieve a perfect score of 100% to unlock your certificate and share it on LinkedIn.</p>
+                     <Button disabled className="w-fit mx-auto">
+                        <Lock className="mr-2 h-5 w-5" /> Add to LinkedIn
+                    </Button>
+                   </>
+                )}
             </div>
           )}
           {skippedChallenges.length > 0 && (
