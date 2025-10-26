@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import Stripe from 'stripe';
 import { headers } from 'next/headers';
+import { STRIPE_PRICES } from '@/lib/stripe-prices';
 
 const CreateCheckoutSessionInputSchema = z.object({
   priceId: z.string(),
@@ -19,7 +20,7 @@ export type CreateCheckoutSessionInput = z.infer<
 
 // Initialize Stripe with the secret key and a matching API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2025-09-30.clover' as any,
+  apiVersion: '2024-06-20',
 });
 
 export async function createCheckoutSession(input: CreateCheckoutSessionInput) {
@@ -46,6 +47,8 @@ export async function createCheckoutSession(input: CreateCheckoutSessionInput) {
       });
     }
 
+    const isSubscription = priceId === STRIPE_PRICES.subscription;
+
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
       payment_method_types: ['card','ideal'],
@@ -55,13 +58,26 @@ export async function createCheckoutSession(input: CreateCheckoutSessionInput) {
           quantity: 1,
         },
       ],
-      mode: 'payment',
+      mode: isSubscription ? 'subscription' : 'payment',
       success_url: `${YOUR_DOMAIN}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${YOUR_DOMAIN}/checkout/cancel`,
       metadata: {
         firebaseUID: userId,
       },
+      payment_intent_data: {
+        metadata: {
+            // This is needed to link the payment_intent.succeeded event back to the session
+        }
+      }
     });
+
+    // Add session id to payment intent metadata
+    if(session.payment_intent) {
+        await stripe.paymentIntents.update(session.payment_intent as string, {
+            metadata: { checkout_session_id: session.id }
+        });
+    }
+
 
     return {
       sessionId: session.id,
