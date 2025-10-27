@@ -51,7 +51,7 @@ export async function createCheckoutSession(input: CreateCheckoutSessionInput) {
 
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
-      payment_method_types: ['card','ideal'],
+      payment_method_types: ['card'],
       line_items: [
         {
           price: priceId,
@@ -64,20 +64,7 @@ export async function createCheckoutSession(input: CreateCheckoutSessionInput) {
       metadata: {
         firebaseUID: userId,
       },
-      payment_intent_data: {
-        metadata: {
-            // This is needed to link the payment_intent.succeeded event back to the session
-        }
-      }
     });
-
-    // Add session id to payment intent metadata
-    if(session.payment_intent) {
-        await stripe.paymentIntents.update(session.payment_intent as string, {
-            metadata: { checkout_session_id: session.id }
-        });
-    }
-
 
     return {
       sessionId: session.id,
