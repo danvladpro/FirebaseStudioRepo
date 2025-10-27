@@ -7,14 +7,16 @@ import { auth, db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useRouter, usePathname } from 'next/navigation';
 import { UserProfile } from '@/lib/types';
+import { isFuture } from 'date-fns';
 
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
+  isPremium: boolean;
   loading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, userProfile: null, loading: true });
+const AuthContext = createContext<AuthContextType>({ user: null, userProfile: null, isPremium: false, loading: true });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -22,6 +24,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+
+  const isPremium = userProfile?.premiumUntil === null || (!!userProfile?.premiumUntil && isFuture(new Date(userProfile.premiumUntil)));
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -31,7 +35,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const userDocRef = doc(db, 'users', user.uid);
         const unsubscribeSnapshot = onSnapshot(userDocRef, (docSnap) => {
           if (docSnap.exists()) {
-            setUserProfile(docSnap.data() as UserProfile);
+            const profileData = docSnap.data() as UserProfile;
+            
+            // Backwards compatibility for old isPremium boolean
+            if (profileData.isPremium === true && profileData.premiumUntil === undefined) {
+              profileData.premiumUntil = null;
+            }
+            setUserProfile(profileData);
+
           } else {
             setUserProfile(null);
           }
@@ -65,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [user, loading, pathname, router]);
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading }}>
+    <AuthContext.Provider value={{ user, userProfile, isPremium, loading }}>
       {children}
     </AuthContext.Provider>
   );

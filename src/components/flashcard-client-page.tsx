@@ -47,14 +47,14 @@ const KeyDisplay = ({ value, isMac = false }: KeyDisplayProps) => {
 export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnswerShown, setIsAnswerShown] = useState(false);
-    const { userProfile } = useAuth();
+    const { isPremium } = useAuth();
     const [isMac, setIsMac] = useState(false);
 
     useEffect(() => {
         setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
     }, []);
     
-    const isLimited = !userProfile?.isPremium;
+    const isLimited = !isPremium;
     const challenges = isLimited ? set.challenges.slice(0, 5) : set.challenges;
 
     const currentChallenge = challenges[currentIndex];

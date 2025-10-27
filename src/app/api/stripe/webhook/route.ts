@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { adminDb } from '@/lib/firebase-admin';
+import { addDays } from 'date-fns';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-09-30.clover' as any,
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.firebaseUID;
         const customerId = typeof session.customer === 'string' ? session.customer : session.customer?.id;
+        const plan = session.metadata?.plan; // 'one-week' or 'lifetime'
 
         if (!userId) {
           throw new Error('Missing firebaseUID in session metadata.');
@@ -39,13 +41,25 @@ export async function POST(req: NextRequest) {
           throw new Error('Missing customer ID in session.');
         }
 
+        if (!plan) {
+            throw new Error('Missing plan in session metadata.');
+        }
+
         const userDocRef = adminDb.collection('users').doc(userId);
+
+        let premiumUntil: string | null = null;
+        if (plan === 'one-week') {
+            premiumUntil = addDays(new Date(), 7).toISOString();
+        } else if (plan === 'lifetime') {
+            premiumUntil = null;
+        }
+
         await userDocRef.update({
-          isPremium: true,
+          premiumUntil: premiumUntil,
           stripeCustomerId: customerId,
         });
 
-        console.log(`User ${userId} upgraded to premium.`);
+        console.log(`User ${userId} premium access updated. Plan: ${plan}`);
         break;
       }
       default:

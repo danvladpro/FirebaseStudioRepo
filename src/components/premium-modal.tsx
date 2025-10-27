@@ -20,7 +20,7 @@ interface PremiumModalProps {
 }
 
 export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
-    const [selectedPlan, setSelectedPlan] = useState<"subscription" | "lifetime">("subscription");
+    const [selectedPlan, setSelectedPlan] = useState<"one-week" | "lifetime">("lifetime");
     const [isLoading, setIsLoading] = useState(false);
     const { user } = useAuth();
 
@@ -37,8 +37,8 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
         setIsLoading(true);
 
         try {
-            const priceId = selectedPlan === 'subscription' 
-                ? STRIPE_PRICES.subscription 
+            const priceId = selectedPlan === 'one-week' 
+                ? STRIPE_PRICES.oneWeek 
                 : STRIPE_PRICES.lifetime;
 
             if (!priceId) {
@@ -49,6 +49,7 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
                 priceId: priceId,
                 userId: user.uid,
                 userEmail: user.email,
+                plan: selectedPlan,
             });
 
             if (!sessionId) {
@@ -90,14 +91,14 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
                 </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                     <Card
-                        className={cn("cursor-pointer", selectedPlan === 'subscription' && "border-primary ring-2 ring-primary")}
-                        onClick={() => setSelectedPlan('subscription')}
+                        className={cn("cursor-pointer", selectedPlan === 'one-week' && "border-primary ring-2 ring-primary")}
+                        onClick={() => setSelectedPlan('one-week')}
                     >
                         <CardContent className="p-6 text-center">
                             <Zap className="w-10 h-10 mx-auto text-primary mb-4" />
-                            <h3 className="text-xl font-bold">Subscription</h3>
-                            <p className="text-3xl font-bold mt-2">$5<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
-                            <p className="text-xs text-muted-foreground mt-1">Billed monthly</p>
+                            <h3 className="text-xl font-bold">1 Week Access</h3>
+                            <p className="text-3xl font-bold mt-2">$7</p>
+                            <p className="text-xs text-muted-foreground mt-1">7 days full access</p>
                         </CardContent>
                     </Card>
                      <Card
@@ -121,7 +122,7 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
                         </li>
                         <li className="flex items-center gap-2">
                             <Check className="w-4 h-4 text-green-500" />
-                            Full access to the Final Exam
+                            Full access to all Exams
                         </li>
                         <li className="flex items-center gap-2">
                             <Check className="w-4 h-4 text-green-500" />

@@ -19,12 +19,13 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ModeToggle } from './mode-toggle';
 import { cn } from '@/lib/utils';
-import { Crown, Settings } from 'lucide-react';
+import { Crown, Settings, Clock } from 'lucide-react';
 import React from 'react';
 import { EditProfileModal } from './edit-profile-modal';
+import { differenceInDays, formatDistanceToNow } from 'date-fns';
 
 export function AppHeader() {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, isPremium } = useAuth();
   const router = useRouter();
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = React.useState(false);
 
@@ -42,8 +43,31 @@ export function AppHeader() {
     }
     return name.substring(0, 2).toUpperCase();
   }
-
-  const isPremium = userProfile?.isPremium === true;
+  
+  const getPremiumStatusText = () => {
+    if (!isPremium) return null;
+    if (userProfile?.premiumUntil === null) {
+      return (
+        <span className='text-xs font-semibold bg-yellow-400/20 text-yellow-600 px-2 py-0.5 rounded-md flex items-center gap-1'>
+          <Crown className="w-3 h-3" />
+          Lifetime
+        </span>
+      );
+    }
+    if (userProfile?.premiumUntil) {
+      const daysLeft = differenceInDays(new Date(userProfile.premiumUntil), new Date());
+      const distance = formatDistanceToNow(new Date(userProfile.premiumUntil));
+      if (daysLeft < 7) {
+        return (
+          <span className='text-xs font-semibold bg-orange-400/20 text-orange-600 px-2 py-0.5 rounded-md flex items-center gap-1'>
+            <Clock className="w-3 h-3" />
+            Expires in {distance}
+          </span>
+        );
+      }
+    }
+    return null;
+  }
 
   return (
     <>
@@ -93,7 +117,7 @@ export function AppHeader() {
                     <div className="flex flex-col space-y-1">
                       <div className='flex items-center justify-between'>
                         <p className="text-sm font-medium leading-none">{userProfile?.name || 'My Account'}</p>
-                        {isPremium && <span className='text-xs font-semibold bg-yellow-400/20 text-yellow-600 px-2 py-0.5 rounded-md flex items-center gap-1'><Crown className="w-3 h-3" />Premium</span>}
+                        {getPremiumStatusText()}
                       </div>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}

@@ -34,7 +34,8 @@ export interface UserStats {
 export interface UserProfile {
   email: string;
   name?: string;
-  isPremium: boolean;
+  /** @deprecated Use premiumUntil instead */
+  isPremium?: boolean;
+  premiumUntil: string | null; // ISO date string or null for lifetime
   stripeCustomerId?: string;
-  stripeSubscriptionId?: string | null;
 }

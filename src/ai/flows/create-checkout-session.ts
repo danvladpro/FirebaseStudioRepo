@@ -5,12 +5,12 @@
 
 import { z } from 'zod';
 import Stripe from 'stripe';
-import { headers } from 'next/headers';
 
 const CreateCheckoutSessionInputSchema = z.object({
   priceId: z.string(),
   userId: z.string(),
   userEmail: z.string(),
+  plan: z.enum(['one-week', 'lifetime']),
 });
 
 export type CreateCheckoutSessionInput = z.infer<
@@ -30,7 +30,7 @@ export async function createCheckoutSession(input: CreateCheckoutSessionInput) {
       throw new Error('Invalid input for creating checkout session.');
     }
 
-    const { priceId, userId, userEmail } = validatedInput.data;
+    const { priceId, userId, userEmail, plan } = validatedInput.data;
     
     const YOUR_DOMAIN = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
 
@@ -60,6 +60,7 @@ export async function createCheckoutSession(input: CreateCheckoutSessionInput) {
       cancel_url: `${YOUR_DOMAIN}/checkout/cancel`,
       metadata: {
         firebaseUID: userId,
+        plan: plan,
       },
     });
 

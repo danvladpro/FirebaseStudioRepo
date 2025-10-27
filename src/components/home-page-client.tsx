@@ -38,10 +38,10 @@ interface HomePageClientProps {
 
 export function HomePageClient({ examSets }: HomePageClientProps) {
   const { isLoaded, stats, getCompletedSetsCount } = usePerformanceTracker();
-  const { user, userProfile } = useAuth();
+  const { user, isPremium } = useAuth();
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
   
-  const isLimited = !userProfile?.isPremium;
+  const isLimited = !isPremium;
 
   const examStats = {
     basic: stats['exam-basic']?.bestTime ?? null,
@@ -57,9 +57,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
 
   const getIsExamLocked = (examId: string) => {
-    if (examId === 'exam-basic' && isLimited) return true;
-    if (examId === 'exam-intermediate' && (isLimited || !examStats.basic)) return true;
-    if (examId === 'exam-advanced' && (isLimited || !examStats.intermediate)) return true;
+    if (isLimited) return true;
+    if (examId === 'exam-intermediate' && !examStats.basic) return true;
+    if (examId === 'exam-advanced' && !examStats.intermediate) return true;
     return false;
   };
   
@@ -118,16 +118,13 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   }
   
   const getDashboardTitle = () => {
-    if (userProfile?.name) return `Welcome back, ${userProfile.name}!`;
-    if (userProfile && !userProfile.isPremium) return "Start Your Journey to Shortcut Mastery";
-    if (userProfile && userProfile.isPremium) return "Unleash Your Shortcut Speed";
-    return "Dashboard";
+    if (isPremium) return "Unleash Your Shortcut Speed";
+    return "Start Your Journey to Shortcut Mastery";
   }
 
   const getDashboardSubtitle = () => {
-    if (userProfile && !userProfile.isPremium) return "Learn the basics and upgrade to unlock your full potential.";
-    if (userProfile && userProfile.isPremium) return "Master the keyboard, boost your productivity, and leave the mouse behind.";
-    return "Welcome back! Here's your progress at a glance.";
+    if (isPremium) return "Master the keyboard, boost your productivity, and leave the mouse behind.";
+    return "Learn the basics and upgrade to unlock your full potential.";
   }
   
   const renderExamStatus = (examId: 'exam-basic' | 'exam-intermediate' | 'exam-advanced', bestTime: number | null) => {
@@ -170,7 +167,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
         <header className="mb-8 md:mb-12 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
-              {userProfile?.isPremium && <Rocket className="w-8 h-8 text-primary" />}
+              {isPremium && <Rocket className="w-8 h-8 text-primary" />}
               <h1 className="text-3xl font-bold">{getDashboardTitle()}</h1>
             </div>
             <p className="text-muted-foreground mt-1">

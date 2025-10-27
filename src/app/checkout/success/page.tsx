@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -11,28 +11,28 @@ type Status = 'polling' | 'success' | 'error';
 
 const POLLING_TIMEOUT = 10000; // 10 seconds
 
-export default function CheckoutSuccessPage() {
-  const { userProfile, loading: authLoading } = useAuth();
+function SuccessContent() {
+  const { isPremium, loading: authLoading } = useAuth();
   const [status, setStatus] = useState<Status>('polling');
 
   useEffect(() => {
     if (authLoading) return;
 
-    if (userProfile?.isPremium) {
+    if (isPremium) {
       setStatus('success');
       return;
     }
 
     const timeoutId = setTimeout(() => {
       // Check one last time before declaring timeout
-      if (!userProfile?.isPremium) {
+      if (!isPremium) {
         setStatus('error');
       }
     }, POLLING_TIMEOUT);
 
     return () => clearTimeout(timeoutId);
 
-  }, [userProfile, authLoading]);
+  }, [isPremium, authLoading]);
 
   const renderContent = () => {
     switch (status) {
@@ -86,4 +86,13 @@ export default function CheckoutSuccessPage() {
       </Card>
     </div>
   );
+}
+
+
+export default function CheckoutSuccessPage() {
+    return (
+        <Suspense>
+            <SuccessContent />
+        </Suspense>
+    )
 }

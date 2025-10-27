@@ -31,10 +31,10 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
 };
 
 export default function FlashcardsPage() {
-    const { userProfile } = useAuth();
+    const { isPremium } = useAuth();
     const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
 
-    const isLimited = !userProfile?.isPremium;
+    const isLimited = !isPremium;
 
     const GUEST_ALLOWED_SET_ID = 'formatting-basics';
     

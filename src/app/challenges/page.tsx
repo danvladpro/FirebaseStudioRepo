@@ -33,10 +33,10 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
 
 export default function ChallengesPage() {
   const { isLoaded, stats, getCompletedSetsCount } = usePerformanceTracker();
-  const { user, userProfile } = useAuth();
+  const { user, isPremium } = useAuth();
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
   
-  const isLimited = !userProfile?.isPremium;
+  const isLimited = !isPremium;
 
   const examStats = {
     basic: stats['exam-basic']?.bestTime ?? null,
@@ -52,7 +52,7 @@ export default function ChallengesPage() {
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
       
   const getIsExamLocked = (examId: string) => {
-    if (examId === 'exam-basic' && isLimited) return true;
+    if (isLimited) return true;
     if (examId === 'exam-intermediate' && (isLimited || !examStats.basic)) return true;
     if (examId === 'exam-advanced' && (isLimited || !examStats.intermediate)) return true;
     return false;
@@ -113,14 +113,14 @@ export default function ChallengesPage() {
   }
   
   const getDashboardTitle = () => {
-    if (userProfile && !userProfile.isPremium) return "Start Your Journey to Shortcut Mastery";
-    if (userProfile && userProfile.isPremium) return "Unleash Your Shortcut Speed";
+    if (!isPremium) return "Start Your Journey to Shortcut Mastery";
+    if (isPremium) return "Unleash Your Shortcut Speed";
     return "Dashboard";
   }
 
   const getDashboardSubtitle = () => {
-    if (userProfile && !userProfile.isPremium) return "Learn the basics and upgrade to unlock your full potential.";
-    if (userProfile && userProfile.isPremium) return "Master the keyboard, boost your productivity, and leave the mouse behind.";
+    if (!isPremium) return "Learn the basics and upgrade to unlock your full potential.";
+    if (isPremium) return "Master the keyboard, boost your productivity, and leave the mouse behind.";
     return "Welcome back! Here's your progress at a glance.";
   }
 
@@ -133,7 +133,7 @@ export default function ChallengesPage() {
         <header className="mb-8 md:mb-12 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
-              {userProfile?.isPremium && <Trophy className="w-8 h-8 text-primary" />}
+              {isPremium && <Trophy className="w-8 h-8 text-primary" />}
               <h1 className="text-3xl font-bold">{getDashboardTitle()}</h1>
             </div>
             <p className="text-muted-foreground mt-1">
