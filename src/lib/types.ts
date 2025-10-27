@@ -33,6 +33,7 @@ export interface UserStats {
 
 export interface UserProfile {
   email: string;
+  name?: string;
   isPremium: boolean;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string | null;

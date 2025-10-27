@@ -40,6 +40,7 @@ export default function SignupPage() {
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         isPremium: false,
+        name: user.email?.split('@')[0] || 'User',
       });
 
       router.push('/survey');

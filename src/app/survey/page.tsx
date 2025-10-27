@@ -13,25 +13,35 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 const surveySteps = [
+  {
+    id: 'name',
+    title: 'Your Name',
+    description: 'What should we call you?',
+    type: 'input',
+  },
   {
     id: 'excelLevel',
     title: 'Excel Proficiency',
     description: 'How would you rate your Excel skills?',
     options: ['Never used', 'Beginner', 'Intermediate', 'Advanced'],
+    type: 'radio',
   },
   {
     id: 'seniority',
     title: 'Seniority Level',
     description: 'What is your current career level?',
     options: ['Intern', 'Junior', 'Associate', 'Senior', 'Manager', 'Director', 'C-Level'],
+    type: 'radio',
   },
   {
     id: 'field',
     title: 'Your Field',
     description: 'What field do you primarily work in?',
     options: ['Finance', 'Marketing', 'Analytics', 'Sales', 'Research', 'Business', 'Other'],
+    type: 'radio',
   },
 ];
 
@@ -64,10 +74,7 @@ export default function SurveyPage() {
         return "Other";
       };
       
-      // Placeholder for country detection
       const getCountry = async () => {
-          // In a real app, you would use a service like ip-api.com or geo.ipify.org
-          // For this example, we'll just use a placeholder.
           return "Not Detected";
       };
       
@@ -84,8 +91,8 @@ export default function SurveyPage() {
   const handleNextStep = () => {
     if (!surveyData[surveySteps[step].id]) {
       toast({
-        title: "Please make a selection",
-        description: "You must select an option to continue.",
+        title: "Please provide an answer",
+        description: "You must provide an answer to continue.",
         variant: "destructive",
       });
       return;
@@ -103,8 +110,8 @@ export default function SurveyPage() {
     }
   };
 
-  const handleValueChange = (value: string) => {
-    setSurveyData(prev => ({ ...prev, [surveySteps[step].id]: value }));
+  const handleValueChange = (id: string, value: string) => {
+    setSurveyData(prev => ({ ...prev, [id]: value }));
   };
 
   const handleSubmit = async () => {
@@ -118,8 +125,10 @@ export default function SurveyPage() {
     }
     try {
       const userDocRef = doc(db, 'users', user.uid);
+      const { name, ...restOfSurveyData } = surveyData;
       await updateDoc(userDocRef, {
-        survey: surveyData,
+        name: name,
+        survey: restOfSurveyData,
         analytics: analyticsData
       });
       router.push('/dashboard');
@@ -153,20 +162,34 @@ export default function SurveyPage() {
           <CardDescription>{currentStep.description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <RadioGroup
-            value={surveyData[currentStep.id]}
-            onValueChange={handleValueChange}
-            className="space-y-2"
-          >
-            {currentStep.options.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={option} />
-                <Label htmlFor={option} className="flex-1 cursor-pointer p-3 rounded-md hover:bg-muted/50">
-                  {option}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
+          {currentStep.type === 'radio' && currentStep.options && (
+            <RadioGroup
+              value={surveyData[currentStep.id]}
+              onValueChange={(value) => handleValueChange(currentStep.id, value)}
+              className="space-y-2"
+            >
+              {currentStep.options.map((option) => (
+                <div key={option} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option} id={option} />
+                  <Label htmlFor={option} className="flex-1 cursor-pointer p-3 rounded-md hover:bg-muted/50">
+                    {option}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          )}
+          {currentStep.type === 'input' && (
+            <div className="space-y-2">
+              <Label htmlFor={currentStep.id}>Name</Label>
+              <Input
+                id={currentStep.id}
+                type="text"
+                placeholder="e.g. Jane Doe"
+                value={surveyData[currentStep.id] || ''}
+                onChange={(e) => handleValueChange(currentStep.id, e.target.value)}
+              />
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex justify-between">
           <Button variant="outline" onClick={handlePreviousStep} disabled={step === 0}>
