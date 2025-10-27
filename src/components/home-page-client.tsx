@@ -118,7 +118,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   }
   
   const getDashboardTitle = () => {
-    if (userProfile?.name) return `Welcome back, ${userProfile.name.split(' ')[0]}!`;
+    if (userProfile?.name) return `Welcome back, ${userProfile.name}!`;
     if (userProfile && !userProfile.isPremium) return "Start Your Journey to Shortcut Mastery";
     if (userProfile && userProfile.isPremium) return "Unleash Your Shortcut Speed";
     return "Dashboard";
