@@ -81,9 +81,14 @@ function HeaderContent() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : (
-                        <Button asChild>
-                            <Link href="/login">Sign In</Link>
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button asChild variant="ghost">
+                                <Link href="/login">Sign In</Link>
+                            </Button>
+                             <Button asChild variant="premium">
+                                <Link href="/signup">Sign Up</Link>
+                            </Button>
+                        </div>
                     )}
                 </div>
             </div>
