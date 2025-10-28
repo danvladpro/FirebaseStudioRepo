@@ -97,7 +97,7 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
                         <CardContent className="p-6 text-center">
                             <Zap className="w-10 h-10 mx-auto text-primary mb-4" />
                             <h3 className="text-xl font-bold">1 Week Access</h3>
-                            <p className="text-3xl font-bold mt-2">$7</p>
+                            <p className="text-3xl font-bold mt-2">$10</p>
                             <p className="text-xs text-muted-foreground mt-1">7 days full access</p>
                         </CardContent>
                     </Card>
@@ -108,7 +108,7 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
                         <CardContent className="p-6 text-center">
                             <Star className="w-10 h-10 mx-auto text-primary mb-4" />
                             <h3 className="text-xl font-bold">Lifetime</h3>
-                            <p className="text-3xl font-bold mt-2">$49</p>
+                            <p className="text-3xl font-bold mt-2">$17</p>
                             <p className="text-xs text-muted-foreground mt-1">One-time payment</p>
                         </CardContent>
                     </Card>

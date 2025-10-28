@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { adminDb } from '@/lib/firebase-admin';
@@ -54,10 +55,12 @@ export async function POST(req: NextRequest) {
             premiumUntil = null;
         }
 
-        await userDocRef.update({
+        // Use set with merge:true to either create or update the document
+        // This is safer than update() if the document might not exist yet.
+        await userDocRef.set({
           premiumUntil: premiumUntil,
           stripeCustomerId: customerId,
-        });
+        }, { merge: true });
 
         console.log(`User ${userId} premium access updated. Plan: ${plan}`);
         break;
