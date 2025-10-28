@@ -25,7 +25,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const isPremium = userProfile?.premiumUntil === null || (!!userProfile?.premiumUntil && isFuture(new Date(userProfile.premiumUntil)));
+  const sub = userProfile?.subscription;
+  const isPremium = 
+    !!sub &&
+    sub.status === 'active' &&
+    (sub.type === 'lifetime' || (!!sub.expiresAt && isFuture(new Date(sub.expiresAt))));
+
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -36,13 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const unsubscribeSnapshot = onSnapshot(userDocRef, (docSnap) => {
           if (docSnap.exists()) {
             const profileData = docSnap.data() as UserProfile;
-            
-            // Backwards compatibility for old isPremium boolean
-            if (profileData.isPremium === true && profileData.premiumUntil === undefined) {
-              profileData.premiumUntil = null;
-            }
             setUserProfile(profileData);
-
           } else {
             setUserProfile(null);
           }

@@ -31,11 +31,17 @@ export interface UserStats {
   [setId: string]: PerformanceRecord;
 }
 
+export interface Subscription {
+  type: 'one-week' | 'lifetime';
+  status: 'active' | 'inactive';
+  expiresAt: string | null; // ISO date string or null for lifetime
+  stripeCustomerId?: string | null;
+  stripeSessionId?: string;
+}
+
+
 export interface UserProfile {
   email: string;
   name?: string;
-  /** @deprecated Use premiumUntil instead */
-  isPremium?: boolean;
-  premiumUntil: string | null; // ISO date string or null for lifetime
-  stripeCustomerId?: string;
+  subscription?: Subscription;
 }

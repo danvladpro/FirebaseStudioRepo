@@ -39,7 +39,6 @@ export default function SignupPage() {
       // Create a user document in Firestore
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
-        premiumUntil: '1970-01-01T00:00:00.000Z', // Expired
         name: user.email?.split('@')[0] || 'User',
       });
 

@@ -45,8 +45,9 @@ export function AppHeader() {
   }
   
   const getPremiumStatusText = () => {
-    if (!isPremium) return null;
-    if (userProfile?.premiumUntil === null) {
+    if (!isPremium || !userProfile?.subscription) return null;
+
+    if (userProfile.subscription.type === 'lifetime') {
       return (
         <span className='text-xs font-semibold bg-yellow-400/20 text-yellow-600 px-2 py-0.5 rounded-md flex items-center gap-1'>
           <Crown className="w-3 h-3" />
@@ -54,9 +55,10 @@ export function AppHeader() {
         </span>
       );
     }
-    if (userProfile?.premiumUntil) {
-      const daysLeft = differenceInDays(new Date(userProfile.premiumUntil), new Date());
-      const distance = formatDistanceToNow(new Date(userProfile.premiumUntil));
+
+    if (userProfile.subscription.expiresAt) {
+      const daysLeft = differenceInDays(new Date(userProfile.subscription.expiresAt), new Date());
+      const distance = formatDistanceToNow(new Date(userProfile.subscription.expiresAt));
       if (daysLeft < 7) {
         return (
           <span className='text-xs font-semibold bg-orange-400/20 text-orange-600 px-2 py-0.5 rounded-md flex items-center gap-1'>
