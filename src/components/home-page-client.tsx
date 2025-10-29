@@ -232,7 +232,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                 </Button>
                                             ) : (
                                                 <>
-                                                <Button asChild size="sm" className="w-full">
+                                                <Button asChild size="sm" className="w-full" variant="warning">
                                                     <Link href={`/challenge/${set.id}`}>
                                                         <Library className="mr-2 h-4 w-4" /> Practice
                                                     </Link>

@@ -74,17 +74,17 @@ export function AppHeader() {
   return (
     <>
       <EditProfileModal isOpen={isEditProfileModalOpen} onOpenChange={setIsEditProfileModalOpen} />
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-md">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-6">
             <Link href="/dashboard">
               <Logo />
             </Link>
             <nav className="hidden md:flex items-center gap-4">
-              <Button variant="link" asChild className="text-white/80 hover:text-white">
+              <Button variant="link" asChild className="text-foreground/80 hover:text-foreground">
                 <Link href="/">Home</Link>
               </Button>
-              <Button variant="link" asChild className="text-white/80 hover:text-white">
+              <Button variant="link" asChild className="text-foreground/80 hover:text-foreground">
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
             </nav>
@@ -94,7 +94,7 @@ export function AppHeader() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-white/20">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-accent">
                     <Avatar className="h-9 w-9">
                       <div className={cn(
                           "w-full h-full rounded-full flex items-center justify-center",
