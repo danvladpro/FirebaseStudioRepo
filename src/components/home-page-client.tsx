@@ -38,7 +38,7 @@ interface HomePageClientProps {
 
 export function HomePageClient({ examSets }: HomePageClientProps) {
   const { isLoaded, stats, getCompletedSetsCount } = usePerformanceTracker();
-  const { user, isPremium } = useAuth();
+  const { user, userProfile, isPremium } = useAuth();
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
   
   const isLimited = !isPremium;
@@ -76,7 +76,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     const Icon = iconMap[examSet.iconName];
 
     const cardContent = (
-     <Card key={examSet.id} className={cn("border-primary/50 bg-primary/5 flex flex-col", isExamLocked && "bg-muted/50 border-dashed text-muted-foreground")}>
+     <Card key={examSet.id} className={cn("border-emerald-300/50 bg-background/50 flex flex-col", isExamLocked && "bg-muted/50 border-dashed text-muted-foreground")}>
         <CardHeader className="flex-row gap-4 items-center p-4">
             <Icon className={cn("w-8 h-8", isExamLocked ? "text-muted-foreground" : "text-primary")} />
             <div>
@@ -118,6 +118,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   }
   
   const getDashboardTitle = () => {
+    if (userProfile?.name) return `Welcome back, ${userProfile.name}!`;
     if (isPremium) return "Unleash Your Shortcut Speed";
     return "Start Your Journey to Shortcut Mastery";
   }
@@ -153,7 +154,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const getExamStatusBg = (examId: 'exam-basic' | 'exam-intermediate' | 'exam-advanced', bestTime: number | null) => {
     const isLocked = getIsExamLocked(examId);
     if (!isLocked && !bestTime) {
-        return "bg-primary/5 border border-primary/20";
+        return "bg-emerald-500/10 border border-emerald-500/20";
     }
     return "bg-muted/50";
   }
@@ -196,7 +197,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                             const lastScore = setStats?.lastScore;
 
                             const cardContent = (
-                                <Card key={set.id} className={cn("grid md:grid-cols-[1fr_auto] items-center gap-4", set.isLocked && "bg-muted/50 text-muted-foreground")}>
+                                <Card key={set.id} className={cn("grid md:grid-cols-[1fr_auto] items-center gap-4 bg-white", set.isLocked && "bg-muted/50 text-muted-foreground")}>
                                     <CardContent className="p-4 flex items-center gap-4">
                                         <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                                         <div className="flex-1">
@@ -268,7 +269,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             </section>
             <aside className="lg:col-span-1">
                 <h2 className="text-2xl font-bold mb-4">Progress Overview</h2>
-                 <Card>
+                 <Card className="bg-white">
                     <CardHeader>
                         <CardTitle className="text-lg">Best Exam Times</CardTitle>
                     </CardHeader>
@@ -296,7 +297,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         </div>
                     </CardContent>
                 </Card>
-                 <Card className="mt-6">
+                 <Card className="mt-6 bg-white">
                     <CardHeader>
                         <CardTitle className="text-lg">Practice Sets Completed</CardTitle>
                     </CardHeader>

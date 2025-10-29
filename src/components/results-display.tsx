@@ -142,8 +142,8 @@ export default function ResultsDisplay() {
       {showConfetti && (
         <Confetti
           recycle={false}
-          numberOfPieces={isPerfectScore ? 500 : 100}
-          gravity={isPerfectScore ? 0.1 : 0.05}
+          numberOfPieces={isPerfectScore ? 1300 : 300}
+          gravity={isPerfectScore ? 0.1 : 0.1}
         />
       )}
       <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">

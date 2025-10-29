@@ -24,7 +24,7 @@ export function LandingPricing() {
                         </CardHeader>
                         <CardContent className="flex-1">
                             <div className="flex items-baseline justify-center">
-                                <span className="text-4xl font-bold">$49</span>
+                                <span className="text-4xl font-bold">$17</span>
                                 <span className="ml-1 text-muted-foreground">/ lifetime</span>
                             </div>
                             <ul className="mt-6 space-y-4 text-left">
