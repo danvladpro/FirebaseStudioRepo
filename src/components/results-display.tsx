@@ -13,6 +13,7 @@ import { Separator } from './ui/separator';
 import { useAuth } from './auth-provider';
 import { cn } from '@/lib/utils';
 import { Challenge } from '@/lib/types';
+import Confetti from 'react-confetti';
 
 const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
@@ -46,9 +47,11 @@ export default function ResultsDisplay() {
   
   const [isNewRecord, setIsNewRecord] = useState(false);
   const [isMac, setIsMac] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
+    setShowConfetti(true);
   }, []);
   
   const setId = searchParams.get('setId');
@@ -135,91 +138,100 @@ export default function ResultsDisplay() {
   const challengePath = `/challenge/${setId}`;
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">
-      <Card className="w-full max-w-lg text-center">
-        <CardHeader>
-          {isNewRecord && isPerfectScore && user && (
-            <Badge className="w-fit mx-auto mb-4 bg-accent text-accent-foreground hover:bg-accent/90">
-              <Trophy className="mr-2 h-4 w-4"/> New Record!
-            </Badge>
-          )}
-          <CardTitle className="text-3xl">Challenge Complete!</CardTitle>
-          <CardDescription>{challengeSet.name}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Your Time</p>
-              <p className="text-5xl font-bold tracking-tighter text-primary">{time.toFixed(2)}s</p>
-            </div>
-             <div>
-              <p className="text-sm text-muted-foreground">Score</p>
-              <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
-            </div>
-          </div>
-          {isLoaded && isPerfectScore && personalBest && user && (
-            <div>
-              <p className="text-sm text-muted-foreground">Personal Best (Time)</p>
-              <p className="text-2xl font-semibold tracking-tight text-foreground">
-                {personalBest.toFixed(2)}s
-              </p>
-            </div>
-          )}
-          {isExam && (
-             <div className="space-y-4 pt-4">
-                <Separator />
-                {isPerfectScore ? (
-                  <>
-                    <h3 className="font-semibold pt-2">Congratulations!</h3>
-                    <p className="text-sm text-muted-foreground">You've passed the {challengeSet.name}. Add your achievement to your professional profile.</p>
-                    <Button asChild className="bg-[#0A66C2] hover:bg-[#0A66C2]/90">
-                        <a href={buildLinkedInUrl()} target="_blank" rel="noopener noreferrer">
-                            <Linkedin className="mr-2 h-5 w-5" /> Add to LinkedIn
-                        </a>
-                    </Button>
-                  </>
-                ) : (
-                   <>
-                    <h3 className="font-semibold pt-2">Almost there!</h3>
-                    <p className="text-sm text-muted-foreground">Achieve a perfect score of 100% to unlock your certificate and share it on LinkedIn.</p>
-                     <Button disabled className="w-fit mx-auto">
-                        <Lock className="mr-2 h-5 w-5" /> Add to LinkedIn
-                    </Button>
-                   </>
-                )}
-            </div>
-          )}
-          {skippedChallenges.length > 0 && (
-            <div className="space-y-4">
-              <Separator />
-              <div className="text-left">
-                  <h3 className="font-semibold flex items-center gap-2 justify-center text-destructive mb-2">
-                    <AlertTriangle className="w-4 h-4"/>
-                    Areas for Improvement
-                  </h3>
-                  <ul className="text-sm text-muted-foreground space-y-3 bg-muted/50 p-4 rounded-md">
-                      {skippedChallenges.map((challenge, index) => (
-                          <li key={index} className="flex justify-between items-center">
-                            <span>{challenge.description}</span>
-                            <div className="flex items-center gap-1.5">
-                              {getOsKeys(challenge, isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
-                            </div>
-                          </li>
-                      ))}
-                  </ul>
+    <>
+      {showConfetti && (
+        <Confetti
+          recycle={false}
+          numberOfPieces={isPerfectScore ? 500 : 100}
+          gravity={isPerfectScore ? 0.1 : 0.05}
+        />
+      )}
+      <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">
+        <Card className="w-full max-w-lg text-center">
+          <CardHeader>
+            {isNewRecord && isPerfectScore && user && (
+              <Badge className="w-fit mx-auto mb-4 bg-accent text-accent-foreground hover:bg-accent/90">
+                <Trophy className="mr-2 h-4 w-4"/> New Record!
+              </Badge>
+            )}
+            <CardTitle className="text-3xl">Challenge Complete!</CardTitle>
+            <CardDescription>{challengeSet.name}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Your Time</p>
+                <p className="text-5xl font-bold tracking-tighter text-primary">{time.toFixed(2)}s</p>
+              </div>
+               <div>
+                <p className="text-sm text-muted-foreground">Score</p>
+                <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
               </div>
             </div>
-          )}
-        </CardContent>
-        <CardFooter className="flex gap-4">
-          <Button variant="outline" className="w-full" onClick={() => router.push(dashboardPath)}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Go to Dashboard
-          </Button>
-          <Button className="w-full" onClick={() => router.push(challengePath)}>
-            <RefreshCw className="mr-2 h-4 w-4" /> Play Again
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+            {isLoaded && isPerfectScore && personalBest && user && (
+              <div>
+                <p className="text-sm text-muted-foreground">Personal Best (Time)</p>
+                <p className="text-2xl font-semibold tracking-tight text-foreground">
+                  {personalBest.toFixed(2)}s
+                </p>
+              </div>
+            )}
+            {isExam && (
+               <div className="space-y-4 pt-4">
+                  <Separator />
+                  {isPerfectScore ? (
+                    <>
+                      <h3 className="font-semibold pt-2">Congratulations!</h3>
+                      <p className="text-sm text-muted-foreground">You've passed the {challengeSet.name}. Add your achievement to your professional profile.</p>
+                      <Button asChild className="bg-[#0A66C2] hover:bg-[#0A66C2]/90">
+                          <a href={buildLinkedInUrl()} target="_blank" rel="noopener noreferrer">
+                              <Linkedin className="mr-2 h-5 w-5" /> Add to LinkedIn
+                          </a>
+                      </Button>
+                    </>
+                  ) : (
+                     <>
+                      <h3 className="font-semibold pt-2">Almost there!</h3>
+                      <p className="text-sm text-muted-foreground">Achieve a perfect score of 100% to unlock your certificate and share it on LinkedIn.</p>
+                       <Button disabled className="w-fit mx-auto">
+                          <Lock className="mr-2 h-5 w-5" /> Add to LinkedIn
+                      </Button>
+                     </>
+                  )}
+              </div>
+            )}
+            {skippedChallenges.length > 0 && (
+              <div className="space-y-4">
+                <Separator />
+                <div className="text-left">
+                    <h3 className="font-semibold flex items-center gap-2 justify-center text-destructive mb-2">
+                      <AlertTriangle className="w-4 h-4"/>
+                      Areas for Improvement
+                    </h3>
+                    <ul className="text-sm text-muted-foreground space-y-3 bg-muted/50 p-4 rounded-md">
+                        {skippedChallenges.map((challenge, index) => (
+                            <li key={index} className="flex justify-between items-center">
+                              <span>{challenge.description}</span>
+                              <div className="flex items-center gap-1.5">
+                                {getOsKeys(challenge, isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
+                              </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+              </div>
+            )}
+          </CardContent>
+          <CardFooter className="flex gap-4">
+            <Button variant="outline" className="w-full" onClick={() => router.push(dashboardPath)}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Go to Dashboard
+            </Button>
+            <Button className="w-full" onClick={() => router.push(challengePath)}>
+              <RefreshCw className="mr-2 h-4 w-4" /> Play Again
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    </>
   );
 }
