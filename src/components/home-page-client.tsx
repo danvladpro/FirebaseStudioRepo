@@ -211,9 +211,11 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                             <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{set.challenges.length}</p>
                                             <p>Items</p>
                                         </div>
-                                        <div className="flex flex-col items-center">
+                                        <div className="flex flex-col items-center justify-center min-h-[44px]">
                                             {isLoaded ? (
-                                                lastScore !== undefined && lastScore !== null ? (
+                                                lastScore === 100 ? (
+                                                    <Trophy className="w-6 h-6 text-yellow-500" />
+                                                ) : lastScore !== undefined && lastScore !== null ? (
                                                     <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{lastScore.toFixed(0)}%</p>
                                                 ) : (
                                                     <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
@@ -323,3 +325,5 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
+    
