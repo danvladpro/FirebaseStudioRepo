@@ -1,5 +1,5 @@
 
-import { Building, User, TrendingUp, Briefcase, BrainCircuit, ShieldCheck } from 'lucide-react';
+import { Building, User } from 'lucide-react';
 
 export function LandingBenefits() {
   return (
@@ -14,7 +14,7 @@ export function LandingBenefits() {
           </h2>
           <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
             Investing in keyboard shortcut proficiency isn't just about
-            convenience. It's a data-backed strategy for significant gains in
+            convenience—it's a data-backed strategy for significant gains in
             productivity and career growth.
           </p>
         </div>
@@ -26,19 +26,20 @@ export function LandingBenefits() {
               </div>
               <h3 className="text-xl font-bold">For Individuals</h3>
             </div>
-            <div className="space-y-4 text-sm text-muted-foreground">
-              <ul className="space-y-4">
-                <li>
-                  <strong>Save 8 Workdays a Year:</strong> Proficient users save up to two weeks per year by avoiding the 40% productivity drop from context switching.
-                </li>
-                <li>
-                  <strong>Get Hired Faster:</strong> 82% of middle-skill jobs require digital skills like Excel. Stand out to employers.
-                </li>
-                <li>
-                  <strong>Reduce Cognitive Load:</strong> Build muscle memory to stay focused on analysis, not on hunting for menus.
-                </li>
-              </ul>
-            </div>
+            <ul className="grid gap-4 text-sm text-muted-foreground">
+              <li>
+                <strong>Boost Productivity:</strong> Proficient users save an
+                average of 2 seconds per minute. That adds up to 8 workdays a year.
+              </li>
+              <li>
+                <strong>Get Hired Faster:</strong> 82% of middle-skill jobs require digital
+                skills like Excel. Stand out to employers.
+              </li>
+              <li>
+                <strong>Reduce Cognitive Load:</strong> Build muscle memory to stay in
+                the flow and focus on analysis, not on hunting for menus.
+              </li>
+            </ul>
           </div>
           <div className="grid gap-6">
             <div className="flex items-center gap-4">
@@ -47,19 +48,20 @@ export function LandingBenefits() {
               </div>
               <h3 className="text-xl font-bold">For Companies</h3>
             </div>
-            <div className="space-y-4 text-sm text-muted-foreground">
-              <ul className="space-y-4">
-                <li>
-                  <strong>Drive Team Efficiency:</strong> Proficient users complete tasks up to 50% faster, boosting team output significantly.
-                </li>
-                <li>
-                  <strong>Reduce Errors:</strong> Keyboard shortcuts ensure consistent operations, improving data quality across the board.
-                </li>
-                <li>
-                  <strong>Cultivate a High-Performance Culture:</strong> Empower employees to work smarter, not harder, fostering a culture of efficiency.
-                </li>
-              </ul>
-            </div>
+            <ul className="grid gap-4 text-sm text-muted-foreground">
+              <li>
+                <strong>Drive Team Efficiency:</strong> Proficient users complete
+                tasks up to 50% faster, boosting team output significantly.
+              </li>
+              <li>
+                <strong>Reduce Errors:</strong> Keyboard-driven operations are more
+                consistent, improving data quality across the board.
+              </li>
+              <li>
+                <strong>Cultivate a High-Performance Culture:</strong> Empower
+                employees to work smarter, not harder.
+              </li>
+            </ul>
           </div>
         </div>
       </div>
