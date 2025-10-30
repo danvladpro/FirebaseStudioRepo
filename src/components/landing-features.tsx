@@ -1,5 +1,5 @@
-
 import { GraduationCap, Keyboard, Sparkles } from "lucide-react";
+import { ScrollAnimation } from "./scroll-animation";
 
 export function LandingFeatures() {
     return (
@@ -15,27 +15,33 @@ export function LandingFeatures() {
                     </div>
                 </div>
                 <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3 lg:gap-12">
-                    <div className="grid gap-1 text-center">
-                        <Keyboard className="h-12 w-12 mx-auto text-primary" />
-                        <h3 className="text-xl font-bold">Interactive Challenges</h3>
-                        <p className="text-muted-foreground">
-                            Put your knowledge to the test with timed, interactive challenges that simulate real-world Excel tasks.
-                        </p>
-                    </div>
-                    <div className="grid gap-1 text-center">
-                        <GraduationCap className="h-12 w-12 mx-auto text-primary" />
-                        <h3 className="text-xl font-bold">Visual Flashcards</h3>
-                        <p className="text-muted-foreground">
-                            Study at your own pace with our flashcard system, complete with a visual keyboard to reinforce learning.
-                        </p>
-                    </div>
-                     <div className="grid gap-1 text-center">
-                        <Sparkles className="h-12 w-12 mx-auto text-primary" />
-                        <h3 className="text-xl font-bold">Progress Tracking</h3>
-                        <p className="text-muted-foreground">
-                            Monitor your progress, track your best times, and see your skills improve with our detailed performance dashboard.
-                        </p>
-                    </div>
+                    <ScrollAnimation delay={0}>
+                        <div className="grid gap-1 text-center">
+                            <Keyboard className="h-12 w-12 mx-auto text-primary" />
+                            <h3 className="text-xl font-bold">Interactive Challenges</h3>
+                            <p className="text-muted-foreground">
+                                Put your knowledge to the test with timed, interactive challenges that simulate real-world Excel tasks.
+                            </p>
+                        </div>
+                    </ScrollAnimation>
+                    <ScrollAnimation delay={0.1}>
+                        <div className="grid gap-1 text-center">
+                            <GraduationCap className="h-12 w-12 mx-auto text-primary" />
+                            <h3 className="text-xl font-bold">Visual Flashcards</h3>
+                            <p className="text-muted-foreground">
+                                Study at your own pace with our flashcard system, complete with a visual keyboard to reinforce learning.
+                            </p>
+                        </div>
+                    </ScrollAnimation>
+                    <ScrollAnimation delay={0.2}>
+                         <div className="grid gap-1 text-center">
+                            <Sparkles className="h-12 w-12 mx-auto text-primary" />
+                            <h3 className="text-xl font-bold">Progress Tracking</h3>
+                            <p className="text-muted-foreground">
+                                Monitor your progress, track your best times, and see your skills improve with our detailed performance dashboard.
+                            </p>
+                        </div>
+                    </ScrollAnimation>
                 </div>
             </div>
         </section>
