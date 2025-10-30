@@ -16,10 +16,10 @@ function HeroContent() {
                 <div className="flex flex-col justify-center space-y-4">
                     <div className="space-y-2">
                         <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                            Unlock Your Excel Superpowers
+                            Become an Excel Keyboard Ninja
                         </h1>
                         <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                            Go from hunting through menus to executing commands in a flash. Our interactive platform is the fastest, most effective way to master the shortcuts that matter.
+                            Stop wasting time with your mouse. Our interactive challenges make learning Excel shortcuts fast, fun, and effective.
                         </p>
                     </div>
                      <div className="flex flex-col gap-2 min-[400px]:flex-row">

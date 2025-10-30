@@ -16,21 +16,21 @@ export function LandingFeatures() {
                 <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3 lg:gap-12">
                     <div className="grid gap-1 text-center">
                         <Keyboard className="h-12 w-12 mx-auto text-primary" />
-                        <h3 className="text-xl font-bold">Interactive Challenges</h3>
+                        <h3 className="text-xl font-bold">Challenge Yourself</h3>
                         <p className="text-muted-foreground">
                             Put your knowledge to the test with timed, interactive challenges that simulate real-world Excel tasks.
                         </p>
                     </div>
                     <div className="grid gap-1 text-center">
                         <GraduationCap className="h-12 w-12 mx-auto text-primary" />
-                        <h3 className="text-xl font-bold">Smart Flashcards</h3>
+                        <h3 className="text-xl font-bold">Reinforce with Flashcards</h3>
                         <p className="text-muted-foreground">
                             Study at your own pace with our flashcard system, complete with a visual keyboard to reinforce learning.
                         </p>
                     </div>
                      <div className="grid gap-1 text-center">
                         <Sparkles className="h-12 w-12 mx-auto text-primary" />
-                        <h3 className="text-xl font-bold">Performance Tracking</h3>
+                        <h3 className="text-xl font-bold">Track Your Sprint Times</h3>
                         <p className="text-muted-foreground">
                             Monitor your progress, track your best times, and see your skills improve with our detailed performance dashboard.
                         </p>

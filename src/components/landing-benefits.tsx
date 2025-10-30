@@ -27,33 +27,17 @@ export function LandingBenefits() {
               <h3 className="text-xl font-bold">For Individuals</h3>
             </div>
             <div className="space-y-4 text-sm text-muted-foreground">
-              <div className="flex items-start gap-3">
-                <TrendingUp className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
-                <p>
-                  <span className="font-semibold text-foreground">
-                    Save 8 Workdays a Year:
-                  </span>{' '}
-                  The American Psychological Association notes that even brief mental blocks from switching tasks (like from keyboard to mouse) can cut productivity by 40%. Proficient users save up to two weeks per year.
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <Briefcase className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
-                <p>
-                  <span className="font-semibold text-foreground">
-                    Get Hired Faster:
-                  </span>{' '}
-                  A study by Capitalize Analytics found that 82% of jobs in middle-skill positions require digital skills like Excel. Listing advanced proficiency on your resume makes you a more attractive candidate.
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <BrainCircuit className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
-                <p>
-                  <span className="font-semibold text-foreground">
-                    Reduce Cognitive Load:
-                  </span>{' '}
-                  By committing shortcuts to muscle memory, you reduce the mental effort of hunting through menus, allowing you to stay focused on the analytical task itself.
-                </p>
-              </div>
+              <ul className="space-y-4">
+                <li>
+                  <strong>Save 8 Workdays a Year:</strong> Proficient users save up to two weeks per year by avoiding the 40% productivity drop from context switching.
+                </li>
+                <li>
+                  <strong>Get Hired Faster:</strong> 82% of middle-skill jobs require digital skills like Excel. Stand out to employers.
+                </li>
+                <li>
+                  <strong>Reduce Cognitive Load:</strong> Build muscle memory to stay focused on analysis, not on hunting for menus.
+                </li>
+              </ul>
             </div>
           </div>
           <div className="grid gap-6">
@@ -64,33 +48,17 @@ export function LandingBenefits() {
               <h3 className="text-xl font-bold">For Companies</h3>
             </div>
             <div className="space-y-4 text-sm text-muted-foreground">
-              <div className="flex items-start gap-3">
-                <TrendingUp className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
-                <p>
-                  <span className="font-semibold text-foreground">
-                    Drive Team Efficiency:
-                  </span>{' '}
-                  According to Forrester Research, proficient users complete tasks up to 50% faster. In a team of 10, that's like adding an extra team member for every 10 people, without the cost.
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <ShieldCheck className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
-                <p>
-                  <span className="font-semibold text-foreground">
-                    Reduce Errors & Ensure Consistency:
-                  </span>{' '}
-                  Using keyboard shortcuts for tasks like formatting or data entry ensures that operations are performed consistently, reducing human error and improving data quality across the board.
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <Briefcase className="mt-1 h-4 w-4 flex-shrink-0 text-primary" />
-                <p>
-                  <span className="font-semibold text-foreground">
-                    Cultivate a High-Performance Culture:
-                  </span>{' '}
-                  Investing in practical skills like shortcut mastery fosters a culture of efficiency and continuous improvement, empowering employees to work smarter, not harder.
-                </p>
-              </div>
+              <ul className="space-y-4">
+                <li>
+                  <strong>Drive Team Efficiency:</strong> Proficient users complete tasks up to 50% faster, boosting team output significantly.
+                </li>
+                <li>
+                  <strong>Reduce Errors:</strong> Keyboard shortcuts ensure consistent operations, improving data quality across the board.
+                </li>
+                <li>
+                  <strong>Cultivate a High-Performance Culture:</strong> Empower employees to work smarter, not harder, fostering a culture of efficiency.
+                </li>
+              </ul>
             </div>
           </div>
         </div>
