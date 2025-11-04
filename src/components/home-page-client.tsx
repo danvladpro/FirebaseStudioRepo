@@ -73,7 +73,8 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   }
   
   const getExamStats = (examId: keyof typeof examStats) => {
-      return examStats[examId];
+      const stats = examStats[examId];
+      return stats ? stats : { bestTime: null, bestScore: null };
   }
 
 
@@ -85,7 +86,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
     const cardContent = (
      <Card key={examSet.id} className={cn(
-        "bg-background/50 flex flex-col relative", 
+        "bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 hover:bg-accent/5 flex flex-col relative", 
         isExamLocked && "bg-muted/50 border-dashed text-muted-foreground",
         isCompleted && "p-0.5 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
      )}>
