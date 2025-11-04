@@ -9,6 +9,7 @@ import { Suspense } from "react";
 
 function HeroContent() {
     const { user } = useAuth();
+    const cacheBuster = `?t=${new Date().getTime()}`;
 
     return (
         <section className="w-full pt-24 md:pt-32 lg:pt-40 border-b">
@@ -35,12 +36,13 @@ function HeroContent() {
                     </div>
                 </div>
                 <Image
-                    src="/HomePage.png"
+                    src={`/HomePage.png${cacheBuster}`}
                     width="600"
                     height="400"
                     alt="Hero"
                     className="mx-auto aspect-[3/2] overflow-hidden rounded-xl object-cover sm:w-full"
                     data-ai-hint="office productivity"
+                    unoptimized // Necessary for cache busting with query strings
                 />
             </div>
             <div className="container px-4 md:px-6 mt-12 pb-12">
