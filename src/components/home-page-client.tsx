@@ -18,6 +18,7 @@ import { cn, buildLinkedInUrl } from "@/lib/utils";
 import { ElementType } from "react";
 import { PremiumModal } from "./premium-modal";
 import { Badge } from "./ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -100,7 +101,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
               </Badge>
             ) : (
               <Badge variant={isNextAvailable ? 'warning' : 'level'} className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
-                LEVEL {level}
+                LEVEL {level} - {isExamLocked ? 'Locked' : 'Unlocked'}
               </Badge>
             )}
             <CardHeader className="flex-row gap-4 items-center p-4">
@@ -382,16 +383,20 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                     <CardHeader>
                         <CardTitle className="text-lg">Practice Sets Completed</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex flex-col items-center justify-center p-4">
+                    <CardContent className="p-6">
                       {isLoaded ? (
-                          <div className="text-center">
-                              <span className="text-4xl font-bold text-primary">{completedSetsCount}</span>
-                              <span className="text-2xl text-muted-foreground">/{totalPracticeSets}</span>
+                          <div className="text-center w-full">
+                              <div className="flex items-center justify-center">
+                                  <span className="text-2xl font-bold text-primary">{completedSetsCount}</span>
+                                  <span className="text-xl text-muted-foreground">/{totalPracticeSets}</span>
+                              </div>
+                              <Progress value={(completedSetsCount / totalPracticeSets) * 100} className="h-2 mt-2" />
                               <p className="text-xs text-muted-foreground mt-2">sets completed</p>
                           </div>
                       ) : (
                         <div className="flex flex-col items-center gap-2 pt-2 text-center">
-                            <Skeleton className="w-24 h-8" />
+                            <Skeleton className="w-24 h-6" />
+                            <Skeleton className="h-2 w-full mt-2" />
                             <Skeleton className="w-20 h-4 mt-1" />
                         </div>
                       )}
@@ -406,6 +411,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
