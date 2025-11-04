@@ -78,11 +78,12 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   }
 
 
-  const renderExamCard = (examSet: ChallengeSet) => {
+  const renderExamCard = (examSet: ChallengeSet, index: number) => {
     const isExamLocked = getIsExamLocked(examSet.id);
     const Icon = iconMap[examSet.iconName];
     const { bestScore } = getExamStats(examSet.id as keyof typeof examStats);
     const isCompleted = (bestScore ?? 0) === 100;
+    const level = index + 1;
 
     const cardContent = (
      <Card key={examSet.id} className={cn(
@@ -91,10 +92,14 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
         isCompleted && "p-0.5 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
      )}>
         <div className={cn("flex flex-col flex-1 w-full h-full", isCompleted && "bg-background rounded-[7px]")}>
-            {isCompleted && (
+            {isCompleted ? (
               <Badge variant="completed" className="absolute -top-3 left-1/2 -translate-x-1/2">
                 <BadgeCheck className="mr-1.5 h-4 w-4" />
-                Completed!
+                LEVEL {level} - Completed!
+              </Badge>
+            ) : (
+              <Badge variant="level" className="absolute -top-3 left-1/2 -translate-x-1/2">
+                LEVEL {level}
               </Badge>
             )}
             <CardHeader className="flex-row gap-4 items-center p-4">
@@ -227,7 +232,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             <h2 className="text-2xl font-bold mb-4">Exams</h2>
             <TooltipProvider>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {examSets.map((examSet) => renderExamCard(examSet))}
+                {examSets.map((examSet, index) => renderExamCard(examSet, index))}
               </div>
             </TooltipProvider>
          </section>
@@ -400,4 +405,5 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
