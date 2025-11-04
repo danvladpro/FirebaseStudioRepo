@@ -33,7 +33,6 @@ export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerf
             if (!userDoc.exists) {
                 // If user document doesn't exist, we can't update it.
                 // This should ideally not happen if the user is logged in.
-                // Alternatively, we could create the doc here.
                 throw new Error("User document does not exist.");
             }
 
@@ -49,10 +48,13 @@ export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerf
                     isNewBest = true;
                 }
             }
+            
+            const currentBestScore = currentPerformance?.bestScore ?? 0;
+            const newBestScore = Math.max(currentBestScore, score);
 
             const newPerformanceRecord: PerformanceRecord = {
                 bestTime: newBestTime,
-                lastScore: score,
+                bestScore: newBestScore,
                 lastTrained: new Date().toISOString(),
             };
 

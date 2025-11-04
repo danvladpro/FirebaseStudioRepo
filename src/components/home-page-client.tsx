@@ -194,7 +194,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         {setsToDisplay.map((set) => {
                             const Icon = iconMap[set.iconName];
                             const setStats = stats[set.id];
-                            const lastScore = setStats?.lastScore;
+                            const bestScore = setStats?.bestScore;
 
                             const cardContent = (
                                 <Card key={set.id} className={cn("grid md:grid-cols-[1fr_auto] items-center gap-4 bg-white", set.isLocked && "bg-muted/50 text-muted-foreground")}>
@@ -213,10 +213,10 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                         </div>
                                         <div className="flex flex-col items-center justify-center min-h-[44px]">
                                             {isLoaded ? (
-                                                lastScore === 100 ? (
+                                                bestScore === 100 ? (
                                                     <CheckCircle className="w-6 h-6 text-green-500" />
-                                                ) : lastScore !== undefined && lastScore !== null ? (
-                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{lastScore.toFixed(0)}%</p>
+                                                ) : bestScore !== undefined && bestScore !== null ? (
+                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestScore.toFixed(0)}%</p>
                                                 ) : (
                                                     <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
                                                 )
@@ -224,7 +224,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                 <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
                                             )}
                                             <p>
-                                                {lastScore === 100 ? "Completed" : (lastScore !== undefined && lastScore !== null) ? "Last Score" : ""}
+                                                {bestScore === 100 ? "Completed" : (bestScore !== undefined && bestScore !== null) ? "Best Score" : ""}
                                             </p>
                                         </div>
                                     
