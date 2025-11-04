@@ -14,6 +14,8 @@ import { useAuth } from './auth-provider';
 import { cn } from '@/lib/utils';
 import { Challenge } from '@/lib/types';
 import Confetti from 'react-confetti';
+import { updateUserPerformance } from '@/app/actions/update-user-performance';
+import { toast } from '@/hooks/use-toast';
 
 const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
@@ -42,7 +44,7 @@ const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
 export default function ResultsDisplay() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { stats, updateStats, isLoaded } = usePerformanceTracker();
+  const { stats, isLoaded } = usePerformanceTracker();
   const { user } = useAuth();
   
   const [isNewRecord, setIsNewRecord] = useState(false);
@@ -85,17 +87,26 @@ export default function ResultsDisplay() {
     : [];
 
   useEffect(() => {
-    if (setId && time !== null && user) {
-      if (isPerfectScore) {
-        const oldBest = personalBest;
-        if (oldBest === null || oldBest === undefined || time < oldBest) {
+    if (!isLoaded || !setId || time === null || !user) return;
+    
+    const updatePerformance = async () => {
+      try {
+        const result = await updateUserPerformance({ uid: user.uid, setId, time, score });
+        if (result.newBest) {
           setIsNewRecord(true);
         }
+      } catch (error: any) {
+        toast({
+            title: "Error Saving Results",
+            description: error.message,
+            variant: "destructive"
+        });
       }
-      updateStats(setId, time, score);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setId, time, score, isPerfectScore, user]);
+    };
+    
+    updatePerformance();
+  }, [isLoaded, setId, time, score, user]);
+
 
   const buildLinkedInUrl = () => {
     if (!challengeSet || !user) return "";
@@ -149,7 +160,7 @@ export default function ResultsDisplay() {
       <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">
         <Card className="w-full max-w-lg text-center">
           <CardHeader>
-            {isNewRecord && isPerfectScore && user && (
+            {isNewRecord && (
               <Badge className="w-fit mx-auto mb-4 bg-accent text-accent-foreground hover:bg-accent/90">
                 <Trophy className="mr-2 h-4 w-4"/> New Record!
               </Badge>

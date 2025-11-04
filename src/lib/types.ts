@@ -32,7 +32,7 @@ export interface UserStats {
 }
 
 export interface Subscription {
-  type: 'one-week' | 'lifetime';
+  type: 'one-week' | 'lifetime' | 'weekly';
   status: 'active' | 'inactive';
   expiresAt: string | null; // ISO date string or null for lifetime
   stripeCustomerId?: string | null;
@@ -44,4 +44,5 @@ export interface UserProfile {
   email: string;
   name?: string;
   subscription?: Subscription;
+  performance?: UserStats;
 }
