@@ -31,8 +31,10 @@ export const usePerformanceTracker = () => {
 
   const getCompletedSetsCount = () => {
     const practiceSetIds = new Set(CHALLENGE_SETS.map(s => s.id));
-    // A set is completed if it has stats recorded against it
-    return Object.keys(stats).filter(setId => practiceSetIds.has(setId) && stats[setId]).length;
+    // A set is completed if its bestScore is 100
+    return Object.keys(stats).filter(setId => 
+        practiceSetIds.has(setId) && stats[setId]?.bestScore === 100
+    ).length;
   }
   
   // This hook no longer handles updates directly, so reset/update functions are removed.
