@@ -243,7 +243,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                             const bestTime = setStats?.bestTime;
 
                             const cardContent = (
-                                <Card key={set.id} className={cn("grid md:grid-cols-[1fr_auto] items-center gap-4 bg-white", set.isLocked && "bg-muted/50 text-muted-foreground")}>
+                                <Card key={set.id} className={cn("grid md:grid-cols-[1fr_auto] items-center gap-4 bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200", set.isLocked && "bg-muted/50 text-muted-foreground")}>
                                     <CardContent className="p-4 flex items-center gap-4">
                                         <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                                         <div className="flex-1">
