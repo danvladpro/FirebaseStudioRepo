@@ -249,12 +249,16 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                             const setStats = stats[set.id];
                             const bestScore = setStats?.bestScore;
                             const bestTime = setStats?.bestTime;
+                            const isCompleted = bestScore === 100;
 
                             const cardContent = (
                                 <Card key={set.id} className={cn(
-                                    "grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 hover:bg-accent/5", 
+                                    "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 hover:bg-accent/5", 
                                     set.isLocked && "bg-muted/50 text-muted-foreground"
                                 )}>
+                                    {isCompleted && !set.isLocked && (
+                                        <CheckCircle className="absolute top-2 right-2 w-5 h-5 text-green-500" />
+                                    )}
                                     <CardContent className="p-4 flex items-center gap-4">
                                         <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                                         <div className="flex-1">
@@ -266,7 +270,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                     <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto] items-center justify-end gap-x-4 text-sm text-center">
                                         <div className="flex flex-col items-center justify-center min-h-[44px]">
                                             {isLoaded ? (
-                                                bestScore === 100 ? (
+                                                isCompleted ? (
                                                   bestTime ? (
                                                     <div className="flex items-center gap-1.5 text-green-600">
                                                         <Timer className="w-4 h-4" />
@@ -287,7 +291,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                 <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
                                             )}
                                             <p>
-                                              {bestScore === 100 ? (bestTime ? "Best Time" : "Status") : "Best Score"}
+                                              {isCompleted ? (bestTime ? "Best Time" : "Status") : "Best Score"}
                                             </p>
                                         </div>
                                     
@@ -299,7 +303,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                 </Button>
                                             ) : (
                                                 <>
-                                                <Button asChild size="sm" className="w-full" variant="default">
+                                                <Button asChild size="sm" className="w-full" variant="warning">
                                                     <Link href={`/challenge/${set.id}`}>
                                                         <Library className="mr-2 h-4 w-4" /> Practice
                                                     </Link>
@@ -388,7 +392,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                   <span className="text-xl text-muted-foreground">/{totalPracticeSets}</span>
                               </div>
                               <Progress value={(completedSetsCount / totalPracticeSets) * 100} className="h-2 mt-2" />
-                              <p className="text-sm text-foreground mt-2">sets completed</p>
+                              <p className="text-sm text-foreground mt-2 font-medium">Practice Sets Completed</p>
                           </div>
                       ) : (
                         <div className="flex flex-col items-center gap-2 pt-2 text-center">
@@ -408,6 +412,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
