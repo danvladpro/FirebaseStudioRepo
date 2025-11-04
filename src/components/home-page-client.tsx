@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download } from "lucide-react";
@@ -45,9 +44,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const isLimited = !isPremium;
 
   const examStats = {
-    basic: { bestTime: stats['exam-basic']?.bestTime ?? null, bestScore: stats['exam-basic']?.bestScore ?? null },
-    intermediate: { bestTime: stats['exam-intermediate']?.bestTime ?? null, bestScore: stats['exam-intermediate']?.bestScore ?? null },
-    advanced: { bestTime: stats['exam-advanced']?.bestTime ?? null, bestScore: stats['exam-advanced']?.bestScore ?? null },
+    'exam-basic': { bestTime: stats['exam-basic']?.bestTime ?? null, bestScore: stats['exam-basic']?.bestScore ?? null },
+    'exam-intermediate': { bestTime: stats['exam-intermediate']?.bestTime ?? null, bestScore: stats['exam-intermediate']?.bestScore ?? null },
+    'exam-advanced': { bestTime: stats['exam-advanced']?.bestTime ?? null, bestScore: stats['exam-advanced']?.bestScore ?? null },
   };
 
   const completedSetsCount = getCompletedSetsCount();
@@ -59,15 +58,15 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
   const getIsExamLocked = (examId: string) => {
     if (isLimited) return true;
-    if (examId === 'exam-intermediate' && (examStats.basic.bestScore ?? 0) < 100) return true;
-    if (examId === 'exam-advanced' && (examStats.intermediate.bestScore ?? 0) < 100) return true;
+    if (examId === 'exam-intermediate' && (examStats['exam-basic'].bestScore ?? 0) < 100) return true;
+    if (examId === 'exam-advanced' && (examStats['exam-intermediate'].bestScore ?? 0) < 100) return true;
     return false;
   };
   
   const getExamLockTooltip = (examId: string) => {
     if (isLimited) return "Upgrade to Premium to unlock exams.";
-    if (examId === 'exam-intermediate' && (examStats.basic.bestScore ?? 0) < 100) return "Complete the Basic Exam to unlock.";
-    if (examId === 'exam-advanced' && (examStats.intermediate.bestScore ?? 0) < 100) return "Complete the Intermediate Exam to unlock.";
+    if (examId === 'exam-intermediate' && (examStats['exam-basic'].bestScore ?? 0) < 100) return "Complete the Basic Exam to unlock.";
+    if (examId === 'exam-advanced' && (examStats['exam-intermediate'].bestScore ?? 0) < 100) return "Complete the Intermediate Exam to unlock.";
     return "";
   }
   
@@ -148,8 +147,8 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return "Learn the basics and upgrade to unlock your full potential.";
   }
   
-  const renderExamStatus = (examId: 'exam-basic' | 'exam-intermediate' | 'exam-advanced', bestTime: number | null, bestScore: number | null) => {
-    const isLocked = getIsExamLocked(`exam-${examId.split('-')[1]}`);
+  const renderExamStatus = (examId: keyof typeof examStats, bestTime: number | null, bestScore: number | null) => {
+    const isLocked = getIsExamLocked(examId);
 
     if (isLocked) {
         return <Button variant="ghost" size="sm" disabled className="text-muted-foreground text-xs"><Ribbon className="mr-2 h-4 w-4" /> Claim Certificate</Button>
@@ -171,8 +170,8 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return <Skeleton className="w-20 h-5" />;
   }
   
-  const getExamStatusBg = (examId: 'exam-basic' | 'exam-intermediate' | 'exam-advanced', bestTime: number | null, bestScore: number | null) => {
-    const isLocked = getIsExamLocked(`exam-${examId.split('-')[1]}`);
+  const getExamStatusBg = (examId: keyof typeof examStats, bestTime: number | null, bestScore: number | null) => {
+    const isLocked = getIsExamLocked(examId);
     if (!isLocked && bestScore !== 100) {
         return "bg-emerald-500/10 border border-emerald-500/20";
     }
@@ -298,26 +297,26 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         <CardTitle className="text-lg">Best Exam Times</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4 p-4">
-                        <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-basic', examStats.basic.bestTime, examStats.basic.bestScore))}>
+                        <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-basic', examStats['exam-basic'].bestTime, examStats['exam-basic'].bestScore))}>
                            <div className="flex items-center gap-3">
                                <Award className="w-5 h-5 text-yellow-500" />
                                <p className="font-medium text-sm">Basic Exam</p>
                            </div>
-                           {renderExamStatus('exam-basic', examStats.basic.bestTime, examStats.basic.bestScore)}
+                           {renderExamStatus('exam-basic', examStats['exam-basic'].bestTime, examStats['exam-basic'].bestScore)}
                         </div>
-                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-intermediate', examStats.intermediate.bestTime, examStats.intermediate.bestScore))}>
+                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-intermediate', examStats['exam-intermediate'].bestTime, examStats['exam-intermediate'].bestScore))}>
                            <div className="flex items-center gap-3">
                                <Medal className="w-5 h-5 text-slate-400" />
                                <p className="font-medium text-sm">Intermediate</p>
                            </div>
-                           {renderExamStatus('exam-intermediate', examStats.intermediate.bestTime, examStats.intermediate.bestScore)}
+                           {renderExamStatus('exam-intermediate', examStats['exam-intermediate'].bestTime, examStats['exam-intermediate'].bestScore)}
                         </div>
-                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-advanced', examStats.advanced.bestTime, examStats.advanced.bestScore))}>
+                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-advanced', examStats['exam-advanced'].bestTime, examStats['exam-advanced'].bestScore))}>
                            <div className="flex items-center gap-3">
                                <Trophy className="w-5 h-5 text-amber-500" />
                                <p className="font-medium text-sm">Advanced</p>
                            </div>
-                           {renderExamStatus('exam-advanced', examStats.advanced.bestTime, examStats.advanced.bestScore)}
+                           {renderExamStatus('exam-advanced', examStats['exam-advanced'].bestTime, examStats['exam-advanced'].bestScore)}
                         </div>
                     </CardContent>
                 </Card>
@@ -347,5 +346,3 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
-
-    
