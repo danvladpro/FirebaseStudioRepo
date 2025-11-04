@@ -1,7 +1,8 @@
 
+
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/t
 import { cn } from "@/lib/utils";
 import { ElementType } from "react";
 import { PremiumModal } from "./premium-modal";
+import { Badge } from "./ui/badge";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -70,54 +72,73 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return "";
   }
   
-  const getExamStats = (examId: keyof typeof examStats) => {
-      return examStats[examId];
+  const getExamStats = (examId: string) => {
+      const statsMap = {
+        'exam-basic': examStats['exam-basic'],
+        'exam-intermediate': examStats['exam-intermediate'],
+        'exam-advanced': examStats['exam-advanced'],
+      };
+      return statsMap[examId as keyof typeof statsMap];
   }
 
 
   const renderExamCard = (examSet: ChallengeSet) => {
     const isExamLocked = getIsExamLocked(examSet.id);
     const Icon = iconMap[examSet.iconName];
-    const { bestScore } = getExamStats(examSet.id as keyof typeof examStats);
+    const { bestScore } = getExamStats(examSet.id);
     const isCompleted = (bestScore ?? 0) === 100;
 
     const cardContent = (
-     <Card key={examSet.id} className={cn("border-emerald-300/50 bg-background/50 flex flex-col", isExamLocked && "bg-muted/50 border-dashed text-muted-foreground")}>
-        <CardHeader className="flex-row gap-4 items-center p-4">
-            <Icon className={cn("w-8 h-8", isExamLocked ? "text-muted-foreground" : "text-primary")} />
-            <div>
-                <CardTitle className={cn("text-xl", isExamLocked && "text-muted-foreground")}>{examSet.name}</CardTitle>
-                <CardDescription className="text-xs">{examSet.description}</CardDescription>
-            </div>
-        </CardHeader>
-        <CardFooter className="mt-auto p-4">
-            {isExamLocked ? (
-                 <Button className="w-full" variant={isLimited ? "premium" : "secondary"} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited}>
-                    {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
-                    {isLimited ? "Go Premium" : "Locked"}
-                 </Button>
-            ) : isCompleted ? (
-                <div className="w-full grid grid-cols-2 gap-2">
-                    <Button asChild variant="secondary" size="sm">
-                         <Link href={`/challenge/${examSet.id}`}>
+     <Card key={examSet.id} className={cn(
+        "bg-background/50 flex flex-col relative", 
+        isExamLocked && "bg-muted/50 border-dashed text-muted-foreground",
+        isCompleted && "p-0.5 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
+     )}>
+        <div className={cn("flex flex-col flex-1 w-full h-full", isCompleted && "bg-background rounded-[7px]")}>
+            {isCompleted && (
+              <Badge variant="completed" className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <BadgeCheck className="mr-1.5 h-4 w-4" />
+                Completed!
+              </Badge>
+            )}
+            <CardHeader className="flex-row gap-4 items-center p-4">
+                <Icon className={cn("w-8 h-8", isExamLocked ? "text-muted-foreground" : "text-primary")} />
+                <div>
+                    <CardTitle className={cn("text-xl", isExamLocked && "text-muted-foreground")}>{examSet.name}</CardTitle>
+                    <CardDescription className={cn("text-xs", isCompleted && "text-primary")}>
+                      {isCompleted ? "Congratulations! You've mastered this exam." : examSet.description}
+                    </CardDescription>
+                </div>
+            </CardHeader>
+            <CardFooter className="mt-auto p-4">
+                {isExamLocked ? (
+                    <Button className="w-full" variant={isLimited ? "premium" : "secondary"} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited}>
+                        {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
+                        {isLimited ? "Go Premium" : "Locked"}
+                    </Button>
+                ) : isCompleted ? (
+                    <div className="w-full grid grid-cols-2 gap-2">
+                         <Button asChild size="sm" className="w-full" variant="secondary">
+                            <Link href={`/challenge/${examSet.id}`}>
                             <RotateCw className="mr-2 h-4 w-4" />
                             Try Again
+                            </Link>
+                        </Button>
+                        <Button size="sm" className="w-full" variant="premium">
+                            <Download className="mr-2 h-4 w-4" />
+                            Claim Certificate
+                        </Button>
+                    </div>
+                ) : (
+                    <Button asChild className="w-full">
+                        <Link href={`/challenge/${examSet.id}`}>
+                            Start Exam
+                            <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                     </Button>
-                    <Button variant="outline" size="sm" disabled>
-                        <Download className="mr-2 h-4 w-4" />
-                        Claim Certificate
-                    </Button>
-                </div>
-            ) : (
-                <Button asChild className="w-full">
-                    <Link href={`/challenge/${examSet.id}`}>
-                        Start Exam
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                </Button>
-            )}
-        </CardFooter>
+                )}
+            </CardFooter>
+        </div>
     </Card>
     );
 
@@ -229,11 +250,18 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                     <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto] items-center justify-end gap-x-4 text-sm text-center">
                                         <div className="flex flex-col items-center justify-center min-h-[44px]">
                                             {isLoaded ? (
-                                                bestScore === 100 && bestTime ? (
+                                                bestScore === 100 ? (
+                                                  bestTime ? (
                                                     <div className="flex items-center gap-1.5 text-green-600">
                                                         <Timer className="w-4 h-4" />
                                                         <span className="font-bold text-lg">{bestTime.toFixed(2)}s</span>
                                                     </div>
+                                                  ) : (
+                                                    <div className="flex items-center gap-1.5 text-green-600">
+                                                        <CheckCircle className="w-5 h-5" />
+                                                        <span className="font-bold text-lg">Completed</span>
+                                                    </div>
+                                                  )
                                                 ) : bestScore !== undefined && bestScore !== null ? (
                                                     <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestScore.toFixed(0)}%</p>
                                                 ) : (
@@ -243,7 +271,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                 <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
                                             )}
                                             <p>
-                                                {bestScore === 100 && bestTime ? "Best Time" : (bestScore !== undefined && bestScore !== null) ? "Best Score" : "Not Practiced"}
+                                              {bestScore === 100 ? (bestTime ? "Best Time" : "Status") : "Best Score"}
                                             </p>
                                         </div>
                                     
