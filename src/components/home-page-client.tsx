@@ -86,8 +86,8 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
     const cardContent = (
      <Card key={examSet.id} className={cn(
-        "bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 hover:bg-accent/5 flex flex-col relative", 
-        isExamLocked && "bg-muted/50 border-dashed text-muted-foreground",
+        "shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col relative", 
+        isExamLocked ? "bg-muted/50 border-dashed text-muted-foreground" : "bg-card hover:bg-accent/5",
         isCompleted && "p-0.5 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
      )}>
         <div className={cn("flex flex-col flex-1 w-full h-full", isCompleted && "bg-background rounded-[7px]")}>
@@ -400,3 +400,4 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
