@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download, BadgeCheck, Linkedin } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download, BadgeCheck, Linkedin, Gem } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,8 +39,23 @@ interface HomePageClientProps {
   examSets: ChallengeSet[];
 }
 
+const XP_CONFIG = {
+  Beginner: 10,
+  Intermediate: 20,
+  Advanced: 30,
+};
+
+const LEVEL_THRESHOLDS = [
+    { level: 'Rookie', xp: 0, icon: <Gem className="w-5 h-5 text-gray-400"/> },
+    { level: 'Apprentice', xp: 50, icon: <Gem className="w-5 h-5 text-yellow-500"/> },
+    { level: 'Journeyman', xp: 120, icon: <Gem className="w-5 h-5 text-emerald-500"/> },
+    { level: 'Master', xp: 200, icon: <Gem className="w-5 h-5 text-blue-500"/> },
+    { level: 'Excel Ninja', xp: 300, icon: <Gem className="w-5 h-5 text-purple-500"/> }
+];
+
+
 export function HomePageClient({ examSets }: HomePageClientProps) {
-  const { isLoaded, stats, getCompletedSetsCount } = usePerformanceTracker();
+  const { isLoaded, stats } = usePerformanceTracker();
   const { user, userProfile, isPremium } = useAuth();
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
   
@@ -52,8 +67,34 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     'exam-advanced': stats['exam-advanced'],
   };
 
-  const completedSetsCount = getCompletedSetsCount();
-  const totalPracticeSets = CHALLENGE_SETS.length;
+  const completedSets = React.useMemo(() => {
+    const practiceSetIds = new Set(CHALLENGE_SETS.map(s => s.id));
+    return Object.keys(stats).filter(setId => 
+        practiceSetIds.has(setId) && stats[setId]?.bestScore === 100
+    );
+  }, [stats]);
+
+  const totalXP = React.useMemo(() => {
+    return completedSets.reduce((acc, setId) => {
+      const set = CHALLENGE_SETS.find(s => s.id === setId);
+      if (set && set.level) {
+        return acc + (XP_CONFIG[set.level] || 0);
+      }
+      return acc;
+    }, 0);
+  }, [completedSets]);
+  
+  const currentLevelInfo = React.useMemo(() => {
+    return LEVEL_THRESHOLDS.slice().reverse().find(l => totalXP >= l.xp) || LEVEL_THRESHOLDS[0];
+  }, [totalXP]);
+
+  const nextLevelInfo = React.useMemo(() => {
+    return LEVEL_THRESHOLDS.find(l => totalXP < l.xp);
+  }, [totalXP]);
+  
+  const xpForNextLevel = nextLevelInfo ? nextLevelInfo.xp - (currentLevelInfo?.xp || 0) : 0;
+  const xpIntoCurrentLevel = totalXP - (currentLevelInfo?.xp || 0);
+  const levelProgress = xpForNextLevel > 0 ? (xpIntoCurrentLevel / xpForNextLevel) * 100 : 100;
 
   const setsToDisplay = isLimited 
       ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== 'formatting-basics' }))
@@ -358,7 +399,36 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             </section>
             <aside className="lg:col-span-1">
                 <h2 className="text-2xl font-bold mb-4">Progress Overview</h2>
-                 <Card className="bg-card">
+                <Card className="bg-card">
+                    <CardHeader>
+                        <CardTitle className="text-lg">Your Progress</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 flex flex-col gap-6">
+                        {isLoaded ? (
+                            <>
+                                <div className="text-center">
+                                    <div className="flex items-center justify-center gap-2">
+                                        {currentLevelInfo.icon}
+                                        <h3 className="text-xl font-bold">{currentLevelInfo.level}</h3>
+                                    </div>
+                                    <p className="text-4xl font-bold text-primary mt-1">{totalXP} <span className="text-lg font-medium text-muted-foreground">XP</span></p>
+                                    {nextLevelInfo && (
+                                        <>
+                                            <Progress value={levelProgress} className="h-2 mt-3" />
+                                            <p className="text-xs text-muted-foreground mt-1.5">{xpIntoCurrentLevel}/{xpForNextLevel} XP to {nextLevelInfo.level}</p>
+                                        </>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex flex-col items-center gap-2 pt-2 text-center">
+                                <Skeleton className="w-24 h-8" />
+                                <Skeleton className="w-32 h-10" />
+                                <Skeleton className="h-2 w-full mt-2" />
+                                <Skeleton className="w-28 h-4 mt-1" />
+                            </div>
+                        )}
+                    </CardContent>
                     <CardHeader>
                         <CardTitle className="text-lg">Best Exam Times</CardTitle>
                     </CardHeader>
@@ -401,26 +471,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         </div>
                     </CardContent>
                 </Card>
-                 <Card className="mt-6 bg-card">
-                    <CardContent className="p-6">
-                      {isLoaded ? (
-                          <div className="text-center w-full">
-                              <div className="flex items-center justify-center">
-                                  <span className="text-2xl font-bold text-foreground">{completedSetsCount}</span>
-                                  <span className="text-xl text-muted-foreground">/{totalPracticeSets}</span>
-                              </div>
-                              <Progress value={(completedSetsCount / totalPracticeSets) * 100} className="h-2 mt-2" />
-                              <p className="text-sm text-foreground mt-2 font-medium">Practice Sets Completed</p>
-                          </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2 pt-2 text-center">
-                            <Skeleton className="w-24 h-6" />
-                            <Skeleton className="h-2 w-full mt-2" />
-                            <Skeleton className="w-20 h-4 mt-1" />
-                        </div>
-                      )}
-                    </CardContent>
-                </Card>
             </aside>
         </div>
       </main>
@@ -430,6 +480,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
