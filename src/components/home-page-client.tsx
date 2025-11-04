@@ -58,6 +58,17 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const setsToDisplay = isLimited 
       ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== 'formatting-basics' }))
       : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
+      
+  const groupedSets = setsToDisplay.reduce((acc, set) => {
+    const level = set.level || 'Other';
+    if (!acc[level]) {
+      acc[level] = [];
+    }
+    acc[level].push(set);
+    return acc;
+  }, {} as Record<string, typeof setsToDisplay>);
+  
+  const levelOrder: (keyof typeof groupedSets)[] = ['Beginner', 'Intermediate', 'Advanced'];
 
   const getIsExamLocked = (examId: string) => {
     if (isLimited) return true;
@@ -243,98 +254,105 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             <section className="lg:col-span-2">
                 <h2 className="text-2xl font-bold mb-4">Practice & Learn</h2>
                 <TooltipProvider>
-                    <div className="flex flex-col gap-4">
-                        {setsToDisplay.map((set) => {
-                            const Icon = iconMap[set.iconName];
-                            const setStats = stats[set.id];
-                            const bestScore = setStats?.bestScore;
-                            const bestTime = setStats?.bestTime;
-                            const isCompleted = bestScore === 100;
+                    <div className="flex flex-col gap-8">
+                        {levelOrder.map(level => groupedSets[level] && (
+                            <div key={level}>
+                                <h3 className="text-xl font-semibold mb-4 capitalize">{level}</h3>
+                                <div className="flex flex-col gap-4">
+                                {groupedSets[level].map((set) => {
+                                    const Icon = iconMap[set.iconName];
+                                    const setStats = stats[set.id];
+                                    const bestScore = setStats?.bestScore;
+                                    const bestTime = setStats?.bestTime;
+                                    const isCompleted = bestScore === 100;
 
-                            const cardContent = (
-                                <Card key={set.id} className={cn(
-                                    "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 hover:bg-accent/5", 
-                                    set.isLocked && "bg-muted/50 text-muted-foreground"
-                                )}>
-                                    {isCompleted && !set.isLocked && (
-                                        <CheckCircle className="absolute top-2 right-2 w-5 h-5 text-green-500" />
-                                    )}
-                                    <CardContent className="p-4 flex items-center gap-4">
-                                        <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
-                                        <div className="flex-1">
-                                            <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
-                                            <p className="text-sm">{set.description} - {set.challenges.length} items</p>
-                                        </div>
-                                    </CardContent>
-                                    
-                                    <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto] items-center justify-end gap-x-4 text-sm text-center">
-                                        <div className="flex flex-col items-center justify-center min-h-[44px]">
-                                            {isLoaded ? (
-                                                isCompleted ? (
-                                                  bestTime ? (
-                                                    <div className="flex items-center gap-1.5 text-green-600">
-                                                        <Timer className="w-4 h-4" />
-                                                        <span className="font-bold text-lg">{bestTime.toFixed(2)}s</span>
-                                                    </div>
-                                                  ) : (
-                                                    <div className="flex items-center gap-1.5 text-green-600">
-                                                        <CheckCircle className="w-5 h-5" />
-                                                        <span className="font-bold text-lg">Completed</span>
-                                                    </div>
-                                                  )
-                                                ) : bestScore !== undefined && bestScore !== null ? (
-                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestScore.toFixed(0)}%</p>
-                                                ) : (
-                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
-                                                )
-                                            ) : (
-                                                <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
+                                    const cardContent = (
+                                        <Card key={set.id} className={cn(
+                                            "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 hover:bg-accent/5", 
+                                            set.isLocked && "bg-muted/50 text-muted-foreground"
+                                        )}>
+                                            {isCompleted && !set.isLocked && (
+                                                <CheckCircle className="absolute top-2 right-2 w-5 h-5 text-green-500" />
                                             )}
-                                            <p>
-                                              {isCompleted ? (bestTime ? "Best Time" : "Status") : "Best Score"}
-                                            </p>
-                                        </div>
+                                            <CardContent className="p-4 flex items-center gap-4">
+                                                <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
+                                                <div className="flex-1">
+                                                    <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
+                                                    <p className="text-sm">{set.description} - {set.challenges.length} items</p>
+                                                </div>
+                                            </CardContent>
+                                            
+                                            <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto] items-center justify-end gap-x-4 text-sm text-center">
+                                                <div className="flex flex-col items-center justify-center min-h-[44px]">
+                                                    {isLoaded ? (
+                                                        isCompleted ? (
+                                                        bestTime ? (
+                                                            <div className="flex items-center gap-1.5 text-green-600">
+                                                                <Timer className="w-4 h-4" />
+                                                                <span className="font-bold text-lg">{bestTime.toFixed(2)}s</span>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex items-center gap-1.5 text-green-600">
+                                                                <CheckCircle className="w-5 h-5" />
+                                                                <span className="font-bold text-lg">Completed</span>
+                                                            </div>
+                                                        )
+                                                        ) : bestScore !== undefined && bestScore !== null ? (
+                                                            <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestScore.toFixed(0)}%</p>
+                                                        ) : (
+                                                            <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
+                                                        )
+                                                    ) : (
+                                                        <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
+                                                    )}
+                                                    <p>
+                                                    {isCompleted ? (bestTime ? "Best Time" : "Status") : "Best Score"}
+                                                    </p>
+                                                </div>
+                                            
+                                                <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
+                                                    {set.isLocked ? (
+                                                        <Button className="w-full col-span-2" variant="premium" onClick={() => setIsPremiumModalOpen(true)}>
+                                                            <Sparkles className="mr-2 h-4 w-4" />
+                                                            Go Premium
+                                                        </Button>
+                                                    ) : (
+                                                        <>
+                                                        <Button asChild size="sm" className="w-full" variant="default">
+                                                            <Link href={`/challenge/${set.id}`}>
+                                                                <Library className="mr-2 h-4 w-4" /> Practice
+                                                            </Link>
+                                                        </Button>
+                                                        <Button asChild size="sm" variant="secondary" className="w-full">
+                                                            <Link href={`/flashcards/${set.id}`}>
+                                                                <Layers className="mr-2 h-4 w-4" /> Study
+                                                            </Link>
+                                                        </Button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    );
                                     
-                                        <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
-                                            {set.isLocked ? (
-                                                <Button className="w-full col-span-2" variant="premium" onClick={() => setIsPremiumModalOpen(true)}>
-                                                    <Sparkles className="mr-2 h-4 w-4" />
-                                                    Go Premium
-                                                </Button>
-                                            ) : (
-                                                <>
-                                                <Button asChild size="sm" className="w-full" variant="warning">
-                                                    <Link href={`/challenge/${set.id}`}>
-                                                        <Library className="mr-2 h-4 w-4" /> Practice
-                                                    </Link>
-                                                </Button>
-                                                <Button asChild size="sm" variant="secondary" className="w-full">
-                                                    <Link href={`/flashcards/${set.id}`}>
-                                                        <Layers className="mr-2 h-4 w-4" /> Study
-                                                    </Link>
-                                                </Button>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-                                </Card>
-                            );
-                            
-                            if (set.isLocked) {
-                                return (
-                                    <Tooltip key={set.id}>
-                                        <TooltipTrigger asChild>
-                                            <div className="cursor-not-allowed">{cardContent}</div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Upgrade to unlock this set.</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                );
-                            }
+                                    if (set.isLocked) {
+                                        return (
+                                            <Tooltip key={set.id}>
+                                                <TooltipTrigger asChild>
+                                                    <div className="cursor-not-allowed">{cardContent}</div>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Upgrade to unlock this set.</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        );
+                                    }
 
-                            return cardContent;
-                        })}
+                                    return cardContent;
+                                })}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </TooltipProvider>
             </section>
@@ -412,6 +430,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
