@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -195,6 +195,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                             const Icon = iconMap[set.iconName];
                             const setStats = stats[set.id];
                             const bestScore = setStats?.bestScore;
+                            const bestTime = setStats?.bestTime;
 
                             const cardContent = (
                                 <Card key={set.id} className={cn("grid md:grid-cols-[1fr_auto] items-center gap-4 bg-white", set.isLocked && "bg-muted/50 text-muted-foreground")}>
@@ -202,19 +203,18 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                         <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                                         <div className="flex-1">
                                             <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
-                                            <p className="text-sm">{set.description}</p>
+                                            <p className="text-sm">{set.description} - {set.challenges.length} items</p>
                                         </div>
                                     </CardContent>
                                     
-                                    <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto_auto] items-center justify-end gap-x-4 text-sm text-center">
-                                        <div className="flex flex-col items-center">
-                                            <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{set.challenges.length}</p>
-                                            <p>Items</p>
-                                        </div>
+                                    <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto] items-center justify-end gap-x-4 text-sm text-center">
                                         <div className="flex flex-col items-center justify-center min-h-[44px]">
                                             {isLoaded ? (
-                                                bestScore === 100 ? (
-                                                    <CheckCircle className="w-6 h-6 text-green-500" />
+                                                bestScore === 100 && bestTime ? (
+                                                    <div className="flex items-center gap-1.5 text-green-600">
+                                                        <Timer className="w-4 h-4" />
+                                                        <span className="font-bold text-lg">{bestTime.toFixed(2)}s</span>
+                                                    </div>
                                                 ) : bestScore !== undefined && bestScore !== null ? (
                                                     <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestScore.toFixed(0)}%</p>
                                                 ) : (
@@ -224,7 +224,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                 <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
                                             )}
                                             <p>
-                                                {bestScore === 100 ? "Completed" : (bestScore !== undefined && bestScore !== null) ? "Best Score" : ""}
+                                                {bestScore === 100 && bestTime ? "Best Time" : (bestScore !== undefined && bestScore !== null) ? "Best Score" : "Not Practiced"}
                                             </p>
                                         </div>
                                     
@@ -327,7 +327,3 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
-
-    
-
-    
