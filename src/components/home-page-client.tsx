@@ -83,6 +83,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     const Icon = iconMap[examSet.iconName];
     const { bestScore } = getExamStats(examSet.id as keyof typeof examStats);
     const isCompleted = (bestScore ?? 0) === 100;
+    const isNextAvailable = !isExamLocked && !isCompleted;
     const level = index + 1;
 
     const cardContent = (
@@ -98,7 +99,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                 LEVEL {level} - Completed!
               </Badge>
             ) : (
-              <Badge variant="level" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
+              <Badge variant={isNextAvailable ? 'warning' : 'level'} className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
                 LEVEL {level}
               </Badge>
             )}
@@ -297,7 +298,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                 </Button>
                                             ) : (
                                                 <>
-                                                <Button asChild size="sm" className="w-full" variant="warning">
+                                                <Button asChild size="sm" className="w-full" variant="default">
                                                     <Link href={`/challenge/${set.id}`}>
                                                         <Library className="mr-2 h-4 w-4" /> Practice
                                                     </Link>
@@ -405,6 +406,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
