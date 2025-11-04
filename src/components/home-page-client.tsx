@@ -20,7 +20,7 @@ import { PremiumModal } from "./premium-modal";
 import { Badge } from "./ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Pie, PieChart, Cell } from "recharts";
+import { Pie, PieChart, Cell, Sector } from "recharts";
 import { Separator } from "./ui/separator";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
@@ -87,10 +87,10 @@ const ProgressPieChart: React.FC<ProgressPieChartProps> = ({ completed, total, t
                         innerRadius={25}
                         strokeWidth={5}
                         activeIndex={0}
-                        activeShape={({ outerRadius = 0, ...props }) => (
+                        activeShape={({ cx, cy, innerRadius, outerRadius, ...props }) => (
                            <g>
-                             <circle cx={props.cx} cy={props.cy} r={outerRadius + 2} fill={props.fill} />
-                             <text x={props.cx} y={props.cy} textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-sm font-bold">
+                             <Sector cx={cx} cy={cy} innerRadius={innerRadius} outerRadius={outerRadius! + 2} {...props} />
+                             <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-sm font-bold">
                                 {`${completed}/${total}`}
                              </text>
                            </g>
@@ -574,6 +574,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
