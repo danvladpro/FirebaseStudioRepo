@@ -46,9 +46,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const isLimited = !isPremium;
 
   const examStats = {
-    'exam-basic': { bestTime: stats['exam-basic']?.bestTime ?? null, bestScore: stats['exam-basic']?.bestScore ?? null },
-    'exam-intermediate': { bestTime: stats['exam-intermediate']?.bestTime ?? null, bestScore: stats['exam-intermediate']?.bestScore ?? null },
-    'exam-advanced': { bestTime: stats['exam-advanced']?.bestTime ?? null, bestScore: stats['exam-advanced']?.bestScore ?? null },
+    'exam-basic': stats['exam-basic'],
+    'exam-intermediate': stats['exam-intermediate'],
+    'exam-advanced': stats['exam-advanced'],
   };
 
   const completedSetsCount = getCompletedSetsCount();
@@ -60,15 +60,15 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
   const getIsExamLocked = (examId: string) => {
     if (isLimited) return true;
-    if (examId === 'exam-intermediate' && (examStats['exam-basic'].bestScore ?? 0) < 100) return true;
-    if (examId === 'exam-advanced' && (examStats['exam-intermediate'].bestScore ?? 0) < 100) return true;
+    if (examId === 'exam-intermediate' && (examStats['exam-basic']?.bestScore ?? 0) < 100) return true;
+    if (examId === 'exam-advanced' && (examStats['exam-intermediate']?.bestScore ?? 0) < 100) return true;
     return false;
   };
   
   const getExamLockTooltip = (examId: string) => {
     if (isLimited) return "Upgrade to Premium to unlock exams.";
-    if (examId === 'exam-intermediate' && (examStats['exam-basic'].bestScore ?? 0) < 100) return "Complete the Basic Exam to unlock.";
-    if (examId === 'exam-advanced' && (examStats['exam-intermediate'].bestScore ?? 0) < 100) return "Complete the Intermediate Exam to unlock.";
+    if (examId === 'exam-intermediate' && (examStats['exam-basic']?.bestScore ?? 0) < 100) return "Complete the Basic Exam to unlock.";
+    if (examId === 'exam-advanced' && (examStats['exam-intermediate']?.bestScore ?? 0) < 100) return "Complete the Intermediate Exam to unlock.";
     return "";
   }
   
@@ -93,12 +93,12 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
      )}>
         <div className={cn("flex flex-col flex-1 w-full h-full", isCompleted && "bg-background rounded-[7px]")}>
             {isCompleted ? (
-              <Badge variant="completed" className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <Badge variant="completed" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
                 <BadgeCheck className="mr-1.5 h-4 w-4" />
                 LEVEL {level} - Completed!
               </Badge>
             ) : (
-              <Badge variant="level" className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <Badge variant="level" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
                 LEVEL {level}
               </Badge>
             )}
@@ -339,41 +339,41 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         <CardTitle className="text-lg">Best Exam Times</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4 p-4">
-                        <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-basic', examStats['exam-basic'].bestScore))}>
+                        <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-basic', examStats['exam-basic']?.bestScore ?? null))}>
                            <div className="flex flex-col gap-2">
                                <div className="flex items-center gap-3">
                                    <Award className="w-5 h-5 text-yellow-500" />
                                    <p className="font-medium text-sm">Basic Exam</p>
                                </div>
-                               {(examStats['exam-basic'].bestScore ?? 0) === 100 && examStats['exam-basic'].bestTime && (
-                                   <p className="text-sm font-bold pl-8">{examStats['exam-basic'].bestTime!.toFixed(2)}s</p>
+                               {(examStats['exam-basic']?.bestScore ?? 0) === 100 && examStats['exam-basic']?.bestTime && (
+                                   <p className="text-sm font-bold pl-8">{examStats['exam-basic']?.bestTime!.toFixed(2)}s</p>
                                )}
                            </div>
-                           {renderExamStatus('exam-basic', examStats['exam-basic'].bestTime, examStats['exam-basic'].bestScore)}
+                           {renderExamStatus('exam-basic', examStats['exam-basic']?.bestTime ?? null, examStats['exam-basic']?.bestScore ?? null)}
                         </div>
-                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-intermediate', examStats['exam-intermediate'].bestScore))}>
+                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-intermediate', examStats['exam-intermediate']?.bestScore ?? null))}>
                            <div className="flex flex-col gap-2">
                                <div className="flex items-center gap-3">
                                    <Medal className="w-5 h-5 text-slate-400" />
                                    <p className="font-medium text-sm">Intermediate</p>
                                </div>
-                               {(examStats['exam-intermediate'].bestScore ?? 0) === 100 && examStats['exam-intermediate'].bestTime && (
-                                   <p className="text-sm font-bold pl-8">{examStats['exam-intermediate'].bestTime!.toFixed(2)}s</p>
+                               {(examStats['exam-intermediate']?.bestScore ?? 0) === 100 && examStats['exam-intermediate']?.bestTime && (
+                                   <p className="text-sm font-bold pl-8">{examStats['exam-intermediate']?.bestTime!.toFixed(2)}s</p>
                                )}
                            </div>
-                           {renderExamStatus('exam-intermediate', examStats['exam-intermediate'].bestTime, examStats['exam-intermediate'].bestScore)}
+                           {renderExamStatus('exam-intermediate', examStats['exam-intermediate']?.bestTime ?? null, examStats['exam-intermediate']?.bestScore ?? null)}
                         </div>
-                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-advanced', examStats['exam-advanced'].bestScore))}>
+                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-advanced', examStats['exam-advanced']?.bestScore ?? null))}>
                             <div className="flex flex-col gap-2">
                                <div className="flex items-center gap-3">
                                    <Trophy className="w-5 h-5 text-amber-500" />
                                    <p className="font-medium text-sm">Advanced</p>
                                </div>
-                                {(examStats['exam-advanced'].bestScore ?? 0) === 100 && examStats['exam-advanced'].bestTime && (
-                                   <p className="text-sm font-bold pl-8">{examStats['exam-advanced'].bestTime!.toFixed(2)}s</p>
+                                {(examStats['exam-advanced']?.bestScore ?? 0) === 100 && examStats['exam-advanced']?.bestTime && (
+                                   <p className="text-sm font-bold pl-8">{examStats['exam-advanced']?.bestTime!.toFixed(2)}s</p>
                                )}
                            </div>
-                           {renderExamStatus('exam-advanced', examStats['exam-advanced'].bestTime, examStats['exam-advanced'].bestScore)}
+                           {renderExamStatus('exam-advanced', examStats['exam-advanced']?.bestTime ?? null, examStats['exam-advanced']?.bestScore ?? null)}
                         </div>
                     </CardContent>
                 </Card>
@@ -405,5 +405,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
