@@ -5,6 +5,7 @@ export function LandingFeatures() {
     return (
         <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-muted/40">
             <div className="container px-4 md:px-6">
+            <ScrollAnimation delay={0.2}>
                 <div className="flex flex-col items-center justify-center space-y-4 text-center">
                     <div className="space-y-2">
                         <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Key Features</div>
@@ -14,8 +15,9 @@ export function LandingFeatures() {
                         </p>
                     </div>
                 </div>
+                </ScrollAnimation>
                 <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3 lg:gap-12">
-                    <ScrollAnimation delay={0}>
+                    <ScrollAnimation delay={0.2}>
                         <div className="grid gap-1 text-center">
                             <Keyboard className="h-12 w-12 mx-auto text-primary" />
                             <h3 className="text-xl font-bold">Interactive Challenges</h3>
@@ -24,7 +26,7 @@ export function LandingFeatures() {
                             </p>
                         </div>
                     </ScrollAnimation>
-                    <ScrollAnimation delay={0.1}>
+                    <ScrollAnimation delay={0.4}>
                         <div className="grid gap-1 text-center">
                             <GraduationCap className="h-12 w-12 mx-auto text-primary" />
                             <h3 className="text-xl font-bold">Visual Flashcards</h3>
@@ -33,7 +35,7 @@ export function LandingFeatures() {
                             </p>
                         </div>
                     </ScrollAnimation>
-                    <ScrollAnimation delay={0.2}>
+                    <ScrollAnimation delay={0.6}>
                          <div className="grid gap-1 text-center">
                             <Sparkles className="h-12 w-12 mx-auto text-primary" />
                             <h3 className="text-xl font-bold">Progress Tracking</h3>

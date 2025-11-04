@@ -3,11 +3,13 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "./ui/card";
 import { Check } from "lucide-react";
+import { ScrollAnimation } from "./scroll-animation";
 
 export function LandingPricing() {
     return (
-        <section id="pricing" className="w-full py-12 md:py-24 lg:py-32">
+        <section id="pricing" className="w-full py-12 md:py-24 lg:py-32  bg-muted/40">
             <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
+            <ScrollAnimation delay={0.4}>
                 <div className="space-y-3">
                     <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                         A Plan for Every Ambition
@@ -16,7 +18,9 @@ export function LandingPricing() {
                         Whether you're an individual looking to level up or a team aiming for peak efficiency, we have a plan for you.
                     </p>
                 </div>
+                </ScrollAnimation>
                 <div className="grid w-full grid-cols-1 md:grid-cols-3 gap-8 pt-8 max-w-5xl mx-auto">
+                    <ScrollAnimation delay={0.2}>
                     <Card className="flex flex-col">
                         <CardHeader>
                             <CardTitle>1 Week Access</CardTitle>
@@ -48,6 +52,9 @@ export function LandingPricing() {
                            </Button>
                         </CardFooter>
                     </Card>
+                    </ScrollAnimation>
+                    
+                    <ScrollAnimation delay={0.4}>
                     <Card className="flex flex-col border-primary">
                         <CardHeader>
                             <CardTitle>Lifetime</CardTitle>
@@ -79,6 +86,9 @@ export function LandingPricing() {
                            </Button>
                         </CardFooter>
                     </Card>
+                    </ScrollAnimation>
+                    
+                    <ScrollAnimation delay={0.6}>
                     <Card className="flex flex-col">
                          <CardHeader>
                             <CardTitle>Corporate</CardTitle>
@@ -107,6 +117,7 @@ export function LandingPricing() {
                             <Button className="w-full" variant="outline">Contact Sales</Button>
                         </CardFooter>
                     </Card>
+                    </ScrollAnimation>
                 </div>
             </div>
         </section>

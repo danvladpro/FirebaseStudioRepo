@@ -1,9 +1,10 @@
 
 import { Building, User } from 'lucide-react';
+import { ScrollAnimation } from "./scroll-animation";
 
 export function LandingBenefits() {
   return (
-    <section id="benefits" className="w-full py-12 md:py-24 lg:py-32 bg-muted/40">
+    <section id="benefits" className="w-full py-12 md:py-24 lg:py-32">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
           <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
@@ -19,6 +20,7 @@ export function LandingBenefits() {
           </p>
         </div>
         <div className="mx-auto grid max-w-5xl items-start gap-12 lg:grid-cols-2">
+           <ScrollAnimation delay={0.4}>
           <div className="grid gap-6">
             <div className="flex items-center gap-4">
               <div className="rounded-full bg-primary/10 p-3 text-primary">
@@ -41,6 +43,9 @@ export function LandingBenefits() {
               </li>
             </ul>
           </div>
+           </ScrollAnimation>
+          
+           <ScrollAnimation delay={0.4}>
           <div className="grid gap-6">
             <div className="flex items-center gap-4">
               <div className="rounded-full bg-primary/10 p-3 text-primary">
@@ -63,6 +68,8 @@ export function LandingBenefits() {
               </li>
             </ul>
           </div>
+          </ScrollAnimation>
+          
         </div>
       </div>
     </section>

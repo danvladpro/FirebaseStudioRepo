@@ -15,26 +15,24 @@ export function ScrollAnimation({ children, delay = 0, className }: ScrollAnimat
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
+      (entries) => {
+        entries.forEach((entry) => {
+          // 👇 Toggle visibility both ways
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          } else {
+            setIsVisible(false);
+          }
+        });
       },
       {
-        threshold: 0.1, // Trigger when 10% of the element is visible
+        threshold: 0.2, // visible when 20% in viewport
       }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
-    };
+    const el = ref.current;
+    if (el) observer.observe(el);
+    return () => el && observer.unobserve(el);
   }, []);
 
   return (
@@ -42,7 +40,7 @@ export function ScrollAnimation({ children, delay = 0, className }: ScrollAnimat
       ref={ref}
       className={cn(
         'transition-all duration-700 ease-out',
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5',
+        isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-5 scale-95",
         className
       )}
       style={{ transitionDelay: `${delay}s` }}

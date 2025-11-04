@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -214,7 +214,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                         <div className="flex flex-col items-center justify-center min-h-[44px]">
                                             {isLoaded ? (
                                                 lastScore === 100 ? (
-                                                    <Trophy className="w-6 h-6 text-yellow-500" />
+                                                    <CheckCircle className="w-6 h-6 text-green-500" />
                                                 ) : lastScore !== undefined && lastScore !== null ? (
                                                     <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{lastScore.toFixed(0)}%</p>
                                                 ) : (
@@ -223,7 +223,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                             ) : (
                                                 <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
                                             )}
-                                            <p>Last Score</p>
+                                            <p>
+                                                {lastScore === 100 ? "Completed" : (lastScore !== undefined && lastScore !== null) ? "Last Score" : ""}
+                                            </p>
                                         </div>
                                     
                                         <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
@@ -325,5 +327,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
+    
 
     
