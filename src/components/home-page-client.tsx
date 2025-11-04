@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download, BadgeCheck } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download, BadgeCheck, Linkedin } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { CHALLENGE_SETS } from "@/lib/challenges";
 import { AppHeader } from "./app-header";
 import { useAuth } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { cn } from "@/lib/utils";
+import { cn, buildLinkedInUrl } from "@/lib/utils";
 import { ElementType } from "react";
 import { PremiumModal } from "./premium-modal";
 import { Badge } from "./ui/badge";
@@ -72,20 +72,15 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return "";
   }
   
-  const getExamStats = (examId: string) => {
-      const statsMap = {
-        'exam-basic': examStats['exam-basic'],
-        'exam-intermediate': examStats['exam-intermediate'],
-        'exam-advanced': examStats['exam-advanced'],
-      };
-      return statsMap[examId as keyof typeof statsMap];
+  const getExamStats = (examId: keyof typeof examStats) => {
+      return examStats[examId];
   }
 
 
   const renderExamCard = (examSet: ChallengeSet) => {
     const isExamLocked = getIsExamLocked(examSet.id);
     const Icon = iconMap[examSet.iconName];
-    const { bestScore } = getExamStats(examSet.id);
+    const { bestScore } = getExamStats(examSet.id as keyof typeof examStats);
     const isCompleted = (bestScore ?? 0) === 100;
 
     const cardContent = (
@@ -124,9 +119,11 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                             Try Again
                             </Link>
                         </Button>
-                        <Button size="sm" className="w-full" variant="premium">
-                            <Download className="mr-2 h-4 w-4" />
-                            Claim Certificate
+                        <Button asChild size="sm" className="w-full" variant="premium">
+                             <a href={buildLinkedInUrl(examSet, user!)} target="_blank" rel="noopener noreferrer">
+                                <Download className="mr-2 h-4 w-4" />
+                                Claim Certificate
+                            </a>
                         </Button>
                     </div>
                 ) : (
@@ -177,7 +174,15 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     
     if (isLoaded) {
         if (bestScore === 100 && bestTime) {
-            return <p className="text-sm font-bold">{`${bestTime.toFixed(2)}s`}</p>;
+             const examSet = examSets.find(e => e.id === examId)!;
+             return (
+                <Button asChild size="sm" className="bg-[#0A66C2] hover:bg-[#0A66C2]/90 text-white text-xs">
+                     <a href={buildLinkedInUrl(examSet, user!)} target="_blank" rel="noopener noreferrer">
+                        <Linkedin className="mr-2 h-4 w-4" />
+                        Share Certificate
+                    </a>
+                </Button>
+             );
         } else {
             return (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -191,7 +196,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return <Skeleton className="w-20 h-5" />;
   }
   
-  const getExamStatusBg = (examId: keyof typeof examStats, bestTime: number | null, bestScore: number | null) => {
+  const getExamStatusBg = (examId: keyof typeof examStats, bestScore: number | null) => {
     const isLocked = getIsExamLocked(examId);
     if (!isLocked && bestScore !== 100) {
         return "bg-emerald-500/10 border border-emerald-500/20";
@@ -325,24 +330,39 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         <CardTitle className="text-lg">Best Exam Times</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4 p-4">
-                        <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-basic', examStats['exam-basic'].bestTime, examStats['exam-basic'].bestScore))}>
-                           <div className="flex items-center gap-3">
-                               <Award className="w-5 h-5 text-yellow-500" />
-                               <p className="font-medium text-sm">Basic Exam</p>
+                        <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-basic', examStats['exam-basic'].bestScore))}>
+                           <div className="flex flex-col gap-2">
+                               <div className="flex items-center gap-3">
+                                   <Award className="w-5 h-5 text-yellow-500" />
+                                   <p className="font-medium text-sm">Basic Exam</p>
+                               </div>
+                               {(examStats['exam-basic'].bestScore ?? 0) === 100 && examStats['exam-basic'].bestTime && (
+                                   <p className="text-sm font-bold pl-8">{examStats['exam-basic'].bestTime!.toFixed(2)}s</p>
+                               )}
                            </div>
                            {renderExamStatus('exam-basic', examStats['exam-basic'].bestTime, examStats['exam-basic'].bestScore)}
                         </div>
-                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-intermediate', examStats['exam-intermediate'].bestTime, examStats['exam-intermediate'].bestScore))}>
-                           <div className="flex items-center gap-3">
-                               <Medal className="w-5 h-5 text-slate-400" />
-                               <p className="font-medium text-sm">Intermediate</p>
+                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-intermediate', examStats['exam-intermediate'].bestScore))}>
+                           <div className="flex flex-col gap-2">
+                               <div className="flex items-center gap-3">
+                                   <Medal className="w-5 h-5 text-slate-400" />
+                                   <p className="font-medium text-sm">Intermediate</p>
+                               </div>
+                               {(examStats['exam-intermediate'].bestScore ?? 0) === 100 && examStats['exam-intermediate'].bestTime && (
+                                   <p className="text-sm font-bold pl-8">{examStats['exam-intermediate'].bestTime!.toFixed(2)}s</p>
+                               )}
                            </div>
                            {renderExamStatus('exam-intermediate', examStats['exam-intermediate'].bestTime, examStats['exam-intermediate'].bestScore)}
                         </div>
-                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-advanced', examStats['exam-advanced'].bestTime, examStats['exam-advanced'].bestScore))}>
-                           <div className="flex items-center gap-3">
-                               <Trophy className="w-5 h-5 text-amber-500" />
-                               <p className="font-medium text-sm">Advanced</p>
+                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-advanced', examStats['exam-advanced'].bestScore))}>
+                            <div className="flex flex-col gap-2">
+                               <div className="flex items-center gap-3">
+                                   <Trophy className="w-5 h-5 text-amber-500" />
+                                   <p className="font-medium text-sm">Advanced</p>
+                               </div>
+                                {(examStats['exam-advanced'].bestScore ?? 0) === 100 && examStats['exam-advanced'].bestTime && (
+                                   <p className="text-sm font-bold pl-8">{examStats['exam-advanced'].bestTime!.toFixed(2)}s</p>
+                               )}
                            </div>
                            {renderExamStatus('exam-advanced', examStats['exam-advanced'].bestTime, examStats['exam-advanced'].bestScore)}
                         </div>

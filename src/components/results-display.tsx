@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -11,7 +12,7 @@ import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from './ui/separator';
 import { useAuth } from './auth-provider';
-import { cn } from '@/lib/utils';
+import { cn, buildLinkedInUrl } from '@/lib/utils';
 import { Challenge } from '@/lib/types';
 import Confetti from 'react-confetti';
 import { updateUserPerformance } from '@/app/actions/update-user-performance';
@@ -108,32 +109,6 @@ export default function ResultsDisplay() {
   }, [isLoaded, setId, time, score, user]);
 
 
-  const buildLinkedInUrl = () => {
-    if (!challengeSet || !user) return "";
-
-    const certName = `Excel Ninja: ${challengeSet.name}`;
-    const certId = `${user.uid.slice(0, 8)}-${challengeSet.id}-${Date.now()}`;
-    const issueDate = new Date();
-    const issueYear = issueDate.getFullYear();
-    const issueMonth = issueDate.getMonth() + 1;
-
-    const linkedInUrl = new URL("https://www.linkedin.com/profile/add");
-    linkedInUrl.searchParams.append("startTask", "CERTIFICATION_NAME");
-    linkedInUrl.searchParams.append("name", certName);
-    // You can register your organization on LinkedIn and get an ID
-    // linkedInUrl.searchParams.append("organizationId", "YOUR_LINKEDIN_ORG_ID");
-    linkedInUrl.searchParams.append("issueYear", issueYear.toString());
-    linkedInUrl.searchParams.append("issueMonth", issueMonth.toString());
-    linkedInUrl.searchParams.append("certId", certId);
-    
-    // The URL to a page where someone can verify the certificate.
-    // This could be a future feature. For now, we'll link to the dashboard.
-    const certUrl = `${window.location.origin}/dashboard`;
-    linkedInUrl.searchParams.append("certUrl", certUrl);
-
-    return linkedInUrl.toString();
-  };
-
   const isExam = challengeSet?.category === 'Exam';
 
   if (!challengeSet || time === null) {
@@ -195,7 +170,7 @@ export default function ResultsDisplay() {
                       <h3 className="font-semibold pt-2">Congratulations!</h3>
                       <p className="text-sm text-muted-foreground">You've passed the {challengeSet.name}. Add your achievement to your professional profile.</p>
                       <Button asChild className="bg-[#0A66C2] hover:bg-[#0A66C2]/90">
-                          <a href={buildLinkedInUrl()} target="_blank" rel="noopener noreferrer">
+                          <a href={buildLinkedInUrl(challengeSet, user)} target="_blank" rel="noopener noreferrer">
                               <Linkedin className="mr-2 h-5 w-5" /> Add to LinkedIn
                           </a>
                       </Button>
