@@ -380,18 +380,15 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                     </CardContent>
                 </Card>
                  <Card className="mt-6 bg-card">
-                    <CardHeader>
-                        <CardTitle className="text-lg">Practice Sets Completed</CardTitle>
-                    </CardHeader>
                     <CardContent className="p-6">
                       {isLoaded ? (
                           <div className="text-center w-full">
                               <div className="flex items-center justify-center">
-                                  <span className="text-2xl font-bold text-primary">{completedSetsCount}</span>
+                                  <span className="text-2xl font-bold text-foreground">{completedSetsCount}</span>
                                   <span className="text-xl text-muted-foreground">/{totalPracticeSets}</span>
                               </div>
                               <Progress value={(completedSetsCount / totalPracticeSets) * 100} className="h-2 mt-2" />
-                              <p className="text-xs text-muted-foreground mt-2">sets completed</p>
+                              <p className="text-sm text-foreground mt-2">sets completed</p>
                           </div>
                       ) : (
                         <div className="flex flex-col items-center gap-2 pt-2 text-center">
@@ -411,6 +408,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
