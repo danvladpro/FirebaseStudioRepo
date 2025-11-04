@@ -19,6 +19,9 @@ import { ElementType } from "react";
 import { PremiumModal } from "./premium-modal";
 import { Badge } from "./ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Pie, PieChart, Cell } from "recharts";
+import { Separator } from "./ui/separator";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -52,6 +55,57 @@ const LEVEL_THRESHOLDS = [
     { level: 'Master', xp: 200, icon: <Gem className="w-5 h-5 text-blue-500"/> },
     { level: 'Excel Ninja', xp: 300, icon: <Gem className="w-5 h-5 text-purple-500"/> }
 ];
+
+
+interface ProgressPieChartProps {
+    completed: number;
+    total: number;
+    title: string;
+    color: string;
+}
+
+const ProgressPieChart: React.FC<ProgressPieChartProps> = ({ completed, total, title, color }) => {
+    const data = [
+        { name: 'Completed', value: completed, fill: color },
+        { name: 'Remaining', value: total - completed, fill: 'hsl(var(--muted))' },
+    ];
+
+    const chartConfig = {
+        completed: { label: 'Completed', color },
+        remaining: { label: 'Remaining', color: 'hsl(var(--muted))' },
+    };
+
+    return (
+        <div className="flex flex-col items-center gap-2">
+            <ChartContainer config={chartConfig} className="mx-auto aspect-square h-24">
+                <PieChart>
+                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                    <Pie
+                        data={data}
+                        dataKey="value"
+                        nameKey="name"
+                        innerRadius={25}
+                        strokeWidth={5}
+                        activeIndex={0}
+                        activeShape={({ outerRadius = 0, ...props }) => (
+                           <g>
+                             <circle cx={props.cx} cy={props.cy} r={outerRadius + 2} fill={props.fill} />
+                             <text x={props.cx} y={props.cy} textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-sm font-bold">
+                                {`${completed}/${total}`}
+                             </text>
+                           </g>
+                        )}
+                    >
+                        {data.map((entry) => (
+                            <Cell key={entry.name} fill={entry.fill} />
+                        ))}
+                    </Pie>
+                </PieChart>
+            </ChartContainer>
+            <span className="text-sm font-medium">{title}</span>
+        </div>
+    );
+};
 
 
 export function HomePageClient({ examSets }: HomePageClientProps) {
@@ -129,6 +183,19 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
       const stats = examStats[examId];
       return stats ? stats : { bestTime: null, bestScore: null };
   }
+
+
+  const setsByLevel = React.useMemo(() => {
+    return CHALLENGE_SETS.reduce((acc, set) => {
+      const level = set.level || 'Other';
+      if (!acc[level]) acc[level] = { total: 0, completed: 0 };
+      acc[level].total++;
+      if (completedSets.includes(set.id)) {
+        acc[level].completed++;
+      }
+      return acc;
+    }, {} as Record<string, { total: number; completed: number }>);
+  }, [completedSets]);
 
 
   const renderExamCard = (examSet: ChallengeSet, index: number) => {
@@ -400,9 +467,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             <aside className="lg:col-span-1">
                 <h2 className="text-2xl font-bold mb-4">Progress Overview</h2>
                 <Card className="bg-card">
-                    <CardHeader>
-                        <CardTitle className="text-lg">Your Progress</CardTitle>
-                    </CardHeader>
                     <CardContent className="p-4 flex flex-col gap-6">
                         {isLoaded ? (
                             <>
@@ -419,6 +483,36 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                         </>
                                     )}
                                 </div>
+
+                                <Separator />
+                                
+                                <div className="grid grid-cols-3 gap-2 text-center">
+                                    {isLoaded ? (
+                                        <>
+                                            <ProgressPieChart
+                                                completed={setsByLevel['Beginner']?.completed || 0}
+                                                total={setsByLevel['Beginner']?.total || 0}
+                                                title="Beginner"
+                                                color="hsl(var(--chart-2))"
+                                            />
+                                            <ProgressPieChart
+                                                completed={setsByLevel['Intermediate']?.completed || 0}
+                                                total={setsByLevel['Intermediate']?.total || 0}
+                                                title="Intermediate"
+                                                color="hsl(var(--chart-3))"
+                                            />
+                                            <ProgressPieChart
+                                                completed={setsByLevel['Advanced']?.completed || 0}
+                                                total={setsByLevel['Advanced']?.total || 0}
+                                                title="Advanced"
+                                                color="hsl(var(--chart-5))"
+                                            />
+                                        </>
+                                    ) : (
+                                        <Skeleton className="h-24 w-full" />
+                                    )}
+                                </div>
+                                <Separator />
                             </>
                         ) : (
                             <div className="flex flex-col items-center gap-2 pt-2 text-center">
@@ -480,6 +574,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
