@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,11 +69,17 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     if (examId === 'exam-advanced' && !examStats.intermediate) return "Complete the Intermediate Exam to unlock.";
     return "";
   }
+  
+  const getExamBestTime = (examId: keyof typeof examStats) => {
+      return examStats[examId];
+  }
 
 
   const renderExamCard = (examSet: ChallengeSet) => {
     const isExamLocked = getIsExamLocked(examSet.id);
     const Icon = iconMap[examSet.iconName];
+    const bestTime = getExamBestTime(examSet.id as keyof typeof examStats);
+    const isCompleted = !!bestTime;
 
     const cardContent = (
      <Card key={examSet.id} className={cn("border-emerald-300/50 bg-background/50 flex flex-col", isExamLocked && "bg-muted/50 border-dashed text-muted-foreground")}>
@@ -90,6 +96,19 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                     {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
                     {isLimited ? "Go Premium" : "Locked"}
                  </Button>
+            ) : isCompleted ? (
+                <div className="w-full grid grid-cols-2 gap-2">
+                    <Button asChild variant="secondary" size="sm">
+                         <Link href={`/challenge/${examSet.id}`}>
+                            <RotateCw className="mr-2 h-4 w-4" />
+                            Try Again
+                        </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" disabled>
+                        <Download className="mr-2 h-4 w-4" />
+                        Claim Certificate
+                    </Button>
+                </div>
             ) : (
                 <Button asChild className="w-full">
                     <Link href={`/challenge/${examSet.id}`}>
@@ -327,3 +346,5 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
+    
