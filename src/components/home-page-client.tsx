@@ -243,7 +243,10 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                             const bestTime = setStats?.bestTime;
 
                             const cardContent = (
-                                <Card key={set.id} className={cn("grid md:grid-cols-[1fr_auto] items-center gap-4 bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200", set.isLocked && "bg-muted/50 text-muted-foreground")}>
+                                <Card key={set.id} className={cn(
+                                    "grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 hover:bg-accent/5", 
+                                    set.isLocked && "bg-muted/50 text-muted-foreground"
+                                )}>
                                     <CardContent className="p-4 flex items-center gap-4">
                                         <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                                         <div className="flex-1">
@@ -325,7 +328,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             </section>
             <aside className="lg:col-span-1">
                 <h2 className="text-2xl font-bold mb-4">Progress Overview</h2>
-                 <Card className="bg-white">
+                 <Card className="bg-card">
                     <CardHeader>
                         <CardTitle className="text-lg">Best Exam Times</CardTitle>
                     </CardHeader>
@@ -368,7 +371,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         </div>
                     </CardContent>
                 </Card>
-                 <Card className="mt-6 bg-white">
+                 <Card className="mt-6 bg-card">
                     <CardHeader>
                         <CardTitle className="text-lg">Practice Sets Completed</CardTitle>
                     </CardHeader>
@@ -394,3 +397,5 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
+    
