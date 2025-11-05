@@ -50,11 +50,11 @@ const XP_CONFIG = {
 };
 
 const LEVEL_THRESHOLDS = [
-    { level: 'Rookie', xp: 0, icon: <Image src="/Level0.png" alt="Rookie" width={20} height={20} /> },
-    { level: 'Apprentice', xp: 50, icon: <Image src="/Level1.png" alt="Apprentice" width={20} height={20} /> },
-    { level: 'Journeyman', xp: 120, icon: <Image src="/Level2.png" alt="Journeyman" width={20} height={20} /> },
-    { level: 'Master', xp: 200, icon: <Image src="/Level3.png" alt="Master" width={20} height={20} /> },
-    { level: 'Excel Ninja', xp: 300, icon: <Image src="/Level4.png" alt="Excel Ninja" width={20} height={20} /> }
+    { level: 'Rookie', xp: 0, icon: <Image src="/Level0.png" alt="Rookie" width={64} height={64} /> },
+    { level: 'Apprentice', xp: 50, icon: <Image src="/Level1.png" alt="Apprentice" width={64} height={64} /> },
+    { level: 'Journeyman', xp: 120, icon: <Image src="/Level2.png" alt="Journeyman" width={64} height={64} /> },
+    { level: 'Master', xp: 200, icon: <Image src="/Level3.png" alt="Master" width={64} height={64} /> },
+    { level: 'Excel Ninja', xp: 300, icon: <Image src="/Level4.png" alt="Excel Ninja" width={64} height={64} /> }
 ];
 
 
@@ -479,18 +479,20 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                     <CardContent className="p-4 flex flex-col gap-6">
                         {isLoaded ? (
                             <>
-                                <div className="text-center">
-                                    <div className="flex items-center justify-center gap-2">
+                                <div className="flex items-center gap-4">
+                                    <div className="flex-shrink-0">
                                         {currentLevelInfo.icon}
-                                        <h3 className="text-xl font-bold">{currentLevelInfo.level}</h3>
                                     </div>
-                                    <p className="text-4xl font-bold text-primary mt-1">{totalXP} <span className="text-lg font-medium text-muted-foreground">XP</span></p>
-                                    {nextLevelInfo && (
-                                        <>
-                                            <Progress value={levelProgress} className="h-2 mt-3" />
-                                            <p className="text-xs text-muted-foreground mt-1.5">{xpIntoCurrentLevel}/{xpForNextLevel} XP to {nextLevelInfo.level}</p>
-                                        </>
-                                    )}
+                                    <div className="flex-1">
+                                        <h3 className="text-lg font-bold">{currentLevelInfo.level}</h3>
+                                        <p className="text-2xl font-bold text-primary">{totalXP} <span className="text-base font-medium text-muted-foreground">XP</span></p>
+                                        {nextLevelInfo && (
+                                            <>
+                                                <Progress value={levelProgress} className="h-2 mt-2" />
+                                                <p className="text-xs text-muted-foreground mt-1">{xpIntoCurrentLevel}/{xpForNextLevel} XP to {nextLevelInfo.level}</p>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <Separator />
@@ -583,6 +585,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
