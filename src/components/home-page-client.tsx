@@ -20,7 +20,7 @@ import { PremiumModal } from "./premium-modal";
 import { Badge } from "./ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Pie, PieChart, Cell, Sector } from "recharts";
+import { Pie, PieChart, Cell } from "recharts";
 import { Separator } from "./ui/separator";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
@@ -72,7 +72,6 @@ const ProgressPieChart: React.FC<ProgressPieChartProps> = ({ completed, total, t
             { name: "Remaining", value: total - completed, fill: "hsl(var(--muted))" },
           ]
         : [
-            { name: "Completed", value: 0, fill: "transparent" },
             { name: "Remaining", value: total, fill: "hsl(var(--muted))" },
           ];
 
@@ -91,16 +90,19 @@ const ProgressPieChart: React.FC<ProgressPieChartProps> = ({ completed, total, t
                         dataKey="value"
                         nameKey="name"
                         innerRadius={25}
-                        strokeWidth={5}
-                        activeIndex={0}
-                        activeShape={({ cx, cy, innerRadius, outerRadius, ...props }) => (
-                           <g>
-                             <Sector cx={cx} cy={cy} innerRadius={innerRadius} outerRadius={outerRadius! + 2} {...props} />
-                             <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-sm font-bold">
-                                {`${completed}/${total}`}
-                             </text>
-                           </g>
+                        strokeWidth={2}
+                        label={({ cx, cy }) => (
+                           <text
+                             x={cx}
+                             y={cy}
+                             textAnchor="middle"
+                             dominantBaseline="middle"
+                             className="fill-foreground text-sm font-bold"
+                           >
+                            {`${completed}/${total}`}
+                           </text>
                         )}
+                        labelLine={false}
                     >
                         {data.map((entry) => (
                             <Cell key={entry.name} fill={entry.fill} stroke={entry.fill === 'transparent' && completed === 0 ? 'hsl(var(--muted))' : entry.fill} />
@@ -471,8 +473,10 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                 </TooltipProvider>
             </section>
             <aside className="lg:col-span-1">
-                <h2 className="text-2xl font-bold mb-4">Progress Overview</h2>
                 <Card className="bg-card">
+                    <CardHeader>
+                        <h2 className="text-2xl font-bold">Progress Overview</h2>
+                    </CardHeader>
                     <CardContent className="p-4 flex flex-col gap-6">
                         {isLoaded ? (
                             <>
@@ -580,6 +584,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
