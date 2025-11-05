@@ -65,10 +65,16 @@ interface ProgressPieChartProps {
 }
 
 const ProgressPieChart: React.FC<ProgressPieChartProps> = ({ completed, total, title, color }) => {
-    const data = [
-        { name: 'Completed', value: completed, fill: color },
-        { name: 'Remaining', value: total - completed, fill: 'hsl(var(--muted))' },
-    ];
+    const data =
+      completed > 0
+        ? [
+            { name: "Completed", value: completed, fill: color },
+            { name: "Remaining", value: total - completed, fill: "hsl(var(--muted))" },
+          ]
+        : [
+            { name: "Completed", value: 0, fill: "transparent" },
+            { name: "Remaining", value: total, fill: "hsl(var(--muted))" },
+          ];
 
     const chartConfig = {
         completed: { label: 'Completed', color },
@@ -97,7 +103,7 @@ const ProgressPieChart: React.FC<ProgressPieChartProps> = ({ completed, total, t
                         )}
                     >
                         {data.map((entry) => (
-                            <Cell key={entry.name} fill={entry.fill} />
+                            <Cell key={entry.name} fill={entry.fill} stroke={entry.fill === 'transparent' && completed === 0 ? 'hsl(var(--muted))' : entry.fill} />
                         ))}
                     </Pie>
                 </PieChart>
@@ -574,6 +580,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
