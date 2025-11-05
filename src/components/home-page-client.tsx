@@ -22,6 +22,7 @@ import { Progress } from "@/components/ui/progress";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Pie, PieChart, Cell } from "recharts";
 import { Separator } from "./ui/separator";
+import Image from "next/image";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -49,11 +50,11 @@ const XP_CONFIG = {
 };
 
 const LEVEL_THRESHOLDS = [
-    { level: 'Rookie', xp: 0, icon: <Gem className="w-5 h-5 text-gray-400"/> },
-    { level: 'Apprentice', xp: 50, icon: <Gem className="w-5 h-5 text-yellow-500"/> },
-    { level: 'Journeyman', xp: 120, icon: <Gem className="w-5 h-5 text-emerald-500"/> },
-    { level: 'Master', xp: 200, icon: <Gem className="w-5 h-5 text-blue-500"/> },
-    { level: 'Excel Ninja', xp: 300, icon: <Gem className="w-5 h-5 text-purple-500"/> }
+    { level: 'Rookie', xp: 0, icon: <Image src="/Level0.png" alt="Rookie" width={20} height={20} /> },
+    { level: 'Apprentice', xp: 50, icon: <Image src="/Level1.png" alt="Apprentice" width={20} height={20} /> },
+    { level: 'Journeyman', xp: 120, icon: <Image src="/Level2.png" alt="Journeyman" width={20} height={20} /> },
+    { level: 'Master', xp: 200, icon: <Image src="/Level3.png" alt="Master" width={20} height={20} /> },
+    { level: 'Excel Ninja', xp: 300, icon: <Image src="/Level4.png" alt="Excel Ninja" width={20} height={20} /> }
 ];
 
 
@@ -91,23 +92,21 @@ const ProgressPieChart: React.FC<ProgressPieChartProps> = ({ completed, total, t
                         nameKey="name"
                         innerRadius={25}
                         strokeWidth={2}
-                        label={({ cx, cy }) => (
-                           <text
-                             x={cx}
-                             y={cy}
-                             textAnchor="middle"
-                             dominantBaseline="middle"
-                             className="fill-foreground text-sm font-bold"
-                           >
-                            {`${completed}/${total}`}
-                           </text>
-                        )}
                         labelLine={false}
                     >
-                        {data.map((entry) => (
-                            <Cell key={entry.name} fill={entry.fill} stroke={entry.fill === 'transparent' && completed === 0 ? 'hsl(var(--muted))' : entry.fill} />
-                        ))}
+                       {data.map((entry) => (
+                           <Cell key={entry.name} fill={entry.fill} stroke={entry.fill === 'hsl(var(--muted))' && completed > 0 ? entry.fill : 'hsl(var(--border))'} />
+                       ))}
                     </Pie>
+                     <text
+                         x="50%"
+                         y="50%"
+                         textAnchor="middle"
+                         dominantBaseline="middle"
+                         className="fill-foreground text-sm font-bold"
+                       >
+                        {`${completed}/${total}`}
+                       </text>
                 </PieChart>
             </ChartContainer>
             <span className="text-sm font-medium">{title}</span>
@@ -584,6 +583,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
