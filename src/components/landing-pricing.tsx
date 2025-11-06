@@ -56,38 +56,40 @@ export function LandingPricing() {
                     </ScrollAnimation>
                     
                     <ScrollAnimation delay={0.4}>
-                    <Card className="flex flex-col border-primary relative bg-primary/5 transform md:scale-y-105">
-                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</Badge>
-                        <CardHeader>
-                            <CardTitle>1 Week Access</CardTitle>
-                            <CardDescription>Perfect for a quick skills boost before an interview.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1">
-                            <div className="flex items-baseline justify-center">
-                                <span className="text-4xl font-bold">$10</span>
-                                <span className="ml-1 text-muted-foreground">/ 7 days</span>
-                            </div>
-                            <ul className="mt-6 space-y-4 text-left">
-                                <li className="flex items-center gap-2">
-                                    <Check className="h-4 w-4 text-primary" />
-                                    All challenges & flashcards
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <Check className="h-4 w-4 text-primary" />
-                                    Performance tracking
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <Check className="h-4 w-4 text-primary" />
-                                    7 days full access
-                                </li>
-                            </ul>
-                        </CardContent>
-                        <CardFooter>
-                           <Button asChild className="w-full" variant="premium">
-                                <Link href="/signup">Get Started</Link>
-                           </Button>
-                        </CardFooter>
-                    </Card>
+                    <div className="relative transform md:scale-y-105 p-0.5 rounded-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
+                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white border-0">Most Popular</Badge>
+                        <Card className="flex flex-col bg-card">
+                            <CardHeader>
+                                <CardTitle>1 Week Access</CardTitle>
+                                <CardDescription>Perfect for a quick skills boost before an interview.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="flex-1">
+                                <div className="flex items-baseline justify-center">
+                                    <span className="text-4xl font-bold">$10</span>
+                                    <span className="ml-1 text-muted-foreground">/ 7 days</span>
+                                </div>
+                                <ul className="mt-6 space-y-4 text-left">
+                                    <li className="flex items-center gap-2">
+                                        <Check className="h-4 w-4 text-primary" />
+                                        All challenges & flashcards
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <Check className="h-4 w-4 text-primary" />
+                                        Performance tracking
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <Check className="h-4 w-4 text-primary" />
+                                        7 days full access
+                                    </li>
+                                </ul>
+                            </CardContent>
+                            <CardFooter>
+                            <Button asChild className="w-full" variant="premium">
+                                    <Link href="/signup">Get Started</Link>
+                            </Button>
+                            </CardFooter>
+                        </Card>
+                    </div>
                     </ScrollAnimation>
                     
                     <ScrollAnimation delay={0.6}>
