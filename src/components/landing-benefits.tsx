@@ -1,8 +1,13 @@
 
 import { Building, User } from 'lucide-react';
 import { ScrollAnimation } from "./scroll-animation";
+import Image from "next/image";
 
 export function LandingBenefits() {
+
+  const cacheBuster = `?t=${new Date().getTime()}`;
+
+
   return (
     <section id="benefits" className="w-full py-12 md:py-24 lg:py-32">
       <div className="container px-4 md:px-6">
@@ -72,6 +77,34 @@ export function LandingBenefits() {
           
         </div>
       </div>
+
+      <div className="container px-4 md:px-6 mt-24">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <ScrollAnimation delay={0.2}>
+            <Image
+              src={`/allNinjas.png${cacheBuster}`}
+              alt="Gamified Progress Levels"
+              width={800}
+              height={400}
+              className="mx-auto rounded-xl shadow-lg"
+              unoptimized
+            />
+          </ScrollAnimation>
+          <ScrollAnimation delay={0.4}>
+            <div className="space-y-4">
+               <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
+                Gamified Learning
+              </div>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Real Progress You Can See</h2>
+              <p className="text-muted-foreground md:text-lg">
+                Earn XP, unlock new ranks, and push your shortcut speed to the limit. 
+                The more you train, the higher you climb — from Rookie to Excel Ninja.
+              </p>
+            </div>
+          </ScrollAnimation>
+        </div>
+      </div>
+    
     </section>
   );
 }
