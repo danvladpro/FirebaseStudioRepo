@@ -156,10 +156,44 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const xpForNextLevel = nextLevelInfo ? nextLevelInfo.xp - (currentLevelInfo?.xp || 0) : 0;
   const xpIntoCurrentLevel = totalXP - (currentLevelInfo?.xp || 0);
   const levelProgress = xpForNextLevel > 0 ? (xpIntoCurrentLevel / xpForNextLevel) * 100 : 100;
+  
+  const setsByLevel = React.useMemo(() => {
+    return CHALLENGE_SETS.reduce((acc, set) => {
+      const level = set.level || 'Other';
+      if (!acc[level]) acc[level] = { total: 0, completed: 0 };
+      acc[level].total++;
+      if (completedSets.includes(set.id)) {
+        acc[level].completed++;
+      }
+      return acc;
+    }, {} as Record<string, { total: number; completed: number }>);
+  }, [completedSets]);
 
-  const setsToDisplay = isLimited 
-      ? CHALLENGE_SETS.map(set => ({ ...set, isLocked: set.id !== 'formatting-basics' }))
-      : CHALLENGE_SETS.map(set => ({ ...set, isLocked: false }));
+  const isBeginnerCompleted = (setsByLevel['Beginner']?.completed || 0) === (setsByLevel['Beginner']?.total || 0);
+  const isIntermediateCompleted = (setsByLevel['Intermediate']?.completed || 0) === (setsByLevel['Intermediate']?.total || 0);
+  
+  const isBasicExamPassed = (examStats['exam-basic']?.bestScore ?? 0) === 100;
+  const isIntermediateExamPassed = (examStats['exam-intermediate']?.bestScore ?? 0) === 100;
+
+  const isIntermediateUnlocked = isBeginnerCompleted || isBasicExamPassed;
+  const isAdvancedUnlocked = isIntermediateCompleted || isIntermediateExamPassed;
+
+  const getIsSetLocked = (set: ChallengeSet) => {
+    if (set.id === 'formatting-basics') return false; // Always unlock the first set
+    if (isLimited) return true;
+    if (set.level === 'Intermediate' && !isIntermediateUnlocked) return true;
+    if (set.level === 'Advanced' && !isAdvancedUnlocked) return true;
+    return false;
+  };
+
+  const getSetLockTooltip = (set: ChallengeSet) => {
+    if (isLimited && set.id !== 'formatting-basics') return "Upgrade to Premium to unlock this set.";
+    if (set.level === 'Intermediate' && !isIntermediateUnlocked) return "Complete all Beginner sets or pass the Basic Exam to unlock.";
+    if (set.level === 'Advanced' && !isAdvancedUnlocked) return "Complete all Intermediate sets or pass the Intermediate Exam to unlock.";
+    return "";
+  };
+
+  const setsToDisplay = CHALLENGE_SETS.map(set => ({ ...set, isLocked: getIsSetLocked(set) }));
       
   const groupedSets = setsToDisplay.reduce((acc, set) => {
     const level = set.level || 'Other';
@@ -190,20 +224,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
       const stats = examStats[examId];
       return stats ? stats : { bestTime: null, bestScore: null };
   }
-
-
-  const setsByLevel = React.useMemo(() => {
-    return CHALLENGE_SETS.reduce((acc, set) => {
-      const level = set.level || 'Other';
-      if (!acc[level]) acc[level] = { total: 0, completed: 0 };
-      acc[level].total++;
-      if (completedSets.includes(set.id)) {
-        acc[level].completed++;
-      }
-      return acc;
-    }, {} as Record<string, { total: number; completed: number }>);
-  }, [completedSets]);
-
 
   const renderExamCard = (examSet: ChallengeSet, index: number) => {
     const isExamLocked = getIsExamLocked(examSet.id);
@@ -490,7 +510,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                     const cardContent = (
                                         <Card key={set.id} className={cn(
                                             "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 hover:bg-accent/5", 
-                                            set.isLocked && "bg-muted/50 text-muted-foreground"
+                                            set.isLocked && "bg-muted/50 text-muted-foreground border-dashed"
                                         )}>
                                             {isCompleted && !set.isLocked && (
                                                 <CheckCircle className="absolute top-2 right-2 w-5 h-5 text-green-500" />
@@ -533,9 +553,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                             
                                                 <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
                                                     {set.isLocked ? (
-                                                        <Button className="w-full col-span-2" variant="premium" onClick={() => setIsPremiumModalOpen(true)}>
-                                                            <Sparkles className="mr-2 h-4 w-4" />
-                                                            Go Premium
+                                                        <Button className="w-full col-span-2" variant="secondary" disabled>
+                                                          <Lock className="mr-2 h-4 w-4" />
+                                                          Locked
                                                         </Button>
                                                     ) : (
                                                         <>
@@ -563,7 +583,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                     <div className="cursor-not-allowed">{cardContent}</div>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
-                                                    <p>Upgrade to unlock this set.</p>
+                                                    <p>{getSetLockTooltip(set)}</p>
                                                 </TooltipContent>
                                             </Tooltip>
                                         );
@@ -585,6 +605,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
