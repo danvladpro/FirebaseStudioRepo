@@ -10,7 +10,7 @@ export function LandingPricing() {
     return (
         <section id="pricing" className="w-full py-12 md:py-24 lg:py-32  bg-muted/40">
             <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
-            <ScrollAnimation delay={0.4}>
+            <ScrollAnimation delay={0.2}>
                 <div className="space-y-3">
                     <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
                         A Plan for Every Ambition
@@ -21,7 +21,7 @@ export function LandingPricing() {
                 </div>
                 </ScrollAnimation>
                 <div className="grid w-full grid-cols-1 md:grid-cols-3 gap-8 pt-8 max-w-5xl mx-auto items-center">
-                    <ScrollAnimation delay={0.2}>
+                    <ScrollAnimation delay={0.6}>
                     <Card className="flex flex-col">
                         <CardHeader>
                             <CardTitle>Lifetime</CardTitle>
@@ -55,7 +55,7 @@ export function LandingPricing() {
                     </Card>
                     </ScrollAnimation>
                     
-                    <ScrollAnimation delay={0.4}>
+                    <ScrollAnimation delay={0.2}>
                     <div className="relative transform md:scale-y-110 p-0.5 rounded-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
                         <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white border-0">Most Popular</Badge>
                         <Card className="flex flex-col bg-card">
