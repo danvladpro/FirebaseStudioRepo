@@ -56,7 +56,7 @@ export function LandingPricing() {
                     </ScrollAnimation>
                     
                     <ScrollAnimation delay={0.4}>
-                    <div className="relative transform md:scale-y-105 p-0.5 rounded-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
+                    <div className="relative transform md:scale-y-110 p-0.5 rounded-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
                         <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white border-0">Most Popular</Badge>
                         <Card className="flex flex-col bg-card">
                             <CardHeader>
