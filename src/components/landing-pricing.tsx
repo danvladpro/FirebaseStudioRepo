@@ -84,7 +84,7 @@ export function LandingPricing() {
                                 </ul>
                             </CardContent>
                             <CardFooter>
-                            <Button asChild className="w-full" variant="premium">
+                            <Button asChild className="w-full">
                                     <Link href="/signup">Get Started</Link>
                             </Button>
                             </CardFooter>
