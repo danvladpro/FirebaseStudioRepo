@@ -26,6 +26,9 @@ export const buildLinkedInUrl = (challengeSet: ChallengeSet, user: User) => {
     linkedInUrl.searchParams.append("issueMonth", issueMonth.toString());
     linkedInUrl.searchParams.append("certId", certId);
     
+    // Add skills to the certificate
+    linkedInUrl.searchParams.append("skills", "Keyboard Shortcuts,Microsoft Excel");
+    
     // The URL to a page where someone can verify the certificate.
     // This could be a future feature. For now, we'll link to the dashboard.
     const certUrl = `${window.location.origin}/dashboard`;
@@ -33,3 +36,4 @@ export const buildLinkedInUrl = (challengeSet: ChallengeSet, user: User) => {
 
     return linkedInUrl.toString();
   };
+
