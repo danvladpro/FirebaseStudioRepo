@@ -23,7 +23,7 @@ export function LandingBenefits() {
               alt="Gamified Progress Levels"
               width={800}
               height={400}
-              className="mx-auto rounded-xl shadow-lg"
+              className="mx-auto"
               unoptimized
             />
           </ScrollAnimation>
