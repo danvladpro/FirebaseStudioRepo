@@ -1,5 +1,5 @@
 
-import { Building, User } from 'lucide-react';
+import { Building, User, Check } from 'lucide-react';
 import { ScrollAnimation } from "./scroll-animation";
 import Image from "next/image";
 
@@ -31,9 +31,22 @@ export function LandingBenefits() {
             <div className="space-y-4">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Real Progress You Can See</h2>
               <p className="text-muted-foreground md:text-lg">
-                Earn XP, unlock new ranks, and push your shortcut speed to the limit. 
                 The more you train, the higher you climb — from Rookie to Excel Ninja.
               </p>
+              <ul className="grid gap-2 text-muted-foreground md:text-lg">
+                <li className="flex items-start gap-2">
+                  <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                  <span>Earn XP for every challenge set you master.</span>
+                </li>
+                 <li className="flex items-start gap-2">
+                  <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                  <span>Unlock new ranks and watch your ninja evolve.</span>
+                </li>
+                 <li className="flex items-start gap-2">
+                  <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                  <span>Push your shortcut speed to the limit with timed challenges.</span>
+                </li>
+              </ul>
             </div>
           </ScrollAnimation>
         </div>
