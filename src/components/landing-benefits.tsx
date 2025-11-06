@@ -78,7 +78,7 @@ export function LandingBenefits() {
             <ul className="grid gap-4 text-sm text-muted-foreground">
                <li className="flex items-start gap-2">
                   <Check className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <span>Boost your <strong className="text-primary">Productivity</strong>: Proficient users save an average of 8 workdays a year.</span>
+                  <span>Boost your productivity: Proficient users save an average of 8 workdays a year.</span>
                </li>
                <li className="flex items-start gap-2">
                   <Check className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
@@ -103,15 +103,15 @@ export function LandingBenefits() {
             <ul className="grid gap-4 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                   <Check className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <span>Drive team <strong className="text-primary">Efficiency</strong>: Proficient users complete tasks up to 50% faster, boosting team output.</span>
+                  <span>Drive team efficiency: Proficient users complete tasks up to 50% faster, boosting team output.</span>
                </li>
                <li className="flex items-start gap-2">
                   <Check className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <span>Reduce costly <strong className="text-primary">errors</strong>: Keyboard-driven operations are more consistent, improving data quality across the board.</span>
+                  <span>Reduce costly errors: Keyboard-driven operations are more consistent, improving data quality across the board.</span>
                </li>
                <li className="flex items-start gap-2">
                   <Check className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <span>Cultivate a <strong className="text-primary">high-performance</strong> culture by empowering employees to work smarter, not harder.</span>
+                  <span>Cultivate a high-performance culture by empowering employees to work smarter, not harder.</span>
                </li>
             </ul>
           </div>
