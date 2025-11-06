@@ -9,7 +9,7 @@ export function LandingBenefits() {
 
 
   return (
-    <section id="benefits" className="w-full py-12 md:py-24 lg:py-32">
+    <section id="benefits" className="w-full py-12 md:py-24 lg:py-12">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
             <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">

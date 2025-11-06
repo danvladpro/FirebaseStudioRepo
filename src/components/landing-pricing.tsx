@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "./ui/card";
 import { Check } from "lucide-react";
 import { ScrollAnimation } from "./scroll-animation";
+import { Badge } from "./ui/badge";
 
 export function LandingPricing() {
     return (
@@ -22,40 +23,6 @@ export function LandingPricing() {
                 <div className="grid w-full grid-cols-1 md:grid-cols-3 gap-8 pt-8 max-w-5xl mx-auto">
                     <ScrollAnimation delay={0.2}>
                     <Card className="flex flex-col">
-                        <CardHeader>
-                            <CardTitle>1 Week Access</CardTitle>
-                            <CardDescription>Perfect for a quick skills boost before an interview.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1">
-                            <div className="flex items-baseline justify-center">
-                                <span className="text-4xl font-bold">$10</span>
-                                <span className="ml-1 text-muted-foreground">/ 7 days</span>
-                            </div>
-                            <ul className="mt-6 space-y-4 text-left">
-                                <li className="flex items-center gap-2">
-                                    <Check className="h-4 w-4 text-primary" />
-                                    All challenges & flashcards
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <Check className="h-4 w-4 text-primary" />
-                                    Performance tracking
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <Check className="h-4 w-4 text-primary" />
-                                    7 days full access
-                                </li>
-                            </ul>
-                        </CardContent>
-                        <CardFooter>
-                           <Button asChild className="w-full">
-                                <Link href="/signup">Get Started</Link>
-                           </Button>
-                        </CardFooter>
-                    </Card>
-                    </ScrollAnimation>
-                    
-                    <ScrollAnimation delay={0.4}>
-                    <Card className="flex flex-col border-primary">
                         <CardHeader>
                             <CardTitle>Lifetime</CardTitle>
                             <CardDescription>One-time payment for lifetime access for a single user.</CardDescription>
@@ -77,6 +44,41 @@ export function LandingPricing() {
                                 <li className="flex items-center gap-2">
                                     <Check className="h-4 w-4 text-primary" />
                                     Lifetime updates
+                                </li>
+                            </ul>
+                        </CardContent>
+                        <CardFooter>
+                           <Button asChild className="w-full">
+                                <Link href="/signup">Get Started</Link>
+                           </Button>
+                        </CardFooter>
+                    </Card>
+                    </ScrollAnimation>
+                    
+                    <ScrollAnimation delay={0.4}>
+                    <Card className="flex flex-col border-primary relative bg-primary/5">
+                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</Badge>
+                        <CardHeader>
+                            <CardTitle>1 Week Access</CardTitle>
+                            <CardDescription>Perfect for a quick skills boost before an interview.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex-1">
+                            <div className="flex items-baseline justify-center">
+                                <span className="text-4xl font-bold">$10</span>
+                                <span className="ml-1 text-muted-foreground">/ 7 days</span>
+                            </div>
+                            <ul className="mt-6 space-y-4 text-left">
+                                <li className="flex items-center gap-2">
+                                    <Check className="h-4 w-4 text-primary" />
+                                    All challenges & flashcards
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <Check className="h-4 w-4 text-primary" />
+                                    Performance tracking
+                                </li>
+                                <li className="flex items-center gap-2">
+                                    <Check className="h-4 w-4 text-primary" />
+                                    7 days full access
                                 </li>
                             </ul>
                         </CardContent>
