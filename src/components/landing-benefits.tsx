@@ -36,15 +36,15 @@ export function LandingBenefits() {
               <ul className="grid gap-2 text-muted-foreground md:text-lg">
                 <li className="flex items-start gap-2">
                   <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                  <span>Earn XP for every challenge set you master.</span>
+                  <span><strong className="text-primary">Earn XP</strong> for every challenge set you master.</span>
                 </li>
                  <li className="flex items-start gap-2">
                   <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                  <span>Unlock new ranks and watch your ninja evolve.</span>
+                  <span>Unlock <strong className="text-primary">new ranks</strong> and watch your ninja evolve.</span>
                 </li>
                  <li className="flex items-start gap-2">
                   <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                  <span>Push your shortcut speed to the limit with timed challenges.</span>
+                  <span>Push your shortcut speed to the limit with <strong className="text-primary">timed challenges</strong>.</span>
                 </li>
               </ul>
             </div>
