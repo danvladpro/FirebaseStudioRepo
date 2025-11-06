@@ -11,7 +11,7 @@ export function LandingFeatures() {
                         <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Key Features</div>
                         <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Become Faster Than Your Mouse</h2>
                         <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                            Our platform is designed to build deep muscle memory for the most critical Excel shortcuts, turning you into a spreadsheet power user.
+                            Our platform is designed to <strong>build deep muscle memory for the most critical Excel shortcuts</strong>, turning you into a spreadsheet power user.
                         </p>
                     </div>
                 </div>
