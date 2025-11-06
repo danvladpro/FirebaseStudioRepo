@@ -66,57 +66,80 @@ export function LandingBenefits() {
             productivity and career growth.
           </p>
         </div>
-        <div className="mx-auto grid max-w-5xl items-start gap-12 lg:grid-cols-2">
-           <ScrollAnimation delay={0.4}>
-          <div className="grid gap-6">
-            <div className="flex items-center gap-4">
-              <div className="rounded-full bg-primary/10 p-3 text-primary">
-                <User className="h-6 w-6" />
+        <div className="grid gap-20">
+          {/* For Individuals */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <ScrollAnimation delay={0.2}>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="rounded-full bg-primary/10 p-3 text-primary">
+                    <User className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-2xl font-bold">For Individuals</h3>
+                </div>
+                <ul className="grid gap-4 text-muted-foreground md:text-lg">
+                   <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                      <span>Boost your productivity: Proficient users save an average of 8 workdays a year.</span>
+                   </li>
+                   <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                      <span>Get Hired Faster: 82% of middle-skill jobs require digital skills like Excel. Stand out to employers.</span>
+                   </li>
+                   <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                      <span>Reduce Cognitive Load: Build muscle memory to stay in the flow and focus on analysis, not on hunting for menus.</span>
+                   </li>
+                </ul>
               </div>
-              <h3 className="text-xl font-bold">For Individuals</h3>
-            </div>
-            <ul className="grid gap-4 text-sm text-muted-foreground">
-               <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <span>Boost your productivity: Proficient users save an average of 8 workdays a year.</span>
-               </li>
-               <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <span>Get Hired Faster: 82% of middle-skill jobs require digital skills like Excel. Stand out to employers.</span>
-               </li>
-               <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <span>Reduce Cognitive Load: Build muscle memory to stay in the flow and focus on analysis, not on hunting for menus.</span>
-               </li>
-            </ul>
+            </ScrollAnimation>
+            <ScrollAnimation delay={0.4}>
+              <Image
+                src="/GirlNinja.png"
+                alt="Individual user becoming an Excel Ninja"
+                width={800}
+                height={600}
+                className="mx-auto"
+              />
+            </ScrollAnimation>
           </div>
-           </ScrollAnimation>
-          
-           <ScrollAnimation delay={0.4}>
-          <div className="grid gap-6">
-            <div className="flex items-center gap-4">
-              <div className="rounded-full bg-primary/10 p-3 text-primary">
-                <Building className="h-6 w-6" />
+
+          {/* For Companies */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <ScrollAnimation delay={0.2} className="order-last lg:order-first">
+               <Image
+                src="/TeamNinja.png"
+                alt="A team of Excel Ninjas collaborating"
+                width={800}
+                height={600}
+                className="mx-auto"
+              />
+            </ScrollAnimation>
+            <ScrollAnimation delay={0.4}>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="rounded-full bg-primary/10 p-3 text-primary">
+                    <Building className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-2xl font-bold">For Companies</h3>
+                </div>
+                <ul className="grid gap-4 text-muted-foreground md:text-lg">
+                  <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                      <span>Drive team efficiency: Proficient users complete tasks up to 50% faster, boosting team output.</span>
+                   </li>
+                   <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                      <span>Reduce costly errors: Keyboard-driven operations are more consistent, improving data quality across the board.</span>
+                   </li>
+                   <li className="flex items-start gap-2">
+                      <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
+                      <span>Cultivate a high-performance culture by empowering employees to work smarter, not harder.</span>
+                   </li>
+                </ul>
               </div>
-              <h3 className="text-xl font-bold">For Companies</h3>
-            </div>
-            <ul className="grid gap-4 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <span>Drive team efficiency: Proficient users complete tasks up to 50% faster, boosting team output.</span>
-               </li>
-               <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <span>Reduce costly errors: Keyboard-driven operations are more consistent, improving data quality across the board.</span>
-               </li>
-               <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                  <span>Cultivate a high-performance culture by empowering employees to work smarter, not harder.</span>
-               </li>
-            </ul>
+            </ScrollAnimation>
           </div>
-          </ScrollAnimation>
-          
         </div>
       </div>
     
