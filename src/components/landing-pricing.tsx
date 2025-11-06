@@ -20,7 +20,7 @@ export function LandingPricing() {
                     </p>
                 </div>
                 </ScrollAnimation>
-                <div className="grid w-full grid-cols-1 md:grid-cols-3 gap-8 pt-8 max-w-5xl mx-auto">
+                <div className="grid w-full grid-cols-1 md:grid-cols-3 gap-8 pt-8 max-w-5xl mx-auto items-center">
                     <ScrollAnimation delay={0.2}>
                     <Card className="flex flex-col">
                         <CardHeader>
@@ -56,7 +56,7 @@ export function LandingPricing() {
                     </ScrollAnimation>
                     
                     <ScrollAnimation delay={0.4}>
-                    <Card className="flex flex-col border-primary relative bg-primary/5">
+                    <Card className="flex flex-col border-primary relative bg-primary/5 transform md:scale-y-105">
                         <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</Badge>
                         <CardHeader>
                             <CardTitle>1 Week Access</CardTitle>
@@ -83,7 +83,7 @@ export function LandingPricing() {
                             </ul>
                         </CardContent>
                         <CardFooter>
-                           <Button asChild className="w-full">
+                           <Button asChild className="w-full" variant="premium">
                                 <Link href="/signup">Get Started</Link>
                            </Button>
                         </CardFooter>
