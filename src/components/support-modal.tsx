@@ -24,14 +24,12 @@ export function SupportModal({ isOpen, onOpenChange }: SupportModalProps) {
     const [category, setCategory] = useState("");
     const [topic, setTopic] = useState("");
     const [body, setBody] = useState("");
-    const [attachment, setAttachment] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     const resetForm = () => {
         setCategory("");
         setTopic("");
         setBody("");
-        setAttachment(null);
     };
     
     const handleOpenChange = (open: boolean) => {
@@ -60,7 +58,6 @@ export function SupportModal({ isOpen, onOpenChange }: SupportModalProps) {
                 category,
                 topic,
                 body,
-                attachmentName: attachment?.name,
             });
             toast({ title: "Success", description: "Your support ticket has been submitted." });
             handleOpenChange(false);
@@ -119,17 +116,6 @@ export function SupportModal({ isOpen, onOpenChange }: SupportModalProps) {
                             onChange={(e) => setBody(e.target.value)}
                             className="col-span-3 min-h-[100px]"
                             placeholder="Please describe the issue in detail."
-                        />
-                    </div>
-                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="attachment" className="text-right">
-                            Attachment
-                        </Label>
-                        <Input
-                            id="attachment"
-                            type="file"
-                            onChange={(e) => setAttachment(e.target.files?.[0] || null)}
-                            className="col-span-3"
                         />
                     </div>
                 </div>

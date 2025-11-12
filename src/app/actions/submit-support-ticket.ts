@@ -11,7 +11,6 @@ const SubmitSupportTicketSchema = z.object({
     category: z.string().min(1),
     topic: z.string().min(1),
     body: z.string().min(1),
-    attachmentName: z.string().optional(),
 });
 
 export async function submitSupportTicket(input: z.infer<typeof SubmitSupportTicketSchema>) {
@@ -21,7 +20,7 @@ export async function submitSupportTicket(input: z.infer<typeof SubmitSupportTic
         throw new Error(validation.error.errors.map(e => e.message).join(', '));
     }
 
-    const { uid, email, category, topic, body, attachmentName } = validation.data;
+    const { uid, email, category, topic, body } = validation.data;
 
     try {
         const ticketRef = adminDb.collection('supportTickets').doc();
@@ -32,7 +31,6 @@ export async function submitSupportTicket(input: z.infer<typeof SubmitSupportTic
             category,
             topic,
             body,
-            attachmentName: attachmentName || null,
             status: 'open',
             createdAt: FieldValue.serverTimestamp(),
             updatedAt: FieldValue.serverTimestamp(),
