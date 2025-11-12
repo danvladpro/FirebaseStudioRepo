@@ -19,15 +19,17 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ModeToggle } from './mode-toggle';
 import { cn } from '@/lib/utils';
-import { Crown, Settings, Clock } from 'lucide-react';
+import { Crown, Settings, Clock, LifeBuoy } from 'lucide-react';
 import React from 'react';
 import { EditProfileModal } from './edit-profile-modal';
 import { differenceInDays, formatDistanceToNow } from 'date-fns';
+import { SupportModal } from './support-modal';
 
 export function AppHeader() {
   const { user, userProfile, isPremium } = useAuth();
   const router = useRouter();
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = React.useState(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = React.useState(false);
 
 
   const handleLogout = async () => {
@@ -74,6 +76,7 @@ export function AppHeader() {
   return (
     <>
       <EditProfileModal isOpen={isEditProfileModalOpen} onOpenChange={setIsEditProfileModalOpen} />
+      <SupportModal isOpen={isSupportModalOpen} onOpenChange={setIsSupportModalOpen} />
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-6">
@@ -130,6 +133,10 @@ export function AppHeader() {
                   <DropdownMenuItem onSelect={() => setIsEditProfileModalOpen(true)}>
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setIsSupportModalOpen(true)}>
+                    <LifeBuoy className="mr-2 h-4 w-4" />
+                    Support
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
