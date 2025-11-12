@@ -17,6 +17,7 @@ import { Challenge } from '@/lib/types';
 import Confetti from 'react-confetti';
 import { updateUserPerformance } from '@/app/actions/update-user-performance';
 import { toast } from '@/hooks/use-toast';
+import { XP_CONFIG } from './home-page-client';
 
 const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
@@ -71,6 +72,8 @@ export default function ResultsDisplay() {
   const correctAnswers = totalChallenges - skippedCount;
   const score = totalChallenges > 0 ? (correctAnswers / totalChallenges) * 100 : 0;
   const isPerfectScore = skippedCount === 0;
+
+  const xpEarned = (isPerfectScore && challengeSet?.level) ? XP_CONFIG[challengeSet.level] : 0;
 
   const getOsKeys = (challenge: Challenge, isMac: boolean) => {
     const isStrikethrough = challenge.description.toLowerCase().includes('strikethrough');
@@ -154,6 +157,16 @@ export default function ResultsDisplay() {
                 <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
               </div>
             </div>
+            
+            {xpEarned > 0 && (
+                <div>
+                    <p className="text-sm text-muted-foreground">XP Earned</p>
+                    <p className="text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
+                        +{xpEarned} XP
+                    </p>
+                </div>
+            )}
+
             {isLoaded && isPerfectScore && personalBest && user && (
               <div>
                 <p className="text-sm text-muted-foreground">Personal Best (Time)</p>

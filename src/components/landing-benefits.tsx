@@ -80,15 +80,15 @@ export function LandingBenefits() {
                 <ul className="grid gap-4 text-muted-foreground md:text-lg">
                    <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                      <span>Boost your productivity: Proficient users save an average of 8 workdays a year.</span>
+                      <span><strong className="text-primary">Boost your productivity:</strong> Proficient users save an average of 8 workdays a year.</span>
                    </li>
                    <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                      <span>Get Hired Faster: 82% of middle-skill jobs require digital skills like Excel. Stand out to employers.</span>
+                      <span><strong className="text-primary">Get Hired Faster:</strong> 82% of middle-skill jobs require digital skills like Excel. Stand out to employers.</span>
                    </li>
                    <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                      <span>Reduce Cognitive Load: Build muscle memory to stay in the flow and focus on analysis, not on hunting for menus.</span>
+                      <span><strong className="text-primary">Reduce Cognitive Load:</strong> Build muscle memory to stay in the flow and focus on analysis, not on hunting for menus.</span>
                    </li>
                 </ul>
               </div>
@@ -126,15 +126,15 @@ export function LandingBenefits() {
                 <ul className="grid gap-4 text-muted-foreground md:text-lg">
                   <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                      <span>Drive team efficiency: Proficient users complete tasks up to 50% faster, boosting team output.</span>
+                      <span><strong className="text-primary">Drive team efficiency:</strong> Proficient users complete tasks up to 50% faster, boosting team output.</span>
                    </li>
                    <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                      <span>Reduce costly errors: Keyboard-driven operations are more consistent, improving data quality across the board.</span>
+                      <span><strong className="text-primary">Reduce costly errors:</strong> Keyboard-driven operations are more consistent, improving data quality across the board.</span>
                    </li>
                    <li className="flex items-start gap-2">
                       <Check className="h-5 w-5 mt-1 text-primary flex-shrink-0" />
-                      <span>Cultivate a high-performance culture by empowering employees to work smarter, not harder.</span>
+                      <span><strong className="text-primary">Cultivate a high-performance culture</strong> by empowering employees to <b>work smarter, not harder.</b></span>
                    </li>
                 </ul>
               </div>

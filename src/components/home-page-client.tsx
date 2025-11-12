@@ -43,18 +43,17 @@ interface HomePageClientProps {
   examSets: ChallengeSet[];
 }
 
-const XP_CONFIG = {
-  Beginner: 10,
-  Intermediate: 20,
-  Advanced: 30,
+export const XP_CONFIG = {
+  Beginner: 20,
+  Intermediate: 40,
+  Advanced: 60,
 };
 
 const LEVEL_THRESHOLDS = [
     { level: 'Rookie', xp: 0, icon: <Image src="/Level0.png" alt="Rookie" width={64} height={64} /> },
     { level: 'Apprentice', xp: 50, icon: <Image src="/Level1.png" alt="Apprentice" width={64} height={64} /> },
-    { level: 'Journeyman', xp: 120, icon: <Image src="/Level2.png" alt="Journeyman" width={64} height={64} /> },
-    { level: 'Master', xp: 200, icon: <Image src="/Level3.png" alt="Master" width={64} height={64} /> },
-    { level: 'Excel Ninja', xp: 300, icon: <Image src="/Level4.png" alt="Excel Ninja" width={64} height={64} /> }
+    { level: 'Master', xp: 120, icon: <Image src="/Level2.png" alt="Master" width={64} height={64} /> },
+    { level: 'Ninja', xp: 200, icon: <Image src="/Level3.png" alt="Ninja" width={64} height={64} /> }
 ];
 
 
@@ -605,6 +604,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 }
 
     
+
 
 
 
