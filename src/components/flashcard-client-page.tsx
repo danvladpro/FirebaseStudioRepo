@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { VisualKeyboard } from "./visual-keyboard";
 import * as icons from "lucide-react";
 import { useAuth } from "./auth-provider";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 interface KeyDisplayProps {
     value: string;
@@ -145,7 +146,18 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
             </Card>
 
             <div className="w-full mt-8">
-                 <VisualKeyboard highlightedKeys={isAnswerShown ? getOsKeys(currentChallenge, isMac) : []} />
+                 <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                             <VisualKeyboard highlightedKeys={isAnswerShown ? getOsKeys(currentChallenge, isMac) : []} />
+                        </TooltipTrigger>
+                        {!isAnswerShown && (
+                            <TooltipContent>
+                                <p>The correct keys will be highlighted here once you flip the card.</p>
+                            </TooltipContent>
+                        )}
+                    </Tooltip>
+                 </TooltipProvider>
             </div>
         </div>
     );
