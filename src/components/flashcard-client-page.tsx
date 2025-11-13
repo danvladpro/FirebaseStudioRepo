@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, ElementType, useEffect } from "react";
@@ -97,7 +98,7 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                     Card {currentIndex + 1} of {challenges.length}
                 </p>
 
-                <Button variant="ghost" size="icon" onClick={handlePrevious} className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+                <Button variant="ghost" size="icon" onClick={handlePrevious} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 animate-pulse-subtle">
                     <ChevronLeft />
                 </Button>
 
@@ -131,14 +132,14 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                             </div>
                         </div>
                         ) : (
-                        <Button onClick={toggleAnswer} variant="outline" className="mt-2">
+                        <Button onClick={toggleAnswer} variant="outline" className="mt-2 animate-pulse-subtle">
                             <Eye className="mr-2" /> Show Shortcut
                         </Button>
                         )}
                     </div>
                 </CardContent>
 
-                <Button variant="ghost" size="icon" onClick={handleNext} className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+                <Button variant="ghost" size="icon" onClick={handleNext} className="absolute right-4 top-1/2 -translate-y-1/2 z-10 animate-pulse-subtle">
                     <ChevronRight />
                 </Button>
             </Card>
