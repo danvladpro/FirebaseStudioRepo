@@ -117,8 +117,14 @@ export default {
           },
         },
         'pulse-subtle': {
-            '0%, 100%': { transform: 'scale(1)' },
-            '50%': { transform: 'scale(1.05)' },
+            '0%, 100%': { 
+                transform: 'scale(1)', 
+                color: 'hsl(var(--foreground))'
+            },
+            '50%': { 
+                transform: 'scale(1.05)', 
+                color: 'hsl(var(--primary))'
+            },
         },
       },
       animation: {
