@@ -43,13 +43,12 @@ export function FlashcardSetPageContent({ challengeSet }: { challengeSet: Challe
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <AppHeader />
       <main className="flex-1 flex flex-col items-center pb-12 container pt-24">
-        <header className="w-full max-w-4xl mb-8 flex items-center justify-between">
+        <header className="w-full max-w-4xl mb-6 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
               {Icon && <Icon className="w-8 h-8 text-primary" />}
               <h1 className="text-3xl font-bold">{challengeSet.name}</h1>
             </div>
-            <p className="text-muted-foreground mt-1">Study the shortcuts for this set.</p>
           </div>
            <Button asChild variant="outline">
               <Link href="/dashboard">
