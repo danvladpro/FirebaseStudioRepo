@@ -297,7 +297,12 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
         <div className="flex items-center justify-center gap-2 h-10">
           {feedback === 'correct' && <CheckCircle className="h-10 w-10 text-green-500" />}
           {feedback === 'incorrect' && <XCircle className="h-10 w-10 text-destructive" />}
-          {feedback === null && <Keyboard className="h-10 w-10 text-muted-foreground" />}
+          {feedback === null && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Keyboard className="h-8 w-8" />
+              <span className="text-lg">Use your keyboard</span>
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter className="bg-muted/50 min-h-[80px] flex items-center justify-between gap-2 flex-wrap p-4">
