@@ -3,10 +3,10 @@
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
 import { useRouter } from "next/navigation";
-import { ChallengeSet } from "@/lib/types";
+import { ChallengeSet, ChallengeStep } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight } from "lucide-react";
+import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, StepForward } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
@@ -44,6 +44,7 @@ const KeyDisplay = ({ value, isNext }: { value: string, isNext?: boolean }) => {
 export default function ChallengeUI({ set }: ChallengeUIProps) {
   const router = useRouter();
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [sequence, setSequence] = useState<string[]>([]);
   const [startTime, setStartTime] = useState(0);
@@ -64,6 +65,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
+  const currentStep = currentChallenge?.steps[currentStepIndex];
 
   const finishChallenge = useCallback((finalSkipped: number[]) => {
       const duration = (Date.now() - startTime) / 1000;
@@ -81,12 +83,12 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   };
 
   const getRequiredKeys = useCallback(() => {
-    if (!currentChallenge) return new Set();
+    if (!currentStep) return new Set();
 
     // Strikethrough (Ctrl+5) is an exception, it's the same on Mac and Windows.
-    const isStrikethrough = currentChallenge.description.toLowerCase().includes('strikethrough');
+    const isStrikethrough = currentStep.description.toLowerCase().includes('strikethrough');
 
-    const keys = currentChallenge.keys.map(k => {
+    const keys = currentStep.keys.map(k => {
       if (isMac) {
         if (k.toLowerCase() === 'control' && !isStrikethrough) {
           return 'Meta'; // On Mac, 'Control' from challenges should map to 'Command' (Meta) key
@@ -95,7 +97,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       return k;
     });
     return new Set(keys.map(k => normalizeKey(k)));
-  }, [currentChallenge, isMac]);
+  }, [currentStep, isMac]);
 
   
   const moveToNext = useCallback((updatedSkippedIndices: number[]) => {
@@ -115,6 +117,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     setTimeout(() => {
         setSkippedIndices(updatedSkippedIndices);
         setCurrentChallengeIndex(prev => prev + 1);
+        setCurrentStepIndex(0);
         setFeedback(null);
         setPressedKeys(new Set());
         setSequence([]);
@@ -129,10 +132,22 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     moveToNext(newSkipped);
   }, [moveToNext, currentChallengeIndex, skippedIndices]);
 
-  const advanceChallenge = useCallback(() => {
-    setFeedback("correct");
-    moveToNext(skippedIndices);
-  }, [moveToNext, skippedIndices]);
+  const advanceStepOrChallenge = useCallback(() => {
+    const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
+    if (isLastStep) {
+        setFeedback("correct");
+        moveToNext(skippedIndices);
+    } else {
+        setFeedback("correct");
+        setTimeout(() => {
+            setCurrentStepIndex(prev => prev + 1);
+            setFeedback(null);
+            setPressedKeys(new Set());
+            setSequence([]);
+            keydownProcessed.current = false;
+        }, 300);
+    }
+  }, [currentStepIndex, currentChallenge, skippedIndices, moveToNext]);
   
   const handleIncorrect = () => {
     setFeedback("incorrect");
@@ -145,10 +160,10 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   };
   
   useEffect(() => {
-    if (currentChallengeIndex === 0 && startTime === 0) {
+    if (currentChallengeIndex === 0 && currentStepIndex === 0 && startTime === 0) {
       setStartTime(Date.now());
     }
-  }, [currentChallengeIndex, startTime]);
+  }, [currentChallengeIndex, currentStepIndex, startTime]);
 
   useEffect(() => {
     if(startTime === 0) return;
@@ -180,11 +195,11 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             if (timeoutRef.current) clearTimeout(timeoutRef.current);
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [currentChallengeIndex, skippedIndices, moveToNext]);
+    }, [currentChallengeIndex, currentStepIndex, skippedIndices, moveToNext]);
 
 
   useEffect(() => {
-    if (!currentChallenge) return;
+    if (!currentStep) return;
     
     const handleKeyDown = (e: KeyboardEvent) => {
         e.preventDefault();
@@ -192,7 +207,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
         const key = normalizeKey(e.key);
 
-        if (currentChallenge.isSequential) {
+        if (currentStep.isSequential) {
             const newSequence = [...sequence, key];
             setSequence(newSequence);
 
@@ -208,7 +223,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             
             if (newSequence.length === requiredSequence.length) {
                 keydownProcessed.current = true;
-                advanceChallenge();
+                advanceStepOrChallenge();
             }
         } else {
             const newKeys = new Set(pressedKeys);
@@ -222,7 +237,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
             if (sortedPressed === sortedRequired) {
                 keydownProcessed.current = true;
-                advanceChallenge();
+                advanceStepOrChallenge();
             } else if (newKeys.size >= requiredKeys.size) {
                 handleIncorrect();
             }
@@ -232,7 +247,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     const handleKeyUp = (e: KeyboardEvent) => {
         e.preventDefault();
         
-        if (!currentChallenge.isSequential && !keydownProcessed.current) {
+        if (!currentStep.isSequential && !keydownProcessed.current) {
             setPressedKeys(new Set());
         }
     };
@@ -244,12 +259,12 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, sequence, currentChallenge, advanceChallenge, getRequiredKeys]);
+  }, [pressedKeys, sequence, currentStep, advanceStepOrChallenge, getRequiredKeys]);
 
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;
   
-  if (!currentChallenge) {
+  if (!currentChallenge || !currentStep) {
     return (
         <Card className="w-full max-w-2xl">
             <CardHeader>
@@ -262,7 +277,8 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     );
   }
 
-  const ChallengeIcon = icons[currentChallenge.iconName] as ElementType;
+  const ChallengeIcon = icons[currentStep.iconName] as ElementType;
+  const isMultiStep = currentChallenge.steps.length > 1;
 
   return (
     <Card className={cn(
@@ -287,10 +303,15 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
           </div>
         </div>
         <Progress value={progress} className="w-full" />
-        <p className="text-sm text-muted-foreground text-center pt-2">{currentChallengeIndex + 1} of {set.challenges.length}</p>
+        <p className="text-sm text-muted-foreground text-center pt-2">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>
       </CardHeader>
       <CardContent className="text-center py-12">
-        <p className="text-xl md:text-2xl font-semibold text-foreground mb-6">{currentChallenge.description}</p>
+        {isMultiStep && (
+            <div className="mb-4">
+                <p className="text-sm text-muted-foreground">Step {currentStepIndex + 1} of {currentChallenge.steps.length}</p>
+            </div>
+        )}
+        <p className="text-xl md:text-2xl font-semibold text-foreground mb-6">{currentStep.description}</p>
         <div className="flex justify-center items-center h-24 bg-muted rounded-lg mb-6 overflow-hidden">
              {ChallengeIcon && <ChallengeIcon className="w-16 h-16 text-primary" />}
         </div>
@@ -307,7 +328,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       </CardContent>
       <CardFooter className="bg-muted/50 min-h-[80px] flex items-center justify-between gap-2 flex-wrap p-4">
         <div className="flex items-center justify-center gap-2">
-            {currentChallenge.isSequential ? (
+            {currentStep.isSequential ? (
               sequence.length > 0 ? (
                 sequence.map((key, index) => <KeyDisplay key={index} value={key} />)
               ) : <span className="text-muted-foreground">Press the required keys in sequence...</span>
@@ -320,13 +341,9 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             )}
         </div>
         <Button variant="outline" size="sm" onClick={handleSkip} disabled={isAdvancing.current}>
-            Skip <ChevronsRight className="ml-2 h-4 w-4" />
+            Skip Scenario <ChevronsRight className="ml-2 h-4 w-4" />
         </Button>
       </CardFooter>
     </Card>
   );
 }
-
-    
-
-    

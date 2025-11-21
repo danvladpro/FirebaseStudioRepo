@@ -1,5 +1,10 @@
 
-import { ChallengeSet, ChallengeLevel } from "./types";
+import { ChallengeSet, ChallengeLevel, Challenge } from "./types";
+
+const singleStep = (challenge: Omit<Challenge, 'steps'>): Challenge => ({
+    ...challenge,
+    steps: [{ description: challenge.description, keys: challenge.keys, iconName: challenge.iconName, isSequential: challenge.isSequential }]
+});
 
 export const CHALLENGE_SETS: ChallengeSet[] = [
   {
@@ -10,11 +15,11 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Formatting",
     iconName: "Pilcrow",
     challenges: [
-      { description: "Bold the current selection", keys: ["Control", "b"], iconName: "Bold" },
-      { description: "Italicize the current selection", keys: ["Control", "i"], iconName: "Italic" },
-      { description: "Underline the current selection", keys: ["Control", "u"], iconName: "Underline" },
-      { description: "Apply or remove strikethrough", keys: ["Control", "5"], iconName: "Strikethrough" },
-      { description: "Open the Format Cells dialog", keys: ["Control", "1"], iconName: "Settings2" },
+      singleStep({ description: "Bold the current selection", keys: ["Control", "b"], iconName: "Bold" }),
+      singleStep({ description: "Italicize the current selection", keys: ["Control", "i"], iconName: "Italic" }),
+      singleStep({ description: "Underline the current selection", keys: ["Control", "u"], iconName: "Underline" }),
+      singleStep({ description: "Apply or remove strikethrough", keys: ["Control", "5"], iconName: "Strikethrough" }),
+      singleStep({ description: "Open the Format Cells dialog", keys: ["Control", "1"], iconName: "Settings2" }),
     ],
   },
   {
@@ -25,13 +30,13 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Navigation",
     iconName: "ArrowRightLeft",
     challenges: [
-      { description: "Go to the beginning of the row", keys: ["Home"], iconName: "Home" },
-      { description: "Go to the beginning of the worksheet", keys: ["Control", "Home"], iconName: "PanelTopOpen" },
-      { description: "Go to the last cell on the worksheet", keys: ["Control", "End"], iconName: "PanelBottomOpen" },
-      { description: "Move to the edge of the current data region", keys: ["Control", "ArrowRight"], iconName: "MoveRight" },
-      { description: "Move down one screen", keys: ["PageDown"], iconName: "ArrowDownToLine" },
-      { description: "Move up one screen", keys: ["PageUp"], iconName: "ArrowUpToLine" },
-      { description: "Open the 'Go To' dialog box", keys: ["F5"], iconName: "Locate" },
+      singleStep({ description: "Go to the beginning of the row", keys: ["Home"], iconName: "Home" }),
+      singleStep({ description: "Go to the beginning of the worksheet", keys: ["Control", "Home"], iconName: "PanelTopOpen" }),
+      singleStep({ description: "Go to the last cell on the worksheet", keys: ["Control", "End"], iconName: "PanelBottomOpen" }),
+      singleStep({ description: "Move to the edge of the current data region", keys: ["Control", "ArrowRight"], iconName: "MoveRight" }),
+      singleStep({ description: "Move down one screen", keys: ["PageDown"], iconName: "ArrowDownToLine" }),
+      singleStep({ description: "Move up one screen", keys: ["PageUp"], iconName: "ArrowUpToLine" }),
+      singleStep({ description: "Open the 'Go To' dialog box", keys: ["F5"], iconName: "Locate" }),
     ],
   },
   {
@@ -42,11 +47,11 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Clipboard",
     iconName: "ClipboardCopy",
     challenges: [
-      { description: "Copy the selection", keys: ["Control", "c"], iconName: "Copy" },
-      { description: "Cut the selection", keys: ["Control", "x"], iconName: "Scissors" },
-      { description: "Paste content", keys: ["Control", "v"], iconName: "ClipboardPaste" },
-      { description: "Undo the last action", keys: ["Control", "z"], iconName: "Undo2" },
-      { description: "Redo the last action", keys: ["Control", "y"], iconName: "Redo2" },
+      singleStep({ description: "Copy the selection", keys: ["Control", "c"], iconName: "Copy" }),
+      singleStep({ description: "Cut the selection", keys: ["Control", "x"], iconName: "Scissors" }),
+      singleStep({ description: "Paste content", keys: ["Control", "v"], iconName: "ClipboardPaste" }),
+      singleStep({ description: "Undo the last action", keys: ["Control", "z"], iconName: "Undo2" }),
+      singleStep({ description: "Redo the last action", keys: ["Control", "y"], iconName: "Redo2" }),
     ],
   },
   {
@@ -57,11 +62,11 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Selection",
     iconName: "MousePointerSquareDashed",
     challenges: [
-      { description: "Select the entire column", keys: ["Control", " "], iconName: "Columns3" },
-      { description: "Select the entire row", keys: ["Shift", " "], iconName: "Rows3" },
-      { description: "Select the entire worksheet", keys: ["Control", "a"], iconName: "SelectAll" },
-      { description: "Extend selection to the last used cell", keys: ["Control", "Shift", "End"], iconName: "ArrowDownRightSquare" },
-      { description: "Add non-adjacent cells to selection", keys: ["Shift", "F8"], iconName: "PlusSquare" },
+      singleStep({ description: "Select the entire column", keys: ["Control", " "], iconName: "Columns3" }),
+      singleStep({ description: "Select the entire row", keys: ["Shift", " "], iconName: "Rows3" }),
+      singleStep({ description: "Select the entire worksheet", keys: ["Control", "a"], iconName: "SelectAll" }),
+      singleStep({ description: "Extend selection to the last used cell", keys: ["Control", "Shift", "End"], iconName: "ArrowDownRightSquare" }),
+      singleStep({ description: "Add non-adjacent cells to selection", keys: ["Shift", "F8"], iconName: "PlusSquare" }),
     ],
   },
     {
@@ -72,11 +77,11 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Formulas",
     iconName: "FunctionSquare",
     challenges: [
-      { description: "Start a formula", keys: ["="], iconName: "Sigma" },
-      { description: "Toggle absolute/relative references", keys: ["F4"], iconName: "Anchor" },
-      { description: "Insert the AutoSum formula", keys: ["Alt", "="], iconName: "Calculator" },
-      { description: "Toggle displaying formulas or values", keys: ["Control", "`"], iconName: "FileCode" },
-      { description: "Edit the active cell", keys: ["F2"], iconName: "Pencil" },
+      singleStep({ description: "Start a formula", keys: ["="], iconName: "Sigma" }),
+      singleStep({ description: "Toggle absolute/relative references", keys: ["F4"], iconName: "Anchor" }),
+      singleStep({ description: "Insert the AutoSum formula", keys: ["Alt", "="], iconName: "Calculator" }),
+      singleStep({ description: "Toggle displaying formulas or values", keys: ["Control", "`"], iconName: "FileCode" }),
+      singleStep({ description: "Edit the active cell", keys: ["F2"], iconName: "Pencil" }),
     ],
   },
   {
@@ -84,15 +89,15 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     name: "Data Operations",
     description: "Sort, filter, and manage data with ease.",
     level: "Intermediate",
-category: "Data",
+    category: "Data",
     iconName: "Filter",
     challenges: [
-      { description: "Apply or clear the filter", keys: ["Control", "Shift", "l"], iconName: "Filter" },
-      { description: "Open the Create Table dialog", keys: ["Control", "t"], iconName: "Table" },
-      { description: "Automatically fill values down", keys: ["Control", "d"], iconName: "ArrowDownSquare" },
-      { description: "Automatically fill values to the right", keys: ["Control", "r"], iconName: "ArrowRightSquare" },
-      { description: "Use Flash Fill to automatically fill a column", keys: ["Control", "e"], iconName: "Wand2" },
-      { description: "Select only the visible cells in a selection", keys: ["Alt", ";"], iconName: "Aperture" }
+      singleStep({ description: "Apply or clear the filter", keys: ["Control", "Shift", "l"], iconName: "Filter" }),
+      singleStep({ description: "Open the Create Table dialog", keys: ["Control", "t"], iconName: "Table" }),
+      singleStep({ description: "Automatically fill values down", keys: ["Control", "d"], iconName: "ArrowDownSquare" }),
+      singleStep({ description: "Automatically fill values to the right", keys: ["Control", "r"], iconName: "ArrowRightSquare" }),
+      singleStep({ description: "Use Flash Fill to automatically fill a column", keys: ["Control", "e"], iconName: "Wand2" }),
+      singleStep({ description: "Select only the visible cells in a selection", keys: ["Alt", ";"], iconName: "Aperture" })
     ],
   },
   {
@@ -103,14 +108,14 @@ category: "Data",
     category: "Ribbon",
     iconName: "GalleryVerticalEnd",
     challenges: [
-      { description: "Center align cell contents", keys: ["Alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true },
-      { description: "Merge and center cells", keys: ["Alt", "h", "m", "c"], iconName: "Merge", isSequential: true },
-      { description: "Apply all borders to selection", keys: ["Alt", "h", "b", "a"], iconName: "Grid", isSequential: true },
-      { description: "Apply a thick box border", keys: ["Alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true },
-      { description: "Wrap text in a cell", keys: ["Alt", "h", "w"], iconName: "WrapText", isSequential: true },
-      { description: "Set column width", keys: ["Alt", "h", "o", "w"], iconName: "Columns", isSequential: true },
-      { description: "Apply the Currency format", keys: ["Control", "Shift", "4"], iconName: "DollarSign" },
-      { description: "Apply the Percentage format", keys: ["Control", "Shift", "5"], iconName: "Percent" },
+      singleStep({ description: "Center align cell contents", keys: ["Alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true }),
+      singleStep({ description: "Merge and center cells", keys: ["Alt", "h", "m", "c"], iconName: "Merge", isSequential: true }),
+      singleStep({ description: "Apply all borders to selection", keys: ["Alt", "h", "b", "a"], iconName: "Grid", isSequential: true }),
+      singleStep({ description: "Apply a thick box border", keys: ["Alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true }),
+      singleStep({ description: "Wrap text in a cell", keys: ["Alt", "h", "w"], iconName: "WrapText", isSequential: true }),
+      singleStep({ description: "Set column width", keys: ["Alt", "h", "o", "w"], iconName: "Columns", isSequential: true }),
+      singleStep({ description: "Apply the Currency format", keys: ["Control", "Shift", "4"], iconName: "DollarSign" }),
+      singleStep({ description: "Apply the Percentage format", keys: ["Control", "Shift", "5"], iconName: "Percent" }),
     ],
   },
   {
@@ -121,16 +126,44 @@ category: "Data",
     category: "Management",
     iconName: "Layers",
     challenges: [
-      { description: "Insert new row(s)", keys: ["Control", "Shift", "="], iconName: "Sheet" },
-      { description: "Delete selected row(s)", keys: ["Control", "-"], iconName: "Trash2" },
-      { description: "Hide the selected rows", keys: ["Control", "9"], iconName: "EyeOff" },
-      { description: "Unhide any hidden rows within the selection", keys: ["Control", "Shift", "("], iconName: "Eye" },
-      { description: "Hide the selected columns", keys: ["Control", "0"], iconName: "EyeOff" },
-      { description: "Group rows or columns", keys: ["Alt", "Shift", "ArrowRight"], iconName: "Group" },
-      { description: "Ungroup rows or columns", keys: ["Alt", "Shift", "ArrowLeft"], iconName: "Ungroup" },
-      { description: "Open Paste Special dialog", keys: ["Control", "Alt", "v"], iconName: "ClipboardSignature" },
+      singleStep({ description: "Insert new row(s)", keys: ["Control", "Shift", "="], iconName: "Sheet" }),
+      singleStep({ description: "Delete selected row(s)", keys: ["Control", "-"], iconName: "Trash2" }),
+      singleStep({ description: "Hide the selected rows", keys: ["Control", "9"], iconName: "EyeOff" }),
+      singleStep({ description: "Unhide any hidden rows within the selection", keys: ["Control", "Shift", "("], iconName: "Eye" }),
+      singleStep({ description: "Hide the selected columns", keys: ["Control", "0"], iconName: "EyeOff" }),
+      singleStep({ description: "Group rows or columns", keys: ["Alt", "Shift", "ArrowRight"], iconName: "Group" }),
+      singleStep({ description: "Ungroup rows or columns", keys: ["Alt", "Shift", "ArrowLeft"], iconName: "Ungroup" }),
+      singleStep({ description: "Open Paste Special dialog", keys: ["Control", "Alt", "v"], iconName: "ClipboardSignature" }),
     ],
   },
+];
+
+export const SCENARIO_SETS: ChallengeSet[] = [
+    {
+        id: "scenario-reporting-warmup",
+        name: "Daily Reporting Warm-up",
+        description: "A common sequence for cleaning and preparing data.",
+        level: "Scenario",
+        category: "Scenario",
+        iconName: "BrainCircuit",
+        challenges: [
+            {
+                description: "Select, cut, and paste a column to a new location.",
+                steps: [
+                    { description: "Select the entire column.", keys: ["Control", " "], iconName: "Columns3" },
+                    { description: "Cut the selection.", keys: ["Control", "x"], iconName: "Scissors" },
+                    { description: "Paste the content.", keys: ["Control", "v"], iconName: "ClipboardPaste" },
+                ]
+            },
+            {
+                description: "Filter a table for a specific value, then clear the filter.",
+                steps: [
+                    { description: "Apply or clear the filter for the data range.", keys: ["Control", "Shift", "l"], iconName: "Filter" },
+                    { description: "Re-apply the filter to clear it.", keys: ["Control", "Shift", "l"], iconName: "FilterX" },
+                ]
+            }
+        ]
+    }
 ];
 
 const getChallengesByLevel = (level: ChallengeLevel) => {
@@ -166,4 +199,4 @@ export const ADVANCED_EXAM: ChallengeSet = {
 
 export const ALL_EXAM_SETS = [BASIC_EXAM, INTERMEDIATE_EXAM, ADVANCED_EXAM];
 
-export const ALL_CHALLENGE_SETS = [...CHALLENGE_SETS, ...ALL_EXAM_SETS];
+export const ALL_CHALLENGE_SETS = [...CHALLENGE_SETS, ...SCENARIO_SETS, ...ALL_EXAM_SETS];

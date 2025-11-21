@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download, BadgeCheck, Linkedin, Gem } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download, BadgeCheck, Linkedin, Gem, BrainCircuit } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { ChallengeSet } from "@/lib/types";
 import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
-import { CHALLENGE_SETS } from "@/lib/challenges";
+import { CHALLENGE_SETS, SCENARIO_SETS } from "@/lib/challenges";
 import { AppHeader } from "./app-header";
 import { useAuth } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
@@ -35,7 +35,8 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     GalleryVerticalEnd,
     Award,
     Medal,
-    Trophy
+    Trophy,
+    BrainCircuit
 };
 
 
@@ -47,6 +48,7 @@ export const XP_CONFIG = {
   Beginner: 20,
   Intermediate: 40,
   Advanced: 60,
+  Scenario: 100,
 };
 
 const LEVEL_THRESHOLDS = [
@@ -128,15 +130,17 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   };
 
   const completedSets = React.useMemo(() => {
-    const practiceSetIds = new Set(CHALLENGE_SETS.map(s => s.id));
+    const allSets = [...CHALLENGE_SETS, ...SCENARIO_SETS];
+    const practiceSetIds = new Set(allSets.map(s => s.id));
     return Object.keys(stats).filter(setId => 
         practiceSetIds.has(setId) && stats[setId]?.bestScore === 100
     );
   }, [stats]);
 
   const totalXP = React.useMemo(() => {
+    const allSets = [...CHALLENGE_SETS, ...SCENARIO_SETS];
     return completedSets.reduce((acc, setId) => {
-      const set = CHALLENGE_SETS.find(s => s.id === setId);
+      const set = allSets.find(s => s.id === setId);
       if (set && set.level) {
         return acc + (XP_CONFIG[set.level] || 0);
       }
@@ -182,6 +186,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     if (isLimited) return true;
     if (set.level === 'Intermediate' && !isIntermediateUnlocked) return true;
     if (set.level === 'Advanced' && !isAdvancedUnlocked) return true;
+    if (set.level === 'Scenario' && !isAdvancedUnlocked) return true;
     return false;
   };
 
@@ -189,21 +194,23 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     if (isLimited && set.id !== 'formatting-basics') return "Upgrade to Premium to unlock this set.";
     if (set.level === 'Intermediate' && !isIntermediateUnlocked) return "Complete all Beginner sets or pass the Basic Exam to unlock.";
     if (set.level === 'Advanced' && !isAdvancedUnlocked) return "Complete all Intermediate sets or pass the Intermediate Exam to unlock.";
+    if (set.level === 'Scenario' && !isAdvancedUnlocked) return "Complete all Advanced sets or pass the Advanced Exam to unlock scenarios.";
     return "";
   };
 
-  const setsToDisplay = CHALLENGE_SETS.map(set => ({ ...set, isLocked: getIsSetLocked(set) }));
+  const shortcutSetsToDisplay = CHALLENGE_SETS.map(set => ({ ...set, isLocked: getIsSetLocked(set) }));
+  const scenarioSetsToDisplay = SCENARIO_SETS.map(set => ({ ...set, isLocked: getIsSetLocked(set) }));
       
-  const groupedSets = setsToDisplay.reduce((acc, set) => {
+  const groupedShortcutSets = shortcutSetsToDisplay.reduce((acc, set) => {
     const level = set.level || 'Other';
     if (!acc[level]) {
       acc[level] = [];
     }
     acc[level].push(set);
     return acc;
-  }, {} as Record<string, typeof setsToDisplay>);
+  }, {} as Record<string, typeof shortcutSetsToDisplay>);
   
-  const levelOrder: (keyof typeof groupedSets)[] = ['Beginner', 'Intermediate', 'Advanced'];
+  const levelOrder: (keyof typeof groupedShortcutSets)[] = ['Beginner', 'Intermediate', 'Advanced'];
 
   const getIsExamLocked = (examId: string) => {
     if (isLimited) return true;
@@ -306,6 +313,97 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     }
     return cardContent;
   }
+
+  const renderSetCard = (set: ChallengeSet & { isLocked: boolean }) => {
+    const Icon = iconMap[set.iconName];
+    const setStats = stats[set.id];
+    const bestScore = setStats?.bestScore;
+    const bestTime = setStats?.bestTime;
+    const isCompleted = bestScore === 100;
+
+    const cardContent = (
+        <Card key={set.id} className={cn(
+            "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 hover:bg-accent/5",
+            set.isLocked && "bg-muted/50 text-muted-foreground border-dashed"
+        )}>
+            {isCompleted && !set.isLocked && (
+                <CheckCircle className="absolute top-2 right-2 w-5 h-5 text-green-500" />
+            )}
+            <CardContent className="p-4 flex items-center gap-4">
+                <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
+                <div className="flex-1">
+                    <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
+                    <p className="text-sm">{set.description} - {set.challenges.length} items</p>
+                </div>
+            </CardContent>
+
+            <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto] items-center justify-end gap-x-4 text-sm text-center">
+                <div className="flex flex-col items-center justify-center min-h-[44px]">
+                    {isLoaded ? (
+                        isCompleted ? (
+                        bestTime ? (
+                            <div className="flex items-center gap-1.5 text-green-600">
+                                <Timer className="w-4 h-4" />
+                                <span className="font-bold text-lg">{bestTime.toFixed(2)}s</span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-1.5 text-green-600">
+                                <CheckCircle className="w-5 h-5" />
+                                <span className="font-bold text-lg">Completed</span>
+                            </div>
+                        )
+                        ) : bestScore !== undefined && bestScore !== null ? (
+                            <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestScore.toFixed(0)}%</p>
+                        ) : (
+                            <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
+                        )
+                    ) : (
+                        <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
+                    )}
+                    <p>
+                    {isCompleted ? (bestTime ? "Best Time" : "Status") : "Best Score"}
+                    </p>
+                </div>
+
+                <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
+                    {set.isLocked ? (
+                        <Button className="w-full col-span-2" variant="secondary" disabled>
+                            <Lock className="mr-2 h-4 w-4" />
+                            Locked
+                        </Button>
+                    ) : (
+                        <>
+                        <Button asChild size="sm" className="w-full" variant="default">
+                            <Link href={`/challenge/${set.id}`}>
+                                <Library className="mr-2 h-4 w-4" /> Practice
+                            </Link>
+                        </Button>
+                        <Button asChild size="sm" variant="secondary" className="w-full">
+                            <Link href={`/flashcards/${set.id}`}>
+                                <Layers className="mr-2 h-4 w-4" /> Study
+                            </Link>
+                        </Button>
+                        </>
+                    )}
+                </div>
+            </div>
+        </Card>
+    );
+
+    if (set.isLocked) {
+        return (
+            <Tooltip key={set.id}>
+                <TooltipTrigger asChild>
+                    <div className="cursor-not-allowed">{cardContent}</div>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>{getSetLockTooltip(set)}</p>
+                </TooltipContent>
+            </Tooltip>
+        );
+    }
+    return cardContent;
+  }
   
   const getDashboardTitle = () => {
     if (userProfile?.name) return `Welcome back, ${userProfile.name}!`;
@@ -318,7 +416,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return "Learn the basics and upgrade to unlock your full potential.";
   }
   
-  const renderExamStatus = (examId: keyof typeof examStats, bestTime: number | null, bestScore: number | null) => {
+  const getExamStatus = (examId: keyof typeof examStats, bestTime: number | null, bestScore: number | null) => {
     const isLocked = getIsExamLocked(examId);
 
     if (isLocked) {
@@ -462,7 +560,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                    <p className="text-sm font-bold pl-8">{examStats['exam-basic']?.bestTime!.toFixed(2)}s</p>
                                )}
                            </div>
-                           {renderExamStatus('exam-basic', examStats['exam-basic']?.bestTime ?? null, examStats['exam-basic']?.bestScore ?? null)}
+                           {getExamStatus('exam-basic', examStats['exam-basic']?.bestTime ?? null, examStats['exam-basic']?.bestScore ?? null)}
                         </div>
                          <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-intermediate', examStats['exam-intermediate']?.bestScore ?? null))}>
                            <div className="flex flex-col gap-2">
@@ -474,7 +572,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                    <p className="text-sm font-bold pl-8">{examStats['exam-intermediate']?.bestTime!.toFixed(2)}s</p>
                                )}
                            </div>
-                           {renderExamStatus('exam-intermediate', examStats['exam-intermediate']?.bestTime ?? null, examStats['exam-intermediate']?.bestScore ?? null)}
+                           {getExamStatus('exam-intermediate', examStats['exam-intermediate']?.bestTime ?? null, examStats['exam-intermediate']?.bestScore ?? null)}
                         </div>
                          <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-advanced', examStats['exam-advanced']?.bestScore ?? null))}>
                             <div className="flex flex-col gap-2">
@@ -486,115 +584,35 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                    <p className="text-sm font-bold pl-8">{examStats['exam-advanced']?.bestTime!.toFixed(2)}s</p>
                                )}
                            </div>
-                           {renderExamStatus('exam-advanced', examStats['exam-advanced']?.bestTime ?? null, examStats['exam-advanced']?.bestScore ?? null)}
+                           {getExamStatus('exam-advanced', examStats['exam-advanced']?.bestTime ?? null, examStats['exam-advanced']?.bestScore ?? null)}
                         </div>
                     </CardContent>
                 </Card>
             </aside>
-            <section className="lg:col-span-2">
-                <h2 className="text-2xl font-bold mb-4">Practice &amp; Learn</h2>
-                <TooltipProvider>
-                    <div className="flex flex-col gap-8">
-                        {levelOrder.map(level => groupedSets[level] && (
-                            <div key={level}>
-                                <h3 className="text-xl font-semibold mb-4 capitalize">{level}</h3>
-                                <div className="flex flex-col gap-4">
-                                {groupedSets[level].map((set) => {
-                                    const Icon = iconMap[set.iconName];
-                                    const setStats = stats[set.id];
-                                    const bestScore = setStats?.bestScore;
-                                    const bestTime = setStats?.bestTime;
-                                    const isCompleted = bestScore === 100;
-
-                                    const cardContent = (
-                                        <Card key={set.id} className={cn(
-                                            "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 hover:bg-accent/5", 
-                                            set.isLocked && "bg-muted/50 text-muted-foreground border-dashed"
-                                        )}>
-                                            {isCompleted && !set.isLocked && (
-                                                <CheckCircle className="absolute top-2 right-2 w-5 h-5 text-green-500" />
-                                            )}
-                                            <CardContent className="p-4 flex items-center gap-4">
-                                                <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
-                                                <div className="flex-1">
-                                                    <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
-                                                    <p className="text-sm">{set.description} - {set.challenges.length} items</p>
-                                                </div>
-                                            </CardContent>
-                                            
-                                            <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto] items-center justify-end gap-x-4 text-sm text-center">
-                                                <div className="flex flex-col items-center justify-center min-h-[44px]">
-                                                    {isLoaded ? (
-                                                        isCompleted ? (
-                                                        bestTime ? (
-                                                            <div className="flex items-center gap-1.5 text-green-600">
-                                                                <Timer className="w-4 h-4" />
-                                                                <span className="font-bold text-lg">{bestTime.toFixed(2)}s</span>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="flex items-center gap-1.5 text-green-600">
-                                                                <CheckCircle className="w-5 h-5" />
-                                                                <span className="font-bold text-lg">Completed</span>
-                                                            </div>
-                                                        )
-                                                        ) : bestScore !== undefined && bestScore !== null ? (
-                                                            <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestScore.toFixed(0)}%</p>
-                                                        ) : (
-                                                            <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
-                                                        )
-                                                    ) : (
-                                                        <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
-                                                    )}
-                                                    <p>
-                                                    {isCompleted ? (bestTime ? "Best Time" : "Status") : "Best Score"}
-                                                    </p>
-                                                </div>
-                                            
-                                                <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
-                                                    {set.isLocked ? (
-                                                        <Button className="w-full col-span-2" variant="secondary" disabled>
-                                                          <Lock className="mr-2 h-4 w-4" />
-                                                          Locked
-                                                        </Button>
-                                                    ) : (
-                                                        <>
-                                                        <Button asChild size="sm" className="w-full" variant="default">
-                                                            <Link href={`/challenge/${set.id}`}>
-                                                                <Library className="mr-2 h-4 w-4" /> Practice
-                                                            </Link>
-                                                        </Button>
-                                                        <Button asChild size="sm" variant="secondary" className="w-full">
-                                                            <Link href={`/flashcards/${set.id}`}>
-                                                                <Layers className="mr-2 h-4 w-4" /> Study
-                                                            </Link>
-                                                        </Button>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    );
-                                    
-                                    if (set.isLocked) {
-                                        return (
-                                            <Tooltip key={set.id}>
-                                                <TooltipTrigger asChild>
-                                                    <div className="cursor-not-allowed">{cardContent}</div>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>{getSetLockTooltip(set)}</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        );
-                                    }
-
-                                    return cardContent;
-                                })}
+            <section className="lg:col-span-2 space-y-8">
+                <div>
+                    <h2 className="text-2xl font-bold mb-4">Real Scenarios</h2>
+                    <TooltipProvider>
+                        <div className="flex flex-col gap-4">
+                            {scenarioSetsToDisplay.map((set) => renderSetCard(set))}
+                        </div>
+                    </TooltipProvider>
+                </div>
+                <div>
+                    <h2 className="text-2xl font-bold mb-4">Learn Shortcuts</h2>
+                    <TooltipProvider>
+                        <div className="flex flex-col gap-8">
+                            {levelOrder.map(level => groupedShortcutSets[level] && (
+                                <div key={level}>
+                                    <h3 className="text-xl font-semibold mb-4 capitalize">{level}</h3>
+                                    <div className="flex flex-col gap-4">
+                                    {groupedShortcutSets[level].map((set) => renderSetCard(set))}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </TooltipProvider>
+                            ))}
+                        </div>
+                    </TooltipProvider>
+                </div>
             </section>
         </div>
       </main>
@@ -602,23 +620,3 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

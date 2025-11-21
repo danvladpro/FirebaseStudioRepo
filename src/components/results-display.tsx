@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from './ui/separator';
 import { useAuth } from './auth-provider';
 import { cn, buildLinkedInUrl } from '@/lib/utils';
-import { Challenge } from '@/lib/types';
+import { Challenge, ChallengeStep } from '@/lib/types';
 import Confetti from 'react-confetti';
 import { updateUserPerformance } from '@/app/actions/update-user-performance';
 import { toast } from '@/hooks/use-toast';
@@ -75,10 +75,10 @@ export default function ResultsDisplay() {
 
   const xpEarned = (isPerfectScore && challengeSet?.level) ? XP_CONFIG[challengeSet.level] : 0;
 
-  const getOsKeys = (challenge: Challenge, isMac: boolean) => {
-    const isStrikethrough = challenge.description.toLowerCase().includes('strikethrough');
+  const getOsKeys = (step: ChallengeStep, isMac: boolean) => {
+    const isStrikethrough = step.description.toLowerCase().includes('strikethrough');
     
-    return challenge.keys.map(key => {
+    return step.keys.map(key => {
         if (isMac && key.toLowerCase() === 'control' && !isStrikethrough) {
             return 'Meta';
         }
@@ -212,7 +212,7 @@ export default function ResultsDisplay() {
                             <li key={index} className="flex justify-between items-center">
                               <span>{challenge.description}</span>
                               <div className="flex items-center gap-1.5">
-                                {getOsKeys(challenge, isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
+                                {challenge.steps[0] && getOsKeys(challenge.steps[0], isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
                               </div>
                             </li>
                         ))}

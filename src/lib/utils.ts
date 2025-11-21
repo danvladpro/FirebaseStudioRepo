@@ -36,4 +36,3 @@ export const buildLinkedInUrl = (challengeSet: ChallengeSet, user: User) => {
 
     return linkedInUrl.toString();
   };
-

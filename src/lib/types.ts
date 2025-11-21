@@ -2,14 +2,22 @@
 import { type LucideIcon, type LucideProps } from "lucide-react";
 import { ElementType } from "react";
 
-export interface Challenge {
+export interface ChallengeStep {
   description: string;
   keys: string[];
   iconName: keyof typeof import("lucide-react");
   isSequential?: boolean;
 }
 
-export type ChallengeLevel = "Beginner" | "Intermediate" | "Advanced";
+export interface Challenge {
+  description: string;
+  keys?: string[]; // Optional for multi-step
+  iconName?: keyof typeof import("lucide-react"); // Optional for multi-step
+  isSequential?: boolean; // Optional for multi-step
+  steps: ChallengeStep[];
+}
+
+export type ChallengeLevel = "Beginner" | "Intermediate" | "Advanced" | "Scenario";
 
 export interface ChallengeSet {
   id: string;
