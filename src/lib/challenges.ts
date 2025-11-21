@@ -140,28 +140,77 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
 
 export const SCENARIO_SETS: ChallengeSet[] = [
     {
-        id: "scenario-reporting-warmup",
-        name: "Daily Reporting Warm-up",
-        description: "A common sequence for cleaning and preparing data.",
+        id: "data-manipulation-scenarios",
+        name: "Data Manipulation Scenarios",
+        description: "Practice common, multi-step data tasks.",
         level: "Scenario",
         category: "Scenario",
         iconName: "BrainCircuit",
         challenges: [
             {
-                description: "Select, cut, and paste a column to a new location.",
+                description: "Select a full row, then delete it.",
                 steps: [
-                    { description: "Select the entire column.", keys: ["Control", " "], iconName: "Columns3" },
+                    { description: "Select the entire row.", keys: ["Shift", " "], iconName: "Rows3" },
+                    { description: "Delete the selected row(s).", keys: ["Control", "-"], iconName: "Trash2" },
+                ]
+            },
+            {
+                description: "Select the current table, cut it, and paste it 5 cells down.",
+                steps: [
+                    { description: "Select the entire table/worksheet.", keys: ["Control", "a"], iconName: "SelectAll" },
                     { description: "Cut the selection.", keys: ["Control", "x"], iconName: "Scissors" },
                     { description: "Paste the content.", keys: ["Control", "v"], iconName: "ClipboardPaste" },
                 ]
             },
             {
-                description: "Filter a table for a specific value, then clear the filter.",
+                description: "Navigate to the right edge of your data, then enter edit mode.",
+                steps: [
+                    { description: "Move to the edge of the current data region.", keys: ["Control", "ArrowRight"], iconName: "MoveRight" },
+                    { description: "Edit the active cell.", keys: ["F2"], iconName: "Pencil" },
+                ]
+            },
+            {
+                description: "Select all data, then clear all formatting.",
+                steps: [
+                    { description: "Select all content.", keys: ["Control", "a"], iconName: "SelectAll" },
+                    { description: "Clear all formatting from selection.", keys: ["Alt", "h", "e", "f"], iconName: "Eraser", isSequential: true },
+                ]
+            },
+            {
+                description: "Activate filters on a table, then deactivate them.",
                 steps: [
                     { description: "Apply or clear the filter for the data range.", keys: ["Control", "Shift", "l"], iconName: "Filter" },
-                    { description: "Re-apply the filter to clear it.", keys: ["Control", "Shift", "l"], iconName: "FilterX" },
+                    { description: "Remove the filter from the data range.", keys: ["Control", "Shift", "l"], iconName: "FilterX" },
                 ]
-            }
+            },
+            {
+                description: "Select a column and format it as Currency.",
+                steps: [
+                    { description: "Select the entire column.", keys: ["Control", " "], iconName: "Columns3" },
+                    { description: "Apply the Currency format.", keys: ["Control", "Shift", "4"], iconName: "DollarSign" },
+                ]
+            },
+             {
+                description: "Select a range, bold it, then underline it.",
+                steps: [
+                    { description: "Bold the current selection.", keys: ["Control", "b"], iconName: "Bold" },
+                    { description: "Underline the current selection.", keys: ["Control", "u"], iconName: "Underline" },
+                ]
+            },
+            {
+                description: "Add an AutoSum to a column of numbers, then force a recalculation.",
+                steps: [
+                    { description: "Insert the AutoSum formula.", keys: ["Alt", "="], iconName: "Calculator" },
+                    { description: "Recalculate all worksheets.", keys: ["F9"], iconName: "RefreshCw" },
+                ]
+            },
+            {
+                description: "Switch to formula view to check your work, then switch back.",
+                steps: [
+                    { description: "Toggle displaying formulas or values.", keys: ["Control", "`"], iconName: "FileCode" },
+                    { description: "Toggle displaying values or formulas.", keys: ["Control", "`"], iconName: "FileText" },
+                ]
+            },
         ]
     }
 ];

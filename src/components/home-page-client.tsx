@@ -182,11 +182,18 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const isAdvancedUnlocked = isIntermediateCompleted || isIntermediateExamPassed;
 
   const getIsSetLocked = (set: ChallengeSet) => {
-    if (set.id === 'formatting-basics') return false; // Always unlock the first set
-    if (isLimited) return true;
+    // Free users can only access the first set.
+    if (isLimited) {
+      if (set.id === 'formatting-basics') return false;
+      return true;
+    }
+    // For premium users, scenarios are always unlocked.
+    if (set.category === 'Scenario') return false;
+
+    // For premium users, lock based on level progression.
     if (set.level === 'Intermediate' && !isIntermediateUnlocked) return true;
     if (set.level === 'Advanced' && !isAdvancedUnlocked) return true;
-    if (set.level === 'Scenario' && !isAdvancedUnlocked) return true;
+    
     return false;
   };
 
@@ -194,7 +201,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     if (isLimited && set.id !== 'formatting-basics') return "Upgrade to Premium to unlock this set.";
     if (set.level === 'Intermediate' && !isIntermediateUnlocked) return "Complete all Beginner sets or pass the Basic Exam to unlock.";
     if (set.level === 'Advanced' && !isAdvancedUnlocked) return "Complete all Intermediate sets or pass the Intermediate Exam to unlock.";
-    if (set.level === 'Scenario' && !isAdvancedUnlocked) return "Complete all Advanced sets or pass the Advanced Exam to unlock scenarios.";
+    if (set.category === 'Scenario' && isLimited) return "Upgrade to Premium to access scenarios.";
     return "";
   };
 
@@ -221,8 +228,8 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   
   const getExamLockTooltip = (examId: string) => {
     if (isLimited) return "Upgrade to Premium to unlock exams.";
-    if (examId === 'exam-intermediate' && (examStats['exam-basic']?.bestScore ?? 0) < 100) return "Complete the Basic Exam to unlock.";
-    if (examId === 'exam-advanced' && (examStats['exam-intermediate']?.bestScore ?? 0) < 100) return "Complete the Intermediate Exam to unlock.";
+    if (examId === 'exam-intermediate' && (examStats['exam-basic']?.bestScore ?? 0) < 100) return "Pass the Basic Exam to unlock.";
+    if (examId === 'exam-advanced' && (examStats['exam-intermediate']?.bestScore ?? 0) < 100) return "Pass the Intermediate Exam to unlock.";
     return "";
   }
   
@@ -367,9 +374,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
                 <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
                     {set.isLocked ? (
-                        <Button className="w-full col-span-2" variant="secondary" disabled>
-                            <Lock className="mr-2 h-4 w-4" />
-                            Locked
+                        <Button className="w-full col-span-2" variant={isLimited ? 'premium' : 'secondary'} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited && set.level !== 'Scenario'}>
+                           {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
+                           {isLimited ? 'Go Premium' : 'Locked'}
                         </Button>
                     ) : (
                         <>
