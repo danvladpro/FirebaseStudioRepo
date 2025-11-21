@@ -100,7 +100,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   }, [currentStep, isMac]);
 
   
-  const moveToNext = useCallback((updatedSkippedIndices: number[]) => {
+  const moveToNextChallenge = useCallback((updatedSkippedIndices: number[]) => {
     if (isAdvancing.current) return;
     isAdvancing.current = true;
 
@@ -129,14 +129,14 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
   const handleSkip = useCallback(() => {
     const newSkipped = [...skippedIndices, currentChallengeIndex];
-    moveToNext(newSkipped);
-  }, [moveToNext, currentChallengeIndex, skippedIndices]);
+    moveToNextChallenge(newSkipped);
+  }, [moveToNextChallenge, currentChallengeIndex, skippedIndices]);
 
   const advanceStepOrChallenge = useCallback(() => {
     const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
     if (isLastStep) {
         setFeedback("correct");
-        moveToNext(skippedIndices);
+        moveToNextChallenge(skippedIndices);
     } else {
         setFeedback("correct");
         setTimeout(() => {
@@ -147,7 +147,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             keydownProcessed.current = false;
         }, 300);
     }
-  }, [currentStepIndex, currentChallenge, skippedIndices, moveToNext]);
+  }, [currentStepIndex, currentChallenge, skippedIndices, moveToNextChallenge]);
   
   const handleIncorrect = () => {
     setFeedback("incorrect");
@@ -182,7 +182,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
         const autoSkip = () => {
             const newSkipped = [...skippedIndices, currentChallengeIndex];
-            moveToNext(newSkipped);
+            moveToNextChallenge(newSkipped);
         }
 
         timeoutRef.current = setTimeout(autoSkip, 8000);
@@ -195,7 +195,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             if (timeoutRef.current) clearTimeout(timeoutRef.current);
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [currentChallengeIndex, currentStepIndex, skippedIndices, moveToNext]);
+    }, [currentChallengeIndex, currentStepIndex, skippedIndices, moveToNextChallenge]);
 
 
   useEffect(() => {
