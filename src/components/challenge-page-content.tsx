@@ -27,18 +27,30 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
     <>
       <AppHeader />
       <main className="min-h-screen w-full flex flex-col items-center justify-center bg-muted/40 p-4 pt-20">
-        <div className="w-full max-w-2xl mb-4 flex justify-end">
-            <Button asChild variant="outline">
-                <Link href="/dashboard">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Dashboard
-                </Link>
-            </Button>
-        </div>
         {isPreloading ? (
-            <ChallengePreloader challengeSet={challengeSet} onLoaded={() => setIsPreloading(false)} />
+            <div className="w-full max-w-2xl flex flex-col gap-4">
+                <div className="flex justify-end">
+                    <Button asChild variant="outline">
+                        <Link href="/dashboard">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to Dashboard
+                        </Link>
+                    </Button>
+                </div>
+                <ChallengePreloader challengeSet={challengeSet} onLoaded={() => setIsPreloading(false)} />
+            </div>
         ) : (
-            <ChallengeUI set={challengeSet} />
+            <div className="w-full max-w-2xl flex flex-col gap-4">
+                 <div className="flex justify-end">
+                    <Button asChild variant="outline">
+                        <Link href="/dashboard">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to Dashboard
+                        </Link>
+                    </Button>
+                </div>
+                <ChallengeUI set={challengeSet} />
+            </div>
         )}
       </main>
     </>
