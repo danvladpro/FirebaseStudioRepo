@@ -1,5 +1,7 @@
+
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -7,10 +9,12 @@ import { ChallengeSet } from '@/lib/types';
 import { AppHeader } from '@/components/app-header';
 import ChallengeUI from '@/components/challenge-ui';
 import { useAuth } from './auth-provider';
+import { ChallengePreloader } from './challenge-preloader';
 
 export function ChallengePageContent({ challengeSet }: { challengeSet: ChallengeSet }) {
   const { user } = useAuth();
-  
+  const [isPreloading, setIsPreloading] = useState(true);
+
   if (!user) {
     return (
         <div className="flex min-h-screen w-full flex-col items-center justify-center bg-muted/40">
@@ -31,7 +35,11 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
                 </Link>
             </Button>
         </div>
-        <ChallengeUI set={challengeSet} />
+        {isPreloading ? (
+            <ChallengePreloader challengeSet={challengeSet} onLoaded={() => setIsPreloading(false)} />
+        ) : (
+            <ChallengeUI set={challengeSet} />
+        )}
       </main>
     </>
   );
