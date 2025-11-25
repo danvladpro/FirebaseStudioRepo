@@ -6,16 +6,17 @@ import { useRouter } from "next/navigation";
 import { ChallengeSet, ChallengeStep } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, StepForward } from "lucide-react";
+import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
+import { Separator } from "./ui/separator";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
 }
 
-const KeyDisplay = ({ value, isNext }: { value: string, isNext?: boolean }) => {
+const KeyDisplay = ({ value }: { value: string }) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta", "Command", "Option"].includes(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
@@ -30,8 +31,7 @@ const KeyDisplay = ({ value, isNext }: { value: string, isNext?: boolean }) => {
 
     return (
         <kbd className={cn(
-            "px-2 py-1.5 text-xs font-semibold rounded-md border-b-2",
-             isNext ? "text-primary-foreground bg-primary" : "text-muted-foreground bg-muted",
+            "px-2 py-1.5 text-xs font-semibold rounded-md border-b-2 text-muted-foreground bg-muted",
             isModifier ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
@@ -133,20 +133,21 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   }, [moveToNextChallenge, currentChallengeIndex, skippedIndices]);
 
   const advanceStepOrChallenge = useCallback(() => {
-    const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
-    if (isLastStep) {
-        setFeedback("correct");
-        moveToNextChallenge(skippedIndices);
-    } else {
-        setFeedback("correct");
-        setTimeout(() => {
+    setFeedback("correct");
+    keydownProcessed.current = true;
+
+    setTimeout(() => {
+        const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
+        if (isLastStep) {
+            moveToNextChallenge(skippedIndices);
+        } else {
             setCurrentStepIndex(prev => prev + 1);
             setFeedback(null);
             setPressedKeys(new Set());
             setSequence([]);
             keydownProcessed.current = false;
-        }, 300);
-    }
+        }
+    }, 300);
   }, [currentStepIndex, currentChallenge, skippedIndices, moveToNextChallenge]);
   
   const handleIncorrect = () => {
@@ -199,7 +200,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
 
   useEffect(() => {
-    if (!currentStep) return;
+    if (!currentStep || feedback === 'correct') return;
     
     const handleKeyDown = (e: KeyboardEvent) => {
         e.preventDefault();
@@ -259,7 +260,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, sequence, currentStep, advanceStepOrChallenge, getRequiredKeys]);
+  }, [pressedKeys, sequence, currentStep, advanceStepOrChallenge, getRequiredKeys, feedback]);
 
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;
@@ -276,14 +277,12 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
         </Card>
     );
   }
-
-  const ChallengeIcon = icons[currentStep.iconName] as ElementType;
+  
   const isMultiStep = currentChallenge.steps.length > 1;
 
   return (
     <Card className={cn(
         "w-full max-w-2xl transform transition-transform duration-500",
-        feedback === 'correct' && 'border-green-500 shadow-lg shadow-green-500/20',
         feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
     )}>
       <CardHeader>
@@ -305,25 +304,67 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
         <Progress value={progress} className="w-full" />
         <p className="text-sm text-muted-foreground text-center pt-2">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>
       </CardHeader>
-      <CardContent className="text-center py-12">
-        {isMultiStep && (
-            <div className="mb-4">
-                <p className="text-sm text-muted-foreground">Step {currentStepIndex + 1} of {currentChallenge.steps.length}</p>
-            </div>
-        )}
-        <p className="text-xl md:text-2xl font-semibold text-foreground mb-6">{currentStep.description}</p>
-        <div className="flex justify-center items-center h-24 bg-muted rounded-lg mb-6 overflow-hidden">
-             {ChallengeIcon && <ChallengeIcon className="w-16 h-16 text-primary" />}
-        </div>
-        <div className="flex items-center justify-center gap-2 h-10">
-          {feedback === 'correct' && <CheckCircle className="h-10 w-10 text-green-500" />}
-          {feedback === 'incorrect' && <XCircle className="h-10 w-10 text-destructive" />}
-          {feedback === null && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Keyboard className="h-8 w-8" />
-              <span className="text-lg">Use your keyboard</span>
-            </div>
-          )}
+      <CardContent className="text-center py-8">
+        <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-6">{currentChallenge.description}</h2>
+
+        <div className="flex flex-col gap-2 text-left">
+          {currentChallenge.steps.map((step, index) => {
+            const ChallengeIcon = icons[step.iconName] as ElementType;
+            const isCompleted = index < currentStepIndex;
+            const isActive = index === currentStepIndex;
+
+            return (
+              <div key={index}>
+                <div
+                  className={cn(
+                    "p-4 rounded-lg transition-all",
+                    isCompleted ? "bg-green-500/10" : "bg-muted/50",
+                    isActive && feedback !== 'incorrect' && "ring-2 ring-primary",
+                    isActive && feedback === 'incorrect' && "ring-2 ring-destructive"
+                  )}
+                >
+                  <div className="flex items-center gap-4">
+                    {isCompleted ? (
+                      <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+                    ) : (
+                      <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                         <Circle className={cn("w-4 h-4", isActive ? "text-primary" : "text-muted-foreground/50")} />
+                      </div>
+                    )}
+                    <p className={cn(
+                      "flex-1 font-medium",
+                      isCompleted && "text-green-700 line-through",
+                      !isActive && !isCompleted && "text-muted-foreground"
+                    )}>
+                      {step.description}
+                    </p>
+                    {ChallengeIcon && <ChallengeIcon className={cn(
+                        "w-10 h-10",
+                         isCompleted ? "text-green-500" : (isActive ? "text-primary" : "text-muted-foreground/50")
+                    )} />}
+                  </div>
+
+                  {isActive && (
+                     <div className="flex items-center justify-center gap-2 h-10 mt-4">
+                      {feedback === 'correct' && <CheckCircle className="h-10 w-10 text-green-500" />}
+                      {feedback === 'incorrect' && <XCircle className="h-10 w-10 text-destructive" />}
+                      {feedback === null && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Keyboard className="h-8 w-8" />
+                          <span className="text-lg">Use your keyboard</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {index < currentChallenge.steps.length - 1 && (
+                  <div className="h-6 flex justify-center">
+                    <ChevronDown className="w-5 h-5 text-muted-foreground/50" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </CardContent>
       <CardFooter className="bg-muted/50 min-h-[80px] flex items-center justify-between gap-2 flex-wrap p-4">
