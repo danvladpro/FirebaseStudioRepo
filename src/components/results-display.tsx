@@ -113,6 +113,8 @@ export default function ResultsDisplay() {
 
 
   const isExam = challengeSet?.category === 'Exam';
+  const isScenario = challengeSet?.category === 'Scenario';
+
 
   if (!challengeSet || time === null) {
     return (
@@ -207,16 +209,35 @@ export default function ResultsDisplay() {
                       <AlertTriangle className="w-4 h-4"/>
                       Areas for Improvement
                     </h3>
-                    <ul className="text-sm text-muted-foreground space-y-3 bg-muted/50 p-4 rounded-md">
-                        {skippedChallenges.map((challenge, index) => (
-                            <li key={index} className="flex justify-between items-center">
+                    <div className="text-sm text-muted-foreground space-y-4 bg-muted/50 p-4 rounded-md">
+                        {isScenario 
+                          ? skippedChallenges.map((challenge, index) => (
+                              <div key={index} className="space-y-2">
+                                <p className="font-semibold text-foreground">{index + 1}. {challenge.description}</p>
+                                <ul className="pl-4 space-y-2">
+                                  {challenge.steps.map((step, stepIndex) => (
+                                    <li key={stepIndex} className="flex justify-between items-center">
+                                      <span>- {step.description}</span>
+                                      <div className="flex items-center gap-1.5">
+                                        {getOsKeys(step, isMac).map((key, keyIndex) => (
+                                          <KeyDisplay key={keyIndex} value={key} isMac={isMac} />
+                                        ))}
+                                      </div>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))
+                          : skippedChallenges.map((challenge, index) => (
+                            <div key={index} className="flex justify-between items-center">
                               <span>{challenge.description}</span>
                               <div className="flex items-center gap-1.5">
                                 {challenge.steps[0] && getOsKeys(challenge.steps[0], isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
                               </div>
-                            </li>
-                        ))}
-                    </ul>
+                            </div>
+                          ))
+                        }
+                    </div>
                 </div>
               </div>
             )}
