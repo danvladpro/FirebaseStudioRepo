@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
 import { Separator } from "./ui/separator";
+import { VisualGrid, GridSelection } from "./visual-grid";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -55,6 +56,19 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const [countdown, setCountdown] = useState(8);
   const [isMac, setIsMac] = useState(false);
 
+  // Grid State
+  const [gridData, setGridData] = useState([
+    ['ID', 'Product', 'Region', 'Sales', 'Commission'],
+    ['#101', 'Gadget', 'North', '$1,200', '5%'],
+    ['#102', 'Widget', 'South', '$850', '6%'],
+    ['#103', 'Doohickey', 'East', '$2,100', '4%'],
+    ['#104', 'Thingamajig', 'West', '$500', '7%'],
+  ]);
+  const [gridSelection, setGridSelection] = useState<GridSelection>({
+      activeCell: { row: 1, col: 1 },
+      selectedCells: new Set(),
+  });
+
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
@@ -66,6 +80,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
 
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
+  const isScenario = set.category === 'Scenario';
 
   const finishChallenge = useCallback((finalSkipped: number[]) => {
       const duration = (Date.now() - startTime) / 1000;
@@ -99,6 +114,19 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     return new Set(keys.map(k => normalizeKey(k)));
   }, [currentStep, isMac]);
 
+  const resetForNextStep = () => {
+    setFeedback(null);
+    setPressedKeys(new Set());
+    setSequence([]);
+    keydownProcessed.current = false;
+
+    // Reset visual selection if not a selection-extending action
+    const isSelectionAction = currentStep?.description.toLowerCase().includes('select');
+    if (!isSelectionAction) {
+      setGridSelection(prev => ({ ...prev, selectedCells: new Set() }));
+    }
+  };
+
   
   const moveToNextChallenge = useCallback((updatedSkippedIndices: number[]) => {
     if (isAdvancing.current) return;
@@ -118,11 +146,8 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
         setSkippedIndices(updatedSkippedIndices);
         setCurrentChallengeIndex(prev => prev + 1);
         setCurrentStepIndex(0);
-        setFeedback(null);
-        setPressedKeys(new Set());
-        setSequence([]);
+        resetForNextStep();
         setCountdown(8);
-        keydownProcessed.current = false;
         isAdvancing.current = false;
     }, 300);
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
@@ -131,10 +156,43 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
     const newSkipped = [...skippedIndices, currentChallengeIndex];
     moveToNextChallenge(newSkipped);
   }, [moveToNextChallenge, currentChallengeIndex, skippedIndices]);
+  
+  const handleGridAction = (step: ChallengeStep) => {
+      const description = step.description.toLowerCase();
+      
+      if (description.includes('select the entire row')) {
+          const newSelection = new Set<string>();
+          const activeRow = gridSelection.activeCell.row;
+          for (let c = 0; c < gridData[0].length; c++) {
+              newSelection.add(`${activeRow}-${c}`);
+          }
+          setGridSelection(prev => ({...prev, selectedCells: newSelection}));
+      } else if (description.includes('select the entire column')) {
+          const newSelection = new Set<string>();
+          const activeCol = gridSelection.activeCell.col;
+          for (let r = 0; r < gridData.length; r++) {
+              newSelection.add(`${r}-${activeCol}`);
+          }
+          setGridSelection(prev => ({...prev, selectedCells: newSelection}));
+      } else if (description.includes('select the entire')) { // Covers 'worksheet' and 'table'
+          const newSelection = new Set<string>();
+          for(let r = 0; r < gridData.length; r++) {
+              for(let c = 0; c < gridData[r].length; c++) {
+                  newSelection.add(`${r}-${c}`);
+              }
+          }
+          setGridSelection(prev => ({...prev, selectedCells: newSelection}));
+      }
+      // Add other visual actions here for delete, cut, paste etc.
+  }
 
   const advanceStepOrChallenge = useCallback(() => {
     setFeedback("correct");
     keydownProcessed.current = true;
+    
+    if(isScenario && currentStep) {
+      handleGridAction(currentStep);
+    }
 
     setTimeout(() => {
         const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
@@ -142,13 +200,10 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             moveToNextChallenge(skippedIndices);
         } else {
             setCurrentStepIndex(prev => prev + 1);
-            setFeedback(null);
-            setPressedKeys(new Set());
-            setSequence([]);
-            keydownProcessed.current = false;
+            resetForNextStep();
         }
     }, 300);
-  }, [currentStepIndex, currentChallenge, skippedIndices, moveToNextChallenge]);
+  }, [currentStepIndex, currentChallenge, skippedIndices, moveToNextChallenge, isScenario, currentStep]);
   
   const handleIncorrect = () => {
     setFeedback("incorrect");
@@ -305,6 +360,13 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
         <p className="text-sm text-muted-foreground text-center pt-2">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>
       </CardHeader>
       <CardContent className="text-center py-8">
+        
+        {isScenario && (
+            <div className="mb-6">
+                <VisualGrid data={gridData} selection={gridSelection} />
+            </div>
+        )}
+
         <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-6">{currentChallenge.description}</h2>
 
         <div className="flex flex-col gap-2 text-left">
@@ -338,7 +400,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
                     )}>
                       {step.description}
                     </p>
-                    {ChallengeIcon && <ChallengeIcon className={cn(
+                    {ChallengeIcon && !isScenario && <ChallengeIcon className={cn(
                         "w-10 h-10",
                          isCompleted ? "text-green-500" : (isActive ? "text-primary" : "text-muted-foreground/50")
                     )} />}
