@@ -22,6 +22,10 @@ const faqs = [
         answer: "Your score is based on the number of challenges you complete successfully within a set. A perfect run (no skips) results in a score of 100%. Skipped challenges will lower your score."
     },
     {
+        question: "How do I earn XP and level up?",
+        answer: "You earn Experience Points (XP) for every challenge set you complete with a perfect score (100%). Different challenge types award different amounts of XP: Beginner sets are worth 20 XP, Intermediate are 40 XP, Advanced are 60 XP, and Scenarios are 100 XP. As you accumulate XP, you will achieve new ranks: Rookie (0 XP), Apprentice (50 XP), Master (120 XP), and finally, Excel Ninja (200 XP)."
+    },
+    {
         question: "What's the difference between 'Learn Shortcuts' and 'Real Scenarios'?",
         answer: "'Learn Shortcuts' focuses on mastering one shortcut at a time to build muscle memory. 'Real Scenarios' chains multiple shortcuts together into a realistic workflow, testing your ability to apply your skills in sequence."
     },
