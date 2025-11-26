@@ -7,10 +7,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const generateCertificateId = (user: User, challengeSet: ChallengeSet) => {
-  return `${user.uid.slice(0, 8)}-${challengeSet.id}-${new Date().getTime()}`;
-}
-
 export const buildLinkedInUrl = (challengeSet: ChallengeSet, user: User, certId: string) => {
     if (!challengeSet || !user) return "";
 

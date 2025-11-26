@@ -14,7 +14,7 @@ const UpdateUserPerformanceSchema = z.object({
 });
 
 const generateCertificateId = (uid: string, setId: string) => {
-    return `${uid.slice(0, 8)}-${setId}-${new Date().getTime()}`;
+    return `${uid}-${setId}-${new Date().getTime()}`;
 };
 
 export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerformanceSchema>) {
