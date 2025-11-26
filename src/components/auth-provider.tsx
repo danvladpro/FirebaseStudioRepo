@@ -61,11 +61,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (loading) return;
 
+    const publicPages = ['/', '/login', '/signup', '/verify'];
+    const isPublicPage = publicPages.includes(pathname);
     const isAuthPage = pathname === '/login' || pathname === '/signup';
-    const isLandingPage = pathname === '/';
-    const isProtectedRoute = !isAuthPage && !isLandingPage;
 
-    if (!user && isProtectedRoute) {
+    if (!user && !isPublicPage) {
       router.push('/login');
     }
     
