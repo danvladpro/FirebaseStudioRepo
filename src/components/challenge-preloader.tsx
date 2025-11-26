@@ -6,14 +6,14 @@ import { ChallengeSet } from "@/lib/types";
 import * as icons from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Loader2 } from "lucide-react";
+import { BookOpen, Loader2, Timer } from "lucide-react";
 
 interface ChallengePreloaderProps {
     challengeSet: ChallengeSet;
-    onLoaded: () => void;
+    onStart: (mode: 'timed' | 'training') => void;
 }
 
-export function ChallengePreloader({ challengeSet, onLoaded }: ChallengePreloaderProps) {
+export function ChallengePreloader({ challengeSet, onStart }: ChallengePreloaderProps) {
     const [status, setStatus] = useState("Preparing challenge...");
     const [isLoading, setIsLoading] = useState(true);
 
@@ -73,21 +73,34 @@ export function ChallengePreloader({ challengeSet, onLoaded }: ChallengePreloade
                         <p className="text-lg font-semibold text-green-500">{status}</p>
                     )}
 
-                    <Button
-                        onClick={onLoaded}
-                        disabled={isLoading}
-                        size="lg"
-                        className="mt-6"
-                    >
-                        {isLoading ? (
-                            <>
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-sm">
+                        <Button
+                            onClick={() => onStart('timed')}
+                            disabled={isLoading}
+                            size="lg"
+                            variant="default"
+                        >
+                            {isLoading ? (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Loading...
-                            </>
-                        ) : (
-                            "Start Challenge"
-                        )}
-                    </Button>
+                            ) : (
+                                <Timer className="mr-2 h-4 w-4" />
+                            )}
+                            Timed Challenge
+                        </Button>
+                         <Button
+                            onClick={() => onStart('training')}
+                            disabled={isLoading}
+                            size="lg"
+                            variant="secondary"
+                        >
+                            {isLoading ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <BookOpen className="mr-2 h-4 w-4" />
+                            )}
+                            Training Mode
+                        </Button>
+                    </div>
                 </div>
             </CardContent>
         </Card>

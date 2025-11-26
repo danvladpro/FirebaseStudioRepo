@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ChallengeSet, ChallengeStep } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, Check } from "lucide-react";
+import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, Check, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
@@ -15,6 +15,7 @@ import { VisualGrid, GridSelection } from "./visual-grid";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
+  mode: 'timed' | 'training';
 }
 
 const KeyDisplay = ({ value }: { value: string }) => {
@@ -42,7 +43,7 @@ const KeyDisplay = ({ value }: { value: string }) => {
 };
 
 
-export default function ChallengeUI({ set }: ChallengeUIProps) {
+export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const router = useRouter();
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -83,10 +84,14 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   const isScenario = set.category === 'Scenario';
 
   const finishChallenge = useCallback((finalSkipped: number[]) => {
+      if (mode === 'training') {
+        router.push('/dashboard');
+        return;
+      }
       const duration = (Date.now() - startTime) / 1000;
       const skippedParam = finalSkipped.join(',');
       router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}`);
-  },[router, set.id, startTime]);
+  },[router, set.id, startTime, mode]);
 
 
   const normalizeKey = (key: string) => {
@@ -153,9 +158,9 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const handleSkip = useCallback(() => {
-    const newSkipped = [...skippedIndices, currentChallengeIndex];
+    const newSkipped = mode === 'timed' ? [...skippedIndices, currentChallengeIndex] : skippedIndices;
     moveToNextChallenge(newSkipped);
-  }, [moveToNextChallenge, currentChallengeIndex, skippedIndices]);
+  }, [moveToNextChallenge, currentChallengeIndex, skippedIndices, mode]);
   
   const handleGridAction = (step: ChallengeStep) => {
       const description = step.description.toLowerCase();
@@ -222,15 +227,17 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
   }, [currentChallengeIndex, currentStepIndex, startTime]);
 
   useEffect(() => {
-    if(startTime === 0) return;
+    if (mode !== 'timed' || startTime === 0) return;
 
     const timer = setInterval(() => {
         setElapsedTime((Date.now() - startTime) / 1000);
     }, 100);
     return () => clearInterval(timer);
-  }, [startTime]);
+  }, [startTime, mode]);
   
     useEffect(() => {
+        if (mode !== 'timed') return;
+
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         if (intervalRef.current) clearInterval(intervalRef.current);
 
@@ -251,7 +258,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             if (timeoutRef.current) clearTimeout(timeoutRef.current);
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [currentChallengeIndex, currentStepIndex, skippedIndices, moveToNextChallenge]);
+    }, [currentChallengeIndex, currentStepIndex, skippedIndices, moveToNextChallenge, mode]);
 
 
   useEffect(() => {
@@ -346,14 +353,23 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
                 <CardTitle className="text-2xl">{set.name}</CardTitle>
             </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className={cn("flex items-center gap-2 transition-colors", countdown <= 3 && "text-destructive")}>
-              Remaining time:
-              <span className="font-mono text-lg font-semibold">{countdown}</span>
-            </div>
-            <div className="flex items-center gap-2">
-                Total time: <Timer className="h-4 w-4" />
-                <span>{elapsedTime.toFixed(1)}s</span>
-            </div>
+            {mode === 'timed' ? (
+                <>
+                    <div className={cn("flex items-center gap-2 transition-colors", countdown <= 3 && "text-destructive")}>
+                        Remaining time:
+                        <span className="font-mono text-lg font-semibold">{countdown}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        Total time: <Timer className="h-4 w-4" />
+                        <span>{elapsedTime.toFixed(1)}s</span>
+                    </div>
+                </>
+            ) : (
+                <div className="flex items-center gap-2 text-primary font-semibold bg-primary/10 px-3 py-1 rounded-full">
+                    <BookOpen className="h-4 w-4" />
+                    <span>Training Mode</span>
+                </div>
+            )}
           </div>
         </div>
         <Progress value={progress} className="w-full" />
@@ -444,7 +460,7 @@ export default function ChallengeUI({ set }: ChallengeUIProps) {
             )}
         </div>
         <Button variant="outline" size="sm" onClick={handleSkip} disabled={isAdvancing.current}>
-            Skip Scenario <ChevronsRight className="ml-2 h-4 w-4" />
+            Skip {isMultiStep ? 'Scenario' : 'Challenge'} <ChevronsRight className="ml-2 h-4 w-4" />
         </Button>
       </CardFooter>
     </Card>

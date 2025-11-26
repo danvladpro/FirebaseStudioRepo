@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -11,9 +11,11 @@ import ChallengeUI from '@/components/challenge-ui';
 import { useAuth } from './auth-provider';
 import { ChallengePreloader } from './challenge-preloader';
 
+type ChallengeMode = 'timed' | 'training';
+
 export function ChallengePageContent({ challengeSet }: { challengeSet: ChallengeSet }) {
   const { user } = useAuth();
-  const [isPreloading, setIsPreloading] = useState(true);
+  const [mode, setMode] = useState<ChallengeMode | null>(null);
 
   if (!user) {
     return (
@@ -23,11 +25,15 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
     )
   }
 
+  const handleStart = (selectedMode: ChallengeMode) => {
+    setMode(selectedMode);
+  };
+
   return (
     <>
       <AppHeader />
       <main className="min-h-screen w-full flex flex-col items-center justify-center bg-muted/40 p-4 pt-20">
-        {isPreloading ? (
+        {mode === null ? (
             <div className="w-full max-w-2xl flex flex-col gap-4">
                 <div className="flex justify-end">
                     <Button asChild variant="outline">
@@ -37,7 +43,7 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
                         </Link>
                     </Button>
                 </div>
-                <ChallengePreloader challengeSet={challengeSet} onLoaded={() => setIsPreloading(false)} />
+                <ChallengePreloader challengeSet={challengeSet} onStart={handleStart} />
             </div>
         ) : (
             <div className="w-full max-w-2xl flex flex-col gap-4">
@@ -49,7 +55,7 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
                         </Link>
                     </Button>
                 </div>
-                <ChallengeUI set={challengeSet} />
+                <ChallengeUI set={challengeSet} mode={mode} />
             </div>
         )}
       </main>
