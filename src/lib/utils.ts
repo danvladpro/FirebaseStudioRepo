@@ -7,12 +7,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export const generateCertificateId = (user: User, challengeSet: ChallengeSet) => {
+  return `${user.uid.slice(0, 8)}-${challengeSet.id}-${new Date().getTime()}`;
+}
 
-export const buildLinkedInUrl = (challengeSet: ChallengeSet, user: User) => {
+export const buildLinkedInUrl = (challengeSet: ChallengeSet, user: User, certId: string) => {
     if (!challengeSet || !user) return "";
 
     const certName = `Excel Ninja: ${challengeSet.name}`;
-    const certId = `${user.uid.slice(0, 8)}-${challengeSet.id}-${Date.now()}`;
     const issueDate = new Date();
     const issueYear = issueDate.getFullYear();
     const issueMonth = issueDate.getMonth() + 1;
@@ -30,8 +32,7 @@ export const buildLinkedInUrl = (challengeSet: ChallengeSet, user: User) => {
     linkedInUrl.searchParams.append("skills", "Keyboard Shortcuts,Microsoft Excel");
     
     // The URL to a page where someone can verify the certificate.
-    // This could be a future feature. For now, we'll link to the dashboard.
-    const certUrl = `${window.location.origin}/dashboard`;
+    const certUrl = `${window.location.origin}/verify?id=${certId}`;
     linkedInUrl.searchParams.append("certUrl", certUrl);
 
     return linkedInUrl.toString();

@@ -3,17 +3,16 @@
 
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Printer } from 'lucide-react';
+import { Printer } from 'lucide-react';
+import Image from 'next/image';
 
-// Define styles for the certificate component
 const styles = {
   page: {
     backgroundColor: '#FFFFFF',
     padding: '40px',
     fontFamily: 'Helvetica, Arial, sans-serif',
-    border: '10px solid #4A90E2',
+    border: '10px solid #3F51B5', // Primary Color
     width: '29.7cm',
     height: '21cm',
     display: 'flex',
@@ -49,8 +48,8 @@ const styles = {
   name: {
     fontSize: '48px',
     fontWeight: 'bold' as 'bold',
-    color: '#4A90E2',
-    borderBottom: '2px solid #F5A623',
+    color: '#3F51B5', // Primary Color
+    borderBottom: '2px solid #FFAB40', // Accent Color
     paddingBottom: '8px',
     marginBottom: '30px',
   },
@@ -90,13 +89,20 @@ const styles = {
       fontSize: '14px',
       fontWeight: 'bold' as 'bold',
   },
-   seal: {
+  seal: {
     width: '80px',
     height: '80px',
     position: 'absolute' as 'absolute',
     right: '60px',
     bottom: '60px',
   },
+  certificateId: {
+    position: 'absolute' as 'absolute',
+    bottom: '10px',
+    left: '40px',
+    fontSize: '10px',
+    color: '#999999',
+  }
 };
 
 function CertificateContent() {
@@ -104,6 +110,7 @@ function CertificateContent() {
     const name = searchParams.get('name') || 'Valued User';
     const examName = searchParams.get('examName') || 'Excel Skills';
     const date = searchParams.get('date') || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const certificateId = searchParams.get('certId');
 
     return (
         <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 print:bg-white print:p-0">
@@ -114,12 +121,14 @@ function CertificateContent() {
                     Print or Save as PDF
                 </Button>
             </div>
-            <div style={styles.page}>
+            <div style={styles.page} id="certificate">
                 <div style={styles.content}>
-                     <img
+                     <Image
                       style={styles.logo}
-                      src="https://firebasestorage.googleapis.com/v0/b/ai-app-builder-001.appspot.com/o/public%2Ficon.png?alt=media"
+                      src="/logo.svg"
                       alt="Excel Ninja Logo"
+                      width={50}
+                      height={50}
                     />
                     <h1 style={styles.headerText}>Certificate of Achievement</h1>
                     <p style={styles.subtitle}>This is to certify that</p>
@@ -129,10 +138,12 @@ function CertificateContent() {
                         This certification recognizes their mastery of essential Excel shortcuts and workflows.
                     </p>
                 </div>
-                 <img
+                 <Image
                     style={styles.seal}
-                    src="https://firebasestorage.googleapis.com/v0/b/ai-app-builder-001.appspot.com/o/public%2Fseal.png?alt=media"
+                    src="/seal.svg"
                     alt="Official Seal"
+                    width={80}
+                    height={80}
                 />
                 <div style={styles.footer}>
                     <div style={styles.signatureContainer}>
@@ -145,6 +156,12 @@ function CertificateContent() {
                         <p style={styles.signatureTitle}>Date of Completion</p>
                     </div>
                 </div>
+                {certificateId && (
+                  <div style={styles.certificateId}>
+                    Verify at: excel-ninja.app/verify?id={certificateId} <br/>
+                    Certificate ID: {certificateId}
+                  </div>
+                )}
             </div>
         </div>
     );

@@ -18,9 +18,16 @@ const nextConfig: NextConfig = {
   // ✅ Moved out of "experimental"
   allowedDevOrigins: ['https://*.cloudworkstations.dev', 'http://localhost:9002', 'http://localhost:9000'],
 
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    });
+
+    return config;
+  },
+
   devtools: true,
 };
 
 export default nextConfig;
-
-    

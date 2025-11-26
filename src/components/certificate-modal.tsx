@@ -1,13 +1,12 @@
 
 "use client";
 
-import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import { Download, Linkedin } from "lucide-react";
 import { useAuth } from "./auth-provider";
 import { ChallengeSet } from "@/lib/types";
-import { buildLinkedInUrl } from "@/lib/utils";
+import { buildLinkedInUrl, generateCertificateId } from "@/lib/utils";
 
 interface CertificateModalProps {
     isOpen: boolean;
@@ -21,10 +20,13 @@ export function CertificateModal({ isOpen, onOpenChange, examSet }: CertificateM
     const handleDownload = () => {
         if (!user || !userProfile || !examSet) return;
         
+        const certId = generateCertificateId(user, examSet);
+
         const params = new URLSearchParams({
             name: userProfile.name || "Excel Ninja",
             examName: examSet.name,
             date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+            certId: certId,
         });
         
         const url = `/certificate?${params.toString()}`;
@@ -34,7 +36,8 @@ export function CertificateModal({ isOpen, onOpenChange, examSet }: CertificateM
     
     const handleShare = () => {
         if (!examSet || !user) return;
-        const url = buildLinkedInUrl(examSet, user);
+        const certId = generateCertificateId(user, examSet);
+        const url = buildLinkedInUrl(examSet, user, certId);
         window.open(url, '_blank', 'noopener,noreferrer');
         onOpenChange(false);
     }
