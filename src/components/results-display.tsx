@@ -12,7 +12,7 @@ import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from './ui/separator';
 import { useAuth } from './auth-provider';
-import { cn, buildLinkedInUrl } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Challenge, ChallengeSet, ChallengeStep } from '@/lib/types';
 import Confetti from 'react-confetti';
 import { updateUserPerformance } from '@/app/actions/update-user-performance';
@@ -71,13 +71,14 @@ export default function ResultsDisplay() {
   const skippedIndicesStr = searchParams.get('skippedIndices');
 
   const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === setId);
-  const personalBest = stats[setId!]?.bestTime;
-
+  
   const totalChallenges = challengeSet?.challenges.length ?? 0;
   const correctAnswers = totalChallenges - skippedCount;
   const score = totalChallenges > 0 ? (correctAnswers / totalChallenges) * 100 : 0;
   const isPerfectScore = skippedCount === 0;
 
+  const personalBest = stats[setId!]?.bestTime;
+  const certificateId = stats[setId!]?.certificateId;
   const xpEarned = (isPerfectScore && challengeSet?.level) ? XP_CONFIG[challengeSet.level] : 0;
 
   const getOsKeys = (step: ChallengeStep, isMac: boolean) => {
@@ -210,7 +211,7 @@ export default function ResultsDisplay() {
                     <>
                       <h3 className="font-semibold pt-2">Congratulations!</h3>
                       <p className="text-sm text-muted-foreground">You've passed the {challengeSet.name}. Claim your certificate.</p>
-                      <Button variant="premium" onClick={() => setIsCertificateModalOpen(true)}>
+                      <Button variant="premium" onClick={() => setIsCertificateModalOpen(true)} disabled={!certificateId}>
                           <Download className="mr-2 h-5 w-5" /> Claim Certificate
                       </Button>
                     </>

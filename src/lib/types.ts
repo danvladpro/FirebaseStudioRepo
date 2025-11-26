@@ -33,6 +33,7 @@ export interface PerformanceRecord {
   bestTime: number | null;
   lastTrained: string | null;
   bestScore?: number | null;
+  certificateId?: string | null;
 }
 
 export interface UserStats {
