@@ -4,9 +4,8 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
-import { Download, Linkedin, Loader2 } from "lucide-react";
+import { Download, Linkedin } from "lucide-react";
 import { useAuth } from "./auth-provider";
-import { toast } from "@/hooks/use-toast";
 import { ChallengeSet } from "@/lib/types";
 import { buildLinkedInUrl } from "@/lib/utils";
 
@@ -17,66 +16,20 @@ interface CertificateModalProps {
 }
 
 export function CertificateModal({ isOpen, onOpenChange, examSet }: CertificateModalProps) {
-    const [isLoading, setIsLoading] = useState(false);
     const { user, userProfile } = useAuth();
 
-    const handleDownload = async () => {
-        if (!user || !userProfile || !examSet) {
-            toast({
-                title: "Error",
-                description: "Cannot download certificate. User or exam data is missing.",
-                variant: "destructive",
-            });
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            const response = await fetch('/api/certificate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: userProfile.name || "Excel Ninja",
-                    examName: examSet.name,
-                    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-                }),
-            });
-
-            if (!response.ok) {
-                let message = "Failed to generate PDF.";
-              
-                try {
-                  const errorData = await response.json();
-                  message = errorData?.error || message;
-                } catch {}
-              
-                throw new Error(message);
-              }
-              
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `ExcelNinja_${examSet.name.replace(/\s+/g, '_')}_Certificate.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-
-            toast({ title: "Success", description: "Your certificate has started downloading." });
-            onOpenChange(false);
-
-        } catch (error: any) {
-            toast({
-                title: "Download Error",
-                description: error.message || "An unexpected error occurred.",
-                variant: "destructive",
-            });
-        } finally {
-            setIsLoading(false);
-        }
+    const handleDownload = () => {
+        if (!user || !userProfile || !examSet) return;
+        
+        const params = new URLSearchParams({
+            name: userProfile.name || "Excel Ninja",
+            examName: examSet.name,
+            date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        });
+        
+        const url = `/certificate?${params.toString()}`;
+        window.open(url, '_blank');
+        onOpenChange(false);
     };
     
     const handleShare = () => {
@@ -98,12 +51,8 @@ export function CertificateModal({ isOpen, onOpenChange, examSet }: CertificateM
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-4 mt-4">
-                    <Button onClick={handleDownload} disabled={isLoading} size="lg">
-                        {isLoading ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                            <Download className="mr-2 h-4 w-4" />
-                        )}
+                    <Button onClick={handleDownload} size="lg">
+                        <Download className="mr-2 h-4 w-4" />
                         Download as PDF
                     </Button>
                     <Button onClick={handleShare} variant="secondary" size="lg" className="bg-[#0A66C2] hover:bg-[#0A66C2]/90 text-white">
