@@ -30,9 +30,9 @@ async function verifyCertificate(id: string): Promise<VerificationResult> {
             return { status: 'invalid', message: 'This certificate ID is not in a valid format.' };
         }
         
-        const [userId, ...rest] = parts;
-        const timestamp = rest.pop();
-        const setId = rest.join('-');
+        const userId = parts[0];
+        const timestamp = parts[parts.length - 1];
+        const setId = parts.slice(1, parts.length - 1).join('-');
 
         if (!userId || !setId || !timestamp) {
             return { status: 'invalid', message: 'This certificate ID is malformed.' };
