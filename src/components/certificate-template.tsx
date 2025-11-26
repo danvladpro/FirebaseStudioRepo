@@ -1,93 +1,80 @@
-
-import { Page, Text, View, Document, StyleSheet, Font, Image } from '@react-pdf/renderer';
-
-// Register fonts from remote URLs
-Font.register({
-  family: 'Inter',
-  fonts: [
-    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, format: 'woff' },
-    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 'normal' },
-    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 400 },
-    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 500 },
-    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 'semibold' },
-    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 600 },
-    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 'bold' },
-    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 700 },
-  ],
-});
-
-Font.register({
-  family: 'Alegreya',
-  src: 'https://fonts.gstatic.com/s/alegreya/v35/4UaSrEBBsBhlBjvfkSLk01s_Medp0g.woff',
-  fontStyle: 'italic',
-});
-
+import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
   page: {
     backgroundColor: '#F0F4F8',
     padding: 40,
-    fontFamily: 'Inter',
+    fontFamily: 'Helvetica',
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
+
   border: {
     position: 'absolute',
     top: 20,
     bottom: 20,
     left: 20,
     right: 20,
-    border: '2px solid #3F51B5',
-    zIndex: 1,
+    borderWidth: 2,
+    borderColor: '#3F51B5'
   },
+
   content: {
     flex: 1,
-    zIndex: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    textAlign: 'center',
+    textAlign: 'center'
   },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 30
   },
+
   logo: {
     width: 50,
     height: 50,
-    marginRight: 10,
+    marginRight: 10
   },
+
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#3F51B5',
+    fontFamily: 'Helvetica-Bold'
   },
+
   subtitle: {
     fontSize: 18,
     color: '#333',
-    marginBottom: 20,
-    textTransform: 'uppercase',
+    marginBottom: 20
   },
+
   presentedTo: {
     fontSize: 12,
     color: '#555',
-    marginBottom: 10,
-    textTransform: 'uppercase',
+    marginBottom: 10
   },
+
   name: {
     fontSize: 36,
-    fontWeight: 'bold',
+    fontWeight: 700,
+    fontFamily: 'Helvetica-Bold',
     color: '#3F51B5',
     marginBottom: 20,
-    borderBottom: '2px solid #FFAB40',
-    paddingBottom: 5,
+    borderBottomWidth: 2,
+    borderBottomColor: '#FFAB40',
+    paddingBottom: 5
   },
+
   body: {
     fontSize: 14,
     color: '#333',
-    maxWidth: '80%',
-    marginBottom: 30,
+    width: 420,
+    marginBottom: 30
   },
+
   footer: {
     position: 'absolute',
     bottom: 40,
@@ -95,53 +82,62 @@ const styles = StyleSheet.create({
     right: 40,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    alignItems: 'flex-end'
   },
+
   signatureContainer: {
-    alignItems: 'center',
+    alignItems: 'center'
   },
+
   signature: {
-    fontFamily: 'Alegreya',
-    fontStyle: 'italic',
+    fontFamily: 'Times-Italic',
     fontSize: 24,
-    color: '#333',
+    color: '#333'
   },
+
   signatureLine: {
     width: 150,
     height: 1,
     backgroundColor: '#333',
-    marginTop: -5,
-    marginBottom: 5,
+    marginTop: 4,
+    marginBottom: 5
   },
+
   signatureTitle: {
     fontSize: 10,
-    color: '#555',
+    color: '#555'
   },
+
   dateContainer: {
-    alignItems: 'center',
+    alignItems: 'center'
   },
+
   date: {
     fontSize: 12,
-    fontWeight: 'semibold',
-    color: '#333',
+    fontWeight: 700,
+    fontFamily: 'Helvetica-Bold',
+    color: '#333'
   },
+
   dateLine: {
     width: 120,
     height: 1,
     backgroundColor: '#333',
-    marginBottom: 5,
+    marginBottom: 5
   },
+
   dateTitle: {
     fontSize: 10,
-    color: '#555',
+    color: '#555'
   },
+
   seal: {
     width: 80,
     height: 80,
     position: 'absolute',
-    right: 20,
-    bottom: -10,
-  },
+    right: 30,
+    bottom: 20
+  }
 });
 
 interface CertificateTemplateProps {
@@ -150,38 +146,55 @@ interface CertificateTemplateProps {
   date: string;
 }
 
-export const CertificateTemplate = ({ name, examName, date }: CertificateTemplateProps) => (
+export const CertificateTemplate = ({
+  name,
+  examName,
+  date
+}: CertificateTemplateProps) => (
   <Document>
     <Page size="A4" orientation="landscape" style={styles.page}>
       <View style={styles.border} fixed />
 
       <View style={styles.content}>
         <View style={styles.header}>
-            <Image style={styles.logo} src={`https://firebasestorage.googleapis.com/v0/b/ai-app-builder-001.appspot.com/o/public%2Ficon.png?alt=media`} />
-            <Text style={styles.title}>Excel Ninja</Text>
+          <Image
+            style={styles.logo}
+            src="https://firebasestorage.googleapis.com/v0/b/ai-app-builder-001.appspot.com/o/public%2Ficon.png?alt=media"
+          />
+          <Text style={styles.title}>Excel Ninja</Text>
         </View>
+
         <Text style={styles.subtitle}>Certificate of Achievement</Text>
         <Text style={styles.presentedTo}>Presented To</Text>
+
         <Text style={styles.name}>{name}</Text>
+
         <Text style={styles.body}>
-          has successfully completed and demonstrated proficiency in the
-          <Text style={{ fontWeight: 'bold' }}> {examName}</Text>. This certification recognizes their mastery of essential Excel shortcuts and workflows.
+          has successfully completed and demonstrated proficiency in the {examName}.
+          This certification recognizes their mastery of essential Excel shortcuts and workflows.
         </Text>
+
       </View>
-      
+
       <View style={styles.footer} fixed>
-          <View style={styles.signatureContainer}>
-              <Text style={styles.signature}>The Excel Ninja Team</Text>
-              <View style={styles.signatureLine} />
-              <Text style={styles.signatureTitle}>Authorized Signature</Text>
-          </View>
-          <View style={styles.dateContainer}>
-              <Text style={styles.date}>{date}</Text>
-              <View style={styles.dateLine} />
-              <Text style={styles.dateTitle}>Date of Completion</Text>
-          </View>
+        <View style={styles.signatureContainer}>
+          <Text style={styles.signature}>The Excel Ninja Team</Text>
+          <View style={styles.signatureLine} />
+          <Text style={styles.signatureTitle}>Authorized Signature</Text>
+        </View>
+
+        <View style={styles.dateContainer}>
+          <Text style={styles.date}>{date}</Text>
+          <View style={styles.dateLine} />
+          <Text style={styles.dateTitle}>Date of Completion</Text>
+        </View>
       </View>
-      <Image style={styles.seal} src={`https://firebasestorage.googleapis.com/v0/b/ai-app-builder-001.appspot.com/o/public%2Fseal.png?alt=media`} fixed />
+
+      <Image
+        style={styles.seal}
+        src="https://firebasestorage.googleapis.com/v0/b/ai-app-builder-001.appspot.com/o/public%2Fseal.png?alt=media"
+        fixed
+      />
     </Page>
   </Document>
 );

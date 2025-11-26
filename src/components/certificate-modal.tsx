@@ -45,10 +45,16 @@ export function CertificateModal({ isOpen, onOpenChange, examSet }: CertificateM
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Failed to generate PDF.");
-            }
-
+                let message = "Failed to generate PDF.";
+              
+                try {
+                  const errorData = await response.json();
+                  message = errorData?.error || message;
+                } catch {}
+              
+                throw new Error(message);
+              }
+              
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
