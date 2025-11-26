@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { CertificateTemplate } from '@/components/certificate-template';
+import React from 'react';
 
 import { z } from 'zod';
 
@@ -25,14 +26,14 @@ export async function POST(req: NextRequest) {
 
     const { name, examName, date } = validation.data;
 
-    // By being a .tsx file, this route can now correctly handle JSX
-    const pdfBuffer = await renderToBuffer(
-      <CertificateTemplate
-        name={name}
-        examName={examName}
-        date={date}
-      />
-    );
+    // Using React.createElement instead of JSX to avoid server-side parsing issues.
+    const certificateElement = React.createElement(CertificateTemplate, {
+      name: name,
+      examName: examName,
+      date: date,
+    });
+    
+    const pdfBuffer = await renderToBuffer(certificateElement);
 
     return new NextResponse(pdfBuffer, {
       headers: {
