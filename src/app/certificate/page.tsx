@@ -105,14 +105,9 @@ function CertificateContent() {
     const examName = searchParams.get('examName') || 'Excel Skills';
     const date = searchParams.get('date') || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    useEffect(() => {
-        // Automatically trigger print when the component mounts
-        window.print();
-    }, []);
-
     return (
         <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 print:bg-white print:p-0">
-             <div className="print-controls mb-4 print:hidden flex gap-4">
+             <div className="print-controls mb-4 print:hidden flex items-center justify-center flex-col gap-4">
                 <h2 className="text-lg font-semibold">Certificate Preview</h2>
                 <Button onClick={() => window.print()}>
                     <Printer className="mr-2 h-4 w-4" />

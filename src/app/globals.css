@@ -67,14 +67,14 @@
 
 @media print {
   .print-controls {
-    display: none;
-  }
-  @page {
-    size: A4 landscape;
-    margin: 0;
+    display: none !important;
   }
   body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+  @page {
+    size: A4 landscape;
+    margin: 0;
   }
 }
