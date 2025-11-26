@@ -20,7 +20,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Crown, Settings, LifeBuoy, LayoutDashboard } from "lucide-react";
+import { Crown, Settings, LifeBuoy, LayoutDashboard, HelpCircle } from "lucide-react";
 import { EditProfileModal } from "./edit-profile-modal";
 import { SupportModal } from "./support-modal";
 import { differenceInDays, formatDistanceToNow } from "date-fns";
@@ -141,9 +141,15 @@ function HeaderContent() {
                                         <Settings className="mr-2 h-4 w-4" />
                                         Settings
                                     </DropdownMenuItem>
+                                     <DropdownMenuItem asChild>
+                                        <Link href="/help">
+                                          <HelpCircle className="mr-2 h-4 w-4" />
+                                          Help & Support
+                                        </Link>
+                                      </DropdownMenuItem>
                                     <DropdownMenuItem onSelect={() => setIsSupportModalOpen(true)}>
                                         <LifeBuoy className="mr-2 h-4 w-4" />
-                                        Support
+                                        Contact Support
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={handleLogout}>

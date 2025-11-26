@@ -19,7 +19,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ModeToggle } from './mode-toggle';
 import { cn } from '@/lib/utils';
-import { Crown, Settings, Clock, LifeBuoy } from 'lucide-react';
+import { Crown, Settings, Clock, LifeBuoy, HelpCircle } from 'lucide-react';
 import React from 'react';
 import { EditProfileModal } from './edit-profile-modal';
 import { differenceInDays, formatDistanceToNow } from 'date-fns';
@@ -134,9 +134,15 @@ export function AppHeader() {
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/help">
+                      <HelpCircle className="mr-2 h-4 w-4" />
+                      Help & Support
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => setIsSupportModalOpen(true)}>
                     <LifeBuoy className="mr-2 h-4 w-4" />
-                    Support
+                    Contact Support
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
