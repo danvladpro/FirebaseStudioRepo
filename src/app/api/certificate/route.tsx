@@ -26,14 +26,9 @@ export async function POST(req: NextRequest) {
 
     const { name, examName, date } = validation.data;
 
-    // Using React.createElement instead of JSX to avoid server-side parsing issues.
-    const certificateElement = React.createElement(CertificateTemplate, {
-      name: name,
-      examName: examName,
-      date: date,
-    });
-    
-    const pdfBuffer = await renderToBuffer(certificateElement);
+    const pdfBuffer = await renderToBuffer(
+      <CertificateTemplate name={name} examName={examName} date={date} />
+    );
 
     return new NextResponse(pdfBuffer, {
       headers: {
