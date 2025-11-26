@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, Trophy, AlertTriangle, Linkedin, Lock, BookOpen } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Trophy, AlertTriangle, Linkedin, Lock, BookOpen, Download } from 'lucide-react';
 import { ALL_CHALLENGE_SETS, CHALLENGE_SETS } from '@/lib/challenges';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ import { updateUserPerformance } from '@/app/actions/update-user-performance';
 import { toast } from '@/hooks/use-toast';
 import { XP_CONFIG } from './home-page-client';
 import Link from 'next/link';
+import { CertificateModal } from './certificate-modal';
 
 const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
@@ -54,6 +55,8 @@ export default function ResultsDisplay() {
   const [isMac, setIsMac] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [recommendedModules, setRecommendedModules] = useState<ChallengeSet[]>([]);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
@@ -152,6 +155,7 @@ export default function ResultsDisplay() {
 
   return (
     <>
+      <CertificateModal isOpen={isCertificateModalOpen} onOpenChange={setIsCertificateModalOpen} examSet={challengeSet} />
       {showConfetti && (
         <Confetti
           recycle={false}
@@ -205,19 +209,17 @@ export default function ResultsDisplay() {
                   {isPerfectScore ? (
                     <>
                       <h3 className="font-semibold pt-2">Congratulations!</h3>
-                      <p className="text-sm text-muted-foreground">You've passed the {challengeSet.name}. Add your achievement to your professional profile.</p>
-                      <Button asChild className="bg-[#0A66C2] hover:bg-[#0A66C2]/90">
-                          <a href={buildLinkedInUrl(challengeSet, user)} target="_blank" rel="noopener noreferrer">
-                              <Linkedin className="mr-2 h-5 w-5" /> Add to LinkedIn
-                          </a>
+                      <p className="text-sm text-muted-foreground">You've passed the {challengeSet.name}. Claim your certificate.</p>
+                      <Button variant="premium" onClick={() => setIsCertificateModalOpen(true)}>
+                          <Download className="mr-2 h-5 w-5" /> Claim Certificate
                       </Button>
                     </>
                   ) : (
                      <>
                       <h3 className="font-semibold pt-2">Almost there!</h3>
-                      <p className="text-sm text-muted-foreground">Achieve a perfect score of 100% to unlock your certificate and share it on LinkedIn.</p>
+                      <p className="text-sm text-muted-foreground">Achieve a perfect score of 100% to unlock your certificate.</p>
                        <Button disabled className="w-fit mx-auto">
-                          <Lock className="mr-2 h-5 w-5" /> Add to LinkedIn
+                          <Lock className="mr-2 h-5 w-5" /> Claim Certificate
                       </Button>
                      </>
                   )}
@@ -305,4 +307,3 @@ export default function ResultsDisplay() {
     </>
   );
 }
-

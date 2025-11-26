@@ -1,3 +1,4 @@
+
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -17,7 +18,7 @@ const nextConfig: NextConfig = {
 
   allowedDevOrigins: ['https://*.cloudworkstations.dev', 'http://localhost:9002', 'http://localhost:9000'],
 
-  devtools: true,
+  devTools: true,
 };
 
 export default nextConfig;

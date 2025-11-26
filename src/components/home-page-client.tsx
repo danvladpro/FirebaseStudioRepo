@@ -23,6 +23,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { Pie, PieChart, Cell } from "recharts";
 import { Separator } from "./ui/separator";
 import Image from "next/image";
+import { CertificateModal } from "./certificate-modal";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -120,6 +121,13 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const { isLoaded, stats } = usePerformanceTracker();
   const { user, userProfile, isPremium } = useAuth();
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = React.useState(false);
+  const [selectedExamForCert, setSelectedExamForCert] = React.useState<ChallengeSet | null>(null);
+
+  const handleClaimCertificate = (examSet: ChallengeSet) => {
+    setSelectedExamForCert(examSet);
+    setIsCertificateModalOpen(true);
+  };
   
   const isLimited = !isPremium;
 
@@ -286,11 +294,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                             Try Again
                             </Link>
                         </Button>
-                        <Button asChild size="sm" className="w-full" variant="premium">
-                             <a href={buildLinkedInUrl(examSet, user!)} target="_blank" rel="noopener noreferrer">
-                                <Download className="mr-2 h-4 w-4" />
-                                Claim Certificate
-                            </a>
+                        <Button size="sm" className="w-full" variant="premium" onClick={() => handleClaimCertificate(examSet)}>
+                             <Download className="mr-2 h-4 w-4" />
+                            Claim Certificate
                         </Button>
                     </div>
                 ) : (
@@ -434,11 +440,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
         if (bestScore === 100 && bestTime) {
              const examSet = examSets.find(e => e.id === examId)!;
              return (
-                <Button asChild size="sm" className="bg-[#0A66C2] hover:bg-[#0A66C2]/90 text-white text-xs">
-                     <a href={buildLinkedInUrl(examSet, user!)} target="_blank" rel="noopener noreferrer">
-                        <Linkedin className="mr-2 h-4 w-4" />
-                        Share Certificate
-                    </a>
+                <Button size="sm" className="text-white text-xs" variant="premium" onClick={() => handleClaimCertificate(examSet)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Claim Certificate
                 </Button>
              );
         } else {
@@ -465,6 +469,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   return (
     <>
     <PremiumModal isOpen={isPremiumModalOpen} onOpenChange={setIsPremiumModalOpen} />
+    <CertificateModal isOpen={isCertificateModalOpen} onOpenChange={setIsCertificateModalOpen} examSet={selectedExamForCert} />
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <AppHeader />
       <main className="flex-1 container py-8 md:py-12 mt-16">
