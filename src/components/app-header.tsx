@@ -90,6 +90,9 @@ export function AppHeader() {
               <Button variant="link" asChild className="text-foreground/80 hover:text-foreground">
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
+               <Button variant="link" asChild className="text-foreground/80 hover:text-foreground">
+                <Link href="/help">Help</Link>
+              </Button>
             </nav>
           </div>
           <div className="flex items-center gap-4">
