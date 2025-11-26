@@ -1,19 +1,15 @@
 
-"use client";
-
-import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb } from '@/lib/firebase-admin';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { BadgeCheck, Loader2, XCircle, ShieldAlert } from 'lucide-react';
+import { BadgeCheck, XCircle, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { UserProfile } from '@/lib/types';
 import { ALL_CHALLENGE_SETS } from '@/lib/challenges';
 import { AppHeader } from '@/components/app-header';
+import { notFound } from 'next/navigation';
 
-type VerificationStatus = 'verifying' | 'valid' | 'invalid' | 'error';
+type VerificationStatus = 'valid' | 'invalid' | 'error';
 
 interface VerificationResult {
     status: VerificationStatus;
@@ -23,76 +19,72 @@ interface VerificationResult {
     message: string;
 }
 
-function VerificationContent() {
-    const searchParams = useSearchParams();
-    const id = searchParams.get('id');
-    const [result, setResult] = useState<VerificationResult>({ status: 'verifying', message: 'Verifying certificate...' });
+async function verifyCertificate(id: string): Promise<VerificationResult> {
+    if (!id) {
+        return { status: 'error', message: 'No certificate ID provided.' };
+    }
 
-    useEffect(() => {
-        const verifyCertificate = async () => {
-            if (!id) {
-                setResult({ status: 'error', message: 'No certificate ID provided.' });
-                return;
-            }
+    try {
+        const parts = id.split('-');
+        if (parts.length < 3) {
+            return { status: 'invalid', message: 'This certificate ID is not in a valid format.' };
+        }
+        
+        const [userId, ...rest] = parts;
+        const timestamp = rest.pop();
+        const setId = rest.join('-');
 
-            try {
-                const parts = id.split('-');
-                if (parts.length < 3) {
-                     setResult({ status: 'invalid', message: 'This certificate ID is not in a valid format.' });
-                     return;
-                }
-                
-                const [userId, ...rest] = parts;
-                const timestamp = rest.pop();
-                const setId = rest.join('-');
+        if (!userId || !setId || !timestamp) {
+            return { status: 'invalid', message: 'This certificate ID is malformed.' };
+        }
 
-                if (!userId || !setId || !timestamp) {
-                    setResult({ status: 'invalid', message: 'This certificate ID is malformed.' });
-                    return;
-                }
+        const userDocRef = adminDb.collection('users').doc(userId);
+        const userDoc = await userDocRef.get();
 
-                const userDocRef = doc(db, 'users', userId);
-                const userDoc = await getDoc(userDocRef);
+        if (!userDoc.exists) {
+            return { status: 'invalid', message: 'The user associated with this certificate could not be found.' };
+        }
 
-                if (!userDoc.exists()) {
-                    setResult({ status: 'invalid', message: 'The user associated with this certificate could not be found.' });
-                    return;
-                }
+        const userData = userDoc.data() as UserProfile;
+        const performanceRecord = userData.performance?.[setId];
 
-                const userData = userDoc.data() as UserProfile;
-                const performanceRecord = userData.performance?.[setId];
+        if (performanceRecord && performanceRecord.certificateId === id) {
+            const exam = ALL_CHALLENGE_SETS.find(e => e.id === setId);
+            return {
+                status: 'valid',
+                userName: userData.name,
+                examName: exam?.name,
+                date: new Date(parseInt(timestamp)).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                message: 'This certificate is valid and has been successfully verified.',
+            };
+        } else {
+            return { status: 'invalid', message: 'This certificate is not valid or could not be found in our records.' };
+        }
 
-                if (performanceRecord && performanceRecord.certificateId === id) {
-                    const exam = ALL_CHALLENGE_SETS.find(e => e.id === setId);
-                    setResult({
-                        status: 'valid',
-                        userName: userData.name,
-                        examName: exam?.name,
-                        date: new Date(parseInt(timestamp)).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-                        message: 'This certificate is valid and has been successfully verified.',
-                    });
-                } else {
-                    setResult({ status: 'invalid', message: 'This certificate is not valid or could not be found in our records.' });
-                }
+    } catch (err) {
+        console.error("Verification error:", err);
+        return { status: 'error', message: 'An error occurred during verification. Please try again later.' };
+    }
+}
 
-            } catch (err) {
-                console.error("Verification error:", err);
-                setResult({ status: 'error', message: 'An error occurred during verification. Please try again later.' });
-            }
-        };
 
-        verifyCertificate();
-    }, [id]);
+export default async function VerifyPage({ searchParams }: { searchParams: { id: string } }) {
+    const { id } = searchParams;
+
+    if (!id) {
+        notFound();
+    }
+
+    const result = await verifyCertificate(id);
 
     const renderIcon = () => {
         switch (result.status) {
-            case 'verifying':
-                return <Loader2 className="h-16 w-16 text-primary animate-spin" />;
             case 'valid':
                 return <BadgeCheck className="h-16 w-16 text-green-500" />;
             case 'invalid':
                 return <XCircle className="h-16 w-16 text-destructive" />;
             case 'error':
+            default:
                 return <ShieldAlert className="h-16 w-16 text-yellow-500" />;
         }
     };
@@ -121,7 +113,6 @@ function VerificationContent() {
                             {result.status === 'valid' && 'Certificate Verified'}
                             {result.status === 'invalid' && 'Verification Failed'}
                             {result.status === 'error' && 'Verification Error'}
-                            {result.status === 'verifying' && 'Verifying...'}
                         </CardTitle>
                         <CardDescription>{result.message}</CardDescription>
                     </CardHeader>
@@ -150,13 +141,4 @@ function VerificationContent() {
             </main>
         </div>
     );
-}
-
-
-export default function VerifyPage() {
-    return (
-        <Suspense>
-            <VerificationContent />
-        </Suspense>
-    )
 }
