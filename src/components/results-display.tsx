@@ -6,18 +6,19 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, Trophy, AlertTriangle, Linkedin, Lock } from 'lucide-react';
-import { ALL_CHALLENGE_SETS } from '@/lib/challenges';
+import { ArrowLeft, RefreshCw, Trophy, AlertTriangle, Linkedin, Lock, BookOpen } from 'lucide-react';
+import { ALL_CHALLENGE_SETS, CHALLENGE_SETS } from '@/lib/challenges';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from './ui/separator';
 import { useAuth } from './auth-provider';
 import { cn, buildLinkedInUrl } from '@/lib/utils';
-import { Challenge, ChallengeStep } from '@/lib/types';
+import { Challenge, ChallengeSet, ChallengeStep } from '@/lib/types';
 import Confetti from 'react-confetti';
 import { updateUserPerformance } from '@/app/actions/update-user-performance';
 import { toast } from '@/hooks/use-toast';
 import { XP_CONFIG } from './home-page-client';
+import Link from 'next/link';
 
 const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
@@ -52,6 +53,7 @@ export default function ResultsDisplay() {
   const [isNewRecord, setIsNewRecord] = useState(false);
   const [isMac, setIsMac] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [recommendedModules, setRecommendedModules] = useState<ChallengeSet[]>([]);
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
@@ -89,6 +91,26 @@ export default function ResultsDisplay() {
   const skippedChallenges = skippedIndicesStr && challengeSet
     ? skippedIndicesStr.split(',').filter(Boolean).map(i => challengeSet.challenges[parseInt(i)])
     : [];
+    
+   useEffect(() => {
+    if (challengeSet?.category === 'Exam' && !isPerfectScore && skippedChallenges.length > 0) {
+      const recommended = new Set<ChallengeSet>();
+      skippedChallenges.forEach(skippedChallenge => {
+        CHALLENGE_SETS.forEach(module => {
+          if (module.category !== 'Scenario') {
+            const hasMatch = module.challenges.some(
+              challenge => challenge.description === skippedChallenge.description
+            );
+            if (hasMatch) {
+              recommended.add(module);
+            }
+          }
+        });
+      });
+      setRecommendedModules(Array.from(recommended));
+    }
+  }, [challengeSet, isPerfectScore, skippedChallenges]);
+
 
   useEffect(() => {
     if (!isLoaded || !setId || time === null || !user) return;
@@ -201,7 +223,35 @@ export default function ResultsDisplay() {
                   )}
               </div>
             )}
-            {skippedChallenges.length > 0 && (
+            {recommendedModules.length > 0 && (
+              <div className="space-y-4 pt-4">
+                <Separator />
+                <div className="text-left">
+                  <h3 className="font-semibold flex items-center gap-2 justify-center text-accent mb-2">
+                    <BookOpen className="w-4 h-4" />
+                    Recommended Study
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4 text-center">
+                    Review these modules to master the shortcuts you missed.
+                  </p>
+                  <div className="space-y-2">
+                    {recommendedModules.map((module) => (
+                      <Button
+                        key={module.id}
+                        asChild
+                        variant="outline"
+                        className="w-full justify-start"
+                      >
+                        <Link href={`/challenge/${module.id}`}>
+                          {module.name}
+                        </Link>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            {skippedChallenges.length > 0 && recommendedModules.length === 0 && (
               <div className="space-y-4">
                 <Separator />
                 <div className="text-left">
@@ -255,3 +305,4 @@ export default function ResultsDisplay() {
     </>
   );
 }
+
