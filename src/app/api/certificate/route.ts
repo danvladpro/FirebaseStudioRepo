@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { renderToStream } from '@react-pdf/renderer';
 import { CertificateTemplate } from '@/components/certificate-template';
 import { z } from 'zod';
+import React from 'react';
 
 const CertificateRequestSchema = z.object({
   name: z.string(),
@@ -21,8 +22,9 @@ export async function POST(req: NextRequest) {
 
     const { name, examName, date } = validation.data;
 
+    // Use React.createElement to avoid JSX parsing issues in a .ts file
     const pdfStream = await renderToStream(
-      <CertificateTemplate name={name} examName={examName} date={date} />
+      React.createElement(CertificateTemplate, { name, examName, date })
     );
 
     const headers = new Headers();

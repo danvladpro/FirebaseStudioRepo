@@ -1,20 +1,25 @@
 
 import { Page, Text, View, Document, StyleSheet, Font, Image } from '@react-pdf/renderer';
 
-// Register fonts
-// Make sure to place these font files in your public directory
+// Register fonts from remote URLs
 Font.register({
   family: 'Inter',
   fonts: [
-    { src: `${process.env.NEXT_PUBLIC_APP_URL}/Inter-Regular.ttf` },
-    { src: `${process.env.NEXT_PUBLIC_APP_URL}/Inter-Bold.ttf`, fontWeight: 'bold' },
-    { src: `${process.env.NEXT_PUBLIC_APP_URL}/Inter-SemiBold.ttf`, fontWeight: 'semibold' },
+    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, format: 'woff' },
+    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 'normal' },
+    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 400 },
+    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 500 },
+    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 'semibold' },
+    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 600 },
+    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 'bold' },
+    { src: `https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff`, fontWeight: 700 },
   ],
 });
 
 Font.register({
   family: 'Alegreya',
-  src: `${process.env.NEXT_PUBLIC_APP_URL}/Alegreya-Italic.ttf`,
+  src: 'https://fonts.gstatic.com/s/alegreya/v35/4UaSrEBBsBhlBjvfkSLk01s_Medp0g.woff',
+  fontStyle: 'italic',
 });
 
 
@@ -97,6 +102,7 @@ const styles = StyleSheet.create({
   },
   signature: {
     fontFamily: 'Alegreya',
+    fontStyle: 'italic',
     fontSize: 24,
     color: '#333',
   },
@@ -151,7 +157,7 @@ export const CertificateTemplate = ({ name, examName, date }: CertificateTemplat
 
       <View style={styles.content}>
         <View style={styles.header}>
-            <Image style={styles.logo} src={`${process.env.NEXT_PUBLIC_APP_URL}/icon.png`} />
+            <Image style={styles.logo} src={`https://firebasestorage.googleapis.com/v0/b/ai-app-builder-001.appspot.com/o/public%2Ficon.png?alt=media`} />
             <Text style={styles.title}>Excel Ninja</Text>
         </View>
         <Text style={styles.subtitle}>Certificate of Achievement</Text>
@@ -175,7 +181,7 @@ export const CertificateTemplate = ({ name, examName, date }: CertificateTemplat
               <Text style={styles.dateTitle}>Date of Completion</Text>
           </View>
       </View>
-      <Image style={styles.seal} src={`${process.env.NEXT_PUBLIC_APP_URL}/seal.png`} fixed />
+      <Image style={styles.seal} src={`https://firebasestorage.googleapis.com/v0/b/ai-app-builder-001.appspot.com/o/public%2Fseal.png?alt=media`} fixed />
     </Page>
   </Document>
 );
