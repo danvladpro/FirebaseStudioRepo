@@ -2,6 +2,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import React from "react";
 
 export interface GridSelection {
     activeCell: { row: number; col: number };
@@ -11,9 +12,10 @@ export interface GridSelection {
 interface VisualGridProps {
     data: string[][];
     selection: GridSelection;
+    cellStyles?: Record<string, React.CSSProperties>;
 }
 
-export function VisualGrid({ data, selection }: VisualGridProps) {
+export function VisualGrid({ data, selection, cellStyles = {} }: VisualGridProps) {
     const { activeCell, selectedCells } = selection;
 
     return (
@@ -22,7 +24,7 @@ export function VisualGrid({ data, selection }: VisualGridProps) {
                 <thead>
                     <tr>
                         <th className="p-1 w-10"></th>
-                        {data[0].map((_, colIndex) => (
+                        {data.length > 0 && data[0].map((_, colIndex) => (
                             <th key={colIndex} className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-t-sm">
                                 {String.fromCharCode(65 + colIndex)}
                             </th>
@@ -36,7 +38,8 @@ export function VisualGrid({ data, selection }: VisualGridProps) {
                                 {rowIndex + 1}
                             </td>
                             {row.map((cell, colIndex) => {
-                                const isSelected = selectedCells.has(`${rowIndex}-${colIndex}`);
+                                const cellId = `${rowIndex}-${colIndex}`;
+                                const isSelected = selectedCells.has(cellId);
                                 const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
 
                                 return (
@@ -48,6 +51,7 @@ export function VisualGrid({ data, selection }: VisualGridProps) {
                                             isSelected && "bg-primary/20",
                                             isActive && "ring-2 ring-primary ring-inset"
                                         )}
+                                        style={cellStyles[cellId]}
                                     >
                                         {cell}
                                     </td>

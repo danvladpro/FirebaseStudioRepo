@@ -2,11 +2,38 @@
 import { type LucideIcon, type LucideProps } from "lucide-react";
 import { ElementType } from "react";
 
+export interface GridState {
+  data: string[][];
+  selection?: {
+    activeCell: { row: number; col: number };
+    selectedCells?: Set<string>;
+  };
+}
+
+export type GridEffectAction =
+  | 'SELECT_ROW'
+  | 'SELECT_COLUMN'
+  | 'SELECT_ALL'
+  | 'DELETE_ROW'
+  | 'DELETE_COLUMN'
+  | 'CUT'
+  | 'PASTE'
+  | 'MOVE_SELECTION'
+  | 'APPLY_STYLE_BOLD'
+  | 'APPLY_STYLE_CURRENCY';
+
+export interface GridEffect {
+  action: GridEffectAction;
+  payload?: any;
+}
+
+
 export interface ChallengeStep {
   description: string;
   keys: string[];
   iconName: keyof typeof import("lucide-react");
   isSequential?: boolean;
+  gridEffect?: GridEffect;
 }
 
 export interface Challenge {
@@ -15,6 +42,7 @@ export interface Challenge {
   iconName?: keyof typeof import("lucide-react"); // Optional for multi-step
   isSequential?: boolean; // Optional for multi-step
   steps: ChallengeStep[];
+  initialGridState?: GridState;
 }
 
 export type ChallengeLevel = "Beginner" | "Intermediate" | "Advanced" | "Scenario";

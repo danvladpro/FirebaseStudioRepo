@@ -3,14 +3,13 @@
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
 import { useRouter } from "next/navigation";
-import { ChallengeSet, ChallengeStep } from "@/lib/types";
+import { ChallengeSet, ChallengeStep, GridState } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, Check, BookOpen } from "lucide-react";
+import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
-import { Separator } from "./ui/separator";
 import { VisualGrid, GridSelection } from "./visual-grid";
 
 interface ChallengeUIProps {
@@ -57,31 +56,28 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const [countdown, setCountdown] = useState(8);
   const [isMac, setIsMac] = useState(false);
 
+  const currentChallenge = set.challenges[currentChallengeIndex];
+  const currentStep = currentChallenge?.steps[currentStepIndex];
+
   // Grid State
-  const [gridData, setGridData] = useState([
-    ['ID', 'Product', 'Region', 'Sales', 'Commission'],
-    ['#101', 'Gadget', 'North', '$1,200', '5%'],
-    ['#102', 'Widget', 'South', '$850', '6%'],
-    ['#103', 'Doohickey', 'East', '$2,100', '4%'],
-    ['#104', 'Thingamajig', 'West', '$500', '7%'],
-  ]);
-  const [gridSelection, setGridSelection] = useState<GridSelection>({
-      activeCell: { row: 1, col: 1 },
-      selectedCells: new Set(),
-  });
+  const [gridState, setGridState] = useState<GridState | null>(currentChallenge?.initialGridState ?? null);
+  const [cellStyles, setCellStyles] = useState<Record<string, React.CSSProperties>>({});
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
+  
+  useEffect(() => {
+      const newChallenge = set.challenges[currentChallengeIndex];
+      setGridState(newChallenge?.initialGridState ?? null);
+      setCellStyles({});
+  }, [currentChallengeIndex, set.challenges]);
+
 
   const isAdvancing = useRef(false);
   const keydownProcessed = useRef(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const currentChallenge = set.challenges[currentChallengeIndex];
-  const currentStep = currentChallenge?.steps[currentStepIndex];
-  const isScenario = set.category === 'Scenario';
 
   const finishChallenge = useCallback((finalSkipped: number[]) => {
       if (mode === 'training') {
@@ -124,12 +120,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setPressedKeys(new Set());
     setSequence([]);
     keydownProcessed.current = false;
-
-    // Reset visual selection if not a selection-extending action
-    const isSelectionAction = currentStep?.description.toLowerCase().includes('select');
-    if (!isSelectionAction) {
-      setGridSelection(prev => ({ ...prev, selectedCells: new Set() }));
-    }
   };
 
   
@@ -163,39 +153,84 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [moveToNextChallenge, currentChallengeIndex, skippedIndices, mode]);
   
   const handleGridAction = (step: ChallengeStep) => {
-      const description = step.description.toLowerCase();
-      
-      if (description.includes('select the entire row')) {
-          const newSelection = new Set<string>();
-          const activeRow = gridSelection.activeCell.row;
-          for (let c = 0; c < gridData[0].length; c++) {
-              newSelection.add(`${activeRow}-${c}`);
-          }
-          setGridSelection(prev => ({...prev, selectedCells: newSelection}));
-      } else if (description.includes('select the entire column')) {
-          const newSelection = new Set<string>();
-          const activeCol = gridSelection.activeCell.col;
-          for (let r = 0; r < gridData.length; r++) {
-              newSelection.add(`${r}-${activeCol}`);
-          }
-          setGridSelection(prev => ({...prev, selectedCells: newSelection}));
-      } else if (description.includes('select the entire')) { // Covers 'worksheet' and 'table'
-          const newSelection = new Set<string>();
-          for(let r = 0; r < gridData.length; r++) {
-              for(let c = 0; c < gridData[r].length; c++) {
-                  newSelection.add(`${r}-${c}`);
+      if (!step.gridEffect || !gridState || !gridState.selection) return;
+
+      const { action } = step.gridEffect;
+      const { activeCell, selectedCells = new Set() } = gridState.selection;
+
+      let newSelection = new Set(selectedCells);
+      let newGridData = gridState.data.map(row => [...row]);
+      let newActiveCell = { ...activeCell };
+      let newCellStyles = { ...cellStyles };
+
+      switch (action) {
+          case 'SELECT_ROW':
+              newSelection.clear();
+              for (let c = 0; c < newGridData[0].length; c++) {
+                  newSelection.add(`${activeCell.row}-${c}`);
               }
-          }
-          setGridSelection(prev => ({...prev, selectedCells: newSelection}));
+              break;
+          case 'SELECT_COLUMN':
+              newSelection.clear();
+              for (let r = 0; r < newGridData.length; r++) {
+                  newSelection.add(`${r}-${activeCell.col}`);
+              }
+              break;
+          case 'SELECT_ALL':
+              newSelection.clear();
+              for (let r = 0; r < newGridData.length; r++) {
+                  for (let c = 0; c < newGridData[r].length; c++) {
+                      newSelection.add(`${r}-${c}`);
+                  }
+              }
+              break;
+          case 'DELETE_ROW':
+              const rowsToDelete = new Set<number>();
+              if (selectedCells.size > 0) {
+                  selectedCells.forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
+              } else {
+                  rowsToDelete.add(activeCell.row);
+              }
+              newGridData = newGridData.filter((_, index) => !rowsToDelete.has(index));
+              newSelection.clear();
+              newActiveCell.row = Math.min(activeCell.row, newGridData.length - 1);
+              break;
+          case 'CUT':
+              (selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`])).forEach(cellId => {
+                  newCellStyles[cellId] = { ...newCellStyles[cellId], opacity: 0.3, border: '2px dashed gray' };
+              });
+              break;
+          case 'APPLY_STYLE_BOLD':
+              (selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`])).forEach(cellId => {
+                  newCellStyles[cellId] = { ...newCellStyles[cellId], fontWeight: 'bold' };
+              });
+              break;
+          case 'APPLY_STYLE_CURRENCY':
+                const cellsToFormat = selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`]);
+                cellsToFormat.forEach(cellId => {
+                    const [r, c] = cellId.split('-').map(Number);
+                    if (r < newGridData.length && c < newGridData[r].length) {
+                        const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
+                        if (!isNaN(numericValue)) {
+                            newGridData[r][c] = `$${numericValue.toFixed(2)}`;
+                        }
+                    }
+                });
+              break;
       }
-      // Add other visual actions here for delete, cut, paste etc.
+
+      setGridState({
+          data: newGridData,
+          selection: { activeCell: newActiveCell, selectedCells: newSelection }
+      });
+      setCellStyles(newCellStyles);
   }
 
   const advanceStepOrChallenge = useCallback(() => {
     setFeedback("correct");
     keydownProcessed.current = true;
     
-    if(isScenario && currentStep) {
+    if(currentStep) {
       handleGridAction(currentStep);
     }
 
@@ -208,7 +243,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             resetForNextStep();
         }
     }, 300);
-  }, [currentStepIndex, currentChallenge, skippedIndices, moveToNextChallenge, isScenario, currentStep]);
+  }, [currentStepIndex, currentChallenge, skippedIndices, moveToNextChallenge, currentStep]);
   
   const handleIncorrect = () => {
     setFeedback("incorrect");
@@ -377,9 +412,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       </CardHeader>
       <CardContent className="text-center py-8">
         
-        {isScenario && (
+        {gridState && gridState.data && gridState.selection && (
             <div className="mb-6">
-                <VisualGrid data={gridData} selection={gridSelection} />
+                <VisualGrid data={gridState.data} selection={gridState.selection} cellStyles={cellStyles} />
             </div>
         )}
 
@@ -416,7 +451,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                     )}>
                       {step.description}
                     </p>
-                    {ChallengeIcon && !isScenario && <ChallengeIcon className={cn(
+                    {ChallengeIcon && !gridState && <ChallengeIcon className={cn(
                         "w-10 h-10",
                          isCompleted ? "text-green-500" : (isActive ? "text-primary" : "text-muted-foreground/50")
                     )} />}
