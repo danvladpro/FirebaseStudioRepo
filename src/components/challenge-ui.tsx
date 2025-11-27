@@ -156,7 +156,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       if (!step.gridEffect || !gridState || !gridState.selection) return;
 
       const { action } = step.gridEffect;
-      const { activeCell, selectedCells = new Set() } = gridState.selection;
+      const { activeCell, selectedCells } = gridState.selection;
 
       let newSelection = new Set(selectedCells);
       let newGridData = gridState.data.map(row => [...row]);

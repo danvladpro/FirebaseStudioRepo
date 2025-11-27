@@ -14,7 +14,7 @@ const defaultGridState: GridState = {
       ['#103', 'Doohickey', 'East', '2100', '4%'],
       ['#104', 'Thingamajig', 'West', '500', '7%'],
     ],
-    selection: { activeCell: { row: 1, col: 1 } },
+    selection: { activeCell: { row: 1, col: 1 }, selectedCells: new Set() },
 };
 
 export const CHALLENGE_SETS: ChallengeSet[] = [

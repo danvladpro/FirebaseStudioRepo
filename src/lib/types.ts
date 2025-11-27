@@ -4,9 +4,9 @@ import { ElementType } from "react";
 
 export interface GridState {
   data: string[][];
-  selection?: {
+  selection: {
     activeCell: { row: number; col: number };
-    selectedCells?: Set<string>;
+    selectedCells: Set<string>;
   };
 }
 
