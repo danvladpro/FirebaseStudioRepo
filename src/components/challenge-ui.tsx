@@ -137,16 +137,18 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const initialGridState = currentChallenge?.initialGridState ?? null;
 
   const deepCloneGridState = (state: GridState): GridState => {
+      const newSelectedCells = new Set<string>();
+      state.selection.selectedCells.forEach(cell => newSelectedCells.add(cell));
       return {
           data: state.data.map(row => [...row]),
           selection: {
               activeCell: { ...state.selection.activeCell },
-              selectedCells: new Set(state.selection.selectedCells),
+              selectedCells: newSelectedCells,
           }
       };
   };
 
-  const calculateGridStateForStep = (stepIndex: number) => {
+  const calculateGridStateForStep = useCallback((stepIndex: number) => {
     if (!initialGridState) return { gridState: null, cellStyles: {} };
 
     let runningGridState: GridState = deepCloneGridState(initialGridState);
@@ -157,11 +159,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         if (step && step.gridEffect) {
             const { newGridState, newCellStyles } = applyGridEffect(runningGridState, step, runningCellStyles);
             runningGridState = newGridState;
-            runningCellStyles = newCellStyles;
+            runningCellStyles = { ...runningCellStyles, ...newCellStyles };
         }
     }
     return { gridState: runningGridState, cellStyles: runningCellStyles };
-  };
+  }, [initialGridState, currentChallenge?.steps]);
 
   const { gridState: displayedGridState, cellStyles: displayedCellStyles } = calculateGridStateForStep(currentStepIndex - 1);
   const { gridState: previewGridState, cellStyles: previewCellStyles } = calculateGridStateForStep(currentStepIndex);
@@ -435,7 +437,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                     data={displayedGridState.data} 
                     selection={displayedGridState.selection} 
                     cellStyles={displayedCellStyles}
-                    previewSelection={previewGridState?.selection ?? null}
+                    previewState={previewGridState ? {
+                        gridState: previewGridState,
+                        cellStyles: previewCellStyles,
+                    } : null}
                 />
             </div>
         )}
@@ -523,5 +528,3 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </Card>
   );
 }
-
-    
