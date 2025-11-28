@@ -150,12 +150,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   useEffect(() => {
     if (gridState && currentStep?.gridEffect) {
-      const { newGridState } = applyGridEffect(gridState, currentStep, {});
-      setPreviewGridState(newGridState);
+      const { newGridState: previewState } = applyGridEffect(gridState, currentStep, cellStyles);
+      setPreviewGridState(previewState);
     } else {
       setPreviewGridState(null);
     }
-  }, [gridState, currentStep]);
+  }, [gridState, cellStyles, currentStep]);
 
 
   const isAdvancing = useRef(false);

@@ -176,7 +176,10 @@ export const SCENARIO_SETS: ChallengeSet[] = [
             },
             {
                 description: "Select a column and format it as Currency.",
-                initialGridState: defaultGridState,
+                initialGridState: {
+                    ...defaultGridState,
+                    selection: { activeCell: { row: 1, col: 3 }, selectedCells: new Set() }
+                },
                 steps: [
                     { description: "Select the entire column", keys: ["Control", " "], iconName: "Columns3", gridEffect: { action: 'SELECT_COLUMN' } },
                     { description: "Apply the Currency format", keys: ["Control", "Shift", "$"], iconName: "DollarSign", gridEffect: { action: 'APPLY_STYLE_CURRENCY'} },
@@ -192,6 +195,7 @@ export const SCENARIO_SETS: ChallengeSet[] = [
             },
             {
                 description: "Switch to formula view to check your work, then switch back.",
+                initialGridState: defaultGridState,
                 steps: [
                     { description: "Toggle displaying formulas or values", keys: ["Control", "`"], iconName: "FileCode" },
                     { description: "Toggle displaying formulas or values", keys: ["Control", "`"], iconName: "FileText" },
