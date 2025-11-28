@@ -47,7 +47,10 @@ const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellStyles: 
 
     const { action } = step.gridEffect;
     let newGridData = gridState.data.map(row => [...row]);
-    let newSelection = { ...gridState.selection };
+    let newSelection: GridSelection = { 
+        activeCell: { ...gridState.selection.activeCell },
+        selectedCells: new Set(gridState.selection.selectedCells)
+    };
     let newCellStyles = { ...cellStyles };
 
     const { activeCell, selectedCells } = newSelection;
@@ -133,11 +136,20 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const currentStep = currentChallenge?.steps[currentStepIndex];
   const initialGridState = currentChallenge?.initialGridState ?? null;
 
-  // Function to calculate grid state based on steps
+  const deepCloneGridState = (state: GridState): GridState => {
+      return {
+          data: state.data.map(row => [...row]),
+          selection: {
+              activeCell: { ...state.selection.activeCell },
+              selectedCells: new Set(state.selection.selectedCells),
+          }
+      };
+  };
+
   const calculateGridStateForStep = (stepIndex: number) => {
     if (!initialGridState) return { gridState: null, cellStyles: {} };
 
-    let runningGridState: GridState = JSON.parse(JSON.stringify(initialGridState));
+    let runningGridState: GridState = deepCloneGridState(initialGridState);
     let runningCellStyles: Record<string, React.CSSProperties> = {};
     
     for (let i = 0; i <= stepIndex; i++) {
@@ -152,7 +164,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   };
 
   const { gridState: displayedGridState, cellStyles: displayedCellStyles } = calculateGridStateForStep(currentStepIndex - 1);
-  const { gridState: previewGridState } = calculateGridStateForStep(currentStepIndex);
+  const { gridState: previewGridState, cellStyles: previewCellStyles } = calculateGridStateForStep(currentStepIndex);
 
 
   useEffect(() => {
@@ -186,13 +198,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const getRequiredKeys = useCallback(() => {
     if (!currentStep) return new Set();
 
-    // Strikethrough (Ctrl+5) is an exception, it's the same on Mac and Windows.
     const isStrikethrough = currentStep.description.toLowerCase().includes('strikethrough');
 
     const keys = currentStep.keys.map(k => {
       if (isMac) {
         if (k.toLowerCase() === 'control' && !isStrikethrough) {
-          return 'Meta'; // On Mac, 'Control' from challenges should map to 'Command' (Meta) key
+          return 'Meta'; 
         }
       }
       return k;
@@ -318,7 +329,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
             const requiredSequence = Array.from(getRequiredKeys()).map(k => normalizeKey(k));
             
-            // Check if the current sequence is a valid prefix
             for(let i = 0; i < newSequence.length; i++) {
                 if (newSequence[i] !== requiredSequence[i]) {
                     handleIncorrect();
@@ -513,3 +523,5 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </Card>
   );
 }
+
+    
