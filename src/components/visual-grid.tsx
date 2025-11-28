@@ -13,9 +13,10 @@ interface VisualGridProps {
     data: string[][];
     selection: GridSelection;
     cellStyles?: Record<string, React.CSSProperties>;
+    previewSelection?: GridSelection | null;
 }
 
-export function VisualGrid({ data, selection, cellStyles = {} }: VisualGridProps) {
+export function VisualGrid({ data, selection, cellStyles = {}, previewSelection = null }: VisualGridProps) {
     const { activeCell, selectedCells } = selection;
 
     return (
@@ -41,13 +42,15 @@ export function VisualGrid({ data, selection, cellStyles = {} }: VisualGridProps
                                 const cellId = `${rowIndex}-${colIndex}`;
                                 const isSelected = selectedCells.has(cellId);
                                 const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
+                                const isPreview = previewSelection?.selectedCells.has(cellId) ?? false;
 
                                 return (
                                     <td
                                         key={colIndex}
                                         className={cn(
-                                            "border border-border/50 p-1.5 text-sm truncate",
+                                            "border border-border/50 p-1.5 text-sm truncate transition-colors duration-300",
                                             rowIndex === 0 && "font-semibold bg-muted/80",
+                                            isPreview && !isSelected && "bg-blue-500/10",
                                             isSelected && "bg-primary/20",
                                             isActive && "ring-2 ring-primary ring-inset"
                                         )}

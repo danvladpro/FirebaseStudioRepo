@@ -42,6 +42,79 @@ const KeyDisplay = ({ value }: { value: string }) => {
 };
 
 
+const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellStyles: Record<string, React.CSSProperties>): { newGridState: GridState, newCellStyles: Record<string, React.CSSProperties> } => {
+    if (!step.gridEffect) return { newGridState: gridState, newCellStyles: cellStyles };
+
+    const { action } = step.gridEffect;
+    let newGridData = gridState.data.map(row => [...row]);
+    let newSelection = { ...gridState.selection };
+    let newCellStyles = { ...cellStyles };
+
+    const { activeCell, selectedCells } = newSelection;
+
+    switch (action) {
+        case 'SELECT_ROW':
+            newSelection.selectedCells.clear();
+            for (let c = 0; c < newGridData[0].length; c++) {
+                newSelection.selectedCells.add(`${activeCell.row}-${c}`);
+            }
+            break;
+        case 'SELECT_COLUMN':
+            newSelection.selectedCells.clear();
+            for (let r = 0; r < newGridData.length; r++) {
+                newSelection.selectedCells.add(`${r}-${activeCell.col}`);
+            }
+            break;
+        case 'SELECT_ALL':
+            newSelection.selectedCells.clear();
+            for (let r = 0; r < newGridData.length; r++) {
+                for (let c = 0; c < newGridData[r].length; c++) {
+                    newSelection.selectedCells.add(`${r}-${c}`);
+                }
+            }
+            break;
+        case 'DELETE_ROW':
+            const rowsToDelete = new Set<number>();
+            if (selectedCells.size > 0) {
+                selectedCells.forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
+            } else {
+                rowsToDelete.add(activeCell.row);
+            }
+            newGridData = newGridData.filter((_, index) => !rowsToDelete.has(index));
+            newSelection.selectedCells.clear();
+            newSelection.activeCell.row = Math.min(activeCell.row, newGridData.length - 1);
+            break;
+        case 'CUT':
+            (selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`])).forEach(cellId => {
+                newCellStyles[cellId] = { ...newCellStyles[cellId], opacity: 0.3, border: '2px dashed gray' };
+            });
+            break;
+        case 'APPLY_STYLE_BOLD':
+            (selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`])).forEach(cellId => {
+                newCellStyles[cellId] = { ...newCellStyles[cellId], fontWeight: 'bold' };
+            });
+            break;
+        case 'APPLY_STYLE_CURRENCY':
+            const cellsToFormat = selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`]);
+            cellsToFormat.forEach(cellId => {
+                const [r, c] = cellId.split('-').map(Number);
+                if (r < newGridData.length && c < newGridData[r].length) {
+                    const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
+                    if (!isNaN(numericValue)) {
+                        newGridData[r][c] = `$${numericValue.toFixed(2)}`;
+                    }
+                }
+            });
+            break;
+    }
+
+    return {
+        newGridState: { data: newGridData, selection: newSelection },
+        newCellStyles
+    };
+};
+
+
 export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const router = useRouter();
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
@@ -62,6 +135,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   // Grid State
   const [gridState, setGridState] = useState<GridState | null>(currentChallenge?.initialGridState ?? null);
   const [cellStyles, setCellStyles] = useState<Record<string, React.CSSProperties>>({});
+  const [previewSelection, setPreviewSelection] = useState<GridSelection | null>(null);
+
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
@@ -72,6 +147,15 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       setGridState(newChallenge?.initialGridState ?? null);
       setCellStyles({});
   }, [currentChallengeIndex, set.challenges]);
+
+  useEffect(() => {
+    if (gridState && currentStep?.gridEffect) {
+      const { newGridState } = applyGridEffect(gridState, currentStep, cellStyles);
+      setPreviewSelection(newGridState.selection);
+    } else {
+      setPreviewSelection(null);
+    }
+  }, [gridState, currentStep, cellStyles]);
 
 
   const isAdvancing = useRef(false);
@@ -153,81 +237,15 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [moveToNextChallenge, currentChallengeIndex, skippedIndices, mode]);
   
   const handleGridAction = (step: ChallengeStep) => {
-      if (!step.gridEffect || !gridState || !gridState.selection) return;
-
-      const { action } = step.gridEffect;
-      const { activeCell, selectedCells } = gridState.selection;
-
-      let newSelection = new Set(selectedCells);
-      let newGridData = gridState.data.map(row => [...row]);
-      let newActiveCell = { ...activeCell };
-      let newCellStyles = { ...cellStyles };
-
-      switch (action) {
-          case 'SELECT_ROW':
-              newSelection.clear();
-              for (let c = 0; c < newGridData[0].length; c++) {
-                  newSelection.add(`${activeCell.row}-${c}`);
-              }
-              break;
-          case 'SELECT_COLUMN':
-              newSelection.clear();
-              for (let r = 0; r < newGridData.length; r++) {
-                  newSelection.add(`${r}-${activeCell.col}`);
-              }
-              break;
-          case 'SELECT_ALL':
-              newSelection.clear();
-              for (let r = 0; r < newGridData.length; r++) {
-                  for (let c = 0; c < newGridData[r].length; c++) {
-                      newSelection.add(`${r}-${c}`);
-                  }
-              }
-              break;
-          case 'DELETE_ROW':
-              const rowsToDelete = new Set<number>();
-              if (selectedCells.size > 0) {
-                  selectedCells.forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
-              } else {
-                  rowsToDelete.add(activeCell.row);
-              }
-              newGridData = newGridData.filter((_, index) => !rowsToDelete.has(index));
-              newSelection.clear();
-              newActiveCell.row = Math.min(activeCell.row, newGridData.length - 1);
-              break;
-          case 'CUT':
-              (selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`])).forEach(cellId => {
-                  newCellStyles[cellId] = { ...newCellStyles[cellId], opacity: 0.3, border: '2px dashed gray' };
-              });
-              break;
-          case 'APPLY_STYLE_BOLD':
-              (selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`])).forEach(cellId => {
-                  newCellStyles[cellId] = { ...newCellStyles[cellId], fontWeight: 'bold' };
-              });
-              break;
-          case 'APPLY_STYLE_CURRENCY':
-                const cellsToFormat = selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`]);
-                cellsToFormat.forEach(cellId => {
-                    const [r, c] = cellId.split('-').map(Number);
-                    if (r < newGridData.length && c < newGridData[r].length) {
-                        const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
-                        if (!isNaN(numericValue)) {
-                            newGridData[r][c] = `$${numericValue.toFixed(2)}`;
-                        }
-                    }
-                });
-              break;
-      }
-
-      setGridState({
-          data: newGridData,
-          selection: { activeCell: newActiveCell, selectedCells: newSelection }
-      });
-      setCellStyles(newCellStyles);
+    if (!gridState) return;
+    const { newGridState, newCellStyles } = applyGridEffect(gridState, step, cellStyles);
+    setGridState(newGridState);
+    setCellStyles(newCellStyles);
   }
 
   const advanceStepOrChallenge = useCallback(() => {
     setFeedback("correct");
+    setPreviewSelection(null); // Hide preview on correct action
     keydownProcessed.current = true;
     
     if(currentStep) {
@@ -414,7 +432,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         
         {gridState && gridState.data && gridState.selection && (
             <div className="mb-6">
-                <VisualGrid data={gridState.data} selection={gridState.selection} cellStyles={cellStyles} />
+                <VisualGrid 
+                    data={gridState.data} 
+                    selection={gridState.selection} 
+                    cellStyles={cellStyles}
+                    previewSelection={previewSelection}
+                />
             </div>
         )}
 
