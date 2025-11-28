@@ -131,32 +131,33 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
+  const initialGridState = currentChallenge?.initialGridState ?? null;
 
-  // Grid State
-  const [gridState, setGridState] = useState<GridState | null>(currentChallenge?.initialGridState ?? null);
-  const [cellStyles, setCellStyles] = useState<Record<string, React.CSSProperties>>({});
-  const [previewGridState, setPreviewGridState] = useState<GridState | null>(null);
+  // Function to calculate grid state based on steps
+  const calculateGridStateForStep = (stepIndex: number) => {
+    if (!initialGridState) return { gridState: null, cellStyles: {} };
+
+    let runningGridState: GridState = JSON.parse(JSON.stringify(initialGridState));
+    let runningCellStyles: Record<string, React.CSSProperties> = {};
+    
+    for (let i = 0; i <= stepIndex; i++) {
+        const step = currentChallenge.steps[i];
+        if (step && step.gridEffect) {
+            const { newGridState, newCellStyles } = applyGridEffect(runningGridState, step, runningCellStyles);
+            runningGridState = newGridState;
+            runningCellStyles = newCellStyles;
+        }
+    }
+    return { gridState: runningGridState, cellStyles: runningCellStyles };
+  };
+
+  const { gridState: displayedGridState, cellStyles: displayedCellStyles } = calculateGridStateForStep(currentStepIndex - 1);
+  const { gridState: previewGridState } = calculateGridStateForStep(currentStepIndex);
 
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
-  
-  useEffect(() => {
-      const newChallenge = set.challenges[currentChallengeIndex];
-      setGridState(newChallenge?.initialGridState ?? null);
-      setCellStyles({});
-  }, [currentChallengeIndex, set.challenges]);
-
-  useEffect(() => {
-    if (gridState && currentStep?.gridEffect) {
-      const { newGridState: previewState } = applyGridEffect(gridState, currentStep, cellStyles);
-      setPreviewGridState(previewState);
-    } else {
-      setPreviewGridState(null);
-    }
-  }, [gridState, cellStyles, currentStep]);
-
 
   const isAdvancing = useRef(false);
   const keydownProcessed = useRef(false);
@@ -235,22 +236,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     const newSkipped = mode === 'timed' ? [...skippedIndices, currentChallengeIndex] : skippedIndices;
     moveToNextChallenge(newSkipped);
   }, [moveToNextChallenge, currentChallengeIndex, skippedIndices, mode]);
-  
-  const handleGridAction = (step: ChallengeStep) => {
-    if (!gridState) return;
-    const { newGridState, newCellStyles } = applyGridEffect(gridState, step, cellStyles);
-    setGridState(newGridState);
-    setCellStyles(newCellStyles);
-  }
 
   const advanceStepOrChallenge = useCallback(() => {
     setFeedback("correct");
-    setPreviewGridState(null); // Hide preview on correct action
     keydownProcessed.current = true;
-    
-    if(currentStep) {
-      handleGridAction(currentStep);
-    }
 
     setTimeout(() => {
         const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
@@ -261,7 +250,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             resetForNextStep();
         }
     }, 300);
-  }, [currentStepIndex, currentChallenge, skippedIndices, moveToNextChallenge, currentStep]);
+  }, [currentStepIndex, currentChallenge, skippedIndices, moveToNextChallenge]);
   
   const handleIncorrect = () => {
     setFeedback("incorrect");
@@ -430,12 +419,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       </CardHeader>
       <CardContent className="text-center py-8">
         
-        {gridState && gridState.data && gridState.selection && (
+        {displayedGridState && displayedGridState.data && displayedGridState.selection && (
             <div className="mb-6">
                 <VisualGrid 
-                    data={previewGridState?.data ?? gridState.data} 
-                    selection={gridState.selection} 
-                    cellStyles={cellStyles}
+                    data={displayedGridState.data} 
+                    selection={displayedGridState.selection} 
+                    cellStyles={displayedCellStyles}
                     previewSelection={previewGridState?.selection ?? null}
                 />
             </div>
@@ -474,7 +463,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                     )}>
                       {step.description}
                     </p>
-                    {ChallengeIcon && !gridState && <ChallengeIcon className={cn(
+                    {ChallengeIcon && !initialGridState && <ChallengeIcon className={cn(
                         "w-10 h-10",
                          isCompleted ? "text-green-500" : (isActive ? "text-primary" : "text-muted-foreground/50")
                     )} />}
