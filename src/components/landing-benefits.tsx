@@ -5,8 +5,6 @@ import Image from "next/image";
 
 export function LandingBenefits() {
 
-  const cacheBuster = `?t=${new Date().getTime()}`;
-
 
   return (
     <section id="benefits" className="w-full py-12 md:py-24 lg:py-12">
@@ -19,7 +17,7 @@ export function LandingBenefits() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <ScrollAnimation delay={0.2}>
             <Image
-              src={`/allNinjas.png${cacheBuster}`}
+              src="/allNinjas.png"
               alt="Gamified Progress Levels"
               width={800}
               height={400}
