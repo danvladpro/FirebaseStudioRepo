@@ -117,6 +117,15 @@ const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellStyles: 
     };
 };
 
+const deepCloneGridState = (state: GridState): GridState => {
+    return {
+        data: state.data.map(row => [...row]),
+        selection: {
+            activeCell: { ...state.selection.activeCell },
+            selectedCells: new Set(state.selection.selectedCells),
+        }
+    };
+};
 
 export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const router = useRouter();
@@ -127,6 +136,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const [startTime, setStartTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
+  const [isAccentuating, setIsAccentuating] = useState(false);
   const [skippedIndices, setSkippedIndices] = useState<number[]>([]);
   
   const [countdown, setCountdown] = useState(8);
@@ -135,18 +145,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
   const initialGridState = currentChallenge?.initialGridState ?? null;
-
-  const deepCloneGridState = (state: GridState): GridState => {
-      const newSelectedCells = new Set<string>();
-      state.selection.selectedCells.forEach(cell => newSelectedCells.add(cell));
-      return {
-          data: state.data.map(row => [...row]),
-          selection: {
-              activeCell: { ...state.selection.activeCell },
-              selectedCells: newSelectedCells,
-          }
-      };
-  };
 
   const calculateGridStateForStep = useCallback((stepIndex: number) => {
     if (!initialGridState) return { gridState: null, cellStyles: {} };
@@ -215,6 +213,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const resetForNextStep = () => {
     setFeedback(null);
+    setIsAccentuating(false);
     setPressedKeys(new Set());
     setSequence([]);
     keydownProcessed.current = false;
@@ -252,6 +251,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const advanceStepOrChallenge = useCallback(() => {
     setFeedback("correct");
+    setIsAccentuating(true);
     keydownProcessed.current = true;
 
     setTimeout(() => {
@@ -262,7 +262,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             setCurrentStepIndex(prev => prev + 1);
             resetForNextStep();
         }
-    }, 300);
+    }, 400); // Increased delay to allow accentuation to be visible
   }, [currentStepIndex, currentChallenge, skippedIndices, moveToNextChallenge]);
   
   const handleIncorrect = () => {
@@ -441,6 +441,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                         gridState: previewGridState,
                         cellStyles: previewCellStyles,
                     } : null}
+                    isAccentuating={isAccentuating}
                 />
             </div>
         )}
@@ -459,7 +460,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                   className={cn(
                     "p-4 rounded-lg transition-all",
                     isCompleted ? "bg-green-500/10" : "bg-muted/50",
-                    isActive && feedback !== 'incorrect' && "ring-2 ring-primary",
+                    isActive && feedback !== 'incorrect' && !isAccentuating && "ring-2 ring-primary",
+                    isActive && isAccentuating && "ring-2 ring-green-500",
                     isActive && feedback === 'incorrect' && "ring-2 ring-destructive"
                   )}
                 >
@@ -468,19 +470,20 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                       <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
                     ) : (
                       <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
-                         <Circle className={cn("w-4 h-4", isActive ? "text-primary" : "text-muted-foreground/50")} />
+                         <Circle className={cn("w-4 h-4", isActive ? (isAccentuating ? "text-green-500" : "text-primary") : "text-muted-foreground/50")} />
                       </div>
                     )}
                     <p className={cn(
                       "flex-1 font-medium",
                       isCompleted && "text-green-700 line-through",
+                      isActive && isAccentuating && "text-green-700",
                       !isActive && !isCompleted && "text-muted-foreground"
                     )}>
                       {step.description}
                     </p>
                     {ChallengeIcon && !initialGridState && <ChallengeIcon className={cn(
                         "w-10 h-10",
-                         isCompleted ? "text-green-500" : (isActive ? "text-primary" : "text-muted-foreground/50")
+                         isCompleted ? "text-green-500" : (isActive ? (isAccentuating ? "text-green-500" : "text-primary") : "text-muted-foreground/50")
                     )} />}
                   </div>
 
