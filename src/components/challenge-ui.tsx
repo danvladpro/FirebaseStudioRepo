@@ -135,7 +135,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   // Grid State
   const [gridState, setGridState] = useState<GridState | null>(currentChallenge?.initialGridState ?? null);
   const [cellStyles, setCellStyles] = useState<Record<string, React.CSSProperties>>({});
-  const [previewSelection, setPreviewSelection] = useState<GridSelection | null>(null);
+  const [previewGridState, setPreviewGridState] = useState<GridState | null>(null);
 
 
   useEffect(() => {
@@ -150,12 +150,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   useEffect(() => {
     if (gridState && currentStep?.gridEffect) {
-      const { newGridState } = applyGridEffect(gridState, currentStep, cellStyles);
-      setPreviewSelection(newGridState.selection);
+      const { newGridState } = applyGridEffect(gridState, currentStep, {});
+      setPreviewGridState(newGridState);
     } else {
-      setPreviewSelection(null);
+      setPreviewGridState(null);
     }
-  }, [gridState, currentStep, cellStyles]);
+  }, [gridState, currentStep]);
 
 
   const isAdvancing = useRef(false);
@@ -245,7 +245,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const advanceStepOrChallenge = useCallback(() => {
     setFeedback("correct");
-    setPreviewSelection(null); // Hide preview on correct action
+    setPreviewGridState(null); // Hide preview on correct action
     keydownProcessed.current = true;
     
     if(currentStep) {
@@ -433,10 +433,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         {gridState && gridState.data && gridState.selection && (
             <div className="mb-6">
                 <VisualGrid 
-                    data={gridState.data} 
+                    data={previewGridState?.data ?? gridState.data} 
                     selection={gridState.selection} 
                     cellStyles={cellStyles}
-                    previewSelection={previewSelection}
+                    previewSelection={previewGridState?.selection ?? null}
                 />
             </div>
         )}
