@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
 import { VisualGrid } from "./visual-grid";
+import { calculateGridStateForStep } from "@/lib/grid-engine";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -41,92 +42,6 @@ const KeyDisplay = ({ value }: { value: string }) => {
     );
 };
 
-
-const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellStyles: Record<string, React.CSSProperties>): { newGridState: GridState, newCellStyles: Record<string, React.CSSProperties> } => {
-    if (!step.gridEffect) return { newGridState: gridState, newCellStyles: cellStyles };
-
-    const { action } = step.gridEffect;
-    let newGridData = gridState.data.map(row => [...row]);
-    let newSelection: GridState['selection'] = { 
-        activeCell: { ...gridState.selection.activeCell },
-        selectedCells: new Set(gridState.selection.selectedCells)
-    };
-    let newCellStyles = { ...cellStyles };
-
-    const { activeCell, selectedCells } = newSelection;
-
-    switch (action) {
-        case 'SELECT_ROW':
-            newSelection.selectedCells.clear();
-            for (let c = 0; c < newGridData[0].length; c++) {
-                newSelection.selectedCells.add(`${activeCell.row}-${c}`);
-            }
-            break;
-        case 'SELECT_COLUMN':
-            newSelection.selectedCells.clear();
-            for (let r = 0; r < newGridData.length; r++) {
-                newSelection.selectedCells.add(`${r}-${activeCell.col}`);
-            }
-            break;
-        case 'SELECT_ALL':
-            newSelection.selectedCells.clear();
-            for (let r = 0; r < newGridData.length; r++) {
-                for (let c = 0; c < newGridData[r].length; c++) {
-                    newSelection.selectedCells.add(`${r}-${c}`);
-                }
-            }
-            break;
-        case 'DELETE_ROW':
-            const rowsToDelete = new Set<number>();
-            if (selectedCells.size > 0) {
-                selectedCells.forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
-            } else {
-                rowsToDelete.add(activeCell.row);
-            }
-            newGridData = newGridData.filter((_, index) => !rowsToDelete.has(index));
-            newSelection.selectedCells.clear();
-            newSelection.activeCell.row = Math.min(activeCell.row, newGridData.length - 1);
-            break;
-        case 'CUT':
-            (selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`])).forEach(cellId => {
-                newCellStyles[cellId] = { ...newCellStyles[cellId], opacity: 0.3, border: '2px dashed gray' };
-            });
-            break;
-        case 'APPLY_STYLE_BOLD':
-            (selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`])).forEach(cellId => {
-                newCellStyles[cellId] = { ...newCellStyles[cellId], fontWeight: 'bold' };
-            });
-            break;
-        case 'APPLY_STYLE_CURRENCY':
-            const cellsToFormat = selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`]);
-            cellsToFormat.forEach(cellId => {
-                const [r, c] = cellId.split('-').map(Number);
-                if (r < newGridData.length && c < newGridData[r].length) {
-                    const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
-                    if (!isNaN(numericValue)) {
-                        newGridData[r][c] = `$${numericValue.toFixed(2)}`;
-                    }
-                }
-            });
-            break;
-    }
-
-    return {
-        newGridState: { data: newGridData, selection: newSelection },
-        newCellStyles
-    };
-};
-
-const deepCloneGridState = (state: GridState): GridState => {
-  return {
-    data: state.data.map(row => [...row]),
-    selection: {
-      activeCell: { ...state.selection.activeCell },
-      selectedCells: new Set(state.selection.selectedCells),
-    }
-  };
-};
-
 export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const router = useRouter();
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
@@ -146,31 +61,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const currentStep = currentChallenge?.steps[currentStepIndex];
   const initialGridState = currentChallenge?.initialGridState ?? null;
 
-  const calculateGridStateForStep = useCallback((stepIndex: number) => {
-    if (!initialGridState) return { gridState: null, cellStyles: {} };
+  const { gridState: displayedGridState, cellStyles: displayedCellStyles } = initialGridState
+    ? calculateGridStateForStep(currentChallenge.steps, initialGridState, currentStepIndex - 1)
+    : { gridState: null, cellStyles: {} };
 
-    let runningGridState: GridState = deepCloneGridState(initialGridState);
-    let runningCellStyles: Record<string, React.CSSProperties> = {};
-    
-    // We iterate up to and including the target stepIndex
-    for (let i = 0; i <= stepIndex; i++) {
-        const step = currentChallenge.steps[i];
-        if (step) {
-            const { newGridState, newCellStyles } = applyGridEffect(runningGridState, step, runningCellStyles);
-            runningGridState = newGridState;
-            runningCellStyles = newCellStyles; // Keep merging styles
-        }
-    }
-    return { gridState: runningGridState, cellStyles: runningCellStyles };
-  }, [initialGridState, currentChallenge?.steps]);
-
-  // The state of the grid as it appears *before* the current step's action
-  const { gridState: displayedGridState, cellStyles: displayedCellStyles } = currentStepIndex > 0
-    ? calculateGridStateForStep(currentStepIndex - 1)
-    : { gridState: initialGridState, cellStyles: {} };
-
-  // The preview state, showing the result of the *current* step's action
-  const { gridState: previewGridState, cellStyles: previewCellStyles } = calculateGridStateForStep(currentStepIndex);
+  const { gridState: previewGridState, cellStyles: previewCellStyles } = initialGridState
+    ? calculateGridStateForStep(currentChallenge.steps, initialGridState, currentStepIndex)
+    : { gridState: null, cellStyles: {} };
 
 
   useEffect(() => {
@@ -537,5 +434,3 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </Card>
   );
 }
-
-    
