@@ -26,10 +26,9 @@ interface VisualGridProps {
 export function VisualGrid({ data, selection, cellStyles = {}, previewState = null, isAccentuating = false }: VisualGridProps) {
     const { activeCell, selectedCells } = selection;
 
-    const gridData = (isAccentuating && previewState) ? previewState.gridState.data : (previewState ? previewState.gridState.data : data);
-    const gridStyles = (isAccentuating && previewState) ? previewState.cellStyles : (previewState ? previewState.cellStyles : cellStyles);
-    
-    const currentSelection = (isAccentuating && previewState) ? previewState.gridState.selection : (previewState ? previewState.gridState.selection : selection);
+    const gridData = (previewState) ? previewState.gridState.data : data;
+    const gridStyles = (previewState) ? previewState.cellStyles : cellStyles;
+    const currentSelection = (previewState) ? previewState.gridState.selection : selection;
 
     return (
         <div className="p-2 bg-muted/50 rounded-lg border overflow-auto">
@@ -37,7 +36,7 @@ export function VisualGrid({ data, selection, cellStyles = {}, previewState = nu
                 <thead>
                     <tr>
                         <th className="p-1 w-10"></th>
-                        {gridData.length > 0 && gridData[0].map((_, colIndex) => (
+                        {data.length > 0 && data[0].map((_, colIndex) => (
                             <th key={colIndex} className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-t-sm">
                                 {String.fromCharCode(65 + colIndex)}
                             </th>
@@ -45,11 +44,11 @@ export function VisualGrid({ data, selection, cellStyles = {}, previewState = nu
                     </tr>
                 </thead>
                 <tbody>
-                    {gridData.map((row, rowIndex) => {
+                    {data.map((row, rowIndex) => {
                          const isRowDeletedInPreview = previewState && !previewState.gridState.data.some((previewRow, pRowIndex) => pRowIndex === rowIndex);
 
                         return (
-                        <tr key={rowIndex} className={cn(isRowDeletedInPreview && 'opacity-50 transition-opacity')}>
+                        <tr key={rowIndex} className={cn(isRowDeletedInPreview && 'opacity-30 line-through transition-opacity')}>
                             <td className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-l-sm">
                                 {rowIndex + 1}
                             </td>
@@ -58,13 +57,15 @@ export function VisualGrid({ data, selection, cellStyles = {}, previewState = nu
                                 const isSelected = selectedCells.has(cellId);
                                 const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
 
-                                const isPreviewSelected = currentSelection.selectedCells.has(cellId);
-                                const isPreviewActive = currentSelection.activeCell.row === rowIndex && currentSelection.activeCell.col === colIndex;
-
-                                const finalStyle = gridStyles[cellId] || {};
-                                if (previewState) {
-                                    finalStyle.transition = 'all 0.3s ease-in-out';
+                                let finalStyle = isAccentuating ? (previewState?.cellStyles[cellId] || {}) : (cellStyles[cellId] || {});
+                                const isPreviewSelected = previewState ? previewState.gridState.selection.selectedCells.has(cellId) : false;
+                                const isPreviewActive = previewState ? (previewState.gridState.selection.activeCell.row === rowIndex && previewState.gridState.selection.activeCell.col === colIndex) : false;
+                                
+                                const cellValue = (previewState && gridData[rowIndex] && gridData[rowIndex][colIndex] !== undefined) ? gridData[rowIndex][colIndex] : cell;
+                                if(previewState) {
+                                    finalStyle = {...(previewState.cellStyles[cellId] || {}), transition: 'all 0.3s ease-in-out' };
                                 }
+
 
                                 return (
                                     <td
@@ -72,24 +73,25 @@ export function VisualGrid({ data, selection, cellStyles = {}, previewState = nu
                                         className={cn(
                                             "border border-border/50 p-1.5 text-sm truncate transition-colors duration-200",
                                             rowIndex === 0 && !previewState && "font-semibold bg-muted/80",
-                                            // Handle base state (no preview)
-                                            !previewState && {
-                                                'bg-primary/20': isSelected,
-                                                'ring-2 ring-primary ring-inset': isActive,
+                                            
+                                            // Base state
+                                            { 'bg-primary/20': isSelected, 'ring-2 ring-primary ring-inset': isActive, },
+
+                                            // Preview state
+                                            !isAccentuating && previewState && {
+                                                'bg-blue-500/10 shadow-inner shadow-blue-500/10': isPreviewSelected,
+                                                'ring-2 ring-blue-500 ring-inset': isPreviewActive,
                                             },
-                                            // Handle preview state
-                                            previewState && !isAccentuating && {
-                                                'bg-blue-500/10 shadow-inner shadow-blue-500/10': isPreviewSelected || isPreviewActive
-                                            },
-                                            // Handle accentuation state
-                                            isAccentuating && {
+
+                                            // Accentuation state
+                                            isAccentuating && previewState && {
                                                 'bg-primary/20': isPreviewSelected,
                                                 'ring-2 ring-primary ring-inset': isPreviewActive,
                                             }
                                         )}
                                         style={finalStyle}
                                     >
-                                        {cell}
+                                        {cellValue}
                                     </td>
                                 );
                             })}

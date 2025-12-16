@@ -118,13 +118,13 @@ const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellStyles: 
 };
 
 const deepCloneGridState = (state: GridState): GridState => {
-    return {
-        data: state.data.map(row => [...row]),
-        selection: {
-            activeCell: { ...state.selection.activeCell },
-            selectedCells: new Set(state.selection.selectedCells),
-        }
-    };
+  return {
+    data: state.data.map(row => [...row]),
+    selection: {
+      activeCell: { ...state.selection.activeCell },
+      selectedCells: new Set(state.selection.selectedCells),
+    }
+  };
 };
 
 export default function ChallengeUI({ set, mode }: ChallengeUIProps) {

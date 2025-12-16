@@ -61,6 +61,7 @@ export interface PerformanceRecord {
   bestTime: number | null;
   lastTrained: string | null;
   bestScore?: number | null;
+  lastTrainedDate?: string;
   certificateId?: string | null;
 }
 
