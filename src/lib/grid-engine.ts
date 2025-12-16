@@ -51,7 +51,15 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             } else {
                 rowsToDelete.add(activeCell.row);
             }
-            newGridData = newGridData.filter((_, index) => !rowsToDelete.has(index));
+            
+            // Sort indices in descending order to avoid shifting issues when using splice
+            const sortedRowsToDelete = Array.from(rowsToDelete).sort((a, b) => b - a);
+            sortedRowsToDelete.forEach(rowIndex => {
+                if (rowIndex >= 0 && rowIndex < newGridData.length) {
+                    newGridData.splice(rowIndex, 1);
+                }
+            });
+
             newSelection.selectedCells.clear();
             newSelection.activeCell.row = Math.min(activeCell.row, newGridData.length - 1);
             break;
