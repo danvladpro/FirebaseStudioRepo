@@ -10,7 +10,7 @@ import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDo
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
-import { VisualGrid, GridSelection } from "./visual-grid";
+import { VisualGrid } from "./visual-grid";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -47,7 +47,7 @@ const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellStyles: 
 
     const { action } = step.gridEffect;
     let newGridData = gridState.data.map(row => [...row]);
-    let newSelection: GridSelection = { 
+    let newSelection: GridState['selection'] = { 
         activeCell: { ...gridState.selection.activeCell },
         selectedCells: new Set(gridState.selection.selectedCells)
     };
@@ -152,18 +152,24 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     let runningGridState: GridState = deepCloneGridState(initialGridState);
     let runningCellStyles: Record<string, React.CSSProperties> = {};
     
+    // We iterate up to and including the target stepIndex
     for (let i = 0; i <= stepIndex; i++) {
         const step = currentChallenge.steps[i];
-        if (step && step.gridEffect) {
+        if (step) {
             const { newGridState, newCellStyles } = applyGridEffect(runningGridState, step, runningCellStyles);
             runningGridState = newGridState;
-            runningCellStyles = { ...runningCellStyles, ...newCellStyles };
+            runningCellStyles = newCellStyles; // Keep merging styles
         }
     }
     return { gridState: runningGridState, cellStyles: runningCellStyles };
   }, [initialGridState, currentChallenge?.steps]);
 
-  const { gridState: displayedGridState, cellStyles: displayedCellStyles } = calculateGridStateForStep(currentStepIndex - 1);
+  // The state of the grid as it appears *before* the current step's action
+  const { gridState: displayedGridState, cellStyles: displayedCellStyles } = currentStepIndex > 0
+    ? calculateGridStateForStep(currentStepIndex - 1)
+    : { gridState: initialGridState, cellStyles: {} };
+
+  // The preview state, showing the result of the *current* step's action
   const { gridState: previewGridState, cellStyles: previewCellStyles } = calculateGridStateForStep(currentStepIndex);
 
 
@@ -431,7 +437,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       </CardHeader>
       <CardContent className="text-center py-8">
         
-        {displayedGridState && displayedGridState.data && displayedGridState.selection && (
+        {displayedGridState && displayedGridState.data && (
             <div className="mb-6">
                 <VisualGrid 
                     data={displayedGridState.data} 
@@ -531,3 +537,5 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </Card>
   );
 }
+
+    
