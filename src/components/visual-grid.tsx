@@ -26,10 +26,8 @@ interface VisualGridProps {
 export function VisualGrid({ data, selection, cellStyles = {}, previewState = null, isAccentuating = false }: VisualGridProps) {
     const { activeCell, selectedCells } = selection;
 
-    const gridData = (previewState) ? previewState.gridState.data : data;
-    const gridStyles = (previewState) ? previewState.cellStyles : cellStyles;
-    const currentSelection = (previewState) ? previewState.gridState.selection : selection;
-
+    const gridData = (previewState && isAccentuating) ? previewState.gridState.data : data;
+    
     return (
         <div className="p-2 bg-muted/50 rounded-lg border overflow-auto">
             <table className="border-collapse table-fixed w-full">
@@ -45,10 +43,10 @@ export function VisualGrid({ data, selection, cellStyles = {}, previewState = nu
                 </thead>
                 <tbody>
                     {data.map((row, rowIndex) => {
-                         const isRowDeletedInPreview = previewState && !previewState.gridState.data.some((previewRow, pRowIndex) => pRowIndex === rowIndex);
+                         const isRowDeletedInPreview = previewState && !previewState.gridState.data.some(previewRow => JSON.stringify(previewRow) === JSON.stringify(row));
 
                         return (
-                        <tr key={rowIndex} className={cn(isRowDeletedInPreview && 'opacity-30 line-through transition-opacity')}>
+                        <tr key={rowIndex} className={cn(isRowDeletedInPreview && !isAccentuating && 'opacity-30 line-through transition-opacity')}>
                             <td className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-l-sm">
                                 {rowIndex + 1}
                             </td>
@@ -57,13 +55,23 @@ export function VisualGrid({ data, selection, cellStyles = {}, previewState = nu
                                 const isSelected = selectedCells.has(cellId);
                                 const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
 
-                                let finalStyle = isAccentuating ? (previewState?.cellStyles[cellId] || {}) : (cellStyles[cellId] || {});
+                                let finalStyle = cellStyles[cellId] || {};
+                                
                                 const isPreviewSelected = previewState ? previewState.gridState.selection.selectedCells.has(cellId) : false;
                                 const isPreviewActive = previewState ? (previewState.gridState.selection.activeCell.row === rowIndex && previewState.gridState.selection.activeCell.col === colIndex) : false;
                                 
-                                const cellValue = (previewState && gridData[rowIndex] && gridData[rowIndex][colIndex] !== undefined) ? gridData[rowIndex][colIndex] : cell;
-                                if(previewState) {
-                                    finalStyle = {...(previewState.cellStyles[cellId] || {}), transition: 'all 0.3s ease-in-out' };
+                                let cellValue = cell;
+                                if (isAccentuating && previewState && previewState.gridState.data[rowIndex] && previewState.gridState.data[rowIndex][colIndex] !== undefined) {
+                                    cellValue = previewState.gridState.data[rowIndex][colIndex];
+                                }
+                                
+                                if (previewState) {
+                                    const previewStyle = previewState.cellStyles[cellId] || {};
+                                    if (isAccentuating) {
+                                        finalStyle = {...finalStyle, ...previewStyle, transition: 'all 0.3s ease-in-out'};
+                                    } else {
+                                        finalStyle = {...finalStyle, ...previewStyle };
+                                    }
                                 }
 
 
