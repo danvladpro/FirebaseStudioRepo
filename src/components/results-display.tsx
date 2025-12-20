@@ -60,7 +60,6 @@ export default function ResultsDisplay() {
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
-    setShowConfetti(true);
   }, []);
   
   const setId = searchParams.get('setId');
@@ -69,6 +68,13 @@ export default function ResultsDisplay() {
   const skippedStr = searchParams.get('skipped');
   const skippedCount = skippedStr ? parseInt(skippedStr, 10) : 0;
   const skippedIndicesStr = searchParams.get('skippedIndices');
+  const mode = searchParams.get('mode') as 'timed' | 'training' | null;
+
+  useEffect(() => {
+      if (mode === 'timed') {
+          setShowConfetti(true);
+      }
+  }, [mode]);
 
   const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === setId);
   
@@ -79,7 +85,7 @@ export default function ResultsDisplay() {
 
   const personalBest = stats[setId!]?.bestTime;
   const certificateId = stats[setId!]?.certificateId;
-  const xpEarned = (isPerfectScore && challengeSet?.level) ? XP_CONFIG[challengeSet.level] : 0;
+  const xpEarned = (isPerfectScore && challengeSet?.level && mode === 'timed') ? XP_CONFIG[challengeSet.level] : 0;
 
   const getOsKeys = (step: ChallengeStep, isMac: boolean) => {
     const isStrikethrough = step.description.toLowerCase().includes('strikethrough');
@@ -97,7 +103,7 @@ export default function ResultsDisplay() {
     : [];
     
    useEffect(() => {
-    if (challengeSet?.category === 'Exam' && !isPerfectScore && skippedChallenges.length > 0) {
+    if (mode === 'timed' && challengeSet?.category === 'Exam' && !isPerfectScore && skippedChallenges.length > 0) {
       const recommended = new Set<ChallengeSet>();
       skippedChallenges.forEach(skippedChallenge => {
         CHALLENGE_SETS.forEach(module => {
@@ -113,11 +119,11 @@ export default function ResultsDisplay() {
       });
       setRecommendedModules(Array.from(recommended));
     }
-  }, [challengeSet, isPerfectScore, skippedChallenges]);
+  }, [challengeSet, isPerfectScore, skippedChallenges, mode]);
 
 
   useEffect(() => {
-    if (!isLoaded || !setId || time === null || !user) return;
+    if (!isLoaded || !setId || time === null || !user || mode !== 'timed') return;
     
     const updatePerformance = async () => {
       try {
@@ -135,14 +141,13 @@ export default function ResultsDisplay() {
     };
     
     updatePerformance();
-  }, [isLoaded, setId, time, score, user]);
+  }, [isLoaded, setId, time, score, user, mode]);
 
 
   const isExam = challengeSet?.category === 'Exam';
   const isScenario = challengeSet?.category === 'Scenario';
 
-
-  if (!challengeSet || time === null) {
+  if (!challengeSet || time === null || !mode) {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center gap-4">
         <p>Invalid results data.</p>
@@ -167,25 +172,29 @@ export default function ResultsDisplay() {
       <div className="min-h-screen w-full flex items-center justify-center bg-muted/40 p-4">
         <Card className="w-full max-w-lg text-center">
           <CardHeader>
-            {isNewRecord && (
+            {isNewRecord && mode === 'timed' && (
               <Badge className="w-fit mx-auto mb-4 bg-accent text-accent-foreground hover:bg-accent/90">
                 <Trophy className="mr-2 h-4 w-4"/> New Record!
               </Badge>
             )}
-            <CardTitle className="text-3xl">Challenge Complete!</CardTitle>
+            <CardTitle className="text-3xl">
+              {mode === 'timed' ? 'Challenge Complete!' : 'Training Complete!'}
+            </CardTitle>
             <CardDescription>{challengeSet.name}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Your Time</p>
-                <p className="text-5xl font-bold tracking-tighter text-primary">{time.toFixed(2)}s</p>
-              </div>
-               <div>
-                <p className="text-sm text-muted-foreground">Score</p>
-                <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
-              </div>
-            </div>
+            {mode === 'timed' && (
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <p className="text-sm text-muted-foreground">Your Time</p>
+                        <p className="text-5xl font-bold tracking-tighter text-primary">{time.toFixed(2)}s</p>
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">Score</p>
+                        <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
+                    </div>
+                </div>
+            )}
             
             {xpEarned > 0 && (
                 <div>
@@ -196,7 +205,7 @@ export default function ResultsDisplay() {
                 </div>
             )}
 
-            {isLoaded && isPerfectScore && personalBest && user && (
+            {isLoaded && isPerfectScore && personalBest && user && mode === 'timed' && (
               <div>
                 <p className="text-sm text-muted-foreground">Personal Best (Time)</p>
                 <p className="text-2xl font-semibold tracking-tight text-foreground">
@@ -204,7 +213,7 @@ export default function ResultsDisplay() {
                 </p>
               </div>
             )}
-            {isExam && (
+            {isExam && mode === 'timed' && (
                <div className="space-y-4 pt-4">
                   <Separator />
                   {isPerfectScore ? (
@@ -299,7 +308,7 @@ export default function ResultsDisplay() {
             <Button variant="outline" className="w-full" onClick={() => router.push(dashboardPath)}>
               <ArrowLeft className="mr-2 h-4 w-4" /> Go to Dashboard
             </Button>
-            <Button className="w-full" onClick={() => router.push(challengePath)}>
+            <Button className="w-full" onClick={() => router.push(challengePath + `?mode=${mode}`)}>
               <RefreshCw className="mr-2 h-4 w-4" /> Play Again
             </Button>
           </CardFooter>

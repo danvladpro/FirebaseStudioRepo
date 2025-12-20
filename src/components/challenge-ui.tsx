@@ -80,13 +80,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const finishChallenge = useCallback((finalSkipped: number[]) => {
-      if (mode === 'training') {
-        router.push('/dashboard');
-        return;
-      }
       const duration = (Date.now() - startTime) / 1000;
       const skippedParam = finalSkipped.join(',');
-      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}`);
+      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}&mode=${mode}`);
   },[router, set.id, startTime, mode]);
 
 
