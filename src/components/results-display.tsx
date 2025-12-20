@@ -235,7 +235,7 @@ export default function ResultsDisplay() {
                   )}
               </div>
             )}
-            {recommendedModules.length > 0 && (
+            {mode === 'timed' && recommendedModules.length > 0 && (
               <div className="space-y-4 pt-4">
                 <Separator />
                 <div className="text-left">
@@ -263,7 +263,7 @@ export default function ResultsDisplay() {
                 </div>
               </div>
             )}
-            {skippedChallenges.length > 0 && recommendedModules.length === 0 && (
+            {skippedChallenges.length > 0 && (
               <div className="space-y-4">
                 <Separator />
                 <div className="text-left">
