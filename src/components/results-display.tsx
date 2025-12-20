@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -67,7 +66,8 @@ export default function ResultsDisplay() {
   const time = timeStr ? parseFloat(timeStr) : null;
   const skippedStr = searchParams.get('skipped');
   const skippedCount = skippedStr ? parseInt(skippedStr, 10) : 0;
-  const skippedIndicesStr = searchParams.get('skippedIndices');
+  const skippedIndicesStr = searchParams.get('skippedIndices') || '';
+  const skippedIndices = new Set(skippedIndicesStr.split(',').filter(Boolean).map(Number));
   const mode = searchParams.get('mode') as 'timed' | 'training' | null;
 
   useEffect(() => {
@@ -155,6 +155,8 @@ export default function ResultsDisplay() {
       </div>
     );
   }
+  
+  const reviewTitle = mode === 'timed' ? "Areas for Improvement" : "Training Summary";
 
   const dashboardPath = `/dashboard`;
   const challengePath = `/challenge/${setId}`;
@@ -263,46 +265,60 @@ export default function ResultsDisplay() {
                 </div>
               </div>
             )}
-            {skippedChallenges.length > 0 && (
+            
+            {(mode === 'training' || (mode === 'timed' && skippedChallenges.length > 0)) && (
               <div className="space-y-4">
                 <Separator />
                 <div className="text-left">
-                    <h3 className="font-semibold flex items-center gap-2 justify-center text-destructive mb-2">
+                    <h3 className={cn("font-semibold flex items-center gap-2 justify-center mb-2", mode==='timed' && "text-destructive")}>
                       <AlertTriangle className="w-4 h-4"/>
-                      Areas for Improvement
+                      {reviewTitle}
                     </h3>
                     <div className="text-sm text-muted-foreground space-y-4 bg-muted/50 p-4 rounded-md">
-                        {isScenario 
-                          ? skippedChallenges.map((challenge, index) => (
-                              <div key={index} className="space-y-2">
-                                <p className="font-semibold text-foreground">{index + 1}. {challenge.description}</p>
-                                <ul className="pl-4 space-y-2">
-                                  {challenge.steps.map((step, stepIndex) => (
-                                    <li key={stepIndex} className="flex justify-between items-center">
-                                      <span>- {step.description}</span>
-                                      <div className="flex items-center gap-1.5">
-                                        {getOsKeys(step, isMac).map((key, keyIndex) => (
-                                          <KeyDisplay key={keyIndex} value={key} isMac={isMac} />
-                                        ))}
-                                      </div>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            ))
-                          : skippedChallenges.map((challenge, index) => (
-                            <div key={index} className="flex justify-between items-center">
-                              <span>{challenge.description}</span>
-                              <div className="flex items-center gap-1.5">
-                                {challenge.steps[0] && getOsKeys(challenge.steps[0], isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
-                              </div>
-                            </div>
-                          ))
-                        }
+                      {challengeSet.challenges.map((challenge, index) => {
+                        const isSkipped = skippedIndices.has(index);
+                        if (mode === 'timed' && !isSkipped) return null;
+
+                        return (
+                          <div key={index} className={cn("p-2 rounded-md", isSkipped && "bg-destructive/10")}>
+                            {isScenario ? (
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center">
+                                    <p className="font-semibold text-foreground">{index + 1}. {challenge.description}</p>
+                                    {isSkipped && <Badge variant="destructive">Skipped</Badge>}
+                                  </div>
+                                  <ul className="pl-4 space-y-2">
+                                    {challenge.steps.map((step, stepIndex) => (
+                                      <li key={stepIndex} className="flex justify-between items-center">
+                                        <span>- {step.description}</span>
+                                        <div className="flex items-center gap-1.5">
+                                          {getOsKeys(step, isMac).map((key, keyIndex) => (
+                                            <KeyDisplay key={keyIndex} value={key} isMac={isMac} />
+                                          ))}
+                                        </div>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ) : (
+                                <div className="flex justify-between items-center">
+                                  <p className="font-semibold text-foreground">{challenge.description}</p>
+                                  <div className="flex items-center gap-4">
+                                    {isSkipped && <Badge variant="destructive">Skipped</Badge>}
+                                    <div className="flex items-center gap-1.5">
+                                      {challenge.steps[0] && getOsKeys(challenge.steps[0], isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
+                                    </div>
+                                  </div>
+                                </div>
+                            )}
+                          </div>
+                        )
+                      })}
                     </div>
                 </div>
               </div>
             )}
+
           </CardContent>
           <CardFooter className="flex gap-4">
             <Button variant="outline" className="w-full" onClick={() => router.push(dashboardPath)}>
