@@ -442,7 +442,8 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     }
 
     if (isLocked) {
-      return <Lock className="w-4 h-4 text-muted-foreground" />;
+      return <Badge variant="level" className="px-2 py-0.5 text-xs">Locked  </Badge>
+
     }
 
     let isNextUp = false;
@@ -555,16 +556,16 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
                                 <div className="space-y-4">
                                   <h3 className="text-lg font-semibold">Certificate of Mastery</h3>
-                                  <div className="relative w-full h-8 overflow-hidden rounded-lg bg-secondary">
+                                  <div className="relative w-full h-4 overflow-hidden rounded-lg bg-secondary">
                                       <div
-                                        className="h-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 transition-all duration-500"
+                                        className="h-full bg-gradient-to-r from-yellow-500 to-green-500 transition-all duration-500"
                                         style={{ width: `${(passedExamsCount / examSets.length) * 100}%` }}
                                       ></div>
                                        <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="px-2 py-0.5 rounded-md bg-background/50 text-sm font-semibold text-primary-foreground backdrop-blur-sm [text-shadow:0_0_2px_hsl(var(--background))]">
-                                          {passedExamsCount} of {examSets.length} Exams Passed
-                                        </span>
-                                    </div>
+                                            <span className="px-2 py-0.5 rounded-md bg-background/80 text-xs font-semibold text-foreground backdrop-blur">
+                                            {passedExamsCount} of {examSets.length} Exams Passed
+                                            </span>
+                                        </div>
                                   </div>
                                   <TooltipProvider>
                                   {allExamsPassed ? (
