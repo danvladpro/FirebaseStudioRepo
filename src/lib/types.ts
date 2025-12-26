@@ -62,7 +62,6 @@ export interface PerformanceRecord {
   lastTrained: string | null;
   bestScore?: number | null;
   lastTrainedDate?: string;
-  certificateId?: string | null;
 }
 
 export interface UserStats {
@@ -83,4 +82,5 @@ export interface UserProfile {
   name?: string;
   subscription?: Subscription;
   performance?: UserStats;
+  masteryCertificateId?: string | null;
 }

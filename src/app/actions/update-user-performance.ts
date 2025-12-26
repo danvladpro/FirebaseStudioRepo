@@ -13,8 +13,8 @@ const UpdateUserPerformanceSchema = z.object({
     score: z.number(),
 });
 
-const generateCertificateId = (uid: string, setId: string) => {
-    return `${uid}-${setId}-${new Date().getTime()}`;
+const generateCertificateId = (uid: string) => {
+    return `${uid}-mastery-${new Date().getTime()}`;
 };
 
 export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerformanceSchema>) {
@@ -49,24 +49,34 @@ export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerf
                     isNewBest = true;
                 }
             }
-
-            const isExam = ALL_EXAM_SETS.some(exam => exam.id === setId);
-            let certificateId = currentPerformance?.certificateId || null;
-            // Generate a certificate ID only if one doesn't already exist and the user passed an exam
-            if (isExam && score === 100 && !certificateId) {
-                certificateId = generateCertificateId(uid, setId);
-            }
-
+            
             const newPerformanceRecord: PerformanceRecord = {
                 bestTime: newBestTime,
                 bestScore: newBestScore,
                 lastTrained: new Date().toISOString(),
-                certificateId: certificateId,
+                // Remove individual certificate ID generation
             };
 
             transaction.update(userDocRef, {
                 [`performance.${setId}`]: newPerformanceRecord
             });
+            
+            // Check for Mastery Certificate after updating performance
+            const isExam = ALL_EXAM_SETS.some(exam => exam.id === setId);
+            if (isExam && score === 100) {
+                const updatedPerformance = { ...userData?.performance, [setId]: newPerformanceRecord };
+                
+                const allExamsPassed = ALL_EXAM_SETS.every(exam => {
+                    return updatedPerformance[exam.id]?.bestScore === 100;
+                });
+
+                if (allExamsPassed && !userData?.masteryCertificateId) {
+                    const certificateId = generateCertificateId(uid);
+                    transaction.update(userDocRef, {
+                        masteryCertificateId: certificateId
+                    });
+                }
+            }
         });
         
         return { success: true, newBest: isNewBest };

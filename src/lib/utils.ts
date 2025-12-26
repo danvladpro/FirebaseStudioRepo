@@ -1,16 +1,16 @@
+
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { ChallengeSet } from "./types";
 import { User } from "firebase/auth";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const buildLinkedInUrl = (challengeSet: ChallengeSet, user: User, certId: string) => {
-    if (!challengeSet || !user) return "";
+export const buildLinkedInUrl = (user: User, certId: string) => {
+    if (!user) return "";
 
-    const certName = `Excel Ninja: ${challengeSet.name}`;
+    const certName = "Excel Ninja: Certificate of Mastery";
     const issueDate = new Date();
     const issueYear = issueDate.getFullYear();
     const issueMonth = issueDate.getMonth() + 1;
@@ -25,7 +25,7 @@ export const buildLinkedInUrl = (challengeSet: ChallengeSet, user: User, certId:
     linkedInUrl.searchParams.append("certId", certId);
     
     // Add skills to the certificate
-    linkedInUrl.searchParams.append("skills", "Keyboard Shortcuts,Microsoft Excel");
+    linkedInUrl.searchParams.append("skills", "Keyboard Shortcuts,Microsoft Excel,Data Analysis,Productivity");
     
     // The URL to a page where someone can verify the certificate.
     const certUrl = `${window.location.origin}/verify?id=${certId}`;

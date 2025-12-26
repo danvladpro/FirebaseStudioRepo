@@ -5,32 +5,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "./ui/button";
 import { Download, Linkedin } from "lucide-react";
 import { useAuth } from "./auth-provider";
-import { ChallengeSet } from "@/lib/types";
 import { buildLinkedInUrl } from "@/lib/utils";
-import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
 
 interface CertificateModalProps {
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
-    examSet: ChallengeSet | null;
 }
 
-export function CertificateModal({ isOpen, onOpenChange, examSet }: CertificateModalProps) {
+export function CertificateModal({ isOpen, onOpenChange }: CertificateModalProps) {
     const { user, userProfile } = useAuth();
-    const { stats } = usePerformanceTracker();
-
-    if (!examSet) return null;
-
-    const examStats = stats[examSet.id];
-    const certId = examStats?.certificateId;
+    const certId = userProfile?.masteryCertificateId;
 
     const handleDownload = () => {
-        if (!user || !userProfile || !examSet || !certId) return;
+        if (!user || !userProfile || !certId) return;
         
         const params = new URLSearchParams({
             name: userProfile.name || "Excel Ninja",
-            examName: examSet.name,
-            date: examStats?.lastTrained ? new Date(examStats.lastTrained).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+            date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
             certId: certId,
         });
         
@@ -40,8 +31,8 @@ export function CertificateModal({ isOpen, onOpenChange, examSet }: CertificateM
     };
     
     const handleShare = () => {
-        if (!examSet || !user || !certId) return;
-        const url = buildLinkedInUrl(examSet, user, certId);
+        if (!user || !certId) return;
+        const url = buildLinkedInUrl(user, certId);
         window.open(url, '_blank', 'noopener,noreferrer');
         onOpenChange(false);
     }
@@ -50,9 +41,9 @@ export function CertificateModal({ isOpen, onOpenChange, examSet }: CertificateM
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Claim Your Certificate</DialogTitle>
+                    <DialogTitle>Claim Your Mastery Certificate</DialogTitle>
                     <DialogDescription>
-                        You've passed the {examSet.name}! How would you like to claim your achievement?
+                        Congratulations! You've passed all exams. How would you like to claim your achievement?
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-4 mt-4">

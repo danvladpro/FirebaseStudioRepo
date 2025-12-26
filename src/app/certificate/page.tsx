@@ -4,7 +4,7 @@
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Printer } from 'lucide-react';
+import { Printer, Award, Medal, Trophy } from 'lucide-react';
 import Image from 'next/image';
 
 const styles = {
@@ -60,6 +60,23 @@ const styles = {
     lineHeight: 1.6,
     marginBottom: '40px',
   },
+  examsContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '40px',
+    marginBottom: '30px',
+  },
+  examItem: {
+    display: 'flex',
+    flexDirection: 'column' as 'column',
+    alignItems: 'center' as 'center',
+    color: '#059669',
+  },
+  examText: {
+    marginTop: '8px',
+    fontSize: '14px',
+    fontWeight: 'bold' as 'bold',
+  },
   footer: {
     marginTop: 'auto',
     width: '100%',
@@ -108,7 +125,6 @@ const styles = {
 function CertificateContent() {
     const searchParams = useSearchParams();
     const name = searchParams.get('name') || 'Valued User';
-    const examName = searchParams.get('examName') || 'Excel Skills';
     const date = searchParams.get('date') || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const certificateId = searchParams.get('certId');
 
@@ -130,13 +146,26 @@ function CertificateContent() {
                       width={50}
                       height={50}
                     />
-                    <h1 style={styles.headerText}>Certificate of Achievement</h1>
+                    <h1 style={styles.headerText}>Certificate of Mastery</h1>
                     <p style={styles.subtitle}>This is to certify that</p>
                     <h2 style={styles.name}>{name}</h2>
                     <p style={styles.bodyText}>
-                        has successfully completed and demonstrated proficiency in the {examName}.
-                        This certification recognizes their mastery of essential Excel shortcuts and workflows.
+                        has successfully passed all certification exams and demonstrated true mastery of essential Excel shortcuts and workflows.
                     </p>
+                     <div style={styles.examsContainer}>
+                        <div style={styles.examItem}>
+                            <Award size={40} />
+                            <span style={styles.examText}>Basic Exam</span>
+                        </div>
+                        <div style={styles.examItem}>
+                            <Medal size={40} />
+                            <span style={styles.examText}>Intermediate Exam</span>
+                        </div>
+                        <div style={styles.examItem}>
+                            <Trophy size={40} />
+                            <span style={styles.examText}>Advanced Exam</span>
+                        </div>
+                    </div>
                 </div>
                  <Image
                     style={styles.seal}

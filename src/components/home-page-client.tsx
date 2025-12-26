@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download, BadgeCheck, Linkedin, Gem, BrainCircuit } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download, BadgeCheck, Linkedin, Gem, BrainCircuit, Star } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { CHALLENGE_SETS, SCENARIO_SETS } from "@/lib/challenges";
 import { AppHeader } from "./app-header";
 import { useAuth } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { cn, buildLinkedInUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { ElementType } from "react";
 import { PremiumModal } from "./premium-modal";
 import { Badge } from "./ui/badge";
@@ -122,12 +122,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const { user, userProfile, isPremium } = useAuth();
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = React.useState(false);
-  const [selectedExamForCert, setSelectedExamForCert] = React.useState<ChallengeSet | null>(null);
-
-  const handleClaimCertificate = (examSet: ChallengeSet) => {
-    setSelectedExamForCert(examSet);
-    setIsCertificateModalOpen(true);
-  };
   
   const isLimited = !isPremium;
 
@@ -136,6 +130,8 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     'exam-intermediate': stats['exam-intermediate'],
     'exam-advanced': stats['exam-advanced'],
   };
+  
+  const allExamsPassed = examSets.every(exam => examStats[exam.id as keyof typeof examStats]?.bestScore === 100);
 
   const completedSets = React.useMemo(() => {
     const allSets = [...CHALLENGE_SETS, ...SCENARIO_SETS];
@@ -258,7 +254,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
      <Card key={examSet.id} className={cn(
         "shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col relative", 
         isExamLocked ? "bg-muted/50 border-dashed text-muted-foreground" : "bg-card hover:bg-accent/5",
-        isCompleted && "p-0.5 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
+        isCompleted && "p-0.5 bg-gradient-to-r from-emerald-400 to-cyan-400"
      )}>
         <div className={cn("flex flex-col flex-1 w-full h-full", isCompleted && "bg-background rounded-[7px]")}>
             {isCompleted ? (
@@ -287,18 +283,12 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         {isLimited ? "Go Premium" : "Locked"}
                     </Button>
                 ) : isCompleted ? (
-                    <div className="w-full grid grid-cols-2 gap-2">
-                         <Button asChild size="sm" className="w-full" variant="secondary">
-                            <Link href={`/challenge/${examSet.id}`}>
-                            <RotateCw className="mr-2 h-4 w-4" />
-                            Try Again
-                            </Link>
-                        </Button>
-                        <Button size="sm" className="w-full" variant="premium" onClick={() => handleClaimCertificate(examSet)}>
-                             <Download className="mr-2 h-4 w-4" />
-                            Claim Certificate
-                        </Button>
-                    </div>
+                    <Button asChild size="sm" className="w-full" variant="secondary">
+                        <Link href={`/challenge/${examSet.id}`}>
+                        <RotateCw className="mr-2 h-4 w-4" />
+                        Try Again
+                        </Link>
+                    </Button>
                 ) : (
                     <Button asChild className="w-full">
                         <Link href={`/challenge/${examSet.id}`}>
@@ -429,35 +419,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return "Learn the basics and upgrade to unlock your full potential.";
   }
   
-  const getExamStatus = (examId: keyof typeof examStats, bestTime: number | null, bestScore: number | null) => {
-    const isLocked = getIsExamLocked(examId);
-
-    if (isLocked) {
-        return <Button variant="ghost" size="sm" disabled className="text-muted-foreground text-xs"><Ribbon className="mr-2 h-4 w-4" /> Claim Certificate</Button>
-    }
-    
-    if (isLoaded) {
-        if (bestScore === 100 && bestTime) {
-             const examSet = examSets.find(e => e.id === examId)!;
-             return (
-                <Button size="sm" className="text-white text-xs" variant="premium" onClick={() => handleClaimCertificate(examSet)}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Claim Certificate
-                </Button>
-             );
-        } else {
-            return (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Unlock className="w-3 h-3 text-primary"/>
-                    <span className="text-primary font-semibold">Complete to get certificate</span>
-                </div>
-            )
-        }
-    }
-    
-    return <Skeleton className="w-20 h-5" />;
-  }
-  
   const getExamStatusBg = (examId: keyof typeof examStats, bestScore: number | null) => {
     const isLocked = getIsExamLocked(examId);
     if (!isLocked && bestScore !== 100) {
@@ -469,7 +430,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   return (
     <>
     <PremiumModal isOpen={isPremiumModalOpen} onOpenChange={setIsPremiumModalOpen} />
-    <CertificateModal isOpen={isCertificateModalOpen} onOpenChange={setIsCertificateModalOpen} examSet={selectedExamForCert} />
+    <CertificateModal isOpen={isCertificateModalOpen} onOpenChange={setIsCertificateModalOpen} />
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <AppHeader />
       <main className="flex-1 container py-8 md:py-12 mt-16">
@@ -483,6 +444,12 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
               {getDashboardSubtitle()}
             </p>
           </div>
+           {allExamsPassed && (
+              <Button size="lg" variant="premium" onClick={() => setIsCertificateModalOpen(true)}>
+                  <Star className="mr-2 h-5 w-5" />
+                  Claim Mastery Certificate
+              </Button>
+           )}
         </header>
         
         <section className="mb-12">
@@ -572,7 +539,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                    <p className="text-sm font-bold pl-8">{examStats['exam-basic']?.bestTime!.toFixed(2)}s</p>
                                )}
                            </div>
-                           {getExamStatus('exam-basic', examStats['exam-basic']?.bestTime ?? null, examStats['exam-basic']?.bestScore ?? null)}
                         </div>
                          <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-intermediate', examStats['exam-intermediate']?.bestScore ?? null))}>
                            <div className="flex flex-col gap-2">
@@ -584,7 +550,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                    <p className="text-sm font-bold pl-8">{examStats['exam-intermediate']?.bestTime!.toFixed(2)}s</p>
                                )}
                            </div>
-                           {getExamStatus('exam-intermediate', examStats['exam-intermediate']?.bestTime ?? null, examStats['exam-intermediate']?.bestScore ?? null)}
                         </div>
                          <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-advanced', examStats['exam-advanced']?.bestScore ?? null))}>
                             <div className="flex flex-col gap-2">
@@ -596,7 +561,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                    <p className="text-sm font-bold pl-8">{examStats['exam-advanced']?.bestTime!.toFixed(2)}s</p>
                                )}
                            </div>
-                           {getExamStatus('exam-advanced', examStats['exam-advanced']?.bestTime ?? null, examStats['exam-advanced']?.bestScore ?? null)}
                         </div>
                     </CardContent>
                 </Card>

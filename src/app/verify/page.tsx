@@ -5,7 +5,6 @@ import { BadgeCheck, XCircle, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { UserProfile } from '@/lib/types';
-import { ALL_CHALLENGE_SETS } from '@/lib/challenges';
 import { AppHeader } from '@/components/app-header';
 import { notFound } from 'next/navigation';
 
@@ -14,7 +13,6 @@ type VerificationStatus = 'valid' | 'invalid' | 'error';
 interface VerificationResult {
     status: VerificationStatus;
     userName?: string;
-    examName?: string;
     date?: string;
     message: string;
 }
@@ -26,15 +24,14 @@ async function verifyCertificate(id: string): Promise<VerificationResult> {
 
     try {
         const parts = id.split('-');
-        if (parts.length < 3) {
+        if (parts.length < 3 || parts[1] !== 'mastery') {
             return { status: 'invalid', message: 'This certificate ID is not in a valid format.' };
         }
         
         const userId = parts[0];
         const timestamp = parts[parts.length - 1];
-        const setId = parts.slice(1, parts.length - 1).join('-');
 
-        if (!userId || !setId || !timestamp) {
+        if (!userId || !timestamp) {
             return { status: 'invalid', message: 'This certificate ID is malformed.' };
         }
 
@@ -46,16 +43,13 @@ async function verifyCertificate(id: string): Promise<VerificationResult> {
         }
 
         const userData = userDoc.data() as UserProfile;
-        const performanceRecord = userData.performance?.[setId];
-
-        if (performanceRecord && performanceRecord.certificateId === id) {
-            const exam = ALL_CHALLENGE_SETS.find(e => e.id === setId);
+        
+        if (userData.masteryCertificateId === id) {
             return {
                 status: 'valid',
                 userName: userData.name,
-                examName: exam?.name,
                 date: new Date(parseInt(timestamp)).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-                message: 'This certificate is valid and has been successfully verified.',
+                message: 'This Certificate of Mastery is valid and has been successfully verified.',
             };
         } else {
             return { status: 'invalid', message: 'This certificate is not valid or could not be found in our records.' };
@@ -119,12 +113,8 @@ export default async function VerifyPage({ searchParams }: { searchParams: { id:
                     {result.status === 'valid' && (
                         <CardContent className="space-y-4">
                             <div className="text-left bg-muted/50 p-4 rounded-lg">
-                                <p className="text-sm text-muted-foreground">This certificate was awarded to:</p>
+                                <p className="text-sm text-muted-foreground">This Certificate of Mastery was awarded to:</p>
                                 <p className="text-xl font-bold text-primary">{result.userName}</p>
-                            </div>
-                             <div className="text-left bg-muted/50 p-4 rounded-lg">
-                                <p className="text-sm text-muted-foreground">For successfully completing the:</p>
-                                <p className="font-semibold text-lg">{result.examName}</p>
                             </div>
                              <div className="text-left bg-muted/50 p-4 rounded-lg">
                                 <p className="text-sm text-muted-foreground">On:</p>

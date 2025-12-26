@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, Trophy, AlertTriangle, Linkedin, Lock, BookOpen, Download } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Trophy, AlertTriangle, Linkedin, Lock, BookOpen, Download, Star } from 'lucide-react';
 import { ALL_CHALLENGE_SETS, CHALLENGE_SETS } from '@/lib/challenges';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
@@ -48,13 +48,14 @@ export default function ResultsDisplay() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { stats, isLoaded } = usePerformanceTracker();
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   
   const [isNewRecord, setIsNewRecord] = useState(false);
   const [isMac, setIsMac] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [recommendedModules, setRecommendedModules] = useState<ChallengeSet[]>([]);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+  const [allExamsPassed, setAllExamsPassed] = useState(false);
 
 
   useEffect(() => {
@@ -84,7 +85,7 @@ export default function ResultsDisplay() {
   const isPerfectScore = skippedCount === 0;
 
   const personalBest = stats[setId!]?.bestTime;
-  const certificateId = stats[setId!]?.certificateId;
+  const masteryCertificateId = userProfile?.masteryCertificateId;
   const xpEarned = (isPerfectScore && challengeSet?.level && mode === 'timed') ? XP_CONFIG[challengeSet.level] : 0;
 
   const getOsKeys = (step: ChallengeStep, isMac: boolean) => {
@@ -142,6 +143,13 @@ export default function ResultsDisplay() {
     
     updatePerformance();
   }, [isLoaded, setId, time, score, user, mode]);
+  
+  useEffect(() => {
+     if (isLoaded) {
+        const passed = ALL_CHALLENGE_SETS.filter(s => s.category === 'Exam').every(exam => stats[exam.id]?.bestScore === 100);
+        setAllExamsPassed(passed);
+     }
+  }, [isLoaded, stats]);
 
 
   const isExam = challengeSet?.category === 'Exam';
@@ -163,7 +171,7 @@ export default function ResultsDisplay() {
 
   return (
     <>
-      <CertificateModal isOpen={isCertificateModalOpen} onOpenChange={setIsCertificateModalOpen} examSet={challengeSet} />
+      <CertificateModal isOpen={isCertificateModalOpen} onOpenChange={setIsCertificateModalOpen} />
       {showConfetti && (
         <Confetti
           recycle={false}
@@ -218,20 +226,20 @@ export default function ResultsDisplay() {
             {isExam && mode === 'timed' && (
                <div className="space-y-4 pt-4">
                   <Separator />
-                  {isPerfectScore ? (
+                  {allExamsPassed ? (
                     <>
-                      <h3 className="font-semibold pt-2">Congratulations!</h3>
-                      <p className="text-sm text-muted-foreground">You've passed the {challengeSet.name}. Claim your certificate.</p>
-                      <Button variant="premium" onClick={() => setIsCertificateModalOpen(true)} disabled={!certificateId}>
-                          <Download className="mr-2 h-5 w-5" /> Claim Certificate
+                      <h3 className="font-semibold pt-2">Ultimate Achievement!</h3>
+                      <p className="text-sm text-muted-foreground">You've passed all exams and earned the Mastery Certificate.</p>
+                      <Button variant="premium" onClick={() => setIsCertificateModalOpen(true)} disabled={!masteryCertificateId}>
+                          <Star className="mr-2 h-5 w-5" /> Claim Mastery Certificate
                       </Button>
                     </>
                   ) : (
                      <>
-                      <h3 className="font-semibold pt-2">Almost there!</h3>
-                      <p className="text-sm text-muted-foreground">Achieve a perfect score of 100% to unlock your certificate.</p>
+                      <h3 className="font-semibold pt-2">One Step Closer!</h3>
+                      <p className="text-sm text-muted-foreground">Pass all three exams (Basic, Intermediate, and Advanced) to unlock your Mastery Certificate.</p>
                        <Button disabled className="w-fit mx-auto">
-                          <Lock className="mr-2 h-5 w-5" /> Claim Certificate
+                          <Lock className="mr-2 h-5 w-5" /> Claim Mastery Certificate
                       </Button>
                      </>
                   )}
