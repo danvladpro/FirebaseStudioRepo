@@ -442,7 +442,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     }
 
     if (isLocked) {
-      return <Badge variant="level" className="px-2 py-0.5 text-xs w-[55px] justify-center">Locked</Badge>
+      return <Badge variant="level" className="px-3 py-0.5 text-xs justify-center">Locked</Badge>
 
     }
 
@@ -452,7 +452,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     if (examId === 'exam-advanced' && isIntermediatePassed && !isAdvancedPassed) isNextUp = true;
     
     if (isNextUp) {
-      return <Badge variant="warning" className="px-2 py-0.5 text-xs w-[55px] justify-center">Next Up</Badge>
+      return <Badge variant="warning" className="px-2 py-0.5 text-xs justify-center">Next Up</Badge>
     }
     
     return <span className="font-bold">-</span>; // Should not happen if passed but no time, but as fallback
@@ -562,7 +562,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                         style={{ width: `${(passedExamsCount / examSets.length) * 100}%` }}
                                       ></div>
                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <span className="px-2 py-0.5 rounded-md bg-background/80 text-foreground drop-shadow-sm backdrop-blur-sm text-xs font-semibold">
+                                            <span className="px-2 py-0.5 rounded-md bg-background/80 text-primary-foreground drop-shadow-sm backdrop-blur-sm text-xs font-semibold">
                                               {passedExamsCount} of {examSets.length} Exams Passed
                                             </span>
                                         </div>
