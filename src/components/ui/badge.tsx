@@ -19,6 +19,7 @@ const badgeVariants = cva(
         level: "border-transparent bg-secondary text-secondary-foreground",
         warning:
           "border-transparent bg-yellow-400 text-yellow-900 dark:bg-yellow-500 dark:text-yellow-950",
+        premium: "bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white border-0"
       },
     },
     defaultVariants: {
@@ -38,3 +39,5 @@ function Badge({ className, variant, ...props }: BadgeProps) {
 }
 
 export { Badge, badgeVariants }
+
+    

@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -131,7 +131,11 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     'exam-advanced': stats['exam-advanced'],
   };
   
-  const passedExamsCount = examSets.filter(exam => examStats[exam.id as keyof typeof examStats]?.bestScore === 100).length;
+  const isBasicPassed = (examStats['exam-basic']?.bestScore ?? 0) === 100;
+  const isIntermediatePassed = (examStats['exam-intermediate']?.bestScore ?? 0) === 100;
+  const isAdvancedPassed = (examStats['exam-advanced']?.bestScore ?? 0) === 100;
+  
+  const passedExamsCount = [isBasicPassed, isIntermediatePassed, isAdvancedPassed].filter(Boolean).length;
   const allExamsPassed = passedExamsCount === examSets.length;
 
   const completedSets = React.useMemo(() => {
@@ -248,22 +252,36 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     const Icon = iconMap[examSet.iconName];
     const { bestScore } = getExamStats(examSet.id as keyof typeof examStats);
     const isCompleted = (bestScore ?? 0) === 100;
+    
+    let isNextExam = false;
+    if (!isExamLocked && !isCompleted) {
+        if (examSet.id === 'exam-basic') isNextExam = true;
+        if (examSet.id === 'exam-intermediate' && isBasicPassed) isNextExam = true;
+        if (examSet.id === 'exam-advanced' && isIntermediatePassed) isNextExam = true;
+    }
+
 
     const cardContent = (
      <Card key={examSet.id} className={cn(
         "shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col relative", 
         isExamLocked ? "bg-muted/50 border-dashed text-muted-foreground" : "bg-card hover:bg-accent/5",
-        isCompleted && "border-primary/50"
+        isCompleted && "border-primary/50",
+        isNextExam && "border-yellow-500 border-2"
      )}>
         {isCompleted ? (
-            <Badge variant="completed" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
-                <BadgeCheck className="mr-1.5 h-4 w-4" />
+             <Badge variant="premium" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm border-0">
+                <Trophy className="mr-1.5 h-4 w-4" />
                 Passed
             </Badge>
         ) : isExamLocked ? (
             <Badge variant="level" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
                 <Lock className="mr-1.5 h-3 w-3" />
                 Locked
+            </Badge>
+        ) : isNextExam ? (
+             <Badge variant="warning" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
+                <StarIcon className="mr-1.5 h-3 w-3" />
+                Next Up
             </Badge>
         ) : null}
         <CardHeader className="flex-row gap-4 items-center p-4">
@@ -570,5 +588,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
+    
 
     
