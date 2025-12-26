@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,8 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     Award,
     Medal,
     Trophy,
-    BrainCircuit
+    BrainCircuit,
+    HelpCircle
 };
 
 
@@ -560,7 +561,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
                                 <div className="space-y-4">
                                   <h3 className="text-lg font-semibold">Certificate of Mastery</h3>
-                                  <div className="relative w-full h-8 overflow-hidden rounded-full bg-secondary">
+                                  <div className="relative w-full h-4 overflow-hidden rounded-full bg-secondary">
                                       <div
                                         className="h-full bg-gradient-to-r from-yellow-500 to-green-500 transition-all duration-500"
                                         style={{ width: `${(passedExamsCount / examSets.length) * 100}%` }}
