@@ -529,13 +529,16 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
                                 <div className="space-y-4">
                                   <h3 className="text-lg font-semibold">Certificate of Mastery</h3>
-                                  <div className="relative w-full">
-                                    <Progress value={(passedExamsCount / examSets.length) * 100} className="h-5" />
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="text-xs font-bold text-primary-foreground drop-shadow-sm">
+                                  <div className="relative w-full h-8 overflow-hidden rounded-full bg-secondary">
+                                      <div
+                                        className="h-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 transition-all duration-500"
+                                        style={{ width: `${(passedExamsCount / examSets.length) * 100}%` }}
+                                      ></div>
+                                      <div className="absolute inset-0 flex items-center justify-center">
+                                          <span className="text-xs font-bold text-primary-foreground" style={{textShadow: '1px 1px 2px hsl(var(--primary-foreground) / 0.5)'}}>
                                             {passedExamsCount} of {examSets.length} Exams Passed
-                                        </span>
-                                    </div>
+                                          </span>
+                                      </div>
                                   </div>
                                   <TooltipProvider>
                                   {allExamsPassed ? (

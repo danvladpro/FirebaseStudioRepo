@@ -59,63 +59,69 @@ export function ChallengePreloader({ challengeSet, onStart }: ChallengePreloader
     }, [challengeSet]);
 
     return (
-        <Card className="w-full max-w-2xl text-center">
-            <CardHeader>
-                <CardTitle className="text-2xl">{challengeSet.name}</CardTitle>
-            </CardHeader>
-            <CardContent className="py-8">
-                <div className="flex flex-col items-center justify-center gap-4">
-                    {isLoading ? (
-                        <>
-                         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                         <p className="text-lg font-semibold text-muted-foreground">{status}</p>
-                         <div className="my-6 h-[250px]" /> 
-                        </>
-                    ) : (
-                        <>
-                            <p className="text-lg font-semibold text-green-500">{status}</p>
-                            <div className="my-6">
-                                <Image 
-                                    src="/NinjaTying.png" 
-                                    alt="Excel Ninja Typing"
-                                    width={250}
-                                    height={250}
-                                    className="mx-auto"
-                                />
-                            </div>
-                        </>
-                    )}
+        <Card className="w-full max-w-2xl p-6">
+  <CardHeader className="p-0 mb-4">
+    <CardTitle className="text-2xl text-center">
+      {challengeSet.name}
+    </CardTitle>
+  </CardHeader>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-sm">
-                        <Button
-                            onClick={() => onStart('timed')}
-                            disabled={isLoading}
-                            size="lg"
-                            variant="default"
-                        >
-                            {isLoading ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <Timer className="mr-2 h-4 w-4" />
-                            )}
-                            Timed Challenge
-                        </Button>
-                         <Button
-                            onClick={() => onStart('training')}
-                            disabled={isLoading}
-                            size="lg"
-                            variant="secondary"
-                        >
-                            {isLoading ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <BookOpen className="mr-2 h-4 w-4" />
-                            )}
-                            Training Mode
-                        </Button>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
+  <CardContent className="p-0">
+    <div className="flex flex-col items-center gap-4">
+
+      {isLoading ? (
+        <div className="flex flex-col items-center gap-3 py-4">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="text-sm font-medium text-muted-foreground">
+            {status}
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-4 py-4">
+          
+          <Image
+            src="/NinjaTying.png"
+            alt="Excel Ninja Typing"
+            width={220}
+            height={220}
+          />
+          <p className="text-2xl font-semibold text-green-500">
+            {status}
+          </p>
+        </div>
+      )}
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-sm">
+        <Button
+          onClick={() => onStart('timed')}
+          disabled={isLoading}
+          size="lg"
+        >
+          {isLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Timer className="mr-2 h-4 w-4" />
+          )}
+          Timed Challenge
+        </Button>
+
+        <Button
+          onClick={() => onStart('training')}
+          disabled={isLoading}
+          size="lg"
+          variant="secondary"
+        >
+          {isLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <BookOpen className="mr-2 h-4 w-4" />
+          )}
+          Training Mode
+        </Button>
+      </div>
+    </div>
+  </CardContent>
+</Card>
+
     );
 }
