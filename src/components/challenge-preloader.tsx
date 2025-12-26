@@ -63,7 +63,7 @@ export function ChallengePreloader({ challengeSet, onStart }: ChallengePreloader
             <CardHeader>
                 <CardTitle className="text-2xl">{challengeSet.name}</CardTitle>
             </CardHeader>
-            <CardContent className="py-12">
+            <CardContent className="py-8">
                 <div className="flex flex-col items-center justify-center gap-4">
                     {isLoading ? (
                         <>
@@ -76,7 +76,7 @@ export function ChallengePreloader({ challengeSet, onStart }: ChallengePreloader
 
                     <div className="my-6">
                         <Image 
-                            src="/NinjaTyping.png" 
+                            src="/NinjaTying.png" 
                             alt="Excel Ninja Typing"
                             width={250}
                             height={250}
