@@ -191,15 +191,12 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const isAdvancedUnlocked = isIntermediateCompleted || isIntermediateExamPassed;
 
   const getIsSetLocked = (set: ChallengeSet) => {
-    // Free users can only access the first set.
     if (isLimited) {
       if (set.id === 'formatting-basics') return false;
       return true;
     }
-    // For premium users, scenarios are always unlocked.
     if (set.category === 'Scenario') return false;
 
-    // For premium users, lock based on level progression.
     if (set.level === 'Intermediate' && !isIntermediateUnlocked) return true;
     if (set.level === 'Advanced' && !isAdvancedUnlocked) return true;
     
@@ -531,22 +528,24 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
                                 <Separator />
 
-                                <div>
-                                  <h3 className="text-lg font-semibold mb-2">Certificate of Mastery</h3>
-                                  {allExamsPassed ? (
-                                    <>
-                                      <p className="text-sm text-muted-foreground mb-4">You've passed all exams! Claim your ultimate achievement.</p>
-                                      <Button className="w-full" variant="premium" onClick={() => setIsCertificateModalOpen(true)}>
-                                          <Trophy className="mr-2 h-4 w-4" /> Claim Certificate
-                                      </Button>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <p className="text-sm text-muted-foreground mb-2">Pass all {examSets.length} exams to unlock your Mastery Certificate.</p>
-                                      <Progress value={(passedExamsCount / examSets.length) * 100} className="h-2" />
-                                      <p className="text-xs text-muted-foreground mt-1 text-right">{passedExamsCount} of {examSets.length} Exams Passed</p>
-                                    </>
-                                  )}
+                                <div className="space-y-4">
+                                  <h3 className="text-lg font-semibold">Certificate of Mastery</h3>
+                                  <div className="relative w-full">
+                                    <Progress value={(passedExamsCount / examSets.length) * 100} className="h-5" />
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-xs font-bold text-primary-foreground drop-shadow-sm">
+                                            {passedExamsCount} of {examSets.length} Exams Passed
+                                        </span>
+                                    </div>
+                                  </div>
+                                  <Button 
+                                      className={cn("w-full transition-all", allExamsPassed && "bg-emerald-500 hover:bg-emerald-500/90")}
+                                      disabled={!allExamsPassed} 
+                                      onClick={() => setIsCertificateModalOpen(true)}
+                                  >
+                                      <Trophy className="mr-2 h-4 w-4" /> 
+                                      {allExamsPassed ? "Claim Certificate" : "Claim Certificate"}
+                                  </Button>
                                 </div>
                             </>
                         ) : (
