@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon } from "lucide-react";
@@ -490,19 +489,19 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                       completed={setsByLevel['Beginner']?.completed || 0}
                                       total={setsByLevel['Beginner']?.total || 0}
                                       title="Beginner"
-                                      color="hsl(var(--chart-2))"
+                                      color="hsl(var(--primary))"
                                   />
                                   <ProgressPieChart
                                       completed={setsByLevel['Intermediate']?.completed || 0}
                                       total={setsByLevel['Intermediate']?.total || 0}
                                       title="Intermediate"
-                                      color="hsl(var(--chart-3))"
+                                      color="hsl(var(--primary))"
                                   />
                                   <ProgressPieChart
                                       completed={setsByLevel['Advanced']?.completed || 0}
                                       total={setsByLevel['Advanced']?.total || 0}
                                       title="Advanced"
-                                      color="hsl(var(--chart-5))"
+                                      color="hsl(var(--primary))"
                                   />
                                 </div>
 
@@ -604,8 +603,3 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
-
-    
-
-    
-
