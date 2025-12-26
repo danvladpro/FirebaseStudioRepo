@@ -7,6 +7,7 @@ import * as icons from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { BookOpen, Loader2, Timer } from "lucide-react";
+import Image from "next/image";
 
 interface ChallengePreloaderProps {
     challengeSet: ChallengeSet;
@@ -73,7 +74,17 @@ export function ChallengePreloader({ challengeSet, onStart }: ChallengePreloader
                         <p className="text-lg font-semibold text-green-500">{status}</p>
                     )}
 
-                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-sm">
+                    <div className="my-6">
+                        <Image 
+                            src="/NinjaTyping.png" 
+                            alt="Excel Ninja Typing"
+                            width={250}
+                            height={250}
+                            className="mx-auto"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-sm">
                         <Button
                             onClick={() => onStart('timed')}
                             disabled={isLoading}
