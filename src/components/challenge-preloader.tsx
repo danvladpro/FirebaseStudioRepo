@@ -69,20 +69,22 @@ export function ChallengePreloader({ challengeSet, onStart }: ChallengePreloader
                         <>
                          <Loader2 className="h-10 w-10 animate-spin text-primary" />
                          <p className="text-lg font-semibold text-muted-foreground">{status}</p>
+                         <div className="my-6 h-[250px]" /> 
                         </>
                     ) : (
-                        <p className="text-lg font-semibold text-green-500">{status}</p>
+                        <>
+                            <p className="text-lg font-semibold text-green-500">{status}</p>
+                            <div className="my-6">
+                                <Image 
+                                    src="/NinjaTying.png" 
+                                    alt="Excel Ninja Typing"
+                                    width={250}
+                                    height={250}
+                                    className="mx-auto"
+                                />
+                            </div>
+                        </>
                     )}
-
-                    <div className="my-6">
-                        <Image 
-                            src="/NinjaTying.png" 
-                            alt="Excel Ninja Typing"
-                            width={250}
-                            height={250}
-                            className="mx-auto"
-                        />
-                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-sm">
                         <Button
