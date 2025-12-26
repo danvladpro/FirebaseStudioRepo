@@ -261,7 +261,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
      <Card key={examSet.id} className={cn(
         "shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col relative", 
         isExamLocked ? "bg-muted/50 border-dashed text-muted-foreground" : "bg-card hover:bg-accent/5",
-        isCompleted && "border-primary/50",
+        isCompleted && "border-green-500/50",
         isNextExam && "border-yellow-500 border-2"
      )}>
         {isCompleted ? (
@@ -431,6 +431,32 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return "Learn the basics and upgrade to unlock your full potential.";
   }
 
+  const renderExamTime = (examId: keyof typeof examStats) => {
+    if (!isLoaded) return <Skeleton className="w-12 h-5" />;
+
+    const exam = examStats[examId];
+    const isLocked = getIsExamLocked(examId);
+    
+    if (exam?.bestTime) {
+      return <span className="font-bold">{exam.bestTime.toFixed(2)}s</span>;
+    }
+
+    if (isLocked) {
+      return <Lock className="w-4 h-4 text-muted-foreground" />;
+    }
+
+    let isNextUp = false;
+    if (examId === 'exam-basic' && !isBasicPassed) isNextUp = true;
+    if (examId === 'exam-intermediate' && isBasicPassed && !isIntermediatePassed) isNextUp = true;
+    if (examId === 'exam-advanced' && isIntermediatePassed && !isAdvancedPassed) isNextUp = true;
+    
+    if (isNextUp) {
+      return <Badge variant="warning" className="px-2 py-0.5 text-xs">Next Up</Badge>
+    }
+    
+    return <span className="font-bold">-</span>; // Should not happen if passed but no time, but as fallback
+  };
+
   return (
     <>
     <PremiumModal isOpen={isPremiumModalOpen} onOpenChange={setIsPremiumModalOpen} />
@@ -512,15 +538,15 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                     <div className="space-y-3">
                                         <div className="flex items-center justify-between text-sm">
                                             <div className="flex items-center gap-2 text-muted-foreground"><Award className="w-4 h-4 text-yellow-500" /> Basic Exam</div>
-                                            <span className="font-bold">{isLoaded && examStats['exam-basic']?.bestTime ? `${examStats['exam-basic']?.bestTime?.toFixed(2)}s` : 'N/A'}</span>
+                                            {renderExamTime('exam-basic')}
                                         </div>
                                         <div className="flex items-center justify-between text-sm">
                                             <div className="flex items-center gap-2 text-muted-foreground"><Medal className="w-4 h-4 text-slate-400" /> Intermediate</div>
-                                            <span className="font-bold">{isLoaded && examStats['exam-intermediate']?.bestTime ? `${examStats['exam-intermediate']?.bestTime?.toFixed(2)}s` : 'N/A'}</span>
+                                            {renderExamTime('exam-intermediate')}
                                         </div>
                                         <div className="flex items-center justify-between text-sm">
                                             <div className="flex items-center gap-2 text-muted-foreground"><Trophy className="w-4 h-4 text-amber-500" /> Advanced</div>
-                                            <span className="font-bold">{isLoaded && examStats['exam-advanced']?.bestTime ? `${examStats['exam-advanced']?.bestTime?.toFixed(2)}s` : 'N/A'}</span>
+                                            {renderExamTime('exam-advanced')}
                                         </div>
                                     </div>
                                 </div>
@@ -529,16 +555,16 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
                                 <div className="space-y-4">
                                   <h3 className="text-lg font-semibold">Certificate of Mastery</h3>
-                                  <div className="relative w-full h-8 overflow-hidden rounded-full bg-secondary">
+                                  <div className="relative w-full h-8 overflow-hidden rounded-lg bg-secondary">
                                       <div
                                         className="h-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 transition-all duration-500"
                                         style={{ width: `${(passedExamsCount / examSets.length) * 100}%` }}
                                       ></div>
-                                      <div className="absolute inset-0 flex items-center justify-center">
-                                          <span className="text-xs font-bold text-primary-foreground" style={{textShadow: '1px 1px 2px hsl(var(--primary-foreground) / 0.5)'}}>
-                                            {passedExamsCount} of {examSets.length} Exams Passed
-                                          </span>
-                                      </div>
+                                       <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="px-2 py-0.5 rounded-md bg-background/50 text-sm font-semibold text-primary-foreground backdrop-blur-sm [text-shadow:0_0_2px_hsl(var(--background))]">
+                                          {passedExamsCount} of {examSets.length} Exams Passed
+                                        </span>
+                                    </div>
                                   </div>
                                   <TooltipProvider>
                                   {allExamsPassed ? (
