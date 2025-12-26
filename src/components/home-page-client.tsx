@@ -17,11 +17,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/t
 import { cn } from "@/lib/utils";
 import { ElementType } from "react";
 import { PremiumModal } from "./premium-modal";
-import { Badge } from "./ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Pie, PieChart, Cell } from "recharts";
-import { Separator } from "./ui/separator";
+import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { CertificateModal } from "./certificate-modal";
 
@@ -243,63 +243,60 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
       return stats ? stats : { bestTime: null, bestScore: null };
   }
 
-  const renderExamCard = (examSet: ChallengeSet, index: number) => {
+  const renderExamCard = (examSet: ChallengeSet) => {
     const isExamLocked = getIsExamLocked(examSet.id);
     const Icon = iconMap[examSet.iconName];
     const { bestScore } = getExamStats(examSet.id as keyof typeof examStats);
     const isCompleted = (bestScore ?? 0) === 100;
-    const isNextAvailable = !isExamLocked && !isCompleted;
-    const level = index + 1;
 
     const cardContent = (
      <Card key={examSet.id} className={cn(
         "shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col relative", 
         isExamLocked ? "bg-muted/50 border-dashed text-muted-foreground" : "bg-card hover:bg-accent/5",
-        isCompleted && "p-0.5 bg-gradient-to-r from-emerald-400 to-cyan-400"
+        isCompleted && "border-primary/50"
      )}>
-        <div className={cn("flex flex-col flex-1 w-full h-full", isCompleted && "bg-background rounded-[7px]")}>
-            {isCompleted ? (
-              <Badge variant="completed" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
+        {isCompleted ? (
+            <Badge variant="completed" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
                 <BadgeCheck className="mr-1.5 h-4 w-4" />
-                LEVEL {level} - Completed!
-              </Badge>
+                Passed
+            </Badge>
+        ) : isExamLocked ? (
+            <Badge variant="level" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
+                <Lock className="mr-1.5 h-3 w-3" />
+                Locked
+            </Badge>
+        ) : null}
+        <CardHeader className="flex-row gap-4 items-center p-4">
+            <Icon className={cn("w-8 h-8", isExamLocked ? "text-muted-foreground" : "text-primary")} />
+            <div>
+                <CardTitle className={cn("text-xl", isExamLocked && "text-muted-foreground")}>{examSet.name}</CardTitle>
+                <CardDescription className={cn("text-xs", isCompleted && "text-primary")}>
+                    {isCompleted ? "Congratulations! You've mastered this exam." : examSet.description}
+                </CardDescription>
+            </div>
+        </CardHeader>
+        <CardFooter className="mt-auto p-4">
+            {isExamLocked ? (
+                <Button className="w-full" variant={isLimited ? "premium" : "secondary"} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited}>
+                    {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
+                    {isLimited ? "Go Premium" : "Locked"}
+                </Button>
+            ) : isCompleted ? (
+                <Button asChild size="sm" className="w-full" variant="secondary">
+                    <Link href={`/challenge/${examSet.id}`}>
+                    <RotateCw className="mr-2 h-4 w-4" />
+                    Try Again
+                    </Link>
+                </Button>
             ) : (
-              <Badge variant={isNextAvailable ? 'warning' : 'level'} className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm">
-                LEVEL {level} - {isExamLocked ? 'Locked' : 'Unlocked'}
-              </Badge>
+                <Button asChild className="w-full">
+                    <Link href={`/challenge/${examSet.id}`}>
+                        Start Exam
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
             )}
-            <CardHeader className="flex-row gap-4 items-center p-4">
-                <Icon className={cn("w-8 h-8", isExamLocked ? "text-muted-foreground" : "text-primary")} />
-                <div>
-                    <CardTitle className={cn("text-xl", isExamLocked && "text-muted-foreground")}>{examSet.name}</CardTitle>
-                    <CardDescription className={cn("text-xs", isCompleted && "text-primary")}>
-                      {isCompleted ? "Congratulations! You've mastered this exam." : examSet.description}
-                    </CardDescription>
-                </div>
-            </CardHeader>
-            <CardFooter className="mt-auto p-4">
-                {isExamLocked ? (
-                    <Button className="w-full" variant={isLimited ? "premium" : "secondary"} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited}>
-                        {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
-                        {isLimited ? "Go Premium" : "Locked"}
-                    </Button>
-                ) : isCompleted ? (
-                    <Button asChild size="sm" className="w-full" variant="secondary">
-                        <Link href={`/challenge/${examSet.id}`}>
-                        <RotateCw className="mr-2 h-4 w-4" />
-                        Try Again
-                        </Link>
-                    </Button>
-                ) : (
-                    <Button asChild className="w-full">
-                        <Link href={`/challenge/${examSet.id}`}>
-                            Start Exam
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                    </Button>
-                )}
-            </CardFooter>
-        </div>
+        </CardFooter>
     </Card>
     );
 
@@ -318,41 +315,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return cardContent;
   }
   
-  const renderCertificateCard = () => {
-    return (
-      <Card className={cn(
-        "shadow-sm transition-all duration-200 flex flex-col relative text-center items-center justify-center", 
-        allExamsPassed 
-          ? "p-0.5 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 hover:shadow-lg hover:-translate-y-0.5"
-          : "bg-muted/50 border-dashed text-muted-foreground"
-      )}>
-        <div className={cn("flex flex-col flex-1 w-full h-full p-4 items-center justify-center", allExamsPassed && "bg-background rounded-[7px]")}>
-          <Badge variant="premium" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm border-0">
-            FINAL GOAL
-          </Badge>
-          <Star className={cn("w-10 h-10 mb-2", allExamsPassed ? "text-yellow-500" : "text-muted-foreground")} />
-          <CardTitle className={cn("text-xl", allExamsPassed && "text-primary")}>Certificate of Mastery</CardTitle>
-          {allExamsPassed ? (
-            <>
-              <CardDescription className="text-xs mt-1 mb-4">You've passed all exams! Claim your ultimate achievement.</CardDescription>
-              <Button className="w-full" variant="premium" onClick={() => setIsCertificateModalOpen(true)}>
-                <Trophy className="mr-2 h-4 w-4" /> Claim Certificate
-              </Button>
-            </>
-          ) : (
-             <>
-              <CardDescription className="text-xs mt-1 mb-4">
-                Pass all {examSets.length} exams to unlock your Mastery Certificate.
-              </CardDescription>
-               <Progress value={(passedExamsCount / examSets.length) * 100} className="h-2 my-2" />
-               <p className="font-bold text-sm">{passedExamsCount} of {examSets.length} Exams Passed</p>
-            </>
-          )}
-        </div>
-      </Card>
-    )
-  }
-
   const renderSetCard = (set: ChallengeSet & { isLocked: boolean }) => {
     const Icon = iconMap[set.iconName];
     const setStats = stats[set.id];
@@ -454,14 +416,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     if (isPremium) return "Master the keyboard, boost your productivity, and leave the mouse behind.";
     return "Learn the basics and upgrade to unlock your full potential.";
   }
-  
-  const getExamStatusBg = (examId: keyof typeof examStats, bestScore: number | null) => {
-    const isLocked = getIsExamLocked(examId);
-    if (!isLocked && bestScore !== 100) {
-        return "bg-emerald-500/10 border border-emerald-500/20";
-    }
-    return "bg-muted/50";
-  }
 
   return (
     <>
@@ -485,9 +439,8 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
         <section className="mb-12">
             <h2 className="text-2xl font-bold mb-4">Exams</h2>
             <TooltipProvider>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {examSets.map((examSet, index) => renderExamCard(examSet, index))}
-                {renderCertificateCard()}
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {examSets.map((examSet) => renderExamCard(examSet))}
               </div>
             </TooltipProvider>
          </section>
@@ -516,83 +469,73 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                         )}
                                     </div>
                                 </div>
-
-                                <Separator />
                                 
                                 <div className="grid grid-cols-3 gap-2 text-center">
-                                    {isLoaded ? (
-                                        <>
-                                            <ProgressPieChart
-                                                completed={setsByLevel['Beginner']?.completed || 0}
-                                                total={setsByLevel['Beginner']?.total || 0}
-                                                title="Beginner"
-                                                color="hsl(var(--chart-2))"
-                                            />
-                                            <ProgressPieChart
-                                                completed={setsByLevel['Intermediate']?.completed || 0}
-                                                total={setsByLevel['Intermediate']?.total || 0}
-                                                title="Intermediate"
-                                                color="hsl(var(--chart-3))"
-                                            />
-                                            <ProgressPieChart
-                                                completed={setsByLevel['Advanced']?.completed || 0}
-                                                total={setsByLevel['Advanced']?.total || 0}
-                                                title="Advanced"
-                                                color="hsl(var(--chart-5))"
-                                            />
-                                        </>
-                                    ) : (
-                                        <Skeleton className="h-24 w-full" />
-                                    )}
+                                  <ProgressPieChart
+                                      completed={setsByLevel['Beginner']?.completed || 0}
+                                      total={setsByLevel['Beginner']?.total || 0}
+                                      title="Beginner"
+                                      color="hsl(var(--chart-2))"
+                                  />
+                                  <ProgressPieChart
+                                      completed={setsByLevel['Intermediate']?.completed || 0}
+                                      total={setsByLevel['Intermediate']?.total || 0}
+                                      title="Intermediate"
+                                      color="hsl(var(--chart-3))"
+                                  />
+                                  <ProgressPieChart
+                                      completed={setsByLevel['Advanced']?.completed || 0}
+                                      total={setsByLevel['Advanced']?.total || 0}
+                                      title="Advanced"
+                                      color="hsl(var(--chart-5))"
+                                  />
                                 </div>
+
                                 <Separator />
+
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-3">Best Exam Times</h3>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between text-sm">
+                                            <div className="flex items-center gap-2 text-muted-foreground"><Award className="w-4 h-4 text-yellow-500" /> Basic Exam</div>
+                                            <span className="font-bold">{isLoaded && examStats['exam-basic']?.bestTime ? `${examStats['exam-basic']?.bestTime?.toFixed(2)}s` : 'N/A'}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between text-sm">
+                                            <div className="flex items-center gap-2 text-muted-foreground"><Medal className="w-4 h-4 text-slate-400" /> Intermediate</div>
+                                            <span className="font-bold">{isLoaded && examStats['exam-intermediate']?.bestTime ? `${examStats['exam-intermediate']?.bestTime?.toFixed(2)}s` : 'N/A'}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between text-sm">
+                                            <div className="flex items-center gap-2 text-muted-foreground"><Trophy className="w-4 h-4 text-amber-500" /> Advanced</div>
+                                            <span className="font-bold">{isLoaded && examStats['exam-advanced']?.bestTime ? `${examStats['exam-advanced']?.bestTime?.toFixed(2)}s` : 'N/A'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <Separator />
+
+                                <div>
+                                  <h3 className="text-lg font-semibold mb-2">Certificate of Mastery</h3>
+                                  {allExamsPassed ? (
+                                    <>
+                                      <p className="text-sm text-muted-foreground mb-4">You've passed all exams! Claim your ultimate achievement.</p>
+                                      <Button className="w-full" variant="premium" onClick={() => setIsCertificateModalOpen(true)}>
+                                          <Trophy className="mr-2 h-4 w-4" /> Claim Certificate
+                                      </Button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <p className="text-sm text-muted-foreground mb-2">Pass all {examSets.length} exams to unlock your Mastery Certificate.</p>
+                                      <Progress value={(passedExamsCount / examSets.length) * 100} className="h-2" />
+                                      <p className="text-xs text-muted-foreground mt-1 text-right">{passedExamsCount} of {examSets.length} Exams Passed</p>
+                                    </>
+                                  )}
+                                </div>
                             </>
                         ) : (
                             <div className="flex flex-col items-center gap-2 pt-2 text-center">
-                                <Skeleton className="w-24 h-8" />
-                                <Skeleton className="w-32 h-10" />
-                                <Skeleton className="h-2 w-full mt-2" />
-                                <Skeleton className="w-28 h-4 mt-1" />
+                                <Skeleton className="w-full h-40" />
                             </div>
                         )}
-                    </CardContent>
-                    <CardHeader>
-                        <CardTitle className="text-lg">Best Exam Times</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-4 p-4">
-                        <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-basic', examStats['exam-basic']?.bestScore ?? null))}>
-                           <div className="flex flex-col gap-2">
-                               <div className="flex items-center gap-3">
-                                   <Award className="w-5 h-5 text-yellow-500" />
-                                   <p className="font-medium text-sm">Basic Exam</p>
-                               </div>
-                               {(examStats['exam-basic']?.bestScore ?? 0) === 100 && examStats['exam-basic']?.bestTime && (
-                                   <p className="text-sm font-bold pl-8">{examStats['exam-basic']?.bestTime!.toFixed(2)}s</p>
-                               )}
-                           </div>
-                        </div>
-                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-intermediate', examStats['exam-intermediate']?.bestScore ?? null))}>
-                           <div className="flex flex-col gap-2">
-                               <div className="flex items-center gap-3">
-                                   <Medal className="w-5 h-5 text-slate-400" />
-                                   <p className="font-medium text-sm">Intermediate</p>
-                               </div>
-                               {(examStats['exam-intermediate']?.bestScore ?? 0) === 100 && examStats['exam-intermediate']?.bestTime && (
-                                   <p className="text-sm font-bold pl-8">{examStats['exam-intermediate']?.bestTime!.toFixed(2)}s</p>
-                               )}
-                           </div>
-                        </div>
-                         <div className={cn("flex items-center justify-between p-3 rounded-lg flex-1 min-h-[64px]", getExamStatusBg('exam-advanced', examStats['exam-advanced']?.bestScore ?? null))}>
-                            <div className="flex flex-col gap-2">
-                               <div className="flex items-center gap-3">
-                                   <Trophy className="w-5 h-5 text-amber-500" />
-                                   <p className="font-medium text-sm">Advanced</p>
-                               </div>
-                                {(examStats['exam-advanced']?.bestScore ?? 0) === 100 && examStats['exam-advanced']?.bestTime && (
-                                   <p className="text-sm font-bold pl-8">{examStats['exam-advanced']?.bestTime!.toFixed(2)}s</p>
-                               )}
-                           </div>
-                        </div>
                     </CardContent>
                 </Card>
             </aside>
@@ -627,3 +570,5 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
+    
