@@ -79,11 +79,17 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const finishChallenge = useCallback((finalSkipped: number[]) => {
-      const duration = (Date.now() - startTime) / 1000;
-      const skippedParam = finalSkipped.join(',');
-      router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${finalSkipped.length}&skippedIndices=${skippedParam}&mode=${mode}`);
-  },[router, set.id, startTime, mode]);
+  const finishChallenge = useCallback(() => {
+    if (mode === 'training') {
+        const skippedParam = Array.from(skippedIndices).join(',');
+        router.push(`/results?setId=${set.id}&time=0&skipped=${skippedIndices.length}&skippedIndices=${skippedParam}&mode=training`);
+        return;
+    }
+
+    const duration = (Date.now() - startTime) / 1000;
+    const skippedParam = Array.from(skippedIndices).join(',');
+    router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${skippedIndices.length}&skippedIndices=${skippedParam}&mode=${mode}`);
+  }, [router, set.id, startTime, mode, skippedIndices]);
 
 
   const normalizeKey = (key: string) => {
@@ -119,7 +125,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   };
 
   
-  const moveToNextChallenge = useCallback((updatedSkippedIndices: number[]) => {
+  const moveToNextChallenge = useCallback(() => {
     if (isAdvancing.current) return;
     isAdvancing.current = true;
 
@@ -129,12 +135,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     const isLastChallenge = currentChallengeIndex === set.challenges.length - 1;
     
     if (isLastChallenge) {
-        finishChallenge(updatedSkippedIndices);
+        finishChallenge();
         return;
     }
 
     setTimeout(() => {
-        setSkippedIndices(updatedSkippedIndices);
         setCurrentChallengeIndex(prev => prev + 1);
         setCurrentStepIndex(0);
         resetForNextStep();
@@ -144,9 +149,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const handleSkip = useCallback(() => {
-    const newSkipped = mode === 'timed' ? [...skippedIndices, currentChallengeIndex] : skippedIndices;
-    moveToNextChallenge(newSkipped);
-  }, [moveToNextChallenge, currentChallengeIndex, skippedIndices, mode]);
+    setSkippedIndices(prev => [...prev, currentChallengeIndex]);
+    moveToNextChallenge();
+  }, [moveToNextChallenge, currentChallengeIndex]);
 
   const advanceStepOrChallenge = useCallback(() => {
     setFeedback("correct");
@@ -156,13 +161,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setTimeout(() => {
         const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
         if (isLastStep) {
-            moveToNextChallenge(skippedIndices);
+            moveToNextChallenge();
         } else {
             setCurrentStepIndex(prev => prev + 1);
             resetForNextStep();
         }
     }, 400); // Increased delay to allow accentuation to be visible
-  }, [currentStepIndex, currentChallenge, skippedIndices, moveToNextChallenge]);
+  }, [currentStepIndex, currentChallenge, moveToNextChallenge]);
   
   const handleIncorrect = () => {
     setFeedback("incorrect");
@@ -198,8 +203,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         setCountdown(8);
 
         const autoSkip = () => {
-            const newSkipped = [...skippedIndices, currentChallengeIndex];
-            moveToNextChallenge(newSkipped);
+           handleSkip();
         }
 
         timeoutRef.current = setTimeout(autoSkip, 8000);
@@ -212,7 +216,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             if (timeoutRef.current) clearTimeout(timeoutRef.current);
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [currentChallengeIndex, currentStepIndex, skippedIndices, moveToNextChallenge, mode]);
+    }, [currentChallengeIndex, currentStepIndex, handleSkip, mode]);
 
 
   useEffect(() => {

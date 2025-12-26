@@ -253,8 +253,8 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     let isNextExam = false;
     if (!isExamLocked && !isCompleted) {
         if (examSet.id === 'exam-basic') isNextExam = true;
-        if (examSet.id === 'exam-intermediate' && isBasicPassed) isNextExam = true;
-        if (examSet.id === 'exam-advanced' && isIntermediatePassed) isNextExam = true;
+        else if (examSet.id === 'exam-intermediate' && isBasicPassed) isNextExam = true;
+        else if (examSet.id === 'exam-advanced' && isIntermediatePassed) isNextExam = true;
     }
 
 
@@ -538,14 +538,31 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                         </span>
                                     </div>
                                   </div>
-                                  <Button 
-                                      className={cn("w-full transition-all", allExamsPassed && "bg-emerald-500 hover:bg-emerald-500/90")}
-                                      disabled={!allExamsPassed} 
-                                      onClick={() => setIsCertificateModalOpen(true)}
-                                  >
-                                      <Trophy className="mr-2 h-4 w-4" /> 
-                                      {allExamsPassed ? "Claim Certificate" : "Claim Certificate"}
-                                  </Button>
+                                  <TooltipProvider>
+                                  {allExamsPassed ? (
+                                    <Button 
+                                        className="w-full transition-all bg-emerald-600 hover:bg-emerald-600/90"
+                                        onClick={() => setIsCertificateModalOpen(true)}
+                                    >
+                                        <Trophy className="mr-2 h-4 w-4" /> 
+                                        Claim Certificate
+                                    </Button>
+                                  ) : (
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <div className="w-full">
+                                                <Button className="w-full" disabled>
+                                                    <Lock className="mr-2 h-4 w-4" /> 
+                                                    Claim Certificate
+                                                </Button>
+                                            </div>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Pass all 3 exams to unlock your certificate.</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                  )}
+                                  </TooltipProvider>
                                 </div>
                             </>
                         ) : (
@@ -591,3 +608,4 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     
 
     
+
