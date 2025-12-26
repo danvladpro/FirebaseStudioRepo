@@ -447,7 +447,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     }
 
     if (isLocked) {
-      return <Badge variant="level" className="px-3 py-0.5 text-xs justify-center">Locked</Badge>
+      return <Badge variant="level" className="px-2 py-0.5 text-xs justify-center">Locked</Badge>
 
     }
 
@@ -561,7 +561,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
                                 <div className="space-y-4">
                                   <h3 className="text-lg font-semibold">Certificate of Mastery</h3>
-                                  <div className="relative w-full h-4 overflow-hidden rounded-full bg-secondary">
+                                  <div className="relative w-full h-4 overflow-hidden rounded-full bg-secondary/50">
                                       <div
                                         className="h-full bg-gradient-to-r from-yellow-500 to-green-500 transition-all duration-500"
                                         style={{ width: `${(passedExamsCount / examSets.length) * 100}%` }}
