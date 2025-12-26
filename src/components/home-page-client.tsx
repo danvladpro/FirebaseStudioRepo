@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, Unlock, Ribbon, CheckCircle, Timer, RotateCw, Download, BadgeCheck, Linkedin, Gem, BrainCircuit, Star } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -131,7 +131,8 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     'exam-advanced': stats['exam-advanced'],
   };
   
-  const allExamsPassed = examSets.every(exam => examStats[exam.id as keyof typeof examStats]?.bestScore === 100);
+  const passedExamsCount = examSets.filter(exam => examStats[exam.id as keyof typeof examStats]?.bestScore === 100).length;
+  const allExamsPassed = passedExamsCount === examSets.length;
 
   const completedSets = React.useMemo(() => {
     const allSets = [...CHALLENGE_SETS, ...SCENARIO_SETS];
@@ -316,6 +317,41 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     }
     return cardContent;
   }
+  
+  const renderCertificateCard = () => {
+    return (
+      <Card className={cn(
+        "shadow-sm transition-all duration-200 flex flex-col relative text-center items-center justify-center", 
+        allExamsPassed 
+          ? "p-0.5 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 hover:shadow-lg hover:-translate-y-0.5"
+          : "bg-muted/50 border-dashed text-muted-foreground"
+      )}>
+        <div className={cn("flex flex-col flex-1 w-full h-full p-4 items-center justify-center", allExamsPassed && "bg-background rounded-[7px]")}>
+          <Badge variant="premium" className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 text-sm border-0">
+            FINAL GOAL
+          </Badge>
+          <Star className={cn("w-10 h-10 mb-2", allExamsPassed ? "text-yellow-500" : "text-muted-foreground")} />
+          <CardTitle className={cn("text-xl", allExamsPassed && "text-primary")}>Certificate of Mastery</CardTitle>
+          {allExamsPassed ? (
+            <>
+              <CardDescription className="text-xs mt-1 mb-4">You've passed all exams! Claim your ultimate achievement.</CardDescription>
+              <Button className="w-full" variant="premium" onClick={() => setIsCertificateModalOpen(true)}>
+                <Trophy className="mr-2 h-4 w-4" /> Claim Certificate
+              </Button>
+            </>
+          ) : (
+             <>
+              <CardDescription className="text-xs mt-1 mb-4">
+                Pass all {examSets.length} exams to unlock your Mastery Certificate.
+              </CardDescription>
+               <Progress value={(passedExamsCount / examSets.length) * 100} className="h-2 my-2" />
+               <p className="font-bold text-sm">{passedExamsCount} of {examSets.length} Exams Passed</p>
+            </>
+          )}
+        </div>
+      </Card>
+    )
+  }
 
   const renderSetCard = (set: ChallengeSet & { isLocked: boolean }) => {
     const Icon = iconMap[set.iconName];
@@ -444,19 +480,14 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
               {getDashboardSubtitle()}
             </p>
           </div>
-           {allExamsPassed && (
-              <Button size="lg" variant="premium" onClick={() => setIsCertificateModalOpen(true)}>
-                  <Star className="mr-2 h-5 w-5" />
-                  Claim Mastery Certificate
-              </Button>
-           )}
         </header>
         
         <section className="mb-12">
             <h2 className="text-2xl font-bold mb-4">Exams</h2>
             <TooltipProvider>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {examSets.map((examSet, index) => renderExamCard(examSet, index))}
+                {renderCertificateCard()}
               </div>
             </TooltipProvider>
          </section>
