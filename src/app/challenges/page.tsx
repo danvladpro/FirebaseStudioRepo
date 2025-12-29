@@ -35,14 +35,7 @@ export default function ChallengesPage() {
   const { isLoaded, stats, getCompletedSetsCount } = usePerformanceTracker();
   const { user, isPremium } = useAuth();
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
-  const [cursorIcon, setCursorIcon] = React.useState<{ x: number, y: number } | null>(null);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (cursorIcon) {
-        setCursorIcon({ x: e.clientX, y: e.clientY });
-    }
-  };
-  
   const isLimited = !isPremium;
 
   const examStats = {
@@ -108,11 +101,7 @@ export default function ChallengesPage() {
       return (
         <Tooltip key={examSet.id}>
             <TooltipTrigger asChild>
-                <div 
-                    className="cursor-not-allowed h-full"
-                    onMouseEnter={(e) => setCursorIcon({ x: e.clientX, y: e.clientY })}
-                    onMouseLeave={() => setCursorIcon(null)}
-                >
+                <div className="cursor-not-allowed h-full">
                     {cardContent}
                 </div>
             </TooltipTrigger>
@@ -139,16 +128,8 @@ export default function ChallengesPage() {
 
   return (
     <>
-    {cursorIcon && (
-        <div 
-            className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-1/2"
-            style={{ left: cursorIcon.x, top: cursorIcon.y }}
-        >
-            <Lock className="w-5 h-5 text-foreground bg-background/50 backdrop-blur-sm p-0.5 rounded-full" />
-        </div>
-    )}
     <PremiumModal isOpen={isPremiumModalOpen} onOpenChange={setIsPremiumModalOpen} />
-    <div className="flex min-h-screen w-full flex-col bg-muted/40" onMouseMove={handleMouseMove}>
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <AppHeader />
       <main className="flex-1 container py-8 md:py-12 mt-16">
         <header className="mb-8 md:mb-12 flex items-center justify-between">
@@ -239,11 +220,7 @@ export default function ChallengesPage() {
                                 return (
                                     <Tooltip key={set.id}>
                                         <TooltipTrigger asChild>
-                                            <div 
-                                                className="cursor-not-allowed"
-                                                onMouseEnter={(e) => setCursorIcon({ x: e.clientX, y: e.clientY })}
-                                                onMouseLeave={() => setCursorIcon(null)}
-                                            >
+                                            <div className="cursor-not-allowed">
                                                 {cardContent}
                                             </div>
                                         </TooltipTrigger>
@@ -321,7 +298,5 @@ export default function ChallengesPage() {
     </>
   );
 }
-
-    
 
     
