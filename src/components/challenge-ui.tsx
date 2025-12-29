@@ -79,16 +79,17 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const finishChallenge = useCallback(() => {
+  const finishChallenge = useCallback((finalSkippedIndices?: number[]) => {
+    const indicesToUse = finalSkippedIndices || skippedIndices;
     if (mode === 'training') {
-        const skippedParam = Array.from(skippedIndices).join(',');
-        router.push(`/results?setId=${set.id}&time=0&skipped=${skippedIndices.length}&skippedIndices=${skippedParam}&mode=training`);
+        const skippedParam = Array.from(indicesToUse).join(',');
+        router.push(`/results?setId=${set.id}&time=0&skipped=${indicesToUse.length}&skippedIndices=${skippedParam}&mode=training`);
         return;
     }
 
     const duration = (Date.now() - startTime) / 1000;
-    const skippedParam = Array.from(skippedIndices).join(',');
-    router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${skippedIndices.length}&skippedIndices=${skippedParam}&mode=${mode}`);
+    const skippedParam = Array.from(indicesToUse).join(',');
+    router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${indicesToUse.length}&skippedIndices=${skippedParam}&mode=${mode}`);
   }, [router, set.id, startTime, mode, skippedIndices]);
 
 
@@ -149,9 +150,16 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const handleSkip = useCallback(() => {
-    setSkippedIndices(prev => [...prev, currentChallengeIndex]);
-    moveToNextChallenge();
-  }, [moveToNextChallenge, currentChallengeIndex]);
+    const isLastChallenge = currentChallengeIndex === set.challenges.length - 1;
+    const newSkippedIndices = [...skippedIndices, currentChallengeIndex];
+
+    if (isLastChallenge) {
+      finishChallenge(newSkippedIndices);
+    } else {
+      setSkippedIndices(newSkippedIndices);
+      moveToNextChallenge();
+    }
+  }, [moveToNextChallenge, currentChallengeIndex, set.challenges.length, skippedIndices, finishChallenge]);
 
   const advanceStepOrChallenge = useCallback(() => {
     setFeedback("correct");
@@ -427,7 +435,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
               )
             )}
         </div>
-        <Button variant="outline" size="sm" onClick={handleSkip} disabled={isAdvancing.current}>
+        <Button variant="outline" size="sm" onClick={handleSkip} disabled={isAdvancing.current} className="hover:bg-primary/10 hover:text-primary">
             Skip {isMultiStep ? 'Scenario' : 'Challenge'} <ChevronsRight className="ml-2 h-4 w-4" />
         </Button>
       </CardFooter>

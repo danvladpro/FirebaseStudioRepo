@@ -588,13 +588,14 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                   ) : (
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <div className="w-full">
-                                                <Button className="w-full" disabled>
+                                            <div className="cursor-not-allowed">
+                                                <Button className="w-full bg-slate-100 text-slate-600 border-2 border-dashed border-slate-400 cursor-not-allowed" disabled>
                                                     <Lock className="mr-2 h-4 w-4" /> 
                                                     Claim Certificate
                                                 </Button>
                                             </div>
                                         </TooltipTrigger>
+
                                         <TooltipContent>
                                             <p>Pass all 3 exams to unlock your certificate.</p>
                                         </TooltipContent>
