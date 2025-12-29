@@ -33,6 +33,13 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
 export default function FlashcardsPage() {
     const { isPremium } = useAuth();
     const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
+    const [cursorIcon, setCursorIcon] = React.useState<{ x: number, y: number } | null>(null);
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (cursorIcon) {
+            setCursorIcon({ x: e.clientX, y: e.clientY });
+        }
+    };
 
     const isLimited = !isPremium;
 
@@ -51,8 +58,16 @@ export default function FlashcardsPage() {
 
     return (
         <>
+        {cursorIcon && (
+            <div 
+                className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-1/2"
+                style={{ left: cursorIcon.x, top: cursorIcon.y }}
+            >
+                <Lock className="w-5 h-5 text-foreground bg-background/50 backdrop-blur-sm p-0.5 rounded-full" />
+            </div>
+        )}
         <PremiumModal isOpen={isPremiumModalOpen} onOpenChange={setIsPremiumModalOpen} />
-        <div className="flex min-h-screen w-full flex-col bg-muted/40">
+        <div className="flex min-h-screen w-full flex-col bg-muted/40" onMouseMove={handleMouseMove}>
             <AppHeader />
             <main className="flex-1 container py-8 md:py-12 mt-16">
                 <header className="mb-8 md:mb-12 flex items-center justify-between">
@@ -112,7 +127,13 @@ export default function FlashcardsPage() {
                                 return (
                                     <Tooltip key={set.id}>
                                         <TooltipTrigger asChild>
-                                            <div className="cursor-not-allowed w-full h-full">{cardContent}</div>
+                                            <div 
+                                                className="cursor-not-allowed w-full h-full"
+                                                onMouseEnter={(e) => setCursorIcon({ x: e.clientX, y: e.clientY })}
+                                                onMouseLeave={() => setCursorIcon(null)}
+                                            >
+                                                {cardContent}
+                                            </div>
                                         </TooltipTrigger>
                                         <TooltipContent>
                                             <p>Upgrade to unlock this deck.</p>
