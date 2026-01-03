@@ -23,6 +23,8 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
 
     const { activeCell, selectedCells } = newSelection;
 
+    const getCellsToApply = () => selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`]);
+
     switch (action) {
         case 'SELECT_ROW':
             newSelection.selectedCells.clear();
@@ -44,6 +46,19 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 }
             }
             break;
+        case 'INSERT_ROW':
+             const rowsToInsertAt = new Set<number>();
+            if (selectedCells.size > 0) {
+                selectedCells.forEach(cell => rowsToInsertAt.add(parseInt(cell.split('-')[0])));
+            } else {
+                rowsToInsertAt.add(activeCell.row);
+            }
+            const sortedInsertRows = Array.from(rowsToInsertAt).sort((a,b) => b - a);
+            sortedInsertRows.forEach(rowIndex => {
+                const newRow = new Array(newGridData[0].length).fill('');
+                newGridData.splice(rowIndex, 0, newRow);
+            });
+            break;
         case 'DELETE_ROW':
             const rowsToDelete = new Set<number>();
             if (selectedCells.size > 0) {
@@ -52,7 +67,6 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 rowsToDelete.add(activeCell.row);
             }
             
-            // Sort indices in descending order to avoid shifting issues when using splice
             const sortedRowsToDelete = Array.from(rowsToDelete).sort((a, b) => b - a);
             sortedRowsToDelete.forEach(rowIndex => {
                 if (rowIndex >= 0 && rowIndex < newGridData.length) {
@@ -64,23 +78,48 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             newSelection.activeCell.row = Math.min(activeCell.row, newGridData.length - 1);
             break;
         case 'CUT':
-            (selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`])).forEach(cellId => {
+            getCellsToApply().forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], opacity: 0.3, border: '2px dashed gray' };
             });
             break;
         case 'APPLY_STYLE_BOLD':
-            (selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`])).forEach(cellId => {
+            getCellsToApply().forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], fontWeight: 'bold' };
             });
             break;
+        case 'APPLY_STYLE_ITALIC':
+            getCellsToApply().forEach(cellId => {
+                newCellStyles[cellId] = { ...newCellStyles[cellId], fontStyle: 'italic' };
+            });
+            break;
+        case 'APPLY_STYLE_UNDERLINE':
+            getCellsToApply().forEach(cellId => {
+                newCellStyles[cellId] = { ...newCellStyles[cellId], textDecoration: 'underline' };
+            });
+            break;
+        case 'APPLY_STYLE_STRIKETHROUGH':
+            getCellsToApply().forEach(cellId => {
+                newCellStyles[cellId] = { ...newCellStyles[cellId], textDecoration: 'line-through' };
+            });
+            break;
         case 'APPLY_STYLE_CURRENCY':
-            const cellsToFormat = selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`]);
-            cellsToFormat.forEach(cellId => {
+            getCellsToApply().forEach(cellId => {
                 const [r, c] = cellId.split('-').map(Number);
                 if (r < newGridData.length && c < newGridData[r].length) {
                     const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
                     if (!isNaN(numericValue)) {
                         newGridData[r][c] = `$${numericValue.toFixed(2)}`;
+                    }
+                }
+            });
+            break;
+        case 'APPLY_STYLE_PERCENTAGE':
+            getCellsToApply().forEach(cellId => {
+                const [r, c] = cellId.split('-').map(Number);
+                if (r < newGridData.length && c < newGridData[r].length) {
+                    const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
+                    if (!isNaN(numericValue)) {
+                        newGridData[r][c] = `${numericValue}%`;
                     }
                 }
             });

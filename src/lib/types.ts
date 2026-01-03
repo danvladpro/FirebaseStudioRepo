@@ -14,13 +14,18 @@ export type GridEffectAction =
   | 'SELECT_ROW'
   | 'SELECT_COLUMN'
   | 'SELECT_ALL'
+  | 'INSERT_ROW'
   | 'DELETE_ROW'
   | 'DELETE_COLUMN'
   | 'CUT'
   | 'PASTE'
   | 'MOVE_SELECTION'
   | 'APPLY_STYLE_BOLD'
-  | 'APPLY_STYLE_CURRENCY';
+  | 'APPLY_STYLE_ITALIC'
+  | 'APPLY_STYLE_UNDERLINE'
+  | 'APPLY_STYLE_STRIKETHROUGH'
+  | 'APPLY_STYLE_CURRENCY'
+  | 'APPLY_STYLE_PERCENTAGE';
 
 export interface GridEffect {
   action: GridEffectAction;
@@ -43,6 +48,7 @@ export interface Challenge {
   isSequential?: boolean; // Optional for multi-step
   steps: ChallengeStep[];
   initialGridState?: GridState;
+  gridEffect?: GridEffect; // For single-step challenges
 }
 
 export type ChallengeLevel = "Beginner" | "Intermediate" | "Advanced" | "Scenario";

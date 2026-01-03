@@ -3,7 +3,7 @@ import { ChallengeSet, ChallengeLevel, Challenge, GridState } from "./types";
 
 const singleStep = (challenge: Omit<Challenge, 'steps'>): Challenge => ({
     ...challenge,
-    steps: [{ description: challenge.description, keys: challenge.keys, iconName: challenge.iconName, isSequential: challenge.isSequential }]
+    steps: [{ description: challenge.description, keys: challenge.keys!, iconName: challenge.iconName!, isSequential: challenge.isSequential, gridEffect: challenge.gridEffect }]
 });
 
 const defaultGridState: GridState = {
@@ -14,7 +14,7 @@ const defaultGridState: GridState = {
       ['#103', 'Doohickey', 'East', '2100', '4%'],
       ['#104', 'Thingamajig', 'West', '500', '7%'],
     ],
-    selection: { activeCell: { row: 1, col: 1 }, selectedCells: new Set() },
+    selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set(['0-0', '0-1', '0-2', '0-3', '0-4']) },
 };
 
 export const CHALLENGE_SETS: ChallengeSet[] = [
@@ -26,10 +26,10 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Formatting",
     iconName: "Pilcrow",
     challenges: [
-      singleStep({ description: "Bold the current selection", keys: ["Control", "b"], iconName: "Bold" }),
-      singleStep({ description: "Italicize the current selection", keys: ["Control", "i"], iconName: "Italic" }),
-      singleStep({ description: "Underline the current selection", keys: ["Control", "u"], iconName: "Underline" }),
-      singleStep({ description: "Apply or remove strikethrough", keys: ["Control", "5"], iconName: "Strikethrough" }),
+      singleStep({ description: "Bold the current selection", keys: ["Control", "b"], iconName: "Bold", initialGridState: defaultGridState, gridEffect: { action: 'APPLY_STYLE_BOLD' } }),
+      singleStep({ description: "Italicize the current selection", keys: ["Control", "i"], iconName: "Italic", initialGridState: defaultGridState, gridEffect: { action: 'APPLY_STYLE_ITALIC' } }),
+      singleStep({ description: "Underline the current selection", keys: ["Control", "u"], iconName: "Underline", initialGridState: defaultGridState, gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } }),
+      singleStep({ description: "Apply or remove strikethrough", keys: ["Control", "5"], iconName: "Strikethrough", initialGridState: defaultGridState, gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } }),
       singleStep({ description: "Open the Format Cells dialog", keys: ["Control", "1"], iconName: "Settings2" }),
     ],
   },
@@ -59,7 +59,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     iconName: "ClipboardCopy",
     challenges: [
       singleStep({ description: "Copy the selection", keys: ["Control", "c"], iconName: "Copy" }),
-      singleStep({ description: "Cut the selection", keys: ["Control", "x"], iconName: "Scissors" }),
+      singleStep({ description: "Cut the selection", keys: ["Control", "x"], iconName: "Scissors", initialGridState: defaultGridState, gridEffect: { action: 'CUT' } }),
       singleStep({ description: "Paste content", keys: ["Control", "v"], iconName: "ClipboardPaste" }),
       singleStep({ description: "Undo the last action", keys: ["Control", "z"], iconName: "Undo2" }),
       singleStep({ description: "Redo the last action", keys: ["Control", "y"], iconName: "Redo2" }),
@@ -73,9 +73,9 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Selection",
     iconName: "MousePointerSquareDashed",
     challenges: [
-      singleStep({ description: "Select the entire column", keys: ["Control", " "], iconName: "Columns3" }),
-      singleStep({ description: "Select the entire row", keys: ["Shift", " "], iconName: "Rows3" }),
-      singleStep({ description: "Select the entire worksheet", keys: ["Control", "a"], iconName: "SelectAll" }),
+      singleStep({ description: "Select the entire column", keys: ["Control", " "], iconName: "Columns3", initialGridState: { ...defaultGridState, selection: { activeCell: { row: 2, col: 2}, selectedCells: new Set() }}, gridEffect: { action: 'SELECT_COLUMN' } }),
+      singleStep({ description: "Select the entire row", keys: ["Shift", " "], iconName: "Rows3", initialGridState: { ...defaultGridState, selection: { activeCell: { row: 2, col: 2}, selectedCells: new Set() }}, gridEffect: { action: 'SELECT_ROW' } }),
+      singleStep({ description: "Select the entire worksheet", keys: ["Control", "a"], iconName: "SelectAll", initialGridState: defaultGridState, gridEffect: { action: 'SELECT_ALL' } }),
       singleStep({ description: "Extend selection to the last used cell", keys: ["Control", "Shift", "End"], iconName: "ArrowDownRightSquare" }),
       singleStep({ description: "Add non-adjacent cells to selection", keys: ["Shift", "F8"], iconName: "PlusSquare" }),
     ],
@@ -125,8 +125,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Apply a thick box border", keys: ["Alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true }),
       singleStep({ description: "Wrap text in a cell", keys: ["Alt", "h", "w"], iconName: "WrapText", isSequential: true }),
       singleStep({ description: "Set column width", keys: ["Alt", "h", "o", "w"], iconName: "Columns", isSequential: true }),
-      singleStep({ description: "Apply the Currency format", keys: ["Control", "Shift", "$"], iconName: "DollarSign" }),
-      singleStep({ description: "Apply the Percentage format", keys: ["Control", "Shift", "5"], iconName: "Percent" }),
+      singleStep({ description: "Apply the Currency format", keys: ["Control", "Shift", "$"], iconName: "DollarSign", initialGridState: { ...defaultGridState, selection: { activeCell: { row: 1, col: 3}, selectedCells: new Set(['1-3', '2-3', '3-3', '4-3']) }}, gridEffect: { action: 'APPLY_STYLE_CURRENCY'} }),
+      singleStep({ description: "Apply the Percentage format", keys: ["Control", "Shift", "5"], iconName: "Percent", initialGridState: { ...defaultGridState, selection: { activeCell: { row: 1, col: 4}, selectedCells: new Set(['1-4', '2-4', '3-4', '4-4']) }}, gridEffect: { action: 'APPLY_STYLE_PERCENTAGE'} }),
     ],
   },
   {
@@ -137,8 +137,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Management",
     iconName: "Layers",
     challenges: [
-      singleStep({ description: "Insert new row(s)", keys: ["Control", "Shift", "="], iconName: "Sheet" }),
-      singleStep({ description: "Delete selected row(s)", keys: ["Control", "-"], iconName: "Trash2" }),
+      singleStep({ description: "Insert new row(s)", keys: ["Control", "Shift", "="], iconName: "Sheet", initialGridState: { ...defaultGridState, selection: { activeCell: { row: 2, col: 2}, selectedCells: new Set() }}, gridEffect: { action: 'INSERT_ROW' } }),
+      singleStep({ description: "Delete selected row(s)", keys: ["Control", "-"], iconName: "Trash2", initialGridState: { ...defaultGridState, selection: { activeCell: { row: 2, col: 2}, selectedCells: new Set() }}, gridEffect: { action: 'DELETE_ROW' } }),
       singleStep({ description: "Hide the selected rows", keys: ["Control", "9"], iconName: "EyeOff" }),
       singleStep({ description: "Unhide any hidden rows within the selection", keys: ["Control", "Shift", "("], iconName: "Eye" }),
       singleStep({ description: "Hide the selected columns", keys: ["Control", "0"], iconName: "EyeOff" }),
