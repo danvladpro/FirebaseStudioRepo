@@ -150,10 +150,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const handleSkip = useCallback(() => {
-    const isLastChallenge = currentChallengeIndex === set.challenges.length - 1;
     const newSkippedIndices = [...skippedIndices, currentChallengeIndex];
-
-    if (isLastChallenge) {
+    
+    if (currentChallengeIndex === set.challenges.length - 1) {
       finishChallenge(newSkippedIndices);
     } else {
       setSkippedIndices(newSkippedIndices);
@@ -364,6 +363,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             const ChallengeIcon = icons[step.iconName] as ElementType;
             const isCompleted = index < currentStepIndex;
             const isActive = index === currentStepIndex;
+            const iconColor = cn(isCompleted ? "text-green-500" : (isActive ? (isAccentuating ? "text-green-500" : "text-primary") : "text-muted-foreground/50"));
 
             return (
               <div key={index}>
@@ -384,6 +384,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                          <Circle className={cn("w-4 h-4", isActive ? (isAccentuating ? "text-green-500" : "text-primary") : "text-muted-foreground/50")} />
                       </div>
                     )}
+                    {ChallengeIcon && (
+                        <ChallengeIcon className={cn("w-6 h-6", iconColor)} />
+                    )}
                     <p className={cn(
                       "flex-1 font-medium",
                       isCompleted && "text-green-700 line-through",
@@ -392,10 +395,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                     )}>
                       {step.description}
                     </p>
-                    {ChallengeIcon && !initialGridState && <ChallengeIcon className={cn(
-                        "w-10 h-10",
-                         isCompleted ? "text-green-500" : (isActive ? (isAccentuating ? "text-green-500" : "text-primary") : "text-muted-foreground/50")
-                    )} />}
                   </div>
 
                   {isActive && (
