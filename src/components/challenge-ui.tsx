@@ -350,7 +350,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                     data={displayedGridState.data} 
                     selection={displayedGridState.selection} 
                     cellStyles={displayedCellStyles}
-                    previewState={previewState ? {
+                    previewState={previewGridState ? {
                         gridState: previewGridState,
                         cellStyles: previewCellStyles,
                     } : null}
