@@ -153,8 +153,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     const newSkippedIndices = [...skippedIndices, currentChallengeIndex];
     
     if (currentChallengeIndex === set.challenges.length - 1) {
+      // If it's the last challenge, finish with the updated skipped list immediately.
       finishChallenge(newSkippedIndices);
     } else {
+      // Otherwise, update state and move to the next challenge.
       setSkippedIndices(newSkippedIndices);
       moveToNextChallenge();
     }
@@ -305,6 +307,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }
   
   const isMultiStep = currentChallenge.steps.length > 1;
+  const ActiveIcon = currentStep ? icons[currentStep.iconName] as ElementType : null;
 
   return (
     <Card className={cn(
@@ -347,7 +350,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                     data={displayedGridState.data} 
                     selection={displayedGridState.selection} 
                     cellStyles={displayedCellStyles}
-                    previewState={previewGridState ? {
+                    previewState={previewState ? {
                         gridState: previewGridState,
                         cellStyles: previewCellStyles,
                     } : null}
@@ -356,8 +359,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             </div>
         )}
 
-        <h2 className="text-xl md:text-2xl font-semibold text-foreground mb-6">{currentChallenge.description}</h2>
-
+        <div className="flex justify-center items-center gap-3 mb-6">
+          {ActiveIcon && <ActiveIcon className="w-7 h-7 text-primary" />}
+          <h2 className="text-xl md:text-2xl font-semibold text-foreground">{currentChallenge.description}</h2>
+        </div>
+        
         <div className="flex flex-col gap-2 text-left">
           {currentChallenge.steps.map((step, index) => {
             const ChallengeIcon = icons[step.iconName] as ElementType;
