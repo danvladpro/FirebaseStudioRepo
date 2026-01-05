@@ -63,10 +63,13 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     const currentChallenge = challenges[currentIndex];
     const initialGridState = currentChallenge?.initialGridState ?? null;
 
-    const { gridState: displayedGridState, cellStyles: displayedCellStyles } = initialGridState
+    const { gridState: initialDisplayGridState, cellStyles: initialDisplayCellStyles } = initialGridState
         ? calculateGridStateForStep(currentChallenge.steps, initialGridState, -1)
         : { gridState: null, cellStyles: {} };
-
+        
+    const { gridState: finalDisplayGridState, cellStyles: finalDisplayCellStyles } = initialGridState
+        ? calculateGridStateForStep(currentChallenge.steps, initialGridState, currentChallenge.steps.length - 1)
+        : { gridState: null, cellStyles: {} };
 
     const handleNext = () => {
         setIsAnswerShown(false);
@@ -114,12 +117,17 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
 
                 <CardContent className="py-8 px-6 md:px-8 text-center flex flex-col items-center">
                     
-                    {displayedGridState && displayedGridState.data && (
+                    {initialDisplayGridState && initialDisplayGridState.data && (
                         <div className="mb-6 w-full max-w-lg">
                              <VisualGrid 
-                                data={displayedGridState.data} 
-                                selection={displayedGridState.selection} 
-                                cellStyles={displayedCellStyles}
+                                data={initialDisplayGridState.data} 
+                                selection={initialDisplayGridState.selection}
+                                cellStyles={initialDisplayCellStyles}
+                                previewState={finalDisplayGridState ? {
+                                    gridState: finalDisplayGridState,
+                                    cellStyles: finalDisplayCellStyles,
+                                } : null}
+                                isAccentuating={isAnswerShown}
                             />
                         </div>
                     )}
@@ -181,3 +189,5 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
         </div>
     );
 }
+
+    
