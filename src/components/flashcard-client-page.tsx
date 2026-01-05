@@ -1,9 +1,8 @@
 
-
 "use client";
 
 import { useState, ElementType, useEffect } from "react";
-import { Challenge, ChallengeSet } from "@/lib/types";
+import { Challenge, ChallengeSet, GridState } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
@@ -12,6 +11,8 @@ import { VisualKeyboard } from "./visual-keyboard";
 import * as icons from "lucide-react";
 import { useAuth } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { VisualGrid } from "./visual-grid";
+import { calculateGridStateForStep } from "@/lib/grid-engine";
 
 interface KeyDisplayProps {
     value: string;
@@ -60,6 +61,12 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     const challenges = isLimited ? set.challenges.slice(0, 5) : set.challenges;
 
     const currentChallenge = challenges[currentIndex];
+    const initialGridState = currentChallenge?.initialGridState ?? null;
+
+    const { gridState: displayedGridState, cellStyles: displayedCellStyles } = initialGridState
+        ? calculateGridStateForStep(currentChallenge.steps, initialGridState, -1)
+        : { gridState: null, cellStyles: {} };
+
 
     const handleNext = () => {
         setIsAnswerShown(false);
@@ -76,10 +83,12 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     };
 
     const getOsKeys = (challenge: Challenge, isMac: boolean) => {
-        // Strikethrough is an exception, it's the same on Mac and Windows.
-        const isStrikethrough = challenge.description.toLowerCase().includes('strikethrough');
+        const primaryStep = challenge.steps[0];
+        if (!primaryStep) return [];
+
+        const isStrikethrough = primaryStep.description.toLowerCase().includes('strikethrough');
         
-        return challenge.keys.map(key => {
+        return primaryStep.keys.map(key => {
             if (isMac && key.toLowerCase() === 'control' && !isStrikethrough) {
                 return 'Meta';
             }
@@ -90,7 +99,7 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     const windowsKeys = getOsKeys(currentChallenge, false);
     const macKeys = getOsKeys(currentChallenge, true);
 
-    const ChallengeIcon = icons[currentChallenge.iconName] as ElementType;
+    const ChallengeIcon = currentChallenge.steps[0] ? icons[currentChallenge.steps[0].iconName] as ElementType : null;
 
     return (
         <div className="w-full max-w-4xl flex flex-col items-center">
@@ -103,16 +112,26 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                     <ChevronLeft />
                 </Button>
 
-                <CardContent className="py-2 px-6 md:px-8 text-center flex flex-col items-center">
-                    <p className="text-xl md:text-2xl font-semibold text-foreground mb-3">
-                        {currentChallenge.description}
-                    </p>
-
-                    <div className="flex justify-center items-center bg-muted rounded-lg mb-3 overflow-hidden px-4 py-4 w-full max-w-sm">
-                        {ChallengeIcon && <ChallengeIcon className="w-14 h-14 text-primary" />}
+                <CardContent className="py-8 px-6 md:px-8 text-center flex flex-col items-center">
+                    
+                    {displayedGridState && displayedGridState.data && (
+                        <div className="mb-6 w-full max-w-lg">
+                             <VisualGrid 
+                                data={displayedGridState.data} 
+                                selection={displayedGridState.selection} 
+                                cellStyles={displayedCellStyles}
+                            />
+                        </div>
+                    )}
+                    
+                    <div className="flex justify-center items-center gap-3 mb-4">
+                        {ChallengeIcon && <ChallengeIcon className="w-7 h-7 text-primary" />}
+                        <p className="text-xl md:text-2xl font-semibold text-foreground">
+                            {currentChallenge.description}
+                        </p>
                     </div>
 
-                    <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="flex flex-col items-center justify-center gap-2 min-h-[80px]">
                         {isAnswerShown ? (
                         <div className="flex flex-col items-center justify-center gap-2 animate-in fade-in">
                             <div className="flex items-center gap-2">

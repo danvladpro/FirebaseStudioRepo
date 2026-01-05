@@ -6,10 +6,9 @@ import { FlashcardClientPage } from '@/components/flashcard-client-page';
 import { AppHeader } from '@/components/app-header';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, Layers, Filter, GalleryVerticalEnd, Award, Medal, Trophy } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, Layers, Filter, GalleryVerticalEnd, Award, Medal, Trophy, BrainCircuit, HelpCircle } from 'lucide-react';
 import { useAuth } from './auth-provider';
 import { ElementType } from 'react';
-import { cn } from '@/lib/utils';
 
 const iconMap: Record<string, ElementType> = {
     ClipboardCopy,
@@ -22,7 +21,9 @@ const iconMap: Record<string, ElementType> = {
     GalleryVerticalEnd,
     Award,
     Medal,
-    Trophy
+    Trophy,
+    BrainCircuit,
+    HelpCircle,
 };
 
 
