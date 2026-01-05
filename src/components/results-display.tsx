@@ -85,9 +85,11 @@ export default function ResultsDisplay() {
   const score = totalChallenges > 0 ? (correctAnswers / totalChallenges) * 100 : 0;
   const isPerfectScore = skippedCount === 0;
 
-  const personalBest = stats[setId!]?.bestTime;
+  const previousBestScore = stats[setId!]?.bestScore;
+  const personalBestTime = stats[setId!]?.bestTime;
   const masteryCertificateId = userProfile?.masteryCertificateId;
   const xpEarned = (isPerfectScore && challengeSet?.level && mode === 'timed') ? XP_CONFIG[challengeSet.level] : 0;
+  const showXp = xpEarned > 0 && previousBestScore !== 100;
 
   const getOsKeys = (step: ChallengeStep, isMac: boolean) => {
     const isStrikethrough = step.description.toLowerCase().includes('strikethrough');
@@ -206,34 +208,37 @@ export default function ResultsDisplay() {
             )}
             {mode === 'timed' && (
                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <p className="text-sm text-muted-foreground">Your Time</p>
-                        <p className="text-5xl font-bold tracking-tighter text-primary">{time.toFixed(2)}s</p>
+                    <div className="flex flex-col gap-4">
+                        <div>
+                            <p className="text-sm text-muted-foreground">Your Time</p>
+                            <p className="text-5xl font-bold tracking-tighter text-primary">{time.toFixed(2)}s</p>
+                        </div>
+                        {isLoaded && isPerfectScore && personalBestTime && user && (
+                            <div>
+                                <p className="text-sm text-muted-foreground">Personal Best</p>
+                                <p className="text-2xl font-semibold tracking-tight text-foreground">
+                                {personalBestTime.toFixed(2)}s
+                                </p>
+                            </div>
+                        )}
                     </div>
-                    <div>
-                        <p className="text-sm text-muted-foreground">Score</p>
-                        <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
+                    <div className="flex flex-col gap-4">
+                        <div>
+                            <p className="text-sm text-muted-foreground">Score</p>
+                            <p className="text-5xl font-bold tracking-tighter text-primary">{score.toFixed(0)}%</p>
+                        </div>
+                        {showXp && (
+                            <div>
+                                <p className="text-sm text-muted-foreground">XP Earned</p>
+                                <p className="text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
+                                    +{xpEarned} XP
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
             
-            {xpEarned > 0 && (
-                <div>
-                    <p className="text-sm text-muted-foreground">XP Earned</p>
-                    <p className="text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
-                        +{xpEarned} XP
-                    </p>
-                </div>
-            )}
-
-            {isLoaded && isPerfectScore && personalBest && user && mode === 'timed' && (
-              <div>
-                <p className="text-sm text-muted-foreground">Personal Best (Time)</p>
-                <p className="text-2xl font-semibold tracking-tight text-foreground">
-                  {personalBest.toFixed(2)}s
-                </p>
-              </div>
-            )}
             {isExam && mode === 'timed' && (
                <div className="space-y-4 pt-4">
                   <Separator />
