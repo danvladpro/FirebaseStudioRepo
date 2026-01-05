@@ -36,7 +36,7 @@ function HeroContent() {
                     </div>
                 </div>
                 <Image
-                    src="/HomePage.png"
+                    src="/LandingPage.png"
                     width="600"
                     height="400"
                     alt="Hero"

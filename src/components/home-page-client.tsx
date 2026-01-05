@@ -53,10 +53,10 @@ export const XP_CONFIG = {
 };
 
 const LEVEL_THRESHOLDS = [
-    { level: 'Rookie', xp: 0, icon: <Image src="/Level0.png" alt="Rookie" width={64} height={64} /> },
-    { level: 'Apprentice', xp: 50, icon: <Image src="/Level1.png" alt="Apprentice" width={64} height={64} /> },
-    { level: 'Master', xp: 120, icon: <Image src="/Level2.png" alt="Master" width={64} height={64} /> },
-    { level: 'Ninja', xp: 200, icon: <Image src="/Level3.png" alt="Ninja" width={64} height={64} /> }
+    { level: 'Rookie', xp: 0, icon: <Image src="/Level0.svg" alt="Rookie" width={64} height={64} /> },
+    { level: 'Apprentice', xp: 50, icon: <Image src="/Level1.svg" alt="Apprentice" width={64} height={64} /> },
+    { level: 'Master', xp: 120, icon: <Image src="/Level2.svg" alt="Master" width={64} height={64} /> },
+    { level: 'Ninja', xp: 200, icon: <Image src="/Level3.svg" alt="Ninja" width={64} height={64} /> }
 ];
 
 

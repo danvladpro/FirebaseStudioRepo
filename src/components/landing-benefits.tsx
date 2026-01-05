@@ -17,7 +17,7 @@ export function LandingBenefits() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <ScrollAnimation delay={0.2} className="bg-transparent">
             <Image
-              src="/allNinjas.png"
+              src="/NinjaAllLevels.svg"
               alt="Gamified Progress Levels"
               width={800}
               height={400}
@@ -92,7 +92,7 @@ export function LandingBenefits() {
             </ScrollAnimation>
             <ScrollAnimation delay={0.4} className="bg-transparent">
               <Image
-                src="/GirlNinja.png"
+                src="/GirlNinja.svg"
                 alt="Individual user becoming an Excel Ninja"
                 width={800}
                 height={600}
@@ -103,9 +103,9 @@ export function LandingBenefits() {
 
           {/* For Companies */}
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <ScrollAnimation delay={0.2} className="order-last lg:order-first bg-transparent">
+            <ScrollAnimation delay={0.2} className="order-last lg:order-first">
                <Image
-                src="/TeamNinja.png"
+                src="/allNinjasNobackground.svg"
                 alt="A team of Excel Ninjas collaborating"
                 width={800}
                 height={600}

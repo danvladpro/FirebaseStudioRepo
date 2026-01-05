@@ -19,6 +19,7 @@ import { toast } from '@/hooks/use-toast';
 import { XP_CONFIG } from './home-page-client';
 import Link from 'next/link';
 import { CertificateModal } from './certificate-modal';
+import Image from 'next/image';
 
 const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
@@ -193,6 +194,16 @@ export default function ResultsDisplay() {
             <CardDescription>{challengeSet.name}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+             {isPerfectScore && mode === 'timed' && (
+              <div className="flex justify-center">
+                  <Image
+                      src="/NinjaCelebrate.svg"
+                      alt="Ninja Celebrating"
+                      width={150}
+                      height={150}
+                  />
+              </div>
+            )}
             {mode === 'timed' && (
                 <div className="grid grid-cols-2 gap-4">
                     <div>
