@@ -323,10 +323,10 @@ export default function ResultsDisplay() {
                                         isAutoSkipped ? (
                                             <Tooltip>
                                                 <TooltipTrigger>
-                                                    <Badge variant="outline">Left out</Badge>
+                                                    <Badge variant="warning">Left out</Badge>
                                                 </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>This challenge was left out due to your keyboard settings.<br />You can change this in your profile settings.</p>
+                                                <TooltipContent className="whitespace-nowrap">
+                                                    <p>Skipped due to keyboard settings. Change in your profile.</p>
                                                 </TooltipContent>
                                             </Tooltip>
                                         ) : <Badge variant="destructive">Skipped</Badge>
@@ -353,10 +353,10 @@ export default function ResultsDisplay() {
                                        isAutoSkipped ? (
                                             <Tooltip>
                                                 <TooltipTrigger>
-                                                    <Badge variant="outline">Left out</Badge>
+                                                    <Badge variant="warning">Left out</Badge>
                                                 </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>This challenge was left out due to your keyboard settings.<br />You can change this in your profile settings.</p>
+                                                <TooltipContent className="whitespace-nowrap">
+                                                    <p>Skipped due to keyboard settings. Change in your profile.</p>
                                                 </TooltipContent>
                                             </Tooltip>
                                         ) : <Badge variant="destructive">Skipped</Badge>
