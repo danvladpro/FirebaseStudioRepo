@@ -14,6 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const surveySteps = [
   {
@@ -43,11 +44,18 @@ const surveySteps = [
     options: ['Finance', 'Marketing', 'Analytics', 'Sales', 'Research', 'Business', 'Other'],
     type: 'radio',
   },
+  {
+    id: 'missingKeys',
+    title: 'Keyboard Configuration',
+    description: 'Select any keys that are NOT on your keyboard. This will help us tailor challenges for you.',
+    options: ['Home', 'End', 'PageUp', 'PageDown', 'Insert', 'F-Keys (F1-F12)'],
+    type: 'checkbox',
+  },
 ];
 
 export default function SurveyPage() {
   const [step, setStep] = useState(0);
-  const [surveyData, setSurveyData] = useState<Record<string, string>>({});
+  const [surveyData, setSurveyData] = useState<Record<string, string | string[]>>({});
   const [analyticsData, setAnalyticsData] = useState<Record<string, string | undefined>>({});
   const router = useRouter();
   const { user, loading } = useAuth();
@@ -89,7 +97,8 @@ export default function SurveyPage() {
   }, []);
 
   const handleNextStep = () => {
-    if (!surveyData[surveySteps[step].id]) {
+    const currentStepInfo = surveySteps[step];
+    if (currentStepInfo.type !== 'checkbox' && !surveyData[currentStepInfo.id]) {
       toast({
         title: "Please provide an answer",
         description: "You must provide an answer to continue.",
@@ -110,8 +119,16 @@ export default function SurveyPage() {
     }
   };
 
-  const handleValueChange = (id: string, value: string) => {
+  const handleValueChange = (id: string, value: string | string[]) => {
     setSurveyData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleCheckboxChange = (id: string, option: string, checked: boolean) => {
+    const currentSelection = (surveyData[id] as string[] | undefined) || [];
+    const newSelection = checked
+      ? [...currentSelection, option]
+      : currentSelection.filter(item => item !== option);
+    handleValueChange(id, newSelection);
   };
 
   const handleSubmit = async () => {
@@ -127,8 +144,9 @@ export default function SurveyPage() {
       const userDocRef = doc(db, 'users', user.uid);
       const { name, ...restOfSurveyData } = surveyData;
       await updateDoc(userDocRef, {
-        name: name,
+        name: name as string,
         survey: restOfSurveyData,
+        missingKeys: surveyData.missingKeys || [],
         analytics: analyticsData
       });
       router.push('/dashboard');
@@ -164,7 +182,7 @@ export default function SurveyPage() {
         <CardContent>
           {currentStep.type === 'radio' && currentStep.options && (
             <RadioGroup
-              value={surveyData[currentStep.id]}
+              value={surveyData[currentStep.id] as string}
               onValueChange={(value) => handleValueChange(currentStep.id, value)}
               className="space-y-2"
             >
@@ -185,9 +203,25 @@ export default function SurveyPage() {
                 id={currentStep.id}
                 type="text"
                 placeholder="e.g. Jane Doe"
-                value={surveyData[currentStep.id] || ''}
+                value={surveyData[currentStep.id] as string || ''}
                 onChange={(e) => handleValueChange(currentStep.id, e.target.value)}
               />
+            </div>
+          )}
+          {currentStep.type === 'checkbox' && currentStep.options && (
+            <div className="space-y-2">
+              {currentStep.options.map((option) => (
+                <div key={option} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={option}
+                    checked={(surveyData[currentStep.id] as string[] | undefined)?.includes(option)}
+                    onCheckedChange={(checked) => handleCheckboxChange(currentStep.id, option, !!checked)}
+                  />
+                  <Label htmlFor={option} className="flex-1 cursor-pointer p-3 rounded-md hover:bg-muted/50">
+                    {option}
+                  </Label>
+                </div>
+              ))}
             </div>
           )}
         </CardContent>

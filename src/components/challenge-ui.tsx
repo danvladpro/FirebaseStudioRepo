@@ -12,6 +12,7 @@ import { Button } from "./ui/button";
 import * as icons from "lucide-react";
 import { VisualGrid } from "./visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
+import { useAuth } from "./auth-provider";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -44,6 +45,7 @@ const KeyDisplay = ({ value }: { value: string }) => {
 
 export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const router = useRouter();
+  const { userProfile } = useAuth();
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
@@ -73,6 +75,31 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
+  
+  const checkAndSkipChallenge = useCallback(() => {
+    if (!currentChallenge || !userProfile?.missingKeys) return false;
+
+    const missingKeys = userProfile.missingKeys.map(k => k.toLowerCase());
+    const requiredKeys = currentChallenge.steps.flatMap(step => step.keys.map(k => k.toLowerCase()));
+    
+    if (requiredKeys.some(key => missingKeys.includes(key))) {
+       const newSkippedIndices = [...skippedIndices, currentChallengeIndex];
+       setSkippedIndices(newSkippedIndices);
+       
+       if (currentChallengeIndex === set.challenges.length - 1) {
+           finishChallenge(newSkippedIndices);
+       } else {
+           moveToNextChallenge();
+       }
+       return true;
+    }
+    return false;
+  }, [currentChallenge, userProfile?.missingKeys, skippedIndices, currentChallengeIndex, set.challenges.length]);
+
+  useEffect(() => {
+      checkAndSkipChallenge();
+  }, [currentChallengeIndex, checkAndSkipChallenge]);
+
 
   const isAdvancing = useRef(false);
   const keydownProcessed = useRef(false);
@@ -151,13 +178,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const handleSkip = useCallback(() => {
     const newSkippedIndices = [...skippedIndices, currentChallengeIndex];
+    setSkippedIndices(newSkippedIndices);
     
     if (currentChallengeIndex === set.challenges.length - 1) {
       // If it's the last challenge, finish with the updated skipped list immediately.
       finishChallenge(newSkippedIndices);
     } else {
-      // Otherwise, update state and move to the next challenge.
-      setSkippedIndices(newSkippedIndices);
+      // Otherwise, move to the next challenge.
       moveToNextChallenge();
     }
   }, [moveToNextChallenge, currentChallengeIndex, set.challenges.length, skippedIndices, finishChallenge]);
@@ -229,7 +256,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
 
   useEffect(() => {
-    if (!currentStep || feedback === 'correct') return;
+    if (!currentStep || feedback === 'correct' || checkAndSkipChallenge()) return;
     
     const handleKeyDown = (e: KeyboardEvent) => {
         e.preventDefault();
@@ -288,7 +315,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, sequence, currentStep, advanceStepOrChallenge, getRequiredKeys, feedback]);
+  }, [pressedKeys, sequence, currentStep, advanceStepOrChallenge, getRequiredKeys, feedback, checkAndSkipChallenge]);
 
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;

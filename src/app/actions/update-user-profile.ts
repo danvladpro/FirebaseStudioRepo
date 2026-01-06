@@ -7,6 +7,7 @@ import { z } from 'zod';
 const UpdateUserProfileSchema = z.object({
     uid: z.string(),
     name: z.string().min(1, "Name cannot be empty."),
+    missingKeys: z.array(z.string()).optional(),
 });
 
 export async function updateUserProfile(input: z.infer<typeof UpdateUserProfileSchema>) {
@@ -16,11 +17,18 @@ export async function updateUserProfile(input: z.infer<typeof UpdateUserProfileS
         throw new Error(validation.error.errors.map(e => e.message).join(', '));
     }
 
-    const { uid, name } = validation.data;
+    const { uid, name, missingKeys } = validation.data;
 
     try {
         const userDocRef = adminDb.collection('users').doc(uid);
-        await userDocRef.update({ name });
+        
+        const dataToUpdate: { name: string; missingKeys?: string[] } = { name };
+        if (missingKeys !== undefined) {
+            dataToUpdate.missingKeys = missingKeys;
+        }
+        
+        await userDocRef.update(dataToUpdate);
+
         return { success: true };
     } catch (error) {
         console.error("Error updating user profile:", error);

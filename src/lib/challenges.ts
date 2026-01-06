@@ -233,7 +233,12 @@ export const ADVANCED_EXAM: ChallengeSet = {
   description: "A comprehensive test of all your Excel skills.",
   category: "Exam",
   iconName: "Trophy",
-  challenges: getChallengesByLevel("Advanced")
+  challenges: [
+      ...getChallengesByLevel("Advanced"),
+      // Also include some tricky ones from other levels
+      singleStep({ description: "Use Flash Fill to automatically fill a column", keys: ["Control", "e"], iconName: "Wand2" }),
+      singleStep({ description: "Select only the visible cells in a selection", keys: ["Alt", ";"], iconName: "Aperture" })
+  ]
 };
 
 export const ALL_EXAM_SETS = [BASIC_EXAM, INTERMEDIATE_EXAM, ADVANCED_EXAM];

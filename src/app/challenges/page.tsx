@@ -201,12 +201,12 @@ export default function ChallengesPage() {
                                                 <>
                                                 <Button asChild size="sm" className="w-full">
                                                     <Link href={`/challenge/${set.id}`}>
-                                                        <Library className="mr-2 h-4 w-4" /> Practice
+                                                        <Library className="mr-2 h-4 w-4" /> Challange
                                                     </Link>
                                                 </Button>
                                                 <Button asChild size="sm" variant="secondary" className="w-full">
                                                     <Link href={`/flashcards/${set.id}`}>
-                                                        <Layers className="mr-2 h-4 w-4" /> Study
+                                                        <Layers className="mr-2 h-4 w-4" /> Flashcards
                                                     </Link>
                                                 </Button>
                                                 </>

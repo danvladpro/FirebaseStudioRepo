@@ -10,23 +10,34 @@ import { useAuth } from "./auth-provider";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { updateUserProfile } from "@/app/actions/update-user-profile";
+import { Checkbox } from "./ui/checkbox";
 
 interface EditProfileModalProps {
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
 }
 
+const availableKeys = ['Home', 'End', 'PageUp', 'PageDown', 'Insert', 'F-Keys (F1-F12)'];
+
 export function EditProfileModal({ isOpen, onOpenChange }: EditProfileModalProps) {
     const { user, userProfile } = useAuth();
     const { toast } = useToast();
     const [name, setName] = useState('');
+    const [missingKeys, setMissingKeys] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (userProfile) {
             setName(userProfile.name || '');
+            setMissingKeys(userProfile.missingKeys || []);
         }
-    }, [userProfile]);
+    }, [userProfile, isOpen]);
+
+    const handleCheckboxChange = (key: string, checked: boolean) => {
+        setMissingKeys(prev => 
+            checked ? [...prev, key] : prev.filter(k => k !== key)
+        );
+    };
 
     const handleSave = async () => {
         if (!user) {
@@ -41,7 +52,7 @@ export function EditProfileModal({ isOpen, onOpenChange }: EditProfileModalProps
 
         setIsLoading(true);
         try {
-            await updateUserProfile({ uid: user.uid, name });
+            await updateUserProfile({ uid: user.uid, name, missingKeys });
             toast({ title: "Success", description: "Your profile has been updated." });
             onOpenChange(false);
         } catch (error: any) {
@@ -82,6 +93,23 @@ export function EditProfileModal({ isOpen, onOpenChange }: EditProfileModalProps
                             className="col-span-3"
                             disabled
                         />
+                    </div>
+                    <div className="grid grid-cols-4 items-start gap-4">
+                        <Label className="text-right pt-2">
+                            Missing Keys
+                        </Label>
+                        <div className="col-span-3 space-y-2">
+                            {availableKeys.map(key => (
+                                <div key={key} className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id={`key-${key}`}
+                                        checked={missingKeys.includes(key)}
+                                        onCheckedChange={(checked) => handleCheckboxChange(key, !!checked)}
+                                    />
+                                    <Label htmlFor={`key-${key}`} className="font-normal">{key}</Label>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
                 <DialogFooter>
