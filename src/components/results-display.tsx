@@ -346,9 +346,9 @@ export default function ResultsDisplay() {
                                   </ul>
                                 </div>
                               ) : (
-                                <div className="flex justify-between items-center">
+                                <div className="flex justify-between items-center gap-4">
                                   <p className="font-semibold text-foreground">{challenge.description}</p>
-                                  <div className="flex items-center gap-4">
+                                  <div className="flex items-center gap-4 flex-shrink-0">
                                     {isSkipped && (
                                        isAutoSkipped ? (
                                             <Tooltip>
