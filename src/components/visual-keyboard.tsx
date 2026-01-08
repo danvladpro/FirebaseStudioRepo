@@ -2,6 +2,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface VisualKeyboardProps {
@@ -26,10 +27,20 @@ const macLayout: (string[])[] = [
     ['fn', 'control', 'alt', 'meta', ' ', 'meta', 'alt']
 ];
 
-const keyDisplayMap: Record<string, string> = {
+const specialKeysLayout: (string[])[] = [
+    ['insert', 'home', 'pageup'],
+    ['delete', 'end', 'pagedown'],
+];
+
+const arrowKeysLayout: (string[])[] = [
+    ['arrowup'],
+    ['arrowleft', 'arrowdown', 'arrowright']
+];
+
+const keyDisplayMap: Record<string, string | JSX.Element> = {
     'esc': 'Esc',
     'backspace': 'Backspace',
-    'delete': 'Delete',
+    'delete': 'Del',
     'tab': 'Tab',
     'capslock': 'Caps Lock',
     'enter': 'Enter',
@@ -39,19 +50,28 @@ const keyDisplayMap: Record<string, string> = {
     'meta': '⌘',
     'alt': '⌥',
     ' ': 'Space',
-    'fn': 'fn'
+    'fn': 'fn',
+    'insert': 'Ins',
+    'home': 'Home',
+    'pageup': 'PgUp',
+    'end': 'End',
+    'pagedown': 'PgDn',
+    'arrowup': <ArrowUp size={14} />,
+    'arrowdown': <ArrowDown size={14} />,
+    'arrowleft': <ArrowLeft size={14} />,
+    'arrowright': <ArrowRight size={14} />,
 };
 
-const windowsKeyDisplayMap: Record<string, string> = {
+const windowsKeyDisplayMap: Record<string, string | JSX.Element> = {
     ...keyDisplayMap,
     'control': 'Ctrl',
     'meta': 'Win',
-    'alt': 'Alt'
+    'alt': 'Alt',
+    'delete': 'Del'
 };
 
 const keyWidths: Record<string, string> = {
     'backspace': '4.5rem',
-    'delete': '3.5rem',
     'tab': '3.5rem',
     'capslock': '4rem',
     'enter': '5rem',
@@ -64,6 +84,11 @@ const keyWidths: Record<string, string> = {
     'fn': '2.5rem'
 };
 
+let isMac = false;
+if (typeof window !== 'undefined') {
+  isMac = navigator.userAgent.toLowerCase().includes('mac');
+}
+
 const normalizeKey = (key: string) => {
     const lowerKey = key.toLowerCase();
     if (['control', 'ctrl'].includes(lowerKey)) return 'control';
@@ -71,15 +96,17 @@ const normalizeKey = (key: string) => {
     if (['alt', 'option'].includes(lowerKey)) return 'alt';
     if (lowerKey === 'escape') return 'esc';
     if (lowerKey === 'enter' || lowerKey === 'return') return isMac ? 'return' : 'enter';
-    if (lowerKey === 'backspace' || lowerKey === 'delete') return isMac ? 'delete' : 'backspace';
+    if (lowerKey === 'backspace') return 'backspace';
+    if (lowerKey === 'delete') return 'delete';
+    if (lowerKey === 'pageup') return 'pageup';
+    if (lowerKey === 'pagedown') return 'pagedown';
+    if (lowerKey === 'home') return 'home';
+    if (lowerKey === 'end') return 'end';
+    if (lowerKey === 'insert') return 'insert';
+    if (lowerKey.startsWith('arrow')) return lowerKey;
     return lowerKey;
 };
 
-
-let isMac = false;
-if (typeof window !== 'undefined') {
-  isMac = navigator.userAgent.toLowerCase().includes('mac');
-}
 
 export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
     const [isClient, setIsClient] = useState(false);
@@ -99,48 +126,72 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
         if (lower === 'control') return 'control'; // Keep Control for strikethrough etc.
         if (lower === 'meta') return 'meta';
         if (lower === 'enter') return 'return';
+        if (lower === 'delete') return 'delete';
       } else {
         if (lower === 'meta') return 'meta'; // Win key
         if (lower === 'control') return 'control';
         if (lower === 'enter') return 'enter';
+        if (lower === 'backspace') return 'backspace';
       }
       return normalizeKey(key);
     }));
 
-    return (
-        <div className="p-3 bg-muted/50 rounded-lg border overflow-x-auto scale-[0.95]">
-        <div className="flex flex-col gap-1.5 min-w-max">
-            {isClient && layout.map((row, rowIndex) => (
-            <div key={rowIndex} className="flex justify-center gap-1.5">
-                {row.map((key, keyIndex) => {
-                const isHighlighted = normalizedHighlights.has(key);
-                const width = keyWidths[key];
-                const display = displayMap[key] || key.toUpperCase();
+    const renderKey = (key: string, isSpecialLayout = false) => {
+        const isHighlighted = normalizedHighlights.has(key);
+        const width = keyWidths[key];
+        const display = displayMap[key] || key.toUpperCase();
 
-                return (
-                    <div
-                    key={`${rowIndex}-${keyIndex}-${key}`}
-                    className={cn(
-                        "h-9 rounded-md flex items-center justify-center text-xs font-medium border-b-2",
-                        "transition-colors duration-200",
-                        isHighlighted
-                        ? "bg-primary text-primary-foreground border-primary/70"
-                        : "bg-background/60 text-foreground border-border/70",
-                    )}
-                    style={{ 
-                        width: key === ' ' ? '20rem' : width || '2rem',
-                        
-                    }}
-                    >
-                    <span className="px-0.5">{display}</span>
-                    </div>
-                );
-                })}
+        return (
+            <div
+            key={key}
+            className={cn(
+                "h-9 rounded-md flex items-center justify-center text-xs font-medium border-b-2",
+                "transition-colors duration-200",
+                isHighlighted
+                ? "bg-primary text-primary-foreground border-primary/70"
+                : "bg-background/60 text-foreground border-border/70",
+            )}
+            style={{ 
+                width: isSpecialLayout ? '2.5rem' : (key === ' ' ? '20rem' : width || '2rem'),
+            }}
+            >
+            <span className="px-0.5">{display}</span>
             </div>
-            ))}
+        );
+    };
+
+    return (
+        <div className="p-3 bg-muted/50 rounded-lg border overflow-x-auto scale-[0.9]">
+        <div className="flex justify-center gap-4 min-w-max">
+            {isClient && (
+                <>
+                <div className="flex flex-col gap-1.5">
+                    {layout.map((row, rowIndex) => (
+                    <div key={rowIndex} className="flex justify-center gap-1.5">
+                        {row.map((key) => renderKey(key))}
+                    </div>
+                    ))}
+                </div>
+                
+                <div className="flex flex-col gap-1.5">
+                     {specialKeysLayout.map((row, rowIndex) => (
+                        <div key={rowIndex} className="flex justify-center gap-1.5">
+                            {row.map((key) => renderKey(key, true))}
+                        </div>
+                    ))}
+                    <div className="h-4"></div>
+                    <div className="grid grid-cols-3 grid-rows-2 gap-1.5 w-[7.7rem]">
+                        {renderKey('arrowup', true)}
+                        <div />
+                        <div />
+                        {renderKey('arrowleft', true)}
+                        {renderKey('arrowdown', true)}
+                        {renderKey('arrowright', true)}
+                    </div>
+                </div>
+                </>
+            )}
         </div>
         </div>
     );
 };
-
-    
