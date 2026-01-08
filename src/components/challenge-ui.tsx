@@ -332,7 +332,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   return (
     <Card className={cn(
-        "w-full max-w-2xl transform transition-transform duration-500",
+        "w-full transform transition-all duration-500",
+        isVirtualKeyboardMode ? "max-w-4xl" : "max-w-2xl",
         feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
     )}>
       <CardHeader>
