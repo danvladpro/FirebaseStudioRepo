@@ -32,11 +32,6 @@ const specialKeysLayout: (string[])[] = [
     ['delete', 'end', 'pagedown'],
 ];
 
-const arrowKeysLayout: (string[])[] = [
-    ['arrowup'],
-    ['arrowleft', 'arrowdown', 'arrowright']
-];
-
 const keyDisplayMap: Record<string, string | JSX.Element> = {
     'esc': 'Esc',
     'backspace': 'Backspace',
@@ -173,13 +168,14 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
                     ))}
                 </div>
                 
-                <div className="flex flex-col gap-1.5">
-                     {specialKeysLayout.map((row, rowIndex) => (
-                        <div key={rowIndex} className="flex justify-center gap-1.5">
-                            {row.map((key) => renderKey(key, true))}
-                        </div>
-                    ))}
-                    <div className="h-4"></div>
+                <div className="flex flex-col justify-between">
+                    <div className="flex flex-col gap-1.5">
+                        {specialKeysLayout.map((row, rowIndex) => (
+                            <div key={rowIndex} className="flex justify-center gap-1.5">
+                                {row.map((key) => renderKey(key, true))}
+                            </div>
+                        ))}
+                    </div>
                     <div className="grid grid-cols-3 grid-rows-2 gap-1.5 w-[7.7rem]">
                         <div />
                         {renderKey('arrowup', true)}
@@ -195,4 +191,3 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
         </div>
     );
 };
-
