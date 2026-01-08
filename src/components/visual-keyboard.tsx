@@ -181,8 +181,8 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
                     ))}
                     <div className="h-4"></div>
                     <div className="grid grid-cols-3 grid-rows-2 gap-1.5 w-[7.7rem]">
-                        {renderKey('arrowup', true)}
                         <div />
+                        {renderKey('arrowup', true)}
                         <div />
                         {renderKey('arrowleft', true)}
                         {renderKey('arrowdown', true)}
@@ -195,3 +195,4 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
         </div>
     );
 };
+
