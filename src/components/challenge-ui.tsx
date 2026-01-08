@@ -6,13 +6,14 @@ import { useRouter } from "next/navigation";
 import { ChallengeSet, ChallengeStep, GridState } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, BookOpen } from "lucide-react";
+import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, BookOpen, MousePointerClick } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
 import { VisualGrid } from "./visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
 import { useAuth } from "./auth-provider";
+import { VisualKeyboard } from "./visual-keyboard";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -58,6 +59,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   
   const [countdown, setCountdown] = useState(8);
   const [isMac, setIsMac] = useState(false);
+  const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
@@ -76,30 +78,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
   
-  const checkAndSkipChallenge = useCallback(() => {
-    if (!currentChallenge || !userProfile?.missingKeys) return false;
-
-    const missingKeys = userProfile.missingKeys.map(k => k.toLowerCase());
-    const requiredKeys = currentChallenge.steps.flatMap(step => step.keys.map(k => k.toLowerCase()));
-    
-    if (requiredKeys.some(key => missingKeys.includes(key))) {
-       const newSkippedIndices = [...skippedIndices, currentChallengeIndex];
-       setSkippedIndices(newSkippedIndices);
-       
-       if (currentChallengeIndex === set.challenges.length - 1) {
-           finishChallenge(newSkippedIndices);
-       } else {
-           moveToNextChallenge();
-       }
-       return true;
-    }
-    return false;
-  }, [currentChallenge, userProfile?.missingKeys, skippedIndices, currentChallengeIndex, set.challenges.length]);
-
-  useEffect(() => {
-      checkAndSkipChallenge();
-  }, [currentChallengeIndex, checkAndSkipChallenge]);
-
 
   const isAdvancing = useRef(false);
   const keydownProcessed = useRef(false);
@@ -144,6 +122,19 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     return new Set(keys.map(k => normalizeKey(k)));
   }, [currentStep, isMac]);
 
+  useEffect(() => {
+    if (!currentStep || !userProfile?.missingKeys) {
+        setIsVirtualKeyboardMode(false);
+        return;
+    }
+
+    const requiredKeysForStep = currentStep.keys.map(k => k.toLowerCase());
+    const userMissingKeys = userProfile.missingKeys.map(k => k.toLowerCase());
+    const needsVirtual = requiredKeysForStep.some(key => userMissingKeys.includes(key));
+    setIsVirtualKeyboardMode(needsVirtual);
+}, [currentStep, userProfile?.missingKeys]);
+
+
   const resetForNextStep = () => {
     setFeedback(null);
     setIsAccentuating(false);
@@ -181,10 +172,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setSkippedIndices(newSkippedIndices);
     
     if (currentChallengeIndex === set.challenges.length - 1) {
-      // If it's the last challenge, finish with the updated skipped list immediately.
       finishChallenge(newSkippedIndices);
     } else {
-      // Otherwise, move to the next challenge.
       moveToNextChallenge();
     }
   }, [moveToNextChallenge, currentChallengeIndex, set.challenges.length, skippedIndices, finishChallenge]);
@@ -213,6 +202,45 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       setSequence([]);
       keydownProcessed.current = false;
     }, 500);
+  };
+
+  const processKeyPress = (key: string) => {
+    if (isAdvancing.current || keydownProcessed.current) return;
+
+    if (currentStep.isSequential) {
+        const newSequence = [...sequence, key];
+        setSequence(newSequence);
+
+        const requiredSequence = Array.from(getRequiredKeys()).map(k => normalizeKey(k));
+        
+        for(let i = 0; i < newSequence.length; i++) {
+            if (newSequence[i] !== requiredSequence[i]) {
+                handleIncorrect();
+                return;
+            }
+        }
+        
+        if (newSequence.length === requiredSequence.length) {
+            keydownProcessed.current = true;
+            advanceStepOrChallenge();
+        }
+    } else {
+        const newKeys = new Set(pressedKeys);
+        newKeys.add(key);
+        setPressedKeys(newKeys);
+        
+        const requiredKeys = getRequiredKeys();
+        
+        const sortedPressed = [...newKeys].sort().join(',');
+        const sortedRequired = [...requiredKeys].sort().join(',');
+
+        if (sortedPressed === sortedRequired) {
+            keydownProcessed.current = true;
+            advanceStepOrChallenge();
+        } else if (newKeys.size >= requiredKeys.size) {
+            handleIncorrect();
+        }
+    }
   };
   
   useEffect(() => {
@@ -256,53 +284,16 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
 
   useEffect(() => {
-    if (!currentStep || feedback === 'correct' || checkAndSkipChallenge()) return;
+    if (!currentStep || feedback === 'correct' || isVirtualKeyboardMode) return;
     
     const handleKeyDown = (e: KeyboardEvent) => {
         e.preventDefault();
-        if (isAdvancing.current || keydownProcessed.current) return;
-
         const key = normalizeKey(e.key);
-
-        if (currentStep.isSequential) {
-            const newSequence = [...sequence, key];
-            setSequence(newSequence);
-
-            const requiredSequence = Array.from(getRequiredKeys()).map(k => normalizeKey(k));
-            
-            for(let i = 0; i < newSequence.length; i++) {
-                if (newSequence[i] !== requiredSequence[i]) {
-                    handleIncorrect();
-                    return;
-                }
-            }
-            
-            if (newSequence.length === requiredSequence.length) {
-                keydownProcessed.current = true;
-                advanceStepOrChallenge();
-            }
-        } else {
-            const newKeys = new Set(pressedKeys);
-            newKeys.add(key);
-            setPressedKeys(newKeys);
-            
-            const requiredKeys = getRequiredKeys();
-            
-            const sortedPressed = [...newKeys].sort().join(',');
-            const sortedRequired = [...requiredKeys].sort().join(',');
-
-            if (sortedPressed === sortedRequired) {
-                keydownProcessed.current = true;
-                advanceStepOrChallenge();
-            } else if (newKeys.size >= requiredKeys.size) {
-                handleIncorrect();
-            }
-        }
+        processKeyPress(key);
     };
     
     const handleKeyUp = (e: KeyboardEvent) => {
         e.preventDefault();
-        
         if (!currentStep.isSequential && !keydownProcessed.current) {
             setPressedKeys(new Set());
         }
@@ -315,7 +306,16 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, sequence, currentStep, advanceStepOrChallenge, getRequiredKeys, feedback, checkAndSkipChallenge]);
+  }, [pressedKeys, sequence, currentStep, advanceStepOrChallenge, getRequiredKeys, feedback, isVirtualKeyboardMode]);
+
+  const handleVirtualKeyClick = (key: string) => {
+      const normalized = normalizeKey(key);
+      processKeyPress(normalized);
+      // For non-sequential, we need to reset after a "release"
+      if (!currentStep.isSequential) {
+          setTimeout(() => setPressedKeys(new Set()), 100);
+      }
+  };
 
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;
@@ -434,10 +434,16 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                      <div className="flex items-center justify-center gap-2 h-10 mt-4">
                       {feedback === 'correct' && <CheckCircle className="h-10 w-10 text-green-500" />}
                       {feedback === 'incorrect' && <XCircle className="h-10 w-10 text-destructive" />}
-                      {feedback === null && (
+                      {feedback === null && !isVirtualKeyboardMode && (
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Keyboard className="h-8 w-8" />
                           <span className="text-lg">Use your keyboard</span>
+                        </div>
+                      )}
+                      {feedback === null && isVirtualKeyboardMode && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                           <MousePointerClick className="h-8 w-8" />
+                          <span className="text-lg">Click the keys below</span>
                         </div>
                       )}
                     </div>
@@ -452,6 +458,14 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             );
           })}
         </div>
+        {isVirtualKeyboardMode && (
+            <div className="mt-8">
+                <VisualKeyboard 
+                    highlightedKeys={currentStep.isSequential ? sequence : Array.from(pressedKeys)}
+                    onKeyClick={handleVirtualKeyClick}
+                />
+            </div>
+        )}
       </CardContent>
       <CardFooter className="bg-muted/50 min-h-[80px] flex items-center justify-between gap-2 flex-wrap p-4">
         <div className="flex items-center justify-center gap-2">

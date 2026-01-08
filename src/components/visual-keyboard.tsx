@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 interface VisualKeyboardProps {
   highlightedKeys?: string[];
+  onKeyClick?: (key: string) => void;
 }
 
 const windowsLayout: (string[])[] = [
@@ -103,7 +104,7 @@ const normalizeKey = (key: string) => {
 };
 
 
-export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
+export function VisualKeyboard({ highlightedKeys = [], onKeyClick }: VisualKeyboardProps) {
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
@@ -116,14 +117,13 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
 
     const normalizedHighlights = new Set(highlightedKeys.map(key => {
       const lower = key.toLowerCase();
-      // This maps the key from the challenge definition to the key on the virtual keyboard layout
       if (isMac) {
-        if (lower === 'control') return 'control'; // Keep Control for strikethrough etc.
+        if (lower === 'control') return 'control';
         if (lower === 'meta') return 'meta';
         if (lower === 'enter') return 'return';
         if (lower === 'delete') return 'delete';
       } else {
-        if (lower === 'meta') return 'meta'; // Win key
+        if (lower === 'meta') return 'meta'; 
         if (lower === 'control') return 'control';
         if (lower === 'enter') return 'enter';
         if (lower === 'backspace') return 'backspace';
@@ -135,59 +135,62 @@ export function VisualKeyboard({ highlightedKeys = [] }: VisualKeyboardProps) {
         const isHighlighted = normalizedHighlights.has(key);
         const width = keyWidths[key];
         const display = displayMap[key] || key.toUpperCase();
+        const isClickable = !!onKeyClick;
 
         return (
             <div
-            key={key}
-            className={cn(
-                "h-9 rounded-md flex items-center justify-center text-xs font-medium border-b-2",
-                "transition-colors duration-200",
-                isHighlighted
-                ? "bg-primary text-primary-foreground border-primary/70"
-                : "bg-background/60 text-foreground border-border/70",
-            )}
-            style={{ 
-                width: isSpecialLayout ? '2.5rem' : (key === ' ' ? '20rem' : width || '2rem'),
-            }}
+                key={key}
+                onClick={isClickable ? () => onKeyClick(key) : undefined}
+                className={cn(
+                    "h-9 rounded-md flex items-center justify-center text-xs font-medium border-b-2",
+                    "transition-colors duration-200",
+                    isHighlighted
+                        ? "bg-primary text-primary-foreground border-primary/70"
+                        : "bg-background/60 text-foreground border-border/70",
+                    isClickable && "cursor-pointer hover:bg-primary/80 hover:border-primary/60 active:translate-y-px"
+                )}
+                style={{
+                    width: isSpecialLayout ? '2.5rem' : (key === ' ' ? '20rem' : width || '2rem'),
+                }}
             >
-            <span className="px-0.5">{display}</span>
+                <span className="px-0.5">{display}</span>
             </div>
         );
     };
 
     return (
         <div className="p-3 bg-muted/50 rounded-lg border overflow-x-auto scale-[0.9]">
-        <div className="flex justify-center gap-4 min-w-max">
-            {isClient && (
-                <>
-                <div className="flex flex-col gap-1.5">
-                    {layout.map((row, rowIndex) => (
-                    <div key={rowIndex} className="flex justify-center gap-1.5">
-                        {row.map((key) => renderKey(key))}
-                    </div>
-                    ))}
-                </div>
-                
-                <div className="flex flex-col justify-between">
-                    <div className="flex flex-col gap-1.5">
-                        {specialKeysLayout.map((row, rowIndex) => (
-                            <div key={rowIndex} className="flex justify-center gap-1.5">
-                                {row.map((key) => renderKey(key, true))}
+            <div className="flex justify-center gap-4 min-w-max">
+                {isClient && (
+                    <>
+                        <div className="flex flex-col gap-1.5">
+                            {layout.map((row, rowIndex) => (
+                                <div key={rowIndex} className="flex justify-center gap-1.5">
+                                    {row.map((key) => renderKey(key))}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex flex-col justify-between">
+                            <div className="flex flex-col gap-1.5">
+                                {specialKeysLayout.map((row, rowIndex) => (
+                                    <div key={rowIndex} className="flex justify-center gap-1.5">
+                                        {row.map((key) => renderKey(key, true))}
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                    <div className="grid grid-cols-3 grid-rows-2 gap-1.5 w-[7.7rem]">
-                        <div />
-                        {renderKey('arrowup', true)}
-                        <div />
-                        {renderKey('arrowleft', true)}
-                        {renderKey('arrowdown', true)}
-                        {renderKey('arrowright', true)}
-                    </div>
-                </div>
-                </>
-            )}
-        </div>
+                            <div className="grid grid-cols-3 grid-rows-2 gap-1.5 w-[7.7rem]">
+                                <div />
+                                {renderKey('arrowup', true)}
+                                <div />
+                                {renderKey('arrowleft', true)}
+                                {renderKey('arrowdown', true)}
+                                {renderKey('arrowright', true)}
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 };
