@@ -115,21 +115,7 @@ export function VisualKeyboard({ highlightedKeys = [], onKeyClick }: VisualKeybo
     const layout = isMac ? macLayout : windowsLayout;
     const displayMap = isMac ? keyDisplayMap : windowsKeyDisplayMap;
 
-    const normalizedHighlights = new Set(highlightedKeys.map(key => {
-      const lower = key.toLowerCase();
-      if (isMac) {
-        if (lower === 'control') return 'control';
-        if (lower === 'meta') return 'meta';
-        if (lower === 'enter') return 'return';
-        if (lower === 'delete') return 'delete';
-      } else {
-        if (lower === 'meta') return 'meta'; 
-        if (lower === 'control') return 'control';
-        if (lower === 'enter') return 'enter';
-        if (lower === 'backspace') return 'backspace';
-      }
-      return normalizeKey(key);
-    }));
+    const normalizedHighlights = new Set(highlightedKeys.map(normalizeKey));
 
     const renderKey = (key: string, isSpecialLayout = false) => {
         const isHighlighted = normalizedHighlights.has(key);
