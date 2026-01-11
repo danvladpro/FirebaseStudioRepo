@@ -343,18 +343,17 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover-translate-y-0.5 transition-all duration-200 hover:bg-accent/5",
             set.isLocked && "bg-muted/50 text-muted-foreground border-dashed"
         )}>
-            {isCompleted && !set.isLocked && (
-                <div className="absolute top-2 right-2 flex items-center gap-2">
-                    <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">Completed</span>
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
-                        <CheckCircle className="h-5 w-5 text-white" />
-                    </div>
-                </div>
-            )}
             <CardContent className="p-4 flex items-center gap-4">
                 <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                 <div className="flex-1">
-                    <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
+                    <div className="flex items-center gap-2">
+                        <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
+                         {isCompleted && !set.isLocked && (
+                            <Badge variant="completed" className="px-2 py-0.5 text-xs">
+                                Passed
+                            </Badge>
+                        )}
+                    </div>
                     <p className="text-sm">{set.description} - {set.challenges.length} items</p>
                 </div>
             </CardContent>
@@ -644,3 +643,4 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
