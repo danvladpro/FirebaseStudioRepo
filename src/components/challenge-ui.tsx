@@ -99,10 +99,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
 
   const normalizeKey = (key: string) => {
-    if (key === "Control" || key === "ControlLeft" || key === "ControlRight") return "Control";
-    if (key === "Shift" || key === "ShiftLeft" || key === "ShiftRight") return "Shift";
-    if (key === "Alt" || key === "AltLeft" || key === "AltRight") return "Alt";
-    if (key === "Meta" || key === "MetaLeft" || key === "MetaRight") return "Meta";
+    const lower = key.toLowerCase();
+    if (lower === "control" || lower === "controlleft" || lower === "controlright") return "Control";
+    if (lower === "shift" || lower === "shiftleft" || lower === "shiftright") return "Shift";
+    if (lower === "alt" || lower === "altleft" || lower === "altright") return "Alt";
+    if (lower === "meta" || lower === "metaleft" || lower === "metaright") return isMac ? "Meta" : "Meta"; // Virtual kbd sends "meta"
     return key;
   };
 
@@ -119,7 +120,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       }
       return k;
     });
-    return new Set(keys.map(k => normalizeKey(k)));
+    return new Set(keys);
   }, [currentStep, isMac]);
 
   useEffect(() => {
@@ -208,15 +209,17 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (isAdvancing.current || keydownProcessed.current) return;
   
     const requiredKeys = getRequiredKeys();
+    const normalizedRequiredKeys = new Set(Array.from(requiredKeys).map(normalizeKey));
+    const normalizedKey = normalizeKey(key);
   
     if (currentStep.isSequential) {
-      const newSequence = [...sequence, key];
+      const newSequence = [...sequence, normalizedKey];
       setSequence(newSequence);
       
-      const requiredSequence = Array.from(requiredKeys);
+      const requiredSequence = Array.from(requiredKeys).map(normalizeKey);
       
       for (let i = 0; i < newSequence.length; i++) {
-        if (normalizeKey(newSequence[i]) !== normalizeKey(requiredSequence[i])) {
+        if (newSequence[i] !== requiredSequence[i]) {
           handleIncorrect();
           return;
         }
@@ -227,11 +230,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       }
     } else {
       const newKeys = new Set(pressedKeys);
-      newKeys.add(key);
+      newKeys.add(normalizedKey);
       setPressedKeys(newKeys);
       
-      const sortedPressed = [...newKeys].map(normalizeKey).sort().join(',');
-      const sortedRequired = [...requiredKeys].map(normalizeKey).sort().join(',');
+      const sortedPressed = [...newKeys].sort().join(',');
+      const sortedRequired = [...normalizedRequiredKeys].sort().join(',');
   
       if (sortedPressed === sortedRequired) {
         keydownProcessed.current = true;
@@ -334,7 +337,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   return (
     <Card className={cn(
         "w-full transform transition-all duration-500",
-        isVirtualKeyboardMode ? "max-w-4xl" : "max-w-2xl",
+        isVirtualKeyboardMode ? "max-w-6xl" : "max-w-2xl",
         feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
     )}>
       <CardHeader>

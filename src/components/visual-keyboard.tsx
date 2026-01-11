@@ -145,7 +145,7 @@ export function VisualKeyboard({ highlightedKeys = [], onKeyClick }: VisualKeybo
     };
 
     return (
-        <div className="p-3 bg-muted/50 rounded-lg border overflow-x-auto scale-[0.9]">
+        <div className="p-3 bg-muted/50 rounded-lg border overflow-x-auto">
             <div className="flex justify-center gap-4 min-w-max">
                 {isClient && (
                     <>
