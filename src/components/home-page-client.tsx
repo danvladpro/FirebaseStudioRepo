@@ -391,14 +391,14 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         </Button>
                     ) : (
                         <>
-                        <Button asChild size="sm" className="w-full" variant="default">
-                            <Link href={`/challenge/${set.id}`}>
-                                <Library className="mr-2 h-4 w-4" /> Practice
-                            </Link>
-                        </Button>
                         <Button asChild size="sm" variant="secondary" className="w-full">
                             <Link href={`/flashcards/${set.id}`}>
-                                <Layers className="mr-2 h-4 w-4" /> Study
+                                <Layers className="mr-2 h-4 w-4" /> Flashcards
+                            </Link>
+                        </Button>
+                        <Button asChild size="sm" className="w-full" variant="default">
+                            <Link href={`/challenge/${set.id}`}>
+                                <Library className="mr-2 h-4 w-4" /> Challenge
                             </Link>
                         </Button>
                         </>
