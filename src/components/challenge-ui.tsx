@@ -209,14 +209,14 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (isAdvancing.current || keydownProcessed.current) return;
   
     const requiredKeys = getRequiredKeys();
-    const normalizedRequiredKeys = new Set(Array.from(requiredKeys).map(normalizeKey));
-    const normalizedKey = normalizeKey(key);
+    const normalizedRequiredKeys = new Set(Array.from(requiredKeys).map(k => normalizeKey(k.toLowerCase())));
+    const normalizedKey = normalizeKey(key.toLowerCase());
   
     if (currentStep.isSequential) {
       const newSequence = [...sequence, normalizedKey];
       setSequence(newSequence);
       
-      const requiredSequence = Array.from(requiredKeys).map(normalizeKey);
+      const requiredSequence = Array.from(requiredKeys).map(k => normalizeKey(k.toLowerCase()));
       
       for (let i = 0; i < newSequence.length; i++) {
         if (newSequence[i] !== requiredSequence[i]) {
@@ -337,7 +337,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   return (
     <Card className={cn(
         "w-full transform transition-all duration-500",
-        isVirtualKeyboardMode ? "max-w-6xl" : "max-w-2xl",
+        isVirtualKeyboardMode ? "max-w-none" : "max-w-2xl",
         feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
     )}>
       <CardHeader>
