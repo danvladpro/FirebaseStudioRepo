@@ -46,15 +46,7 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
                 <ChallengePreloader challengeSet={challengeSet} onStart={handleStart} />
             </div>
         ) : (
-            <div className="w-full max-w-4xl flex flex-col gap-4">
-                 <div className="flex justify-end">
-                    <Button asChild variant="outline">
-                        <Link href="/dashboard">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Dashboard
-                        </Link>
-                    </Button>
-                </div>
+            <div className="w-full flex flex-col gap-4">
                 <ChallengeUI set={challengeSet} mode={mode} />
             </div>
         )}
