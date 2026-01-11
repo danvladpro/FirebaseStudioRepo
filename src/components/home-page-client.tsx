@@ -166,9 +166,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return LEVEL_THRESHOLDS.find(l => totalXP < l.xp);
   }, [totalXP]);
   
-  const xpForNextLevel = nextLevelInfo ? nextLevelInfo.xp - (currentLevelInfo?.xp || 0) : 0;
-  const xpIntoCurrentLevel = totalXP - (currentLevelInfo?.xp || 0);
-  const levelProgress = xpForNextLevel > 0 ? (xpIntoCurrentLevel / xpForNextLevel) * 100 : 100;
   const xpToGo = nextLevelInfo ? nextLevelInfo.xp - totalXP : 0;
   
   const setsByLevel = React.useMemo(() => {
@@ -347,8 +344,11 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             set.isLocked && "bg-muted/50 text-muted-foreground border-dashed"
         )}>
             {isCompleted && !set.isLocked && (
-                <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
-                    <CheckCircle className="h-5 w-5 text-white" />
+                <div className="absolute top-2 right-2 flex items-center gap-2">
+                    <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">Completed</span>
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
+                        <CheckCircle className="h-5 w-5 text-white" />
+                    </div>
                 </div>
             )}
             <CardContent className="p-4 flex items-center gap-4">
@@ -516,10 +516,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                         <h3 className="text-lg font-bold">{currentLevelInfo.level}</h3>
                                         <p className="text-2xl font-bold text-primary">{totalXP} <span className="text-base font-medium text-muted-foreground">XP</span></p>
                                         {nextLevelInfo && (
-                                            <>
-                                                <Progress value={levelProgress} className="h-2 mt-2" />
-                                                <p className="text-xs text-muted-foreground mt-1">{xpToGo} XP to {nextLevelInfo.level}</p>
-                                            </>
+                                            <p className="text-xs text-muted-foreground mt-1">{xpToGo} XP to {nextLevelInfo.level}</p>
                                         )}
                                     </div>
                                 </div>
