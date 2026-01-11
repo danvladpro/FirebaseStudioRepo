@@ -340,7 +340,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
     const cardContent = (
         <Card key={set.id} className={cn(
-            "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 hover:bg-accent/5",
+            "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover-translate-y-0.5 transition-all duration-200 hover:bg-accent/5",
             set.isLocked && "bg-muted/50 text-muted-foreground border-dashed"
         )}>
             {isCompleted && !set.isLocked && (
