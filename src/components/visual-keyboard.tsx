@@ -157,21 +157,23 @@ export function VisualKeyboard({ highlightedKeys = [], onKeyClick }: VisualKeybo
                             ))}
                         </div>
 
-                        <div className="flex flex-col justify-between">
-                            <div className="flex flex-col gap-1.5">
-                                {specialKeysLayout.map((row, rowIndex) => (
-                                    <div key={rowIndex} className="flex justify-center gap-1.5">
-                                        {row.map((key) => renderKey(key, true))}
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="grid grid-cols-3 grid-rows-2 gap-1.5 w-[7.7rem]">
-                                <div />
-                                {renderKey('arrowup', true)}
-                                <div />
-                                {renderKey('arrowleft', true)}
-                                {renderKey('arrowdown', true)}
-                                {renderKey('arrowright', true)}
+                        <div className="flex flex-col justify-end">
+                            <div className="flex flex-col justify-between">
+                                <div className="flex flex-col gap-1.5">
+                                    {specialKeysLayout.map((row, rowIndex) => (
+                                        <div key={rowIndex} className="flex justify-center gap-1.5">
+                                            {row.map((key) => renderKey(key, true))}
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="grid grid-cols-3 grid-rows-2 gap-1.5 w-[7.7rem]">
+                                    <div />
+                                    {renderKey('arrowup', true)}
+                                    <div />
+                                    {renderKey('arrowleft', true)}
+                                    {renderKey('arrowdown', true)}
+                                    {renderKey('arrowright', true)}
+                                </div>
                             </div>
                         </div>
                     </>

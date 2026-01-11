@@ -204,18 +204,19 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     }, 500);
   };
 
-  const processKeyPress = useCallback((key: string, currentPressed: Set<string>, currentSequence: string[]) => {
+  const processKeyPress = useCallback((key: string) => {
     if (isAdvancing.current || keydownProcessed.current) return;
   
-    let newSequence = currentSequence;
-    let newKeys = currentPressed;
+    const requiredKeys = getRequiredKeys();
   
     if (currentStep.isSequential) {
-      newSequence = [...currentSequence, key];
+      const newSequence = [...sequence, key];
       setSequence(newSequence);
-      const requiredSequence = Array.from(getRequiredKeys()).map(k => normalizeKey(k));
+      
+      const requiredSequence = Array.from(requiredKeys);
+      
       for (let i = 0; i < newSequence.length; i++) {
-        if (newSequence[i] !== requiredSequence[i]) {
+        if (normalizeKey(newSequence[i]) !== normalizeKey(requiredSequence[i])) {
           handleIncorrect();
           return;
         }
@@ -225,12 +226,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         advanceStepOrChallenge();
       }
     } else {
-      newKeys = new Set(currentPressed);
+      const newKeys = new Set(pressedKeys);
       newKeys.add(key);
       setPressedKeys(newKeys);
-      const requiredKeys = getRequiredKeys();
-      const sortedPressed = [...newKeys].sort().join(',');
-      const sortedRequired = [...requiredKeys].sort().join(',');
+      
+      const sortedPressed = [...newKeys].map(normalizeKey).sort().join(',');
+      const sortedRequired = [...requiredKeys].map(normalizeKey).sort().join(',');
   
       if (sortedPressed === sortedRequired) {
         keydownProcessed.current = true;
@@ -239,7 +240,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         handleIncorrect();
       }
     }
-  }, [currentStep, getRequiredKeys, advanceStepOrChallenge, isAdvancing, keydownProcessed]);
+  }, [currentStep, sequence, pressedKeys, getRequiredKeys, advanceStepOrChallenge]);
 
   useEffect(() => {
     if (currentChallengeIndex === 0 && currentStepIndex === 0 && startTime === 0) {
@@ -287,7 +288,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
         e.preventDefault();
         const key = normalizeKey(e.key);
-        processKeyPress(key, pressedKeys, sequence);
+        processKeyPress(key);
     };
     
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -308,7 +309,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const handleVirtualKeyClick = (key: string) => {
       const normalized = normalizeKey(key);
-      processKeyPress(normalized, pressedKeys, sequence);
+      processKeyPress(normalized);
   };
 
 
