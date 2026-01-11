@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle } from "lucide-react";
@@ -345,7 +346,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             set.isLocked && "bg-muted/50 text-muted-foreground border-dashed"
         )}>
             {isCompleted && !set.isLocked && (
-                <CheckCircle className="absolute top-2 right-2 w-5 h-5 text-green-500" />
+                <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
+                    <CheckCircle className="h-5 w-5 text-white" />
+                </div>
             )}
             <CardContent className="p-4 flex items-center gap-4">
                 <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
@@ -643,5 +646,3 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
-
-    
