@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
@@ -361,7 +360,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const ActiveIcon = currentStep ? icons[currentStep.iconName] as ElementType : null;
 
   return (
-    <div className={cn("relative w-full mx-auto", isVirtualKeyboardMode ? "max-w-none" : "max-w-2xl")}>
+    <div className={cn("relative mx-auto w-full", isVirtualKeyboardMode ? "max-w-4xl" : "max-w-2xl")}>
         <Button asChild variant="outline" className="absolute top-0 right-0 z-10">
             <Link href="/dashboard">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -521,5 +520,3 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </div>
   );
 }
-
-    
