@@ -169,6 +169,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const xpForNextLevel = nextLevelInfo ? nextLevelInfo.xp - (currentLevelInfo?.xp || 0) : 0;
   const xpIntoCurrentLevel = totalXP - (currentLevelInfo?.xp || 0);
   const levelProgress = xpForNextLevel > 0 ? (xpIntoCurrentLevel / xpForNextLevel) * 100 : 100;
+  const xpToGo = nextLevelInfo ? nextLevelInfo.xp - totalXP : 0;
   
   const setsByLevel = React.useMemo(() => {
     return CHALLENGE_SETS.reduce((acc, set) => {
@@ -517,7 +518,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                         {nextLevelInfo && (
                                             <>
                                                 <Progress value={levelProgress} className="h-2 mt-2" />
-                                                <p className="text-xs text-muted-foreground mt-1">{xpIntoCurrentLevel}/{xpForNextLevel} XP to {nextLevelInfo.level}</p>
+                                                <p className="text-xs text-muted-foreground mt-1">{xpToGo} XP to {nextLevelInfo.level}</p>
                                             </>
                                         )}
                                     </div>
