@@ -132,7 +132,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
     const requiredKeysForStep = currentStep.keys.map(k => k.toLowerCase());
     const userMissingKeys = userProfile.missingKeys.map(k => k.toLowerCase());
-    const needsVirtual = requiredKeysForStep.some(key => userMissingKeys.includes(key));
+    
+    // Normalize F-Keys for checking
+    const normalizedRequired = requiredKeysForStep.map(k => k.startsWith('f') && k.length > 1 && !isNaN(Number(k.substring(1))) ? 'f-keys (f1-f12)' : k);
+    
+    const needsVirtual = normalizedRequired.some(key => userMissingKeys.includes(key));
     setIsVirtualKeyboardMode(needsVirtual);
 }, [currentStep, userProfile?.missingKeys]);
 
@@ -357,7 +361,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const ActiveIcon = currentStep ? icons[currentStep.iconName] as ElementType : null;
 
   return (
-    <div className="relative w-full">
+    <div className={cn("relative w-full mx-auto", isVirtualKeyboardMode ? "max-w-none" : "max-w-2xl")}>
         <Button asChild variant="outline" className="absolute top-0 right-0 z-10">
             <Link href="/dashboard">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -367,7 +371,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
         <Card className={cn(
             "w-full transform transition-all duration-500 mt-12",
-            isVirtualKeyboardMode ? "max-w-none" : "max-w-2xl mx-auto",
             feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
         )}>
         <CardHeader>
@@ -518,3 +521,5 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </div>
   );
 }
+
+    
