@@ -51,7 +51,7 @@ export interface Challenge {
   gridEffect?: GridEffect; // For single-step challenges
 }
 
-export type ChallengeLevel = "Beginner" | "Intermediate" | "Advanced" | "Scenario";
+export type ChallengeLevel = "Beginner" | "Intermediate" | "Advanced" | "Scenario" | "General";
 
 export interface ChallengeSet {
   id: string;

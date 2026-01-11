@@ -19,6 +19,19 @@ const defaultGridState: GridState = {
 
 export const CHALLENGE_SETS: ChallengeSet[] = [
   {
+    id: "general-productivity",
+    name: "General Productivity",
+    description: "The most frequent, must-know actions.",
+    level: "Beginner",
+    category: "General",
+    iconName: "Zap",
+    challenges: [
+      singleStep({ description: "Save the workbook", keys: ["Control", "s"], iconName: "Save" }),
+      singleStep({ description: "Undo the last action", keys: ["Control", "z"], iconName: "Undo2" }),
+      singleStep({ description: "Redo the last action", keys: ["Control", "y"], iconName: "Redo2" }),
+    ],
+  },
+  {
     id: "formatting-basics",
     name: "Formatting Basics",
     description: "Learn the most common formatting shortcuts.",
@@ -31,6 +44,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Underline the current selection", keys: ["Control", "u"], iconName: "Underline", initialGridState: defaultGridState, gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } }),
       singleStep({ description: "Apply or remove strikethrough", keys: ["Control", "5"], iconName: "Strikethrough", initialGridState: defaultGridState, gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } }),
       singleStep({ description: "Open the Format Cells dialog", keys: ["Control", "1"], iconName: "Settings2" }),
+      singleStep({ description: "Insert line break inside a cell", keys: ["Alt", "Enter"], iconName: "WrapText" }),
     ],
   },
   {
@@ -48,6 +62,10 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Move down one screen", keys: ["PageDown"], iconName: "ArrowDownToLine" }),
       singleStep({ description: "Move up one screen", keys: ["PageUp"], iconName: "ArrowUpToLine" }),
       singleStep({ description: "Open the 'Go To' dialog box", keys: ["F5"], iconName: "Locate" }),
+      singleStep({ description: "Open Find dialog", keys: ["Control", "f"], iconName: "Search" }),
+      singleStep({ description: "Open Replace dialog", keys: ["Control", "h"], iconName: "Replace" }),
+      singleStep({ description: "Switch to the next worksheet", keys: ["Control", "PageDown"], iconName: "ArrowRightToLine" }),
+      singleStep({ description: "Switch to the previous worksheet", keys: ["Control", "PageUp"], iconName: "ArrowLeftToLine" }),
     ],
   },
   {
@@ -61,8 +79,6 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Copy the selection", keys: ["Control", "c"], iconName: "Copy" }),
       singleStep({ description: "Cut the selection", keys: ["Control", "x"], iconName: "Scissors", initialGridState: defaultGridState, gridEffect: { action: 'CUT' } }),
       singleStep({ description: "Paste content", keys: ["Control", "v"], iconName: "ClipboardPaste" }),
-      singleStep({ description: "Undo the last action", keys: ["Control", "z"], iconName: "Undo2" }),
-      singleStep({ description: "Redo the last action", keys: ["Control", "y"], iconName: "Redo2" }),
     ],
   },
   {
@@ -76,7 +92,9 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Select the entire column", keys: ["Control", " "], iconName: "Columns3", initialGridState: { ...defaultGridState, selection: { activeCell: { row: 2, col: 2}, selectedCells: new Set() }}, gridEffect: { action: 'SELECT_COLUMN' } }),
       singleStep({ description: "Select the entire row", keys: ["Shift", " "], iconName: "Rows3", initialGridState: { ...defaultGridState, selection: { activeCell: { row: 2, col: 2}, selectedCells: new Set() }}, gridEffect: { action: 'SELECT_ROW' } }),
       singleStep({ description: "Select the entire worksheet", keys: ["Control", "a"], iconName: "SelectAll", initialGridState: defaultGridState, gridEffect: { action: 'SELECT_ALL' } }),
+      singleStep({ description: "Select the current region", keys: ["Control", "Shift", "8"], iconName: "AppWindow" }),
       singleStep({ description: "Extend selection to the last used cell", keys: ["Control", "Shift", "End"], iconName: "ArrowDownRightSquare" }),
+      singleStep({ description: "Extend selection by one cell", keys: ["Shift", "ArrowRight"], iconName: "MoveRight" }),
       singleStep({ description: "Add non-adjacent cells to selection", keys: ["Shift", "F8"], iconName: "PlusSquare" }),
     ],
   },
@@ -90,9 +108,12 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     challenges: [
       singleStep({ description: "Start a formula", keys: ["="], iconName: "Sigma" }),
       singleStep({ description: "Toggle absolute/relative references", keys: ["F4"], iconName: "Anchor" }),
+      singleStep({ description: "Repeat the last action", keys: ["F4"], iconName: "Repeat" }),
       singleStep({ description: "Insert the AutoSum formula", keys: ["Alt", "="], iconName: "Calculator" }),
       singleStep({ description: "Toggle displaying formulas or values", keys: ["Control", "`"], iconName: "FileCode" }),
       singleStep({ description: "Edit the active cell", keys: ["F2"], iconName: "Pencil" }),
+      singleStep({ description: "Open Name Manager", keys: ["Control", "F3"], iconName: "BookUser" }),
+      singleStep({ description: "Create named range from selection", keys: ["Control", "Shift", "F3"], iconName: "CaseUpper" }),
     ],
   },
   {
@@ -104,11 +125,15 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     iconName: "Filter",
     challenges: [
       singleStep({ description: "Apply or clear the filter", keys: ["Control", "Shift", "l"], iconName: "Filter" }),
+      singleStep({ description: "Open the Filter dropdown for active column", keys: ["Alt", "ArrowDown"], iconName: "ChevronDownSquare" }),
       singleStep({ description: "Open the Create Table dialog", keys: ["Control", "t"], iconName: "Table" }),
       singleStep({ description: "Automatically fill values down", keys: ["Control", "d"], iconName: "ArrowDownSquare" }),
       singleStep({ description: "Automatically fill values to the right", keys: ["Control", "r"], iconName: "ArrowRightSquare" }),
       singleStep({ description: "Use Flash Fill to automatically fill a column", keys: ["Control", "e"], iconName: "Wand2" }),
-      singleStep({ description: "Select only the visible cells in a selection", keys: ["Alt", ";"], iconName: "Aperture" })
+      singleStep({ description: "Select only the visible cells in a selection", keys: ["Alt", ";"], iconName: "Aperture" }),
+      singleStep({ description: "Insert current date", keys: ["Control", ";"], iconName: "CalendarDays" }),
+      singleStep({ description: "Insert current time", keys: ["Control", "Shift", ";"], iconName: "Clock" }),
+      singleStep({ description: "Open Sort dialog", keys: ["Alt", "d", "s"], iconName: "ArrowDownUp", isSequential: true }),
     ],
   },
   {
@@ -125,8 +150,15 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Apply a thick box border", keys: ["Alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true }),
       singleStep({ description: "Wrap text in a cell", keys: ["Alt", "h", "w"], iconName: "WrapText", isSequential: true }),
       singleStep({ description: "Set column width", keys: ["Alt", "h", "o", "w"], iconName: "Columns", isSequential: true }),
+      singleStep({ description: "Clear all formatting", keys: ["Alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true }),
       singleStep({ description: "Apply the Currency format", keys: ["Control", "Shift", "$"], iconName: "DollarSign", initialGridState: { ...defaultGridState, selection: { activeCell: { row: 1, col: 3}, selectedCells: new Set(['1-3', '2-3', '3-3', '4-3']) }}, gridEffect: { action: 'APPLY_STYLE_CURRENCY'} }),
-      singleStep({ description: "Apply the Percentage format", keys: ["Control", "Shift", "5"], iconName: "Percent", initialGridState: { ...defaultGridState, selection: { activeCell: { row: 1, col: 4}, selectedCells: new Set(['1-4', '2-4', '3-4', '4-4']) }}, gridEffect: { action: 'APPLY_STYLE_PERCENTAGE'} }),
+      singleStep({ description: "Apply the Percentage format", keys: ["Control", "Shift", "%"], iconName: "Percent", initialGridState: { ...defaultGridState, selection: { activeCell: { row: 1, col: 4}, selectedCells: new Set(['1-4', '2-4', '3-4', '4-4']) }}, gridEffect: { action: 'APPLY_STYLE_PERCENTAGE'} }),
+      singleStep({ description: "Apply General number format", keys: ["Control", "Shift", "~"], iconName: "Hash" }),
+      singleStep({ description: "Apply Date format", keys: ["Control", "Shift", "#"], iconName: "Calendar" }),
+      singleStep({ description: "Apply Time format", keys: ["Control", "Shift", "@"], iconName: "Clock" }),
+      singleStep({ description: "Increase decimal places", keys: ["Alt", "h", "0"], iconName: "PlusCircle", isSequential: true }),
+      singleStep({ description: "Decrease decimal places", keys: ["Alt", "h", "9"], iconName: "MinusCircle", isSequential: true }),
+      singleStep({ description: "Insert a comment / note", keys: ["Shift", "F2"], iconName: "MessageSquarePlus" }),
     ],
   },
   {

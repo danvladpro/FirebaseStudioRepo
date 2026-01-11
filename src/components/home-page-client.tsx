@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,8 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     Medal,
     Trophy,
     BrainCircuit,
-    HelpCircle
+    HelpCircle,
+    Zap
 };
 
 
@@ -47,6 +48,7 @@ interface HomePageClientProps {
 }
 
 export const XP_CONFIG = {
+  General: 10,
   Beginner: 20,
   Intermediate: 40,
   Advanced: 60,
@@ -191,7 +193,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
   const getIsSetLocked = (set: ChallengeSet) => {
     if (isLimited) {
-      if (set.id === 'formatting-basics') return false;
+      if (set.id === 'formatting-basics' || set.id === 'general-productivity') return false;
       return true;
     }
     if (set.category === 'Scenario') return false;
@@ -203,7 +205,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   };
 
   const getSetLockTooltip = (set: ChallengeSet) => {
-    if (isLimited && set.id !== 'formatting-basics') return "Upgrade to Premium to unlock this set.";
+    if (isLimited && set.id !== 'formatting-basics' && set.id !== 'general-productivity') return "Upgrade to Premium to unlock this set.";
     if (set.level === 'Intermediate' && !isIntermediateUnlocked) return "Complete all Beginner sets or pass the Basic Exam to unlock.";
     if (set.level === 'Advanced' && !isAdvancedUnlocked) return "Complete all Intermediate sets or pass the Intermediate Exam to unlock.";
     if (set.category === 'Scenario' && isLimited) return "Upgrade to Premium to access scenarios.";
@@ -222,7 +224,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return acc;
   }, {} as Record<string, typeof shortcutSetsToDisplay>);
   
-  const levelOrder: (keyof typeof groupedShortcutSets)[] = ['Beginner', 'Intermediate', 'Advanced'];
+  const levelOrder: (keyof typeof groupedShortcutSets)[] = ['General','Beginner', 'Intermediate', 'Advanced'];
 
   const getIsExamLocked = (examId: string) => {
     if (isLimited) return true;
@@ -643,4 +645,3 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
-
