@@ -155,12 +155,6 @@ export default function ResultsDisplay() {
      }
   }, [isLoaded, stats]);
 
-    const wasAutoSkipped = (challenge: Challenge) => {
-        if (!userProfile?.missingKeys) return false;
-        const missingKeys = userProfile.missingKeys.map(k => k.toLowerCase());
-        const requiredKeys = challenge.steps.flatMap(step => step.keys.map(k => k.toLowerCase()));
-        return requiredKeys.some(key => missingKeys.includes(key));
-    };
 
   const isExam = challengeSet?.category === 'Exam';
   const isScenario = challengeSet?.category === 'Scenario';
@@ -310,8 +304,6 @@ export default function ResultsDisplay() {
                       {challengeSet.challenges.map((challenge, index) => {
                         const isSkipped = skippedIndices.has(index);
                         if (mode === 'timed' && !isSkipped) return null;
-                        
-                        const isAutoSkipped = wasAutoSkipped(challenge);
 
                         return (
                           <div key={index} className={cn("p-2 rounded-md", isSkipped && "bg-destructive/10")}>
@@ -319,18 +311,7 @@ export default function ResultsDisplay() {
                                 <div className="space-y-2">
                                   <div className="flex justify-between items-center">
                                     <p className="font-semibold text-foreground">{index + 1}. {challenge.description}</p>
-                                    {isSkipped && (
-                                        isAutoSkipped ? (
-                                            <Tooltip>
-                                                <TooltipTrigger>
-                                                    <Badge variant="warning">Left out</Badge>
-                                                </TooltipTrigger>
-                                                <TooltipContent className="whitespace-nowrap">
-                                                    <p>Skipped due to keyboard settings. Change in your profile.</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        ) : <Badge variant="destructive">Skipped</Badge>
-                                    )}
+                                    {isSkipped && <Badge variant="destructive">Skipped</Badge>}
                                   </div>
                                   <ul className="pl-4 space-y-2">
                                     {challenge.steps.map((step, stepIndex) => (
@@ -349,18 +330,7 @@ export default function ResultsDisplay() {
                                 <div className="flex justify-between items-center gap-4">
                                   <p className="font-semibold text-foreground">{challenge.description}</p>
                                   <div className="flex items-center gap-4 flex-shrink-0">
-                                    {isSkipped && (
-                                       isAutoSkipped ? (
-                                            <Tooltip>
-                                                <TooltipTrigger>
-                                                    <Badge variant="warning">Left out</Badge>
-                                                </TooltipTrigger>
-                                                <TooltipContent className="whitespace-nowrap">
-                                                    <p>Skipped due to keyboard settings. Change in your profile.</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        ) : <Badge variant="destructive">Skipped</Badge>
-                                    )}
+                                    {isSkipped && <Badge variant="destructive">Skipped</Badge>}
                                     <div className="flex items-center gap-1.5">
                                       {challenge.steps[0] && getOsKeys(challenge.steps[0], isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
                                     </div>
