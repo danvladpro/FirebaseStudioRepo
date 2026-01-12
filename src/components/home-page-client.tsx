@@ -6,7 +6,7 @@ import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, Arr
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChallengeSet } from "@/lib/types";
+import { ChallengeSet, Drill } from "@/lib/types";
 import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
@@ -186,6 +186,16 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     }, {} as Record<string, { total: number; completed: number }>);
   }, [completedSets]);
 
+  const drillsByLevel = React.useMemo(() => {
+    return DRILL_SET.drills.reduce((acc, drill) => {
+      const parentChallengeSet = ALL_CHALLENGE_SETS.find(set => set.challenges.some(c => c.description === drill.challengeId));
+      const level = parentChallengeSet?.level || 'General';
+      if (!acc[level]) acc[level] = [];
+      acc[level].push(drill);
+      return acc;
+    }, {} as Record<string, Drill[]>);
+  }, []);
+
   const isBeginnerCompleted = (setsByLevel['Beginner']?.completed || 0) === (setsByLevel['Beginner']?.total || 0);
   const isIntermediateCompleted = (setsByLevel['Intermediate']?.completed || 0) === (setsByLevel['Intermediate']?.total || 0);
   
@@ -349,16 +359,16 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover-translate-y-0.5 transition-all duration-200 hover:bg-accent/5",
             set.isLocked && "bg-muted/50 text-muted-foreground border-dashed"
         )}>
+            {isCompleted && !set.isLocked && (
+                <Badge variant="completed" className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 px-2 py-0.5 text-xs">
+                    Passed
+                </Badge>
+            )}
             <CardContent className="p-4 flex items-center gap-4">
                 <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                 <div className="flex-1">
                     <div className="flex items-center gap-2">
                         <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
-                         {isCompleted && !set.isLocked && (
-                            <Badge variant="completed" className="px-2 py-0.5 text-xs">
-                                Passed
-                            </Badge>
-                        )}
                     </div>
                     <p className="text-sm">{set.description} - {set.challenges.length} items</p>
                 </div>
@@ -620,31 +630,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                 </Card>
             </aside>
             <section className="lg:col-span-2 space-y-8">
-                 <div>
-                    <h2 className="text-2xl font-bold mb-4">Muscle Memory Drills</h2>
-                    <div className="grid grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
-                        {DRILL_SET.drills.map((drill, index) => {
-                             return (
-                                <TooltipProvider key={drill.id}>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Link href={`/drills/${drill.id}`}>
-                                                <Card className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 aspect-square flex items-center justify-center">
-                                                    <CardContent className="p-2">
-                                                        <span className="text-lg font-bold text-primary">{index + 1}</span>
-                                                    </CardContent>
-                                                </Card>
-                                            </Link>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>{drill.name}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                             )
-                        })}
-                    </div>
-                </div>
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Real Scenarios</h2>
                     <TooltipProvider>
@@ -661,8 +646,47 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                 <div key={level}>
                                     <h3 className="text-xl font-semibold mb-4 capitalize">{level}</h3>
                                     <div className="flex flex-col gap-4">
-                                    {groupedShortcutSets[level].map((set) => renderSetCard(set))}
+                                        {groupedShortcutSets[level].map((set) => renderSetCard(set))}
                                     </div>
+                                    {drillsByLevel[level] && (
+                                        <div className="mt-4">
+                                            <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Muscle Memory Drills</h4>
+                                            <div className="grid grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
+                                                {drillsByLevel[level].map((drill, index) => (
+                                                <TooltipProvider key={drill.id}>
+                                                    <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Link href={`/drills/${drill.id}`}>
+                                                        <Card
+                                                            className="
+                                                            h-8
+                                                            shadow-sm
+                                                            hover:shadow-md
+                                                            hover:-translate-y-0.5
+                                                            transition-all
+                                                            duration-150
+                                                            flex
+                                                            items-center
+                                                            justify-center
+                                                            "
+                                                        >
+                                                            <CardContent className="p-0">
+                                                            <span className="text-sm font-medium text-primary">
+                                                                {index + 1}
+                                                            </span>
+                                                            </CardContent>
+                                                        </Card>
+                                                        </Link>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        <p className="text-xs">{drill.name}</p>
+                                                    </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
