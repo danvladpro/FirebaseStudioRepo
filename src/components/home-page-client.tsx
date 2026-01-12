@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap, Dumbbell } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap, Dumbbell, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,8 @@ import { Pie, PieChart, Cell } from "recharts";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { CertificateModal } from "./certificate-modal";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { DRILL_SET } from "@/lib/drills";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -340,7 +342,10 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     const bestScore = setStats?.bestScore;
     const bestTime = setStats?.bestTime;
     const isCompleted = bestScore === 100;
-    const firstChallengeDrillId = `${set.challenges[0].description.toLowerCase().replace(/\s/g, '-')}`;
+    
+    const relevantDrills = DRILL_SET.drills.filter(drill => 
+        set.challenges.some(c => c.description === drill.challengeId)
+    );
 
     const cardContent = (
         <Card key={set.id} className={cn(
@@ -399,11 +404,20 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         </Button>
                     ) : (
                         <>
-                        <Button asChild size="sm" variant="secondary" className="w-full">
-                            <Link href={`/drills/${firstChallengeDrillId}`}>
-                                <Dumbbell className="mr-2 h-4 w-4" /> Drills
-                            </Link>
-                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button size="sm" variant="secondary" className="w-full">
+                                    <Dumbbell className="mr-2 h-4 w-4" /> Drills <ChevronDown className="ml-auto h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {relevantDrills.map(drill => (
+                                    <DropdownMenuItem key={drill.id} asChild>
+                                        <Link href={`/drills/${drill.id}`}>{drill.name}</Link>
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                          <Button asChild size="sm" variant="secondary" className="w-full">
                             <Link href={`/flashcards/${set.id}`}>
                                 <Layers className="mr-2 h-4 w-4" /> Flashcards

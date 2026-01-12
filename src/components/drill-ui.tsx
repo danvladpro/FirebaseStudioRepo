@@ -27,6 +27,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [isMac, setIsMac] = useState(false);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const keydownProcessed = useRef(false);
 
@@ -39,6 +40,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     setCurrentRep(0);
     setMistakes(0);
     setShowConfetti(false);
+    setIsCompleted(false);
   }, [drill.repetitions]);
 
   const normalizeKey = (key: string) => {
@@ -54,52 +56,56 @@ export function DrillUI({ drill }: DrillUIProps) {
     const keys = drill.shortcut.map(k => {
       if (isMac && k.toLowerCase() === 'control') {
         // Basic substitution, can be made more robust
-        if (!drill.shortcut.includes('5')) return 'Meta';
+        if (!drill.shortcut.join('').includes('5')) return 'Meta';
       }
       return k;
     });
     return new Set(keys);
   }, [drill.shortcut, isMac]);
-
-  const advanceRep = () => {
+  
+  const handleSuccess = () => {
     const newReps = [...reps];
     newReps[currentRep] = RepStatus.Correct;
     setReps(newReps);
-    
+
     if (currentRep === drill.repetitions - 1) {
-      // Drill complete
+      setIsCompleted(true);
       setShowConfetti(true);
       setTimeout(() => router.push('/dashboard'), 3000);
     } else {
       setCurrentRep(currentRep + 1);
+      setPressedKeys(new Set());
+      keydownProcessed.current = false;
     }
   };
+
 
   const handleIncorrect = () => {
-    const newMistakes = mistakes + 1;
-    setMistakes(newMistakes);
+    setMistakes(prev => {
+        const newMistakeCount = prev + 1;
+        const newReps = [...reps];
+        newReps[currentRep] = RepStatus.Incorrect;
+        setReps(newReps);
 
-    const newReps = [...reps];
-    newReps[currentRep] = RepStatus.Incorrect;
-    setReps(newReps);
-
-    if (newMistakes >= drill.mistakeLimit) {
-      // Restart drill after a short delay
-      setTimeout(() => {
-        resetDrill();
-      }, 1000);
-    } else {
-        // Reset for the next attempt on the same rep
-        setTimeout(() => {
-             const newRepsAfterMistake = [...newReps];
-             newRepsAfterMistake[currentRep] = RepStatus.Pending;
-             setReps(newRepsAfterMistake);
-        }, 500);
-    }
+        if (newMistakeCount >= drill.mistakeLimit) {
+            setTimeout(resetDrill, 1000);
+        } else {
+             setTimeout(() => {
+                 const newRepsAfterMistake = [...reps];
+                 newRepsAfterMistake[currentRep] = RepStatus.Pending;
+                 setReps(newRepsAfterMistake);
+             }, 500);
+        }
+        return newMistakeCount;
+    });
+    
+    setPressedKeys(new Set());
+    keydownProcessed.current = false;
   };
 
+
   useEffect(() => {
-    if (keydownProcessed.current) return;
+    if (isCompleted || keydownProcessed.current) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
@@ -115,7 +121,7 @@ export function DrillUI({ drill }: DrillUIProps) {
 
       if (sortedPressed === sortedRequired) {
         keydownProcessed.current = true;
-        advanceRep();
+        handleSuccess();
       } else if (currentPressed.size >= requiredKeys.size) {
         handleIncorrect();
       }
@@ -123,8 +129,9 @@ export function DrillUI({ drill }: DrillUIProps) {
 
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
-      setPressedKeys(new Set());
-      keydownProcessed.current = false;
+       if (!keydownProcessed.current) {
+          setPressedKeys(new Set());
+       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -134,7 +141,7 @@ export function DrillUI({ drill }: DrillUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, getRequiredKeys, advanceRep, handleIncorrect]);
+  }, [pressedKeys, getRequiredKeys, handleSuccess, handleIncorrect, isCompleted]);
 
 
   return (
@@ -161,7 +168,7 @@ export function DrillUI({ drill }: DrillUIProps) {
               key={index}
               className={cn(
                 "h-10 rounded-md transition-all duration-300 flex items-center justify-center",
-                index === currentRep && "ring-2 ring-primary",
+                index === currentRep && !isCompleted && "ring-2 ring-primary",
                 status === RepStatus.Pending && "bg-muted",
                 status === RepStatus.Correct && "bg-green-500",
                 status === RepStatus.Incorrect && "bg-destructive animate-shake"
