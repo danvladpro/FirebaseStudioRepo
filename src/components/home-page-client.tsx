@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap, Dumbbell } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,8 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     Trophy,
     BrainCircuit,
     HelpCircle,
-    Zap
+    Zap,
+    Dumbbell,
 };
 
 
@@ -207,7 +208,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const getSetLockTooltip = (set: ChallengeSet) => {
     if (isLimited && set.id !== 'formatting-basics' && set.id !== 'general-productivity') return "Upgrade to Premium to unlock this set.";
     if (set.level === 'Intermediate' && !isIntermediateUnlocked) return "Complete all Beginner sets or pass the Basic Exam to unlock.";
-    if (set.level === 'Advanced' && !isAdvancedUnlocked) return "Complete all Intermediate sets or pass the Intermediate Exam to unlock.";
+    if (set.level === 'Advanced' && !isIntermediateUnlocked) return "Complete all Intermediate sets or pass the Intermediate Exam to unlock.";
     if (set.category === 'Scenario' && isLimited) return "Upgrade to Premium to access scenarios.";
     return "";
   };
@@ -339,6 +340,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     const bestScore = setStats?.bestScore;
     const bestTime = setStats?.bestTime;
     const isCompleted = bestScore === 100;
+    const firstChallengeDrillId = `${set.challenges[0].description.toLowerCase().replace(/\s/g, '-')}`;
 
     const cardContent = (
         <Card key={set.id} className={cn(
@@ -370,9 +372,10 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                 <span className="font-bold text-lg">{bestTime.toFixed(2)}s</span>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-1.5 text-green-600">
-                                <CheckCircle className="w-5 h-5" />
-                                <span className="font-bold text-lg">Completed</span>
+                             <div className="flex items-center gap-2 text-green-600 font-bold">
+                                <div className="p-1.5 bg-green-500 rounded-full">
+                                    <CheckCircle className="w-4 h-4 text-white" />
+                                </div>
                             </div>
                         )
                         ) : bestScore !== undefined && bestScore !== null ? (
@@ -388,15 +391,20 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                     </p>
                 </div>
 
-                <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
+                <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-3 gap-2">
                     {set.isLocked ? (
-                        <Button className="w-full col-span-2" variant={isLimited ? 'premium' : 'secondary'} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited && set.level !== 'Scenario'}>
+                        <Button className="w-full col-span-3" variant={isLimited ? 'premium' : 'secondary'} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited && set.level !== 'Scenario'}>
                            {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
                            {isLimited ? 'Go Premium' : 'Locked'}
                         </Button>
                     ) : (
                         <>
                         <Button asChild size="sm" variant="secondary" className="w-full">
+                            <Link href={`/drills/${firstChallengeDrillId}`}>
+                                <Dumbbell className="mr-2 h-4 w-4" /> Drills
+                            </Link>
+                        </Button>
+                         <Button asChild size="sm" variant="secondary" className="w-full">
                             <Link href={`/flashcards/${set.id}`}>
                                 <Layers className="mr-2 h-4 w-4" /> Flashcards
                             </Link>
