@@ -622,20 +622,25 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             <section className="lg:col-span-2 space-y-8">
                  <div>
                     <h2 className="text-2xl font-bold mb-4">Muscle Memory Drills</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
                         {DRILL_SET.drills.map((drill, index) => {
-                             const parentChallenge = ALL_CHALLENGE_SETS.flatMap(cs => cs.challenges).find(c => c.description === drill.challengeId);
-                             const Icon = parentChallenge?.iconName ? iconMap[parentChallenge.iconName] ?? Repeat : Repeat;
-                             
                              return (
-                                <Card key={drill.id} className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                                    <CardContent className="p-4">
-                                        <Link href={`/drills/${drill.id}`} className="flex flex-col items-center text-center gap-2">
-                                            <Icon className="w-8 h-8 text-primary" />
-                                            <p className="text-sm font-medium leading-tight">{drill.name}</p>
-                                        </Link>
-                                    </CardContent>
-                                </Card>
+                                <TooltipProvider key={drill.id}>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Link href={`/drills/${drill.id}`}>
+                                                <Card className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 aspect-square flex items-center justify-center">
+                                                    <CardContent className="p-2">
+                                                        <span className="text-lg font-bold text-primary">{index + 1}</span>
+                                                    </CardContent>
+                                                </Card>
+                                            </Link>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>{drill.name}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                              )
                         })}
                     </div>
