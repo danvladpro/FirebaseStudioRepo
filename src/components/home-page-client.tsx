@@ -358,14 +358,14 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover-translate-y-0.5 transition-all duration-200 hover:bg-accent/5",
             set.isLocked && "bg-muted/50 text-muted-foreground border-dashed"
         )}>
-             {isCompleted && !set.isLocked && (
-                 <Badge variant="completed" className="absolute top-0 right-2 -translate-y-1/2 px-2 py-0.5 text-xs">Passed</Badge>
-             )}
             <CardContent className="p-4 flex items-center gap-4">
                 <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                 <div className="flex-1">
                     <div className="flex items-center gap-2">
                         <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
+                         {isCompleted && !set.isLocked && (
+                            <Badge variant="completed">Passed</Badge>
+                         )}
                     </div>
                     <p className="text-sm">{set.description} - {set.challenges.length} items</p>
                 </div>
@@ -381,9 +381,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                 <span className="font-bold text-lg">{bestTime.toFixed(2)}s</span>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2 font-bold text-green-600">
+                             <div className="flex items-center gap-1.5 text-green-600">
                                 <div className="p-1 rounded-full bg-green-100 dark:bg-green-900">
-                                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                     <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
                                 </div>
                             </div>
                         )
@@ -662,28 +662,13 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                 <TooltipProvider key={drill.id}>
                                                     <Tooltip>
                                                     <TooltipTrigger asChild>
-                                                        <Link href={`/drills/${drill.id}`}>
-                                                        <Card
-                                                            className="
-                                                            h-8
-                                                            shadow-sm
-                                                            hover:shadow-md
-                                                            hover:-translate-y-0.5
-                                                            transition-all
-                                                            duration-150
-                                                            flex
-                                                            items-center
-                                                            justify-center
-                                                            bg-background
-                                                            "
-                                                        >
-                                                            <CardContent className="p-0">
-                                                            <span className="text-sm font-medium text-primary">
-                                                                {index + 1}
-                                                            </span>
-                                                            </CardContent>
-                                                        </Card>
-                                                        </Link>
+                                                        <Button asChild variant="secondary" size="icon" className="h-9 w-9 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150">
+                                                            <Link href={`/drills/${drill.id}`}>
+                                                                <span className="text-sm font-medium">
+                                                                    {index + 1}
+                                                                </span>
+                                                            </Link>
+                                                        </Button>
                                                     </TooltipTrigger>
                                                     <TooltipContent side="top">
                                                         <p className="text-xs">{drill.name}</p>
@@ -707,7 +692,3 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
-
-    
-
-    
