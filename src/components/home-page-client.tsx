@@ -662,7 +662,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                 <TooltipProvider key={drill.id}>
                                                     <Tooltip>
                                                     <TooltipTrigger asChild>
-                                                        <Button asChild variant="secondary" size="icon" className="h-9 w-9 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150">
+                                                        <Button asChild variant="secondary" size="sm" className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150">
                                                             <Link href={`/drills/${drill.id}`}>
                                                                 <span className="text-sm font-medium">
                                                                     {index + 1}
