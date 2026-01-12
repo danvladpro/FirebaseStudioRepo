@@ -625,7 +625,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {DRILL_SET.drills.map((drill, index) => {
                              const parentChallenge = ALL_CHALLENGE_SETS.flatMap(cs => cs.challenges).find(c => c.description === drill.challengeId);
-                             const Icon = parentChallenge?.iconName ? iconMap[parentChallenge.iconName] : Repeat;
+                             const Icon = parentChallenge?.iconName ? iconMap[parentChallenge.iconName] ?? Repeat : Repeat;
                              
                              return (
                                 <Card key={drill.id} className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
@@ -670,3 +670,5 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
+    
