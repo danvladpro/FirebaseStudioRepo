@@ -10,7 +10,7 @@ import { ChallengeSet, Drill } from "@/lib/types";
 import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
-import { CHALLENGE_SETS, SCENARIO_SETS } from "@/lib/challenges";
+import { CHALLENGE_SETS, SCENARIO_SETS, ALL_CHALLENGE_SETS } from "@/lib/challenges";
 import { AppHeader } from "./app-header";
 import { useAuth } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
@@ -25,7 +25,6 @@ import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { CertificateModal } from "./certificate-modal";
 import { DRILL_SET } from "@/lib/drills";
-import { ALL_CHALLENGE_SETS } from "@/lib/challenges";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -359,11 +358,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
             "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover-translate-y-0.5 transition-all duration-200 hover:bg-accent/5",
             set.isLocked && "bg-muted/50 text-muted-foreground border-dashed"
         )}>
-            {isCompleted && !set.isLocked && (
-                <Badge variant="completed" className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 px-2 py-0.5 text-xs">
-                    Passed
-                </Badge>
-            )}
+             {isCompleted && !set.isLocked && (
+                 <Badge variant="completed" className="absolute top-0 right-2 -translate-y-1/2 px-2 py-0.5 text-xs">Passed</Badge>
+             )}
             <CardContent className="p-4 flex items-center gap-4">
                 <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                 <div className="flex-1">
@@ -384,9 +381,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                 <span className="font-bold text-lg">{bestTime.toFixed(2)}s</span>
                             </div>
                         ) : (
-                             <div className="flex items-center gap-2 text-green-600 font-bold">
-                                <div className="p-1.5 bg-green-500 rounded-full">
-                                    <CheckCircle className="w-4 h-4 text-white" />
+                            <div className="flex items-center gap-2 font-bold text-green-600">
+                                <div className="p-1 rounded-full bg-green-100 dark:bg-green-900">
+                                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
                                 </div>
                             </div>
                         )
@@ -639,18 +636,27 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                     </TooltipProvider>
                 </div>
                 <div>
-                    <h2 className="text-2xl font-bold mb-4">Learn Shortcuts</h2>
-                    <TooltipProvider>
-                        <div className="flex flex-col gap-8">
-                            {levelOrder.map(level => groupedShortcutSets[level] && (
-                                <div key={level}>
-                                    <h3 className="text-xl font-semibold mb-4 capitalize">{level}</h3>
-                                    <div className="flex flex-col gap-4">
-                                        {groupedShortcutSets[level].map((set) => renderSetCard(set))}
-                                    </div>
-                                    {drillsByLevel[level] && (
-                                        <div className="mt-4">
-                                            <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Muscle Memory Drills</h4>
+                    {levelOrder.map(level => {
+                        if (!groupedShortcutSets[level] && !drillsByLevel[level]) return null;
+                        
+                        return (
+                            <div key={level} className="mb-8">
+                                <h2 className="text-2xl font-bold mb-4 capitalize">{level}</h2>
+                                
+                                {groupedShortcutSets[level] && (
+                                     <div className="space-y-4">
+                                         <h3 className="text-lg font-semibold text-muted-foreground">Learn Shortcuts</h3>
+                                        <TooltipProvider>
+                                            {groupedShortcutSets[level].map((set) => renderSetCard(set))}
+                                        </TooltipProvider>
+                                     </div>
+                                )}
+
+                                {drillsByLevel[level] && (
+                                    <div className="mt-6">
+                                        <h3 className="text-lg font-semibold text-muted-foreground mb-2">Muscle Memory Drills</h3>
+                                        <Card>
+                                        <CardContent className="p-4">
                                             <div className="grid grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
                                                 {drillsByLevel[level].map((drill, index) => (
                                                 <TooltipProvider key={drill.id}>
@@ -668,6 +674,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                             flex
                                                             items-center
                                                             justify-center
+                                                            bg-background
                                                             "
                                                         >
                                                             <CardContent className="p-0">
@@ -685,12 +692,13 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                 </TooltipProvider>
                                                 ))}
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </TooltipProvider>
+                                        </CardContent>
+                                        </Card>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </section>
         </div>
@@ -699,5 +707,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     </>
   );
 }
+
+    
 
     
