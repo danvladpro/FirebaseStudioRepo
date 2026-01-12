@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap, Dumbbell, ChevronDown } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap, Dumbbell, ChevronDown, Repeat } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,8 @@ import { Pie, PieChart, Cell } from "recharts";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { CertificateModal } from "./certificate-modal";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { DRILL_SET } from "@/lib/drills";
+import { ALL_CHALLENGE_SETS } from "@/lib/challenges";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -43,6 +43,7 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     HelpCircle,
     Zap,
     Dumbbell,
+    Repeat
 };
 
 
@@ -342,10 +343,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     const bestScore = setStats?.bestScore;
     const bestTime = setStats?.bestTime;
     const isCompleted = bestScore === 100;
-    
-    const relevantDrills = DRILL_SET.drills.filter(drill => 
-        set.challenges.some(c => c.description === drill.challengeId)
-    );
 
     const cardContent = (
         <Card key={set.id} className={cn(
@@ -396,28 +393,14 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                     </p>
                 </div>
 
-                <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-3 gap-2">
+                <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
                     {set.isLocked ? (
-                        <Button className="w-full col-span-3" variant={isLimited ? 'premium' : 'secondary'} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited && set.level !== 'Scenario'}>
+                        <Button className="w-full col-span-2" variant={isLimited ? 'premium' : 'secondary'} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited && set.level !== 'Scenario'}>
                            {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
                            {isLimited ? 'Go Premium' : 'Locked'}
                         </Button>
                     ) : (
                         <>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button size="sm" variant="secondary" className="w-full">
-                                    <Dumbbell className="mr-2 h-4 w-4" /> Drills <ChevronDown className="ml-auto h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                {relevantDrills.map(drill => (
-                                    <DropdownMenuItem key={drill.id} asChild>
-                                        <Link href={`/drills/${drill.id}`}>{drill.name}</Link>
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
                          <Button asChild size="sm" variant="secondary" className="w-full">
                             <Link href={`/flashcards/${set.id}`}>
                                 <Layers className="mr-2 h-4 w-4" /> Flashcards
@@ -637,6 +620,26 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                 </Card>
             </aside>
             <section className="lg:col-span-2 space-y-8">
+                 <div>
+                    <h2 className="text-2xl font-bold mb-4">Muscle Memory Drills</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {DRILL_SET.drills.map((drill, index) => {
+                             const parentChallenge = ALL_CHALLENGE_SETS.flatMap(cs => cs.challenges).find(c => c.description === drill.challengeId);
+                             const Icon = parentChallenge?.iconName ? iconMap[parentChallenge.iconName] : Repeat;
+                             
+                             return (
+                                <Card key={drill.id} className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                                    <CardContent className="p-4">
+                                        <Link href={`/drills/${drill.id}`} className="flex flex-col items-center text-center gap-2">
+                                            <Icon className="w-8 h-8 text-primary" />
+                                            <p className="text-sm font-medium leading-tight">{drill.name}</p>
+                                        </Link>
+                                    </CardContent>
+                                </Card>
+                             )
+                        })}
+                    </div>
+                </div>
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Real Scenarios</h2>
                     <TooltipProvider>
