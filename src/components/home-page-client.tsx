@@ -641,15 +641,6 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                         
                         const areChallengesForLevelPassed = (setsByLevel[level]?.completed || 0) === (setsByLevel[level]?.total || 0);
 
-                        const drillsForLevel = drillsByLevel[level] || [];
-                        let firstIncompleteDrillIndex = drillsForLevel.length;
-                        for (let i = 0; i < drillsForLevel.length; i++) {
-                            if (stats[drillsForLevel[i].id]?.bestScore !== 100) {
-                                firstIncompleteDrillIndex = i;
-                                break;
-                            }
-                        }
-
                         return (
                             <div key={level} className="mb-8">
                                 <h2 className="text-2xl font-bold mb-4 capitalize">{level}</h2>
@@ -669,37 +660,63 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                         <Card>
                                         <CardContent className="p-4">
                                             <div className="grid grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
-                                                {drillsByLevel[level].map((drill, index) => {
-                                                    const isDrillLocked = !areChallengesForLevelPassed || index > firstIncompleteDrillIndex;
-                                                    const isDrillPassed = stats[drill.id]?.bestScore === 100;
-                                                    const tooltipContent = isDrillLocked 
-                                                        ? (!areChallengesForLevelPassed 
-                                                            ? `Complete all '${level}' challenges to unlock drills.`
-                                                            : `Complete the previous drill to unlock.`)
-                                                        : drill.name;
+                                                {(() => {
+                                                    const drillsForLevel = drillsByLevel[level] || [];
+                                                    let firstIncompleteDrillIndex = drillsForLevel.length;
+                                                    for (let i = 0; i < drillsForLevel.length; i++) {
+                                                        if (stats[drillsForLevel[i].id]?.bestScore !== 100) {
+                                                            firstIncompleteDrillIndex = i;
+                                                            break;
+                                                        }
+                                                    }
 
-                                                    return (
-                                                        <TooltipProvider key={drill.id}>
-                                                            <Tooltip>
-                                                                <TooltipTrigger asChild>
-                                                                    <div className={cn("w-full h-full", isDrillLocked && "cursor-not-allowed")}>
-                                                                        <Button asChild variant="secondary" className={cn("shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 h-auto p-0 w-full relative", isDrillPassed && "bg-green-100 dark:bg-green-900 border border-green-500/50 hover:bg-green-100")} disabled={isDrillLocked}>
-                                                                            <Link href={`/drills/${drill.id}`} className="w-full h-full flex items-center justify-center p-2">
-                                                                                <span className={cn("text-sm font-medium", isDrillPassed && "text-green-700 dark:text-green-200")}>
-                                                                                    {index + 1}
-                                                                                </span>
-                                                                                 {isDrillPassed && <Check className="absolute top-1 right-1 w-3 h-3 text-green-600" />}
-                                                                            </Link>
-                                                                        </Button>
-                                                                    </div>
-                                                                </TooltipTrigger>
-                                                                <TooltipContent side="top">
-                                                                    <p className="text-xs">{tooltipContent}</p>
-                                                                </TooltipContent>
-                                                            </Tooltip>
-                                                        </TooltipProvider>
-                                                    )
-                                                })}
+                                                    return drillsForLevel.map((drill, index) => {
+                                                        const isDrillPassed = stats[drill.id]?.bestScore === 100;
+                                                        const isNextDrill = areChallengesForLevelPassed && index === firstIncompleteDrillIndex;
+                                                        const isDrillLocked = !areChallengesForLevelPassed || index > firstIncompleteDrillIndex;
+
+                                                        const tooltipContent = isDrillLocked 
+                                                            ? (!areChallengesForLevelPassed 
+                                                                ? `Complete all '${level}' challenges to unlock drills.`
+                                                                : `Complete the previous drill to unlock.`)
+                                                            : drill.name;
+
+                                                        const buttonClasses = cn(
+                                                            "shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 h-auto p-2 w-full relative",
+                                                            isDrillLocked && "bg-muted text-muted-foreground hover:bg-muted",
+                                                            isNextDrill && "bg-accent text-accent-foreground hover:bg-accent/90",
+                                                            isDrillPassed && "bg-emerald-600 text-white hover:bg-emerald-600/90"
+                                                        );
+
+                                                        const buttonElement = isDrillLocked ? (
+                                                            <Button className={buttonClasses} disabled>
+                                                                <Lock className="w-4 h-4" />
+                                                            </Button>
+                                                        ) : (
+                                                            <Button asChild className={buttonClasses}>
+                                                                <Link href={`/drills/${drill.id}`}>
+                                                                    <span className="text-sm font-medium">{index + 1}</span>
+                                                                    {isDrillPassed && <Check className="absolute top-1 right-1 w-3 h-3" />}
+                                                                </Link>
+                                                            </Button>
+                                                        );
+
+                                                        return (
+                                                            <TooltipProvider key={drill.id}>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <div className={cn("w-full h-full", isDrillLocked && "cursor-not-allowed")}>
+                                                                            {buttonElement}
+                                                                        </div>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent side="top">
+                                                                        <p className="text-xs">{tooltipContent}</p>
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                        )
+                                                    });
+                                                })()}
                                             </div>
                                         </CardContent>
                                         </Card>
