@@ -1,3 +1,4 @@
+
 import { GridState, ChallengeStep } from './types';
 
 export const deepCloneGridState = (state: GridState): GridState => {
@@ -79,8 +80,36 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'CUT':
             getCellsToApply().forEach(cellId => {
-                newCellStyles[cellId] = { ...newCellStyles[cellId], opacity: 0.3, border: '2px dashed gray' };
+                newCellStyles[cellId] = { ...newCellStyles[cellId], opacity: 0.8, border: '2px dashed hsl(var(--primary))' };
             });
+            break;
+        case 'PASTE_STATIC_VALUE':
+            if (action.payload?.value) {
+                newGridData[activeCell.row][activeCell.col] = action.payload.value;
+            }
+            // Clear "cut" styling from all cells after paste
+            newCellStyles = {}; 
+            break;
+        case 'MOVE_SELECTION':
+            if (action.payload?.direction) {
+                const { direction, amount = 1 } = action.payload;
+                switch (direction) {
+                    case 'down':
+                        newSelection.activeCell.row = Math.min(newGridData.length - 1, activeCell.row + amount);
+                        break;
+                    case 'up':
+                        newSelection.activeCell.row = Math.max(0, activeCell.row - amount);
+                        break;
+                    case 'right':
+                        newSelection.activeCell.col = Math.min(newGridData[0].length - 1, activeCell.col + amount);
+                        break;
+                    case 'left':
+                        newSelection.activeCell.col = Math.max(0, activeCell.col - amount);
+                        break;
+                }
+                newSelection.selectedCells.clear();
+                newSelection.selectedCells.add(`${newSelection.activeCell.row}-${newSelection.activeCell.col}`);
+            }
             break;
         case 'APPLY_STYLE_BOLD':
             getCellsToApply().forEach(cellId => {

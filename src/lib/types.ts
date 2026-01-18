@@ -20,6 +20,7 @@ export type GridEffectAction =
   | 'CUT'
   | 'PASTE'
   | 'MOVE_SELECTION'
+  | 'PASTE_STATIC_VALUE'
   | 'APPLY_STYLE_BOLD'
   | 'APPLY_STYLE_ITALIC'
   | 'APPLY_STYLE_UNDERLINE'

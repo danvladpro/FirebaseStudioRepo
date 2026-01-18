@@ -12,6 +12,10 @@ import { useAuth } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
 import { toast } from "@/hooks/use-toast";
 import { Separator } from "./ui/separator";
+import { GridState } from "@/lib/types";
+import { VisualGrid } from "./visual-grid";
+import { calculateGridStateForStep, deepCloneGridState } from "@/lib/grid-engine";
+import * as icons from 'lucide-react';
 
 interface DrillUIProps {
   drill: Drill;
@@ -38,15 +42,25 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [isCompleted, setIsCompleted] = useState(false);
 
   const keydownProcessed = useRef(false);
+  
+  // Grid-related state
+  const [gridState, setGridState] = useState<GridState | null>(drill.initialGridState ? deepCloneGridState(drill.initialGridState) : null);
+  const [cellStyles, setCellStyles] = useState<Record<string, React.CSSProperties>>({});
+  const [previewState, setPreviewState] = useState<{ gridState: GridState, cellStyles: Record<string, React.CSSProperties> } | null>(null);
+
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
+  
+  const resetForNewRep = () => {
+    setCurrentStep(0);
+    setGridState(drill.initialGridState ? deepCloneGridState(drill.initialGridState) : null);
+  }
 
   const resetDrill = useCallback(() => {
     setReps(Array(drill.repetitions).fill(RepStatus.Pending));
     setCurrentRep(0);
-    setCurrentStep(0);
     setMistakes(0);
     setShowConfetti(false);
     setIsCompleted(false);
@@ -54,7 +68,25 @@ export function DrillUI({ drill }: DrillUIProps) {
     setPressedKeys(new Set());
     setSequence([]);
     keydownProcessed.current = false;
+    resetForNewRep();
   }, [drill.repetitions]);
+  
+  useEffect(() => {
+    if (drill.initialGridState) {
+        const currentCalc = calculateGridStateForStep(drill.steps, drill.initialGridState, currentStep - 1);
+        const previewCalc = calculateGridStateForStep(drill.steps, drill.initialGridState, currentStep);
+
+        setGridState(currentCalc.gridState);
+        setCellStyles(currentCalc.cellStyles);
+        
+        if (previewCalc.gridState) {
+            setPreviewState({ gridState: previewCalc.gridState, cellStyles: previewCalc.cellStyles });
+        } else {
+            setPreviewState(null);
+        }
+    }
+  }, [currentStep, currentRep, drill]);
+
 
   const normalizeKey = (key: string) => {
     const lower = key.toLowerCase();
@@ -72,7 +104,11 @@ export function DrillUI({ drill }: DrillUIProps) {
 
     const keys = activeStep.keys.map(k => {
       if (isMac && k.toLowerCase() === 'control') {
-        if (!drill.steps.some(s => s.keys.includes('5'))) return 'Meta';
+        // A specific override for strikethrough which uses Ctrl on mac
+        const isStrikethrough = drill.steps.some(s => s.keys.includes('5'));
+        if (!isStrikethrough) {
+          return 'Meta';
+        }
       }
       return k;
     });
@@ -117,7 +153,7 @@ export function DrillUI({ drill }: DrillUIProps) {
                 finishDrill();
             } else {
                 setCurrentRep(currentRep + 1);
-                setCurrentStep(0);
+                resetForNewRep();
             }
         } else {
             setCurrentStep(currentStep + 1);
@@ -142,8 +178,9 @@ export function DrillUI({ drill }: DrillUIProps) {
     
     setTimeout(() => {
         const newRepsAfterMistake = [...reps];
-        newRepsAfterMistake[currentRep] = RepStatus.Pending;
-        setReps(newRepsAfterMistake);
+        // Don't reset visual to pending, keep it red for a moment
+        // newRepsAfterMistake[currentRep] = RepStatus.Pending;
+        // setReps(newRepsAfterMistake);
         setStepFeedback(null);
         setPressedKeys(new Set());
         setSequence([]);
@@ -215,7 +252,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   return (
     <>
      {showConfetti && <Confetti recycle={false} />}
-    <Card className="w-full max-w-2xl">
+    <Card className="w-full max-w-4xl">
       <CardHeader>
         <CardTitle>{drill.name}</CardTitle>
         <CardDescription>{drill.description}</CardDescription>
@@ -250,43 +287,58 @@ export function DrillUI({ drill }: DrillUIProps) {
 
         <Separator />
         
-        <div className="mt-8">
-            <p className="text-sm text-muted-foreground text-center mb-4">Repetition {currentRep + 1} of {drill.repetitions}</p>
-            <div className="flex flex-col gap-2">
-                {drill.steps.map((step, index) => {
-                    const isStepActive = index === currentStep;
-                    const isStepCompleted = index < currentStep;
-                    const feedbackClass = isStepActive && stepFeedback === 'incorrect' ? 'ring-2 ring-destructive' : '';
-                    const successClass = isStepActive && stepFeedback === 'correct' ? 'ring-2 ring-green-500' : '';
+        <div className="mt-8 grid md:grid-cols-2 gap-8 items-center">
+             {gridState && (
+                <div className="max-w-md mx-auto">
+                    <VisualGrid 
+                        data={gridState.data}
+                        selection={gridState.selection}
+                        cellStyles={cellStyles}
+                        previewState={previewState}
+                        isAccentuating={stepFeedback === 'correct'}
+                    />
+                </div>
+            )}
+            <div className={cn(!gridState && "md:col-span-2")}>
+                <p className="text-sm text-muted-foreground text-center mb-4">Repetition {currentRep + 1} of {drill.repetitions}</p>
+                <div className="flex flex-col gap-2">
+                    {drill.steps.map((step, index) => {
+                        const Icon = icons[step.iconName];
+                        const isStepActive = index === currentStep;
+                        const isStepCompleted = index < currentStep;
+                        const feedbackClass = isStepActive && stepFeedback === 'incorrect' ? 'ring-2 ring-destructive' : '';
+                        const successClass = isStepActive && stepFeedback === 'correct' ? 'ring-2 ring-green-500' : '';
 
-                    return (
-                        <div key={index}>
-                            <div className={cn(
-                                "p-4 rounded-lg transition-all",
-                                isStepCompleted ? "bg-green-500/10" : "bg-muted/50",
-                                isStepActive && !stepFeedback && "ring-2 ring-primary",
-                                feedbackClass,
-                                successClass
-                            )}>
-                                <div className="flex items-center gap-4">
-                                    {isStepCompleted || (isStepActive && stepFeedback === 'correct') ? (
-                                        <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
-                                    ) : (
-                                        <Circle className={cn("w-4 h-4 flex-shrink-0", isStepActive ? "text-primary" : "text-muted-foreground/50")} />
-                                    )}
-                                    <p className={cn("flex-1 font-medium", isStepCompleted && "text-muted-foreground line-through")}>
-                                        {step.description}
-                                    </p>
+                        return (
+                            <div key={index}>
+                                <div className={cn(
+                                    "p-4 rounded-lg transition-all",
+                                    isStepCompleted ? "bg-green-500/10" : "bg-muted/50",
+                                    isStepActive && !stepFeedback && "ring-2 ring-primary",
+                                    feedbackClass,
+                                    successClass
+                                )}>
+                                    <div className="flex items-center gap-4">
+                                        {isStepCompleted || (isStepActive && stepFeedback === 'correct') ? (
+                                            <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+                                        ) : (
+                                            <Circle className={cn("w-4 h-4 flex-shrink-0", isStepActive ? "text-primary" : "text-muted-foreground/50")} />
+                                        )}
+                                        {Icon && <Icon className={cn("w-5 h-5", isStepActive ? "text-primary" : "text-muted-foreground")} />}
+                                        <p className={cn("flex-1 font-medium", isStepCompleted && "text-muted-foreground line-through")}>
+                                            {step.description}
+                                        </p>
+                                    </div>
                                 </div>
+                                {index < drill.steps.length - 1 && (
+                                    <div className="h-6 flex justify-center">
+                                        <ChevronDown className="w-5 h-5 text-muted-foreground/50" />
+                                    </div>
+                                )}
                             </div>
-                            {index < drill.steps.length - 1 && (
-                                <div className="h-6 flex justify-center">
-                                    <ChevronDown className="w-5 h-5 text-muted-foreground/50" />
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
         </div>
 

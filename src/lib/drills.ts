@@ -1,10 +1,13 @@
 
-import { ChallengeLevel } from "./types";
+import { ChallengeLevel, GridEffect, GridState } from "./types";
+import { type LucideIcon } from "lucide-react";
 
 export interface DrillStep {
   description: string;
   keys: string[];
   isSequential?: boolean;
+  iconName: keyof typeof import("lucide-react");
+  gridEffect?: GridEffect;
 }
 
 export interface Drill {
@@ -15,6 +18,7 @@ export interface Drill {
     repetitions: number;
     mistakeLimit: number;
     steps: DrillStep[];
+    initialGridState?: GridState;
 }
 
 export interface DrillSet {
@@ -22,6 +26,15 @@ export interface DrillSet {
     name: string;
     drills: Drill[];
 }
+
+const defaultDrillGridState: GridState = {
+    data: [
+        ['Value to Copy', ''],
+        ['', ''],
+        ['', ''],
+    ],
+    selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set(['0-0']) },
+};
 
 const drills: Drill[] = [
     {
@@ -31,10 +44,11 @@ const drills: Drill[] = [
         description: 'Practice copying a cell, moving down, and pasting.',
         repetitions: 15,
         mistakeLimit: 2,
+        initialGridState: defaultDrillGridState,
         steps: [
-            { description: 'Copy', keys: ['Control', 'c'] },
-            { description: 'Move Down', keys: ['ArrowDown'] },
-            { description: 'Paste', keys: ['Control', 'v'] }
+            { description: 'Copy', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'CUT' } }, // Using CUT for visual effect
+            { description: 'Move Down', keys: ['ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down', amount: 1 } } },
+            { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Copy' } } }
         ]
     },
     {
@@ -44,9 +58,10 @@ const drills: Drill[] = [
         description: 'Practice applying bold and then italic formatting.',
         repetitions: 15,
         mistakeLimit: 2,
+        initialGridState: defaultDrillGridState,
         steps: [
-            { description: 'Bold', keys: ['Control', 'b'] },
-            { description: 'Italicize', keys: ['Control', 'i'] }
+            { description: 'Bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
+            { description: 'Italicize', keys: ['Control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } }
         ]
     },
     {
@@ -56,9 +71,13 @@ const drills: Drill[] = [
         description: 'Practice selecting and deleting a full row.',
         repetitions: 10,
         mistakeLimit: 2,
+        initialGridState: {
+            data: [ ['A', 'B'], ['C', 'D'], ['E', 'F'] ],
+            selection: { activeCell: { row: 1, col: 0 }, selectedCells: new Set() },
+        },
         steps: [
-            { description: 'Select Row', keys: ['Shift', ' '] },
-            { description: 'Delete Row', keys: ['Control', '-'] }
+            { description: 'Select Row', keys: ['Shift', ' '], iconName: 'Rows3', gridEffect: { action: 'SELECT_ROW' } },
+            { description: 'Delete Row', keys: ['Control', '-'], iconName: 'Trash2', gridEffect: { action: 'DELETE_ROW' } }
         ]
     },
     {
@@ -69,7 +88,7 @@ const drills: Drill[] = [
         repetitions: 10,
         mistakeLimit: 2,
         steps: [
-            { description: 'Apply/Clear Filter', keys: ['Control', 'Shift', 'l'] }
+            { description: 'Apply/Clear Filter', keys: ['Control', 'Shift', 'l'], iconName: 'Filter' }
         ]
     },
     {
@@ -80,8 +99,8 @@ const drills: Drill[] = [
         repetitions: 8,
         mistakeLimit: 2,
         steps: [
-            { description: 'Hide Row', keys: ['Control', '9'] },
-            { description: 'Unhide Row', keys: ['Control', 'Shift', '('] }
+            { description: 'Hide Row', keys: ['Control', '9'], iconName: 'EyeOff' },
+            { description: 'Unhide Row', keys: ['Control', 'Shift', '('], iconName: 'Eye' }
         ]
     },
     {
@@ -92,7 +111,7 @@ const drills: Drill[] = [
         repetitions: 8,
         mistakeLimit: 2,
         steps: [
-            { description: 'Center align cell contents', keys: ['Alt', 'h', 'a', 'c'], isSequential: true },
+            { description: 'Center align cell contents', keys: ['Alt', 'h', 'a', 'c'], isSequential: true, iconName: 'AlignCenter' },
         ]
     }
 ];
