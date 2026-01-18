@@ -6,7 +6,7 @@ import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, Arr
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChallengeSet, Drill } from "@/lib/types";
+import { ChallengeSet } from "@/lib/types";
 import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
@@ -24,7 +24,7 @@ import { Pie, PieChart, Cell } from "recharts";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { CertificateModal } from "./certificate-modal";
-import { DRILL_SET } from "@/lib/drills";
+import { DRILL_SET, Drill } from "@/lib/drills";
 
 const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     ClipboardCopy,
@@ -187,8 +187,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
   const drillsByLevel = React.useMemo(() => {
     return DRILL_SET.drills.reduce((acc, drill) => {
-      const parentChallengeSet = ALL_CHALLENGE_SETS.find(set => set.challenges.some(c => c.description === drill.challengeId));
-      const level = parentChallengeSet?.level || 'General';
+      const level = drill.level || 'General';
       if (!acc[level]) acc[level] = [];
       acc[level].push(drill);
       return acc;
@@ -647,7 +646,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                 
                                 {groupedShortcutSets[level] && (
                                      <div className="space-y-4">
-                                         <h3 className="text-lg font-semibold text-muted-foreground">Learn Shortcuts</h3>
+                                         <h3 className="font-semibold text-lg text-muted-foreground">Learn Shortcuts</h3>
                                         <TooltipProvider>
                                             {groupedShortcutSets[level].map((set) => renderSetCard(set))}
                                         </TooltipProvider>
@@ -656,10 +655,11 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
                                 {drillsByLevel[level] && (
                                     <div className="mt-6">
-                                        <h3 className="text-lg font-semibold text-muted-foreground mb-2">Muscle Memory Drills</h3>
+                                        <h3 className="font-semibold text-lg text-muted-foreground mb-2">Muscle Memory Drills</h3>
                                         <Card>
                                         <CardContent className="p-4">
-                                            <div className="grid grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
+                                           <TooltipProvider>
+                                                <div className="grid grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
                                                 {(() => {
                                                     const drillsForLevel = drillsByLevel[level] || [];
                                                     let firstIncompleteDrillIndex = drillsForLevel.length;
@@ -688,36 +688,43 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                             isDrillPassed && "bg-emerald-600 text-white hover:bg-emerald-600/90"
                                                         );
 
+                                                        const buttonContent = isDrillLocked 
+                                                            ? <Lock className="w-4 h-4" />
+                                                            : (
+                                                                <>
+                                                                    <span className="text-sm font-medium">{index + 1}</span>
+                                                                    {isDrillPassed && <Check className="absolute top-1 right-1 w-3 h-3" />}
+                                                                </>
+                                                            );
+
                                                         const buttonElement = isDrillLocked ? (
                                                             <Button className={buttonClasses} disabled>
-                                                                <Lock className="w-4 h-4" />
+                                                                {buttonContent}
                                                             </Button>
                                                         ) : (
                                                             <Button asChild className={buttonClasses}>
                                                                 <Link href={`/drills/${drill.id}`}>
-                                                                    <span className="text-sm font-medium">{index + 1}</span>
-                                                                    {isDrillPassed && <Check className="absolute top-1 right-1 w-3 h-3" />}
+                                                                    {buttonContent}
                                                                 </Link>
                                                             </Button>
                                                         );
 
                                                         return (
-                                                            <TooltipProvider key={drill.id}>
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
-                                                                        <div className={cn("w-full h-full", isDrillLocked && "cursor-not-allowed")}>
-                                                                            {buttonElement}
-                                                                        </div>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent side="top">
-                                                                        <p className="text-xs">{tooltipContent}</p>
-                                                                    </TooltipContent>
-                                                                </Tooltip>
-                                                            </TooltipProvider>
+                                                            <Tooltip key={drill.id}>
+                                                                <TooltipTrigger asChild>
+                                                                    <div className={cn("w-full h-full", isDrillLocked && "cursor-not-allowed")}>
+                                                                        {buttonElement}
+                                                                    </div>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent side="top">
+                                                                    <p className="text-xs">{tooltipContent}</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
                                                         )
                                                     });
                                                 })()}
                                             </div>
+                                           </TooltipProvider>
                                         </CardContent>
                                         </Card>
                                     </div>

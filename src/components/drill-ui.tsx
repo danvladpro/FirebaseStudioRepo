@@ -4,13 +4,14 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Drill } from "@/lib/drills";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Check, X } from "lucide-react";
+import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle } from "lucide-react";
 import Confetti from 'react-confetti';
 import { useAuth } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
 import { toast } from "@/hooks/use-toast";
+import { Separator } from "./ui/separator";
 
 interface DrillUIProps {
   drill: Drill;
@@ -27,9 +28,12 @@ export function DrillUI({ drill }: DrillUIProps) {
   const { user } = useAuth();
   const [reps, setReps] = useState<RepStatus[]>(() => Array(drill.repetitions).fill(RepStatus.Pending));
   const [currentRep, setCurrentRep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [stepFeedback, setStepFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [mistakes, setMistakes] = useState(0);
   const [isMac, setIsMac] = useState(false);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+  const [sequence, setSequence] = useState<string[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
@@ -42,111 +46,159 @@ export function DrillUI({ drill }: DrillUIProps) {
   const resetDrill = useCallback(() => {
     setReps(Array(drill.repetitions).fill(RepStatus.Pending));
     setCurrentRep(0);
+    setCurrentStep(0);
     setMistakes(0);
     setShowConfetti(false);
     setIsCompleted(false);
+    setStepFeedback(null);
+    setPressedKeys(new Set());
+    setSequence([]);
+    keydownProcessed.current = false;
   }, [drill.repetitions]);
 
   const normalizeKey = (key: string) => {
     const lower = key.toLowerCase();
-    if (lower === "control" || lower === "controlleft" || lower === "controlright") return "Control";
-    if (lower === "shift" || lower === "shiftleft" || lower === "shiftright") return "Shift";
-    if (lower === "alt" || lower === "altleft" || lower === "altright") return "Alt";
-    if (lower === "meta" || lower === "metaleft" || lower === "metaright" || lower === "command" || lower === "cmd") return "Meta";
+    if (["control", "controlleft", "controlright"].includes(lower)) return "Control";
+    if (["shift", "shiftleft", "shiftright"].includes(lower)) return "Shift";
+    if (["alt", "altleft", "altright"].includes(lower)) return "Alt";
+    if (["meta", "metaleft", "metaright", "command", "cmd"].includes(lower)) return "Meta";
     return key;
   };
 
+  const activeStep = drill.steps[currentStep];
+
   const getRequiredKeys = useCallback(() => {
-    const keys = drill.shortcut.map(k => {
+    if (!activeStep) return new Set();
+
+    const keys = activeStep.keys.map(k => {
       if (isMac && k.toLowerCase() === 'control') {
-        // Basic substitution, can be made more robust
-        if (!drill.shortcut.join('').includes('5')) return 'Meta';
+        if (!drill.steps.some(s => s.keys.includes('5'))) return 'Meta';
       }
       return k;
     });
     return new Set(keys);
-  }, [drill.shortcut, isMac]);
+  }, [activeStep, isMac, drill.steps]);
   
-  const handleSuccess = useCallback(async () => {
-    keydownProcessed.current = true;
-    const newReps = [...reps];
-    newReps[currentRep] = RepStatus.Correct;
-    setReps(newReps);
-
-    if (currentRep === drill.repetitions - 1) {
-      setIsCompleted(true);
-      setShowConfetti(true);
-      if (user) {
-        try {
-          await updateUserPerformance({ uid: user.uid, setId: drill.id, time: 0, score: 100 });
-        } catch (error: any) {
-          toast({
-            title: "Error Saving Progress",
-            description: "Could not save your drill completion. Your progress may not be tracked.",
-            variant: "destructive",
-          });
-        }
+  const finishDrill = useCallback(async () => {
+    setIsCompleted(true);
+    setShowConfetti(true);
+    if (user) {
+      try {
+        await updateUserPerformance({ uid: user.uid, setId: drill.id, time: 0, score: 100 });
+      } catch (error: any) {
+        toast({
+          title: "Error Saving Progress",
+          description: "Could not save your drill completion. Your progress may not be tracked.",
+          variant: "destructive",
+        });
       }
-      setTimeout(() => router.push('/dashboard'), 3000);
-    } else {
-      setTimeout(() => {
-          setCurrentRep(currentRep + 1);
-          setPressedKeys(new Set());
-          keydownProcessed.current = false;
-      }, 100);
     }
-  }, [reps, currentRep, drill.id, drill.repetitions, router, user]);
+    setTimeout(() => router.push('/dashboard'), 3000);
+  }, [drill.id, router, user]);
+
+  const handleStepSuccess = useCallback(async () => {
+    keydownProcessed.current = true;
+    setStepFeedback('correct');
+
+    setTimeout(() => {
+        setStepFeedback(null);
+        setPressedKeys(new Set());
+        setSequence([]);
+        keydownProcessed.current = false;
+        
+        const isLastStep = currentStep === drill.steps.length - 1;
+
+        if (isLastStep) {
+            const newReps = [...reps];
+            newReps[currentRep] = RepStatus.Correct;
+            setReps(newReps);
+
+            if (currentRep === drill.repetitions - 1) {
+                finishDrill();
+            } else {
+                setCurrentRep(currentRep + 1);
+                setCurrentStep(0);
+            }
+        } else {
+            setCurrentStep(currentStep + 1);
+        }
+    }, 300);
+  }, [reps, currentRep, currentStep, drill, finishDrill]);
 
 
   const handleIncorrect = () => {
+    setStepFeedback('incorrect');
+    const newReps = [...reps];
+    newReps[currentRep] = RepStatus.Incorrect;
+    setReps(newReps);
+    
     setMistakes(prev => {
         const newMistakeCount = prev + 1;
-        const newReps = [...reps];
-        newReps[currentRep] = RepStatus.Incorrect;
-        setReps(newReps);
-
         if (newMistakeCount >= drill.mistakeLimit) {
             setTimeout(resetDrill, 1000);
-        } else {
-             setTimeout(() => {
-                 const newRepsAfterMistake = [...reps];
-                 newRepsAfterMistake[currentRep] = RepStatus.Pending;
-                 setReps(newRepsAfterMistake);
-             }, 500);
         }
         return newMistakeCount;
     });
     
-    setPressedKeys(new Set());
-    keydownProcessed.current = false;
+    setTimeout(() => {
+        const newRepsAfterMistake = [...reps];
+        newRepsAfterMistake[currentRep] = RepStatus.Pending;
+        setReps(newRepsAfterMistake);
+        setStepFeedback(null);
+        setPressedKeys(new Set());
+        setSequence([]);
+        keydownProcessed.current = false;
+    }, 500);
   };
-
+  
+  const processKeyPress = useCallback((key: string) => {
+    if (isCompleted || keydownProcessed.current) return;
+  
+    const requiredKeys = getRequiredKeys();
+    const normalizedKey = normalizeKey(key.toLowerCase());
+  
+    if (activeStep.isSequential) {
+      const newSequence = [...sequence, normalizedKey];
+      setSequence(newSequence);
+      
+      const requiredSequence = Array.from(requiredKeys).map(k => normalizeKey(k.toLowerCase()));
+      
+      for (let i = 0; i < newSequence.length; i++) {
+        if (newSequence[i] !== requiredSequence[i]) {
+          handleIncorrect();
+          return;
+        }
+      }
+      if (newSequence.length === requiredSequence.length) {
+        handleStepSuccess();
+      }
+    } else {
+      const newKeys = new Set(pressedKeys);
+      newKeys.add(normalizedKey);
+      setPressedKeys(newKeys);
+      
+      const sortedPressed = [...newKeys].sort().join(',');
+      const sortedRequired = [...Array.from(requiredKeys).map(k => normalizeKey(k.toLowerCase()))].sort().join(',');
+  
+      if (sortedPressed === sortedRequired) {
+        handleStepSuccess();
+      } else if (newKeys.size >= requiredKeys.size) {
+        handleIncorrect();
+      }
+    }
+  }, [activeStep, sequence, pressedKeys, getRequiredKeys, handleStepSuccess, handleIncorrect, isCompleted]);
 
   useEffect(() => {
     if (isCompleted || keydownProcessed.current) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
-      const key = normalizeKey(e.key);
-      
-      const currentPressed = new Set(pressedKeys);
-      currentPressed.add(key);
-      setPressedKeys(currentPressed);
-
-      const requiredKeys = getRequiredKeys();
-      const sortedPressed = [...currentPressed].sort().join(',');
-      const sortedRequired = [...requiredKeys].sort().join(',');
-
-      if (sortedPressed === sortedRequired) {
-        handleSuccess();
-      } else if (currentPressed.size >= requiredKeys.size) {
-        handleIncorrect();
-      }
+      processKeyPress(e.key);
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
-       if (!keydownProcessed.current) {
+       if (!keydownProcessed.current && !activeStep?.isSequential) {
           setPressedKeys(new Set());
        }
     };
@@ -158,8 +210,7 @@ export function DrillUI({ drill }: DrillUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, getRequiredKeys, handleSuccess, handleIncorrect, isCompleted]);
-
+  }, [pressedKeys, sequence, activeStep, isCompleted, processKeyPress]);
 
   return (
     <>
@@ -179,7 +230,7 @@ export function DrillUI({ drill }: DrillUIProps) {
             </div>
         </div>
 
-        <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
+        <div className="grid grid-cols-5 md:grid-cols-10 gap-2 mb-8">
           {reps.map((status, index) => (
             <div
               key={index}
@@ -196,7 +247,60 @@ export function DrillUI({ drill }: DrillUIProps) {
             </div>
           ))}
         </div>
+
+        <Separator />
+        
+        <div className="mt-8">
+            <p className="text-sm text-muted-foreground text-center mb-4">Repetition {currentRep + 1} of {drill.repetitions}</p>
+            <div className="flex flex-col gap-2">
+                {drill.steps.map((step, index) => {
+                    const isStepActive = index === currentStep;
+                    const isStepCompleted = index < currentStep;
+                    const feedbackClass = isStepActive && stepFeedback === 'incorrect' ? 'ring-2 ring-destructive' : '';
+                    const successClass = isStepActive && stepFeedback === 'correct' ? 'ring-2 ring-green-500' : '';
+
+                    return (
+                        <div key={index}>
+                            <div className={cn(
+                                "p-4 rounded-lg transition-all",
+                                isStepCompleted ? "bg-green-500/10" : "bg-muted/50",
+                                isStepActive && !stepFeedback && "ring-2 ring-primary",
+                                feedbackClass,
+                                successClass
+                            )}>
+                                <div className="flex items-center gap-4">
+                                    {isStepCompleted || (isStepActive && stepFeedback === 'correct') ? (
+                                        <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+                                    ) : (
+                                        <Circle className={cn("w-4 h-4 flex-shrink-0", isStepActive ? "text-primary" : "text-muted-foreground/50")} />
+                                    )}
+                                    <p className={cn("flex-1 font-medium", isStepCompleted && "text-muted-foreground line-through")}>
+                                        {step.description}
+                                    </p>
+                                </div>
+                            </div>
+                            {index < drill.steps.length - 1 && (
+                                <div className="h-6 flex justify-center">
+                                    <ChevronDown className="w-5 h-5 text-muted-foreground/50" />
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+
       </CardContent>
+       <CardFooter className="bg-muted/50 min-h-[80px] flex items-center justify-center gap-2 flex-wrap p-4">
+            {stepFeedback === null && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <Keyboard className="h-8 w-8" />
+                    <span className="text-lg">Use your keyboard</span>
+                </div>
+            )}
+            {stepFeedback === 'correct' && <CheckCircle className="h-10 w-10 text-green-500" />}
+            {stepFeedback === 'incorrect' && <XCircle className="h-10 w-10 text-destructive" />}
+       </CardFooter>
     </Card>
     </>
   );

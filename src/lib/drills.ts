@@ -1,14 +1,20 @@
 
-import { Challenge, ChallengeSet } from "./types";
+import { ChallengeLevel } from "./types";
+
+export interface DrillStep {
+  description: string;
+  keys: string[];
+  isSequential?: boolean;
+}
 
 export interface Drill {
     id: string;
-    challengeId: string; // The ID of the challenge this drill is for
     name: string;
     description: string;
+    level: ChallengeLevel;
     repetitions: number;
-    shortcut: string[]; // The key sequence for the drill
     mistakeLimit: number;
+    steps: DrillStep[];
 }
 
 export interface DrillSet {
@@ -17,44 +23,82 @@ export interface DrillSet {
     drills: Drill[];
 }
 
-// Function to generate drills from existing challenge sets
-const createDrillsFromChallenge = (challenge: Challenge): Drill[] => {
-    if (challenge.steps.length === 1) {
-        const step = challenge.steps[0];
-        return [{
-            id: `${challenge.description.toLowerCase().replace(/\s/g, '-')}`,
-            challengeId: challenge.description, // Not ideal, but will work for now
-            name: challenge.description,
-            description: `Practice the shortcut for: ${challenge.description}.`,
-            repetitions: 15,
-            shortcut: step.keys,
-            mistakeLimit: 2,
-        }];
-    } else {
-        // For multi-step challenges (scenarios), we can create a drill for the whole sequence
-        return [{
-            id: `${challenge.description.toLowerCase().replace(/\s/g, '-')}`,
-            challengeId: challenge.description,
-            name: challenge.description,
-            description: `Practice the sequence for: ${challenge.description}.`,
-            repetitions: 5, // Fewer reps for longer sequences
-            shortcut: challenge.steps.flatMap(s => s.keys), // This is a simplification
-            mistakeLimit: 2,
-        }];
+const drills: Drill[] = [
+    {
+        id: 'copy-paste-flow',
+        level: 'Beginner',
+        name: 'Copy & Paste Flow',
+        description: 'Practice copying a cell, moving down, and pasting.',
+        repetitions: 15,
+        mistakeLimit: 2,
+        steps: [
+            { description: 'Copy', keys: ['Control', 'c'] },
+            { description: 'Move Down', keys: ['ArrowDown'] },
+            { description: 'Paste', keys: ['Control', 'v'] }
+        ]
+    },
+    {
+        id: 'bold-italic-flow',
+        level: 'Beginner',
+        name: 'Formatting Flow',
+        description: 'Practice applying bold and then italic formatting.',
+        repetitions: 15,
+        mistakeLimit: 2,
+        steps: [
+            { description: 'Bold', keys: ['Control', 'b'] },
+            { description: 'Italicize', keys: ['Control', 'i'] }
+        ]
+    },
+    {
+        id: 'select-row-delete-flow',
+        level: 'Intermediate',
+        name: 'Select & Delete Row',
+        description: 'Practice selecting and deleting a full row.',
+        repetitions: 10,
+        mistakeLimit: 2,
+        steps: [
+            { description: 'Select Row', keys: ['Shift', ' '] },
+            { description: 'Delete Row', keys: ['Control', '-'] }
+        ]
+    },
+    {
+        id: 'filter-column-flow',
+        level: 'Intermediate',
+        name: 'Apply Filter',
+        description: 'Practice adding a filter to a column.',
+        repetitions: 10,
+        mistakeLimit: 2,
+        steps: [
+            { description: 'Apply/Clear Filter', keys: ['Control', 'Shift', 'l'] }
+        ]
+    },
+    {
+        id: 'hide-row-flow',
+        level: 'Advanced',
+        name: 'Hide & Unhide Row',
+        description: 'Practice hiding and unhiding a row.',
+        repetitions: 8,
+        mistakeLimit: 2,
+        steps: [
+            { description: 'Hide Row', keys: ['Control', '9'] },
+            { description: 'Unhide Row', keys: ['Control', 'Shift', '('] }
+        ]
+    },
+    {
+        id: 'center-align-flow',
+        level: 'Advanced',
+        name: 'Center Align Text',
+        description: 'Practice center aligning text using the ribbon shortcut.',
+        repetitions: 8,
+        mistakeLimit: 2,
+        steps: [
+            { description: 'Center align cell contents', keys: ['Alt', 'h', 'a', 'c'], isSequential: true },
+        ]
     }
-};
+];
 
-// This is a placeholder; a more robust system would be needed.
-// For now, let's create a placeholder DrillSet.
-import { CHALLENGE_SETS } from './challenges';
-
-const allDrills: Drill[] = CHALLENGE_SETS.flatMap(set => 
-    set.challenges.flatMap(createDrillsFromChallenge)
-);
-
-// We'll just have one big set of drills for now.
 export const DRILL_SET: DrillSet = {
-    id: 'master-drill-set',
-    name: 'All Drills',
-    drills: allDrills,
+    id: 'micro-flow-drills',
+    name: 'Micro-Flow Drills',
+    drills: drills,
 };
