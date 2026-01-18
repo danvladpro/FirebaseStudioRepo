@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap, Dumbbell, ChevronDown, Repeat } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap, Dumbbell, Repeat, Check } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -639,7 +639,16 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                     {levelOrder.map(level => {
                         if (!groupedShortcutSets[level] && !drillsByLevel[level]) return null;
                         
-                        const areDrillsLocked = (setsByLevel[level]?.completed || 0) < (setsByLevel[level]?.total || 0);
+                        const areChallengesForLevelPassed = (setsByLevel[level]?.completed || 0) === (setsByLevel[level]?.total || 0);
+
+                        const drillsForLevel = drillsByLevel[level] || [];
+                        let firstIncompleteDrillIndex = drillsForLevel.length;
+                        for (let i = 0; i < drillsForLevel.length; i++) {
+                            if (stats[drillsForLevel[i].id]?.bestScore !== 100) {
+                                firstIncompleteDrillIndex = i;
+                                break;
+                            }
+                        }
 
                         return (
                             <div key={level} className="mb-8">
@@ -659,43 +668,39 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                         <h3 className="text-lg font-semibold text-muted-foreground mb-2">Muscle Memory Drills</h3>
                                         <Card>
                                         <CardContent className="p-4">
-                                            {areDrillsLocked ? (
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 bg-muted/50 rounded-md border-2 border-dashed">
-                                                                <Lock className="w-8 h-8 text-muted-foreground mb-2"/>
-                                                                <p className="font-semibold">Drills Locked</p>
-                                                                <p className="text-sm text-muted-foreground">Complete all '{level}' challenges to unlock.</p>
-                                                            </div>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent>
-                                                            <p>You must pass all challenges in the '{level}' category to unlock these drills.</p>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
-                                            ) : (
-                                                <div className="grid grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
-                                                    {drillsByLevel[level].map((drill, index) => (
-                                                    <TooltipProvider key={drill.id}>
-                                                        <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <Button asChild variant="secondary" className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 h-auto p-0">
-                                                                <Link href={`/drills/${drill.id}`} className="w-full h-full flex items-center justify-center p-2">
-                                                                    <span className="text-sm font-medium">
-                                                                        {index + 1}
-                                                                    </span>
-                                                                </Link>
-                                                            </Button>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent side="top">
-                                                            <p className="text-xs">{drill.name}</p>
-                                                        </TooltipContent>
-                                                        </Tooltip>
-                                                    </TooltipProvider>
-                                                    ))}
-                                                </div>
-                                            )}
+                                            <div className="grid grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
+                                                {drillsByLevel[level].map((drill, index) => {
+                                                    const isDrillLocked = !areChallengesForLevelPassed || index > firstIncompleteDrillIndex;
+                                                    const isDrillPassed = stats[drill.id]?.bestScore === 100;
+                                                    const tooltipContent = isDrillLocked 
+                                                        ? (!areChallengesForLevelPassed 
+                                                            ? `Complete all '${level}' challenges to unlock drills.`
+                                                            : `Complete the previous drill to unlock.`)
+                                                        : drill.name;
+
+                                                    return (
+                                                        <TooltipProvider key={drill.id}>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <div className={cn("w-full h-full", isDrillLocked && "cursor-not-allowed")}>
+                                                                        <Button asChild variant="secondary" className={cn("shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 h-auto p-0 w-full relative", isDrillPassed && "bg-green-100 dark:bg-green-900 border border-green-500/50 hover:bg-green-100")} disabled={isDrillLocked}>
+                                                                            <Link href={`/drills/${drill.id}`} className="w-full h-full flex items-center justify-center p-2">
+                                                                                <span className={cn("text-sm font-medium", isDrillPassed && "text-green-700 dark:text-green-200")}>
+                                                                                    {index + 1}
+                                                                                </span>
+                                                                                 {isDrillPassed && <Check className="absolute top-1 right-1 w-3 h-3 text-green-600" />}
+                                                                            </Link>
+                                                                        </Button>
+                                                                    </div>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent side="top">
+                                                                    <p className="text-xs">{tooltipContent}</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </TooltipProvider>
+                                                    )
+                                                })}
+                                            </div>
                                         </CardContent>
                                         </Card>
                                     </div>

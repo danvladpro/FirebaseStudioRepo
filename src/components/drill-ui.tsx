@@ -8,6 +8,9 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { cn } from "@/lib/utils";
 import { Check, X } from "lucide-react";
 import Confetti from 'react-confetti';
+import { useAuth } from "./auth-provider";
+import { updateUserPerformance } from "@/app/actions/update-user-performance";
+import { toast } from "@/hooks/use-toast";
 
 interface DrillUIProps {
   drill: Drill;
@@ -21,6 +24,7 @@ enum RepStatus {
 
 export function DrillUI({ drill }: DrillUIProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const [reps, setReps] = useState<RepStatus[]>(() => Array(drill.repetitions).fill(RepStatus.Pending));
   const [currentRep, setCurrentRep] = useState(0);
   const [mistakes, setMistakes] = useState(0);
@@ -63,7 +67,8 @@ export function DrillUI({ drill }: DrillUIProps) {
     return new Set(keys);
   }, [drill.shortcut, isMac]);
   
-  const handleSuccess = () => {
+  const handleSuccess = useCallback(async () => {
+    keydownProcessed.current = true;
     const newReps = [...reps];
     newReps[currentRep] = RepStatus.Correct;
     setReps(newReps);
@@ -71,13 +76,26 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (currentRep === drill.repetitions - 1) {
       setIsCompleted(true);
       setShowConfetti(true);
+      if (user) {
+        try {
+          await updateUserPerformance({ uid: user.uid, setId: drill.id, time: 0, score: 100 });
+        } catch (error: any) {
+          toast({
+            title: "Error Saving Progress",
+            description: "Could not save your drill completion. Your progress may not be tracked.",
+            variant: "destructive",
+          });
+        }
+      }
       setTimeout(() => router.push('/dashboard'), 3000);
     } else {
-      setCurrentRep(currentRep + 1);
-      setPressedKeys(new Set());
-      keydownProcessed.current = false;
+      setTimeout(() => {
+          setCurrentRep(currentRep + 1);
+          setPressedKeys(new Set());
+          keydownProcessed.current = false;
+      }, 100);
     }
-  };
+  }, [reps, currentRep, drill.id, drill.repetitions, router, user]);
 
 
   const handleIncorrect = () => {
@@ -120,7 +138,6 @@ export function DrillUI({ drill }: DrillUIProps) {
       const sortedRequired = [...requiredKeys].sort().join(',');
 
       if (sortedPressed === sortedRequired) {
-        keydownProcessed.current = true;
         handleSuccess();
       } else if (currentPressed.size >= requiredKeys.size) {
         handleIncorrect();
