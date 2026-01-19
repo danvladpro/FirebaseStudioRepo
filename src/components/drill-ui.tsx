@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Drill } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
@@ -12,7 +12,6 @@ import { useAuth } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
 import { toast } from "@/hooks/use-toast";
 import { Separator } from "./ui/separator";
-import { GridState } from "@/lib/types";
 import { VisualGrid } from "./visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
 import * as icons from 'lucide-react';
@@ -32,7 +31,10 @@ export function DrillUI({ drill }: DrillUIProps) {
   const { user } = useAuth();
   const [reps, setReps] = useState<RepStatus[]>(() => Array(drill.repetitions).fill(RepStatus.Pending));
   const [currentRep, setCurrentRep] = useState(0);
-  const [currentStep, setCurrentStep] = useState(0);
+  
+  const [logicalStepIndex, setLogicalStepIndex] = useState(0);
+  const [visualStepIndex, setVisualStepIndex] = useState(0);
+
   const [stepFeedback, setStepFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [mistakes, setMistakes] = useState(0);
   const [isMac, setIsMac] = useState(false);
@@ -45,22 +47,23 @@ export function DrillUI({ drill }: DrillUIProps) {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
 
-  const activeStep = drill.steps[currentStep];
+  const activeStep = drill.steps[logicalStepIndex];
 
   const { gridState: displayedGridState, cellStyles: displayedCellStyles } = calculateGridStateForStep(
     drill.steps,
     drill.initialGridState!,
-    currentStep - 1
+    visualStepIndex - 1
   );
 
   const { gridState: previewGridState, cellStyles: previewCellStyles } = calculateGridStateForStep(
     drill.steps,
     drill.initialGridState!,
-    currentStep
+    visualStepIndex
   );
   
   const resetForNewRep = useCallback(() => {
-    setCurrentStep(0);
+    setLogicalStepIndex(0);
+    setVisualStepIndex(0);
     setPressedKeys(new Set());
     setSequence([]);
   }, []);
@@ -100,6 +103,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   
   const finishDrill = useCallback(async () => {
     setIsCompleted(true);
+    setLogicalStepIndex(drill.steps.length); // Prevent further input
     setShowConfetti(true);
     if (user) {
       try {
@@ -113,16 +117,14 @@ export function DrillUI({ drill }: DrillUIProps) {
       }
     }
     setTimeout(() => router.push('/dashboard'), 3000);
-  }, [drill.id, router, user]);
+  }, [drill.id, drill.steps.length, router, user]);
 
   const handleStepSuccess = useCallback(() => {
     setStepFeedback('correct');
-    setTimeout(() => {
-        setStepFeedback(null);
-    }, 400);
 
-    const isLastStep = currentStep === drill.steps.length - 1;
+    const isLastStep = logicalStepIndex === drill.steps.length - 1;
 
+    // Advance logical step immediately for next input
     if (isLastStep) {
         const newReps = [...reps];
         newReps[currentRep] = RepStatus.Correct;
@@ -132,14 +134,28 @@ export function DrillUI({ drill }: DrillUIProps) {
             finishDrill();
         } else {
             setCurrentRep(prev => prev + 1);
-            resetForNewRep();
+            setLogicalStepIndex(0);
         }
     } else {
-        setCurrentStep(prev => prev + 1);
-        setPressedKeys(new Set());
-        setSequence([]);
+        setLogicalStepIndex(prev => prev + 1);
     }
-  }, [currentStep, drill.steps.length, reps, currentRep, finishDrill, resetForNewRep]);
+    
+    setPressedKeys(new Set());
+    setSequence([]);
+
+    // After animation, sync visual step
+    setTimeout(() => {
+        setStepFeedback(null);
+        if (isLastStep) {
+             if (currentRep < drill.repetitions - 1) {
+                setVisualStepIndex(0);
+             }
+        } else {
+             setVisualStepIndex(prev => prev + 1);
+        }
+    }, 400);
+
+  }, [logicalStepIndex, drill.steps.length, currentRep, reps, drill.repetitions, finishDrill]);
 
 
   const handleIncorrect = () => {
@@ -164,7 +180,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   };
   
   const processKeyPress = useCallback((key: string) => {
-    if (isCompleted) return;
+    if (isCompleted || !activeStep || stepFeedback === 'correct') return;
   
     const requiredKeys = getRequiredKeys();
     const normalizedKey = normalizeKey(key.toLowerCase());
@@ -198,7 +214,7 @@ export function DrillUI({ drill }: DrillUIProps) {
         handleIncorrect();
       }
     }
-  }, [activeStep, sequence, pressedKeys, getRequiredKeys, handleStepSuccess, handleIncorrect, isCompleted]);
+  }, [activeStep, sequence, pressedKeys, getRequiredKeys, handleStepSuccess, handleIncorrect, isCompleted, stepFeedback]);
 
   useEffect(() => {
     if (isCompleted) return;
@@ -282,8 +298,8 @@ export function DrillUI({ drill }: DrillUIProps) {
                 <div className="flex flex-col gap-2">
                     {drill.steps.map((step, index) => {
                         const Icon = icons[step.iconName];
-                        const isStepActive = index === currentStep;
-                        const isStepCompleted = index < currentStep;
+                        const isStepActive = index === visualStepIndex;
+                        const isStepCompleted = index < visualStepIndex;
                         const feedbackClass = isStepActive && stepFeedback === 'incorrect' ? 'ring-2 ring-destructive' : '';
                         const successClass = isStepActive && stepFeedback === 'correct' ? 'ring-2 ring-green-500' : '';
 
