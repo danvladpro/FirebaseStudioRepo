@@ -14,7 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { Separator } from "./ui/separator";
 import { GridState } from "@/lib/types";
 import { VisualGrid } from "./visual-grid";
-import { calculateGridStateForStep, deepCloneGridState, applyGridEffect } from "@/lib/grid-engine";
+import { applyGridEffect, deepCloneGridState } from "@/lib/grid-engine";
 import * as icons from 'lucide-react';
 
 interface DrillUIProps {
@@ -60,6 +60,10 @@ export function DrillUI({ drill }: DrillUIProps) {
   
   const resetForNewRep = useCallback(() => {
     setCurrentStep(0);
+    setStepFeedback(null);
+    setPressedKeys(new Set());
+    setSequence([]);
+    keydownProcessed.current = false;
     setDisplayState({
         gridState: drill.initialGridState ? deepCloneGridState(drill.initialGridState) : null,
         cellStyles: {}
@@ -72,10 +76,6 @@ export function DrillUI({ drill }: DrillUIProps) {
     setMistakes(0);
     setShowConfetti(false);
     setIsCompleted(false);
-    setStepFeedback(null);
-    setPressedKeys(new Set());
-    setSequence([]);
-    keydownProcessed.current = false;
     resetForNewRep();
   }, [drill.repetitions, resetForNewRep]);
   
@@ -129,42 +129,41 @@ export function DrillUI({ drill }: DrillUIProps) {
     setTimeout(() => router.push('/dashboard'), 3000);
   }, [drill.id, router, user]);
 
-  const handleStepSuccess = useCallback(async () => {
-    keydownProcessed.current = true;
-    setStepFeedback('correct');
+  const handleStepSuccess = useCallback(() => {
+      keydownProcessed.current = true;
+      setStepFeedback('correct');
 
-    setTimeout(() => {
-        setDisplayState(prevDisplayState => {
-            if (!prevDisplayState.gridState || !activeStep) return prevDisplayState;
-            const { newGridState, newCellStyles } = applyGridEffect(prevDisplayState.gridState, activeStep, prevDisplayState.cellStyles);
-            return { gridState: newGridState, cellStyles: newCellStyles };
-        });
+      // 1. Apply the visual grid effect for the completed step
+      setDisplayState(prevState => {
+        if (!prevState.gridState || !activeStep) return prevState;
+        const { newGridState, newCellStyles } = applyGridEffect(prevState.gridState, activeStep, prevState.cellStyles);
+        return { gridState: newGridState, cellStyles: newCellStyles };
+      });
 
+      // 2. After a delay to show the effect, advance to the next state
+      setTimeout(() => {
         const isLastStep = currentStep === drill.steps.length - 1;
-        
-        setTimeout(() => {
-            setStepFeedback(null);
-            setPressedKeys(new Set());
-            setSequence([]);
-            keydownProcessed.current = false;
 
-            if (isLastStep) {
-                const newReps = [...reps];
-                newReps[currentRep] = RepStatus.Correct;
-                setReps(newReps);
+        if (isLastStep) {
+          const newReps = [...reps];
+          newReps[currentRep] = RepStatus.Correct;
+          setReps(newReps);
 
-                if (currentRep === drill.repetitions - 1) {
-                    finishDrill();
-                } else {
-                    setCurrentRep(prev => prev + 1);
-                    resetForNewRep();
-                }
-            } else {
-                setCurrentStep(prev => prev + 1);
-            }
-        }, 400); // Inner timeout for visual feedback of the effect
-    }, 300); // Outer timeout for the initial feedback animation
-  }, [reps, currentRep, currentStep, drill, finishDrill, resetForNewRep, activeStep]);
+          if (currentRep === drill.repetitions - 1) {
+            finishDrill();
+          } else {
+            setCurrentRep(prev => prev + 1);
+            resetForNewRep();
+          }
+        } else {
+          setCurrentStep(prev => prev + 1);
+          setStepFeedback(null);
+          setPressedKeys(new Set());
+          setSequence([]);
+          keydownProcessed.current = false;
+        }
+      }, 400);
+  }, [currentStep, drill.steps.length, reps, currentRep, drill.repetitions, activeStep, finishDrill, resetForNewRep]);
 
 
   const handleIncorrect = () => {
