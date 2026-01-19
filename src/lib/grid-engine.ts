@@ -15,7 +15,7 @@ export const deepCloneGridState = (state: GridState): GridState => {
 export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellStyles: Record<string, React.CSSProperties>): { newGridState: GridState, newCellStyles: Record<string, React.CSSProperties> } => {
     if (!step.gridEffect) return { newGridState: gridState, newCellStyles: cellStyles };
 
-    const { action } = step.gridEffect;
+    const { action, payload } = step.gridEffect;
     let newGridData = gridState.data.map(row => [...row]);
     let newSelection: GridState['selection'] = { 
         activeCell: { ...gridState.selection.activeCell },
@@ -83,15 +83,15 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             });
             break;
         case 'PASTE_STATIC_VALUE':
-            if (action.payload?.value) {
-                newGridData[newSelection.activeCell.row][newSelection.activeCell.col] = action.payload.value;
+            if (payload?.value) {
+                newGridData[newSelection.activeCell.row][newSelection.activeCell.col] = payload.value;
             }
             // Clear "cut" styling from all cells after paste
             newCellStyles = {}; 
             break;
         case 'MOVE_SELECTION':
-            if (action.payload?.direction) {
-                const { direction, amount = 1 } = action.payload;
+            if (payload?.direction) {
+                const { direction, amount = 1 } = payload;
                 switch (direction) {
                     case 'down':
                         newSelection.activeCell.row = Math.min(newGridData.length - 1, newSelection.activeCell.row + amount);
@@ -106,8 +106,9 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                         newSelection.activeCell.col = Math.max(0, newSelection.activeCell.col - amount);
                         break;
                 }
-                newSelection.selectedCells.clear();
-                newSelection.selectedCells.add(`${newSelection.activeCell.row}-${newSelection.activeCell.col}`);
+                newSelection.selectedCells = new Set([
+                  `${newSelection.activeCell.row}-${newSelection.activeCell.col}`
+                ]);
             }
             break;
         case 'APPLY_STYLE_BOLD':
