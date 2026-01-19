@@ -690,12 +690,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
                                                         const buttonContent = isDrillLocked 
                                                             ? <Lock className="w-4 h-4" />
-                                                            : (
-                                                                <>
-                                                                    <span className="text-sm font-medium">{index + 1}</span>
-                                                                    {isDrillPassed && <Check className="absolute top-1 right-1 w-3 h-3" />}
-                                                                </>
-                                                            );
+                                                            : <span className="text-sm font-medium">{index + 1}</span>;
 
                                                         const buttonElement = isDrillLocked ? (
                                                             <Button className={buttonClasses} disabled>
