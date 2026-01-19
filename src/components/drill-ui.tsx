@@ -27,6 +27,12 @@ enum RepStatus {
   Incorrect,
 }
 
+interface DrillDisplayState {
+  gridState: GridState | null;
+  cellStyles: Record<string, React.CSSProperties>;
+}
+
+
 export function DrillUI({ drill }: DrillUIProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -43,8 +49,10 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   const keydownProcessed = useRef(false);
   
-  const [gridState, setGridState] = useState<GridState | null>(drill.initialGridState ? deepCloneGridState(drill.initialGridState) : null);
-  const [cellStyles, setCellStyles] = useState<Record<string, React.CSSProperties>>({});
+  const [displayState, setDisplayState] = useState<DrillDisplayState>(() => ({
+      gridState: drill.initialGridState ? deepCloneGridState(drill.initialGridState) : null,
+      cellStyles: {}
+  }));
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
@@ -52,8 +60,10 @@ export function DrillUI({ drill }: DrillUIProps) {
   
   const resetForNewRep = useCallback(() => {
     setCurrentStep(0);
-    setGridState(drill.initialGridState ? deepCloneGridState(drill.initialGridState) : null);
-    setCellStyles({});
+    setDisplayState({
+        gridState: drill.initialGridState ? deepCloneGridState(drill.initialGridState) : null,
+        cellStyles: {}
+    });
   }, [drill.initialGridState]);
 
   const resetDrill = useCallback(() => {
@@ -81,11 +91,11 @@ export function DrillUI({ drill }: DrillUIProps) {
   const activeStep = drill.steps[currentStep];
 
   const previewState = useMemo(() => {
-    if (!gridState || !activeStep?.gridEffect) return null;
+    if (!displayState.gridState || !activeStep?.gridEffect) return null;
     
-    const { newGridState, newCellStyles } = applyGridEffect(gridState, activeStep, cellStyles);
+    const { newGridState, newCellStyles } = applyGridEffect(displayState.gridState, activeStep, displayState.cellStyles);
     return { gridState: newGridState, cellStyles: newCellStyles };
-  }, [gridState, activeStep, cellStyles]);
+  }, [displayState, activeStep]);
 
   const getRequiredKeys = useCallback(() => {
     if (!activeStep) return new Set();
@@ -124,35 +134,37 @@ export function DrillUI({ drill }: DrillUIProps) {
     setStepFeedback('correct');
 
     setTimeout(() => {
+        setDisplayState(prevDisplayState => {
+            if (!prevDisplayState.gridState || !activeStep) return prevDisplayState;
+            const { newGridState, newCellStyles } = applyGridEffect(prevDisplayState.gridState, activeStep, prevDisplayState.cellStyles);
+            return { gridState: newGridState, cellStyles: newCellStyles };
+        });
+
         const isLastStep = currentStep === drill.steps.length - 1;
-
-        if (gridState && activeStep) {
-            const { newGridState, newCellStyles } = applyGridEffect(gridState, activeStep, cellStyles);
-            setGridState(newGridState);
-            setCellStyles(newCellStyles);
-        }
         
-        setStepFeedback(null);
-        setPressedKeys(new Set());
-        setSequence([]);
-        keydownProcessed.current = false;
+        setTimeout(() => {
+            setStepFeedback(null);
+            setPressedKeys(new Set());
+            setSequence([]);
+            keydownProcessed.current = false;
 
-        if (isLastStep) {
-            const newReps = [...reps];
-            newReps[currentRep] = RepStatus.Correct;
-            setReps(newReps);
+            if (isLastStep) {
+                const newReps = [...reps];
+                newReps[currentRep] = RepStatus.Correct;
+                setReps(newReps);
 
-            if (currentRep === drill.repetitions - 1) {
-                finishDrill();
+                if (currentRep === drill.repetitions - 1) {
+                    finishDrill();
+                } else {
+                    setCurrentRep(prev => prev + 1);
+                    resetForNewRep();
+                }
             } else {
-                setCurrentRep(currentRep + 1);
-                resetForNewRep();
+                setCurrentStep(prev => prev + 1);
             }
-        } else {
-            setCurrentStep(currentStep + 1);
-        }
-    }, 300);
-  }, [reps, currentRep, currentStep, drill, finishDrill, gridState, activeStep, cellStyles, resetForNewRep]);
+        }, 400); // Inner timeout for visual feedback of the effect
+    }, 300); // Outer timeout for the initial feedback animation
+  }, [reps, currentRep, currentStep, drill, finishDrill, resetForNewRep, activeStep]);
 
 
   const handleIncorrect = () => {
@@ -277,18 +289,18 @@ export function DrillUI({ drill }: DrillUIProps) {
         <Separator />
         
         <div className="mt-8 grid md:grid-cols-2 gap-8 items-center">
-             {gridState && (
+             {displayState.gridState && (
                 <div className="max-w-md mx-auto">
                     <VisualGrid 
-                        data={gridState.data}
-                        selection={gridState.selection}
-                        cellStyles={cellStyles}
+                        data={displayState.gridState.data}
+                        selection={displayState.gridState.selection}
+                        cellStyles={displayState.cellStyles}
                         previewState={previewState}
                         isAccentuating={stepFeedback === 'correct'}
                     />
                 </div>
             )}
-            <div className={cn(!gridState && "md:col-span-2")}>
+            <div className={cn(!displayState.gridState && "md:col-span-2")}>
                 <p className="text-sm text-muted-foreground text-center mb-4">Repetition {currentRep + 1} of {drill.repetitions}</p>
                 <div className="flex flex-col gap-2">
                     {drill.steps.map((step, index) => {
