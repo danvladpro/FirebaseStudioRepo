@@ -57,6 +57,8 @@ export function DrillUI({ drill }: DrillUIProps) {
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
+
+  const activeStep = drill.steps[currentStep];
   
   const resetForNewRep = useCallback(() => {
     setCurrentStep(0);
@@ -87,8 +89,6 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (["meta", "metaleft", "metaright", "command", "cmd"].includes(lower)) return "Meta";
     return key;
   };
-
-  const activeStep = drill.steps[currentStep];
 
   const previewState = useMemo(() => {
     if (!displayState.gridState || !activeStep?.gridEffect) return null;
@@ -130,40 +130,41 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [drill.id, router, user]);
 
   const handleStepSuccess = useCallback(() => {
-      keydownProcessed.current = true;
-      setStepFeedback('correct');
+    keydownProcessed.current = true;
+    setStepFeedback('correct');
 
-      // 1. Apply the visual grid effect for the completed step
-      setDisplayState(prevState => {
-        if (!prevState.gridState || !activeStep) return prevState;
-        const { newGridState, newCellStyles } = applyGridEffect(prevState.gridState, activeStep, prevState.cellStyles);
-        return { gridState: newGridState, cellStyles: newCellStyles };
-      });
-
-      // 2. After a delay to show the effect, advance to the next state
-      setTimeout(() => {
+    setTimeout(() => {
         const isLastStep = currentStep === drill.steps.length - 1;
 
-        if (isLastStep) {
-          const newReps = [...reps];
-          newReps[currentRep] = RepStatus.Correct;
-          setReps(newReps);
-
-          if (currentRep === drill.repetitions - 1) {
-            finishDrill();
-          } else {
-            setCurrentRep(prev => prev + 1);
-            resetForNewRep();
-          }
-        } else {
-          setCurrentStep(prev => prev + 1);
-          setStepFeedback(null);
-          setPressedKeys(new Set());
-          setSequence([]);
-          keydownProcessed.current = false;
+        // Commit the visual change by updating the main display state
+        if (previewState) {
+            setDisplayState({
+                gridState: previewState.gridState,
+                cellStyles: previewState.cellStyles,
+            });
         }
-      }, 400);
-  }, [currentStep, drill.steps.length, reps, currentRep, drill.repetitions, activeStep, finishDrill, resetForNewRep]);
+        
+        setStepFeedback(null);
+        setPressedKeys(new Set());
+        setSequence([]);
+        keydownProcessed.current = false;
+
+        if (isLastStep) {
+            const newReps = [...reps];
+            newReps[currentRep] = RepStatus.Correct;
+            setReps(newReps);
+
+            if (currentRep === drill.repetitions - 1) {
+                finishDrill();
+            } else {
+                setCurrentRep(prev => prev + 1);
+                resetForNewRep();
+            }
+        } else {
+            setCurrentStep(prev => prev + 1);
+        }
+    }, 400);
+  }, [currentStep, drill.steps.length, reps, currentRep, drill.repetitions, resetForNewRep, finishDrill, previewState]);
 
 
   const handleIncorrect = () => {
