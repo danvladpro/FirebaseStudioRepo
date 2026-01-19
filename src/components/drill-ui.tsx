@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Drill } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
@@ -14,7 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { Separator } from "./ui/separator";
 import { GridState } from "@/lib/types";
 import { VisualGrid } from "./visual-grid";
-import { calculateGridStateForStep, deepCloneGridState } from "@/lib/grid-engine";
+import { calculateGridStateForStep, deepCloneGridState, applyGridEffect } from "@/lib/grid-engine";
 import * as icons from 'lucide-react';
 
 interface DrillUIProps {
@@ -43,20 +43,18 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   const keydownProcessed = useRef(false);
   
-  // Grid-related state
   const [gridState, setGridState] = useState<GridState | null>(drill.initialGridState ? deepCloneGridState(drill.initialGridState) : null);
   const [cellStyles, setCellStyles] = useState<Record<string, React.CSSProperties>>({});
-  const [previewState, setPreviewState] = useState<{ gridState: GridState, cellStyles: Record<string, React.CSSProperties> } | null>(null);
-
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
   
-  const resetForNewRep = () => {
+  const resetForNewRep = useCallback(() => {
     setCurrentStep(0);
     setGridState(drill.initialGridState ? deepCloneGridState(drill.initialGridState) : null);
-  }
+    setCellStyles({});
+  }, [drill.initialGridState]);
 
   const resetDrill = useCallback(() => {
     setReps(Array(drill.repetitions).fill(RepStatus.Pending));
@@ -69,25 +67,8 @@ export function DrillUI({ drill }: DrillUIProps) {
     setSequence([]);
     keydownProcessed.current = false;
     resetForNewRep();
-  }, [drill.repetitions]);
+  }, [drill.repetitions, resetForNewRep]);
   
-  useEffect(() => {
-    if (drill.initialGridState) {
-        const currentCalc = calculateGridStateForStep(drill.steps, drill.initialGridState, currentStep - 1);
-        const previewCalc = calculateGridStateForStep(drill.steps, drill.initialGridState, currentStep);
-
-        setGridState(currentCalc.gridState);
-        setCellStyles(currentCalc.cellStyles);
-        
-        if (previewCalc.gridState) {
-            setPreviewState({ gridState: previewCalc.gridState, cellStyles: previewCalc.cellStyles });
-        } else {
-            setPreviewState(null);
-        }
-    }
-  }, [currentStep, currentRep, drill]);
-
-
   const normalizeKey = (key: string) => {
     const lower = key.toLowerCase();
     if (["control", "controlleft", "controlright"].includes(lower)) return "Control";
@@ -99,12 +80,18 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   const activeStep = drill.steps[currentStep];
 
+  const previewState = useMemo(() => {
+    if (!gridState || !activeStep?.gridEffect) return null;
+    
+    const { newGridState, newCellStyles } = applyGridEffect(gridState, activeStep, cellStyles);
+    return { gridState: newGridState, cellStyles: newCellStyles };
+  }, [gridState, activeStep, cellStyles]);
+
   const getRequiredKeys = useCallback(() => {
     if (!activeStep) return new Set();
 
     const keys = activeStep.keys.map(k => {
       if (isMac && k.toLowerCase() === 'control') {
-        // A specific override for strikethrough which uses Ctrl on mac
         const isStrikethrough = drill.steps.some(s => s.keys.includes('5'));
         if (!isStrikethrough) {
           return 'Meta';
@@ -137,12 +124,18 @@ export function DrillUI({ drill }: DrillUIProps) {
     setStepFeedback('correct');
 
     setTimeout(() => {
+        const isLastStep = currentStep === drill.steps.length - 1;
+
+        if (gridState && activeStep) {
+            const { newGridState, newCellStyles } = applyGridEffect(gridState, activeStep, cellStyles);
+            setGridState(newGridState);
+            setCellStyles(newCellStyles);
+        }
+        
         setStepFeedback(null);
         setPressedKeys(new Set());
         setSequence([]);
         keydownProcessed.current = false;
-        
-        const isLastStep = currentStep === drill.steps.length - 1;
 
         if (isLastStep) {
             const newReps = [...reps];
@@ -159,7 +152,7 @@ export function DrillUI({ drill }: DrillUIProps) {
             setCurrentStep(currentStep + 1);
         }
     }, 300);
-  }, [reps, currentRep, currentStep, drill, finishDrill]);
+  }, [reps, currentRep, currentStep, drill, finishDrill, gridState, activeStep, cellStyles, resetForNewRep]);
 
 
   const handleIncorrect = () => {
@@ -177,10 +170,6 @@ export function DrillUI({ drill }: DrillUIProps) {
     });
     
     setTimeout(() => {
-        const newRepsAfterMistake = [...reps];
-        // Don't reset visual to pending, keep it red for a moment
-        // newRepsAfterMistake[currentRep] = RepStatus.Pending;
-        // setReps(newRepsAfterMistake);
         setStepFeedback(null);
         setPressedKeys(new Set());
         setSequence([]);
