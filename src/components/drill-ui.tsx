@@ -14,7 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { Separator } from "./ui/separator";
 import { GridState } from "@/lib/types";
 import { VisualGrid } from "./visual-grid";
-import { applyGridEffect, deepCloneGridState } from "@/lib/grid-engine";
+import { calculateGridStateForStep, deepCloneGridState } from "@/lib/grid-engine";
 import * as icons from 'lucide-react';
 
 interface DrillUIProps {
@@ -26,12 +26,6 @@ enum RepStatus {
   Correct,
   Incorrect,
 }
-
-interface DrillDisplayState {
-  gridState: GridState | null;
-  cellStyles: Record<string, React.CSSProperties>;
-}
-
 
 export function DrillUI({ drill }: DrillUIProps) {
   const router = useRouter();
@@ -48,17 +42,25 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [isCompleted, setIsCompleted] = useState(false);
 
   const keydownProcessed = useRef(false);
-  
-  const [displayState, setDisplayState] = useState<DrillDisplayState>(() => ({
-      gridState: drill.initialGridState ? deepCloneGridState(drill.initialGridState) : null,
-      cellStyles: {}
-  }));
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
 
   const activeStep = drill.steps[currentStep];
+
+  // Re-calculate grid state from scratch on each step change, borrowing logic from challenge-ui
+  const { gridState: displayedGridState, cellStyles: displayedCellStyles } = calculateGridStateForStep(
+    drill.steps,
+    drill.initialGridState!,
+    currentStep - 1
+  );
+
+  const { gridState: previewGridState, cellStyles: previewCellStyles } = calculateGridStateForStep(
+    drill.steps,
+    drill.initialGridState!,
+    currentStep
+  );
   
   const resetForNewRep = useCallback(() => {
     setCurrentStep(0);
@@ -66,11 +68,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     setPressedKeys(new Set());
     setSequence([]);
     keydownProcessed.current = false;
-    setDisplayState({
-        gridState: drill.initialGridState ? deepCloneGridState(drill.initialGridState) : null,
-        cellStyles: {}
-    });
-  }, [drill.initialGridState]);
+  }, []);
 
   const resetDrill = useCallback(() => {
     setReps(Array(drill.repetitions).fill(RepStatus.Pending));
@@ -89,13 +87,6 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (["meta", "metaleft", "metaright", "command", "cmd"].includes(lower)) return "Meta";
     return key;
   };
-
-  const previewState = useMemo(() => {
-    if (!displayState.gridState || !activeStep?.gridEffect) return null;
-    
-    const { newGridState, newCellStyles } = applyGridEffect(displayState.gridState, activeStep, displayState.cellStyles);
-    return { gridState: newGridState, cellStyles: newCellStyles };
-  }, [displayState, activeStep]);
 
   const getRequiredKeys = useCallback(() => {
     if (!activeStep) return new Set();
@@ -135,14 +126,6 @@ export function DrillUI({ drill }: DrillUIProps) {
 
     setTimeout(() => {
         const isLastStep = currentStep === drill.steps.length - 1;
-
-        // Commit the visual change by updating the main display state
-        if (previewState) {
-            setDisplayState({
-                gridState: previewState.gridState,
-                cellStyles: previewState.cellStyles,
-            });
-        }
         
         setStepFeedback(null);
         setPressedKeys(new Set());
@@ -164,7 +147,7 @@ export function DrillUI({ drill }: DrillUIProps) {
             setCurrentStep(prev => prev + 1);
         }
     }, 400);
-  }, [currentStep, drill.steps.length, reps, currentRep, drill.repetitions, resetForNewRep, finishDrill, previewState]);
+  }, [currentStep, drill.steps.length, reps, currentRep, drill.repetitions, resetForNewRep, finishDrill]);
 
 
   const handleIncorrect = () => {
@@ -289,18 +272,21 @@ export function DrillUI({ drill }: DrillUIProps) {
         <Separator />
         
         <div className="mt-8 grid md:grid-cols-2 gap-8 items-center">
-             {displayState.gridState && (
+             {displayedGridState && (
                 <div className="max-w-md mx-auto">
                     <VisualGrid 
-                        data={displayState.gridState.data}
-                        selection={displayState.gridState.selection}
-                        cellStyles={displayState.cellStyles}
-                        previewState={previewState}
+                        data={displayedGridState.data}
+                        selection={displayedGridState.selection}
+                        cellStyles={displayedCellStyles}
+                        previewState={previewGridState ? {
+                            gridState: previewGridState,
+                            cellStyles: previewCellStyles,
+                        } : null}
                         isAccentuating={stepFeedback === 'correct'}
                     />
                 </div>
             )}
-            <div className={cn(!displayState.gridState && "md:col-span-2")}>
+            <div className={cn(!displayedGridState && "md:col-span-2")}>
                 <p className="text-sm text-muted-foreground text-center mb-4">Repetition {currentRep + 1} of {drill.repetitions}</p>
                 <div className="flex flex-col gap-2">
                     {drill.steps.map((step, index) => {
