@@ -32,6 +32,8 @@ const defaultDrillGridState: GridState = {
         ['Value to Copy', ''],
         ['', ''],
         ['', ''],
+        ['', ''],
+        ['', ''],
     ],
     selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set(['0-0']) },
 };

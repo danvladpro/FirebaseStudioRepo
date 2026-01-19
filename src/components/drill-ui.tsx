@@ -14,7 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { Separator } from "./ui/separator";
 import { GridState } from "@/lib/types";
 import { VisualGrid } from "./visual-grid";
-import { calculateGridStateForStep, deepCloneGridState } from "@/lib/grid-engine";
+import { calculateGridStateForStep } from "@/lib/grid-engine";
 import * as icons from 'lucide-react';
 
 interface DrillUIProps {
@@ -41,15 +41,12 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
-  const keydownProcessed = useRef(false);
-
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
 
   const activeStep = drill.steps[currentStep];
 
-  // Re-calculate grid state from scratch on each step change, borrowing logic from challenge-ui
   const { gridState: displayedGridState, cellStyles: displayedCellStyles } = calculateGridStateForStep(
     drill.steps,
     drill.initialGridState!,
@@ -64,12 +61,10 @@ export function DrillUI({ drill }: DrillUIProps) {
   
   const resetForNewRep = useCallback(() => {
     setCurrentStep(0);
-    setStepFeedback(null);
     setPressedKeys(new Set());
     setSequence([]);
-    keydownProcessed.current = false;
   }, []);
-
+  
   const resetDrill = useCallback(() => {
     setReps(Array(drill.repetitions).fill(RepStatus.Pending));
     setCurrentRep(0);
@@ -121,33 +116,30 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [drill.id, router, user]);
 
   const handleStepSuccess = useCallback(() => {
-    keydownProcessed.current = true;
     setStepFeedback('correct');
-
     setTimeout(() => {
-        const isLastStep = currentStep === drill.steps.length - 1;
-        
         setStepFeedback(null);
+    }, 400);
+
+    const isLastStep = currentStep === drill.steps.length - 1;
+
+    if (isLastStep) {
+        const newReps = [...reps];
+        newReps[currentRep] = RepStatus.Correct;
+        setReps(newReps);
+
+        if (currentRep === drill.repetitions - 1) {
+            finishDrill();
+        } else {
+            setCurrentRep(prev => prev + 1);
+            resetForNewRep();
+        }
+    } else {
+        setCurrentStep(prev => prev + 1);
         setPressedKeys(new Set());
         setSequence([]);
-        keydownProcessed.current = false;
-
-        if (isLastStep) {
-            const newReps = [...reps];
-            newReps[currentRep] = RepStatus.Correct;
-            setReps(newReps);
-
-            if (currentRep === drill.repetitions - 1) {
-                finishDrill();
-            } else {
-                setCurrentRep(prev => prev + 1);
-                resetForNewRep();
-            }
-        } else {
-            setCurrentStep(prev => prev + 1);
-        }
-    }, 400);
-  }, [currentStep, drill.steps.length, reps, currentRep, drill.repetitions, resetForNewRep, finishDrill]);
+    }
+  }, [currentStep, drill.steps.length, reps, currentRep, finishDrill, resetForNewRep]);
 
 
   const handleIncorrect = () => {
@@ -168,12 +160,11 @@ export function DrillUI({ drill }: DrillUIProps) {
         setStepFeedback(null);
         setPressedKeys(new Set());
         setSequence([]);
-        keydownProcessed.current = false;
     }, 500);
   };
   
   const processKeyPress = useCallback((key: string) => {
-    if (isCompleted || keydownProcessed.current) return;
+    if (isCompleted) return;
   
     const requiredKeys = getRequiredKeys();
     const normalizedKey = normalizeKey(key.toLowerCase());
@@ -210,7 +201,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [activeStep, sequence, pressedKeys, getRequiredKeys, handleStepSuccess, handleIncorrect, isCompleted]);
 
   useEffect(() => {
-    if (isCompleted || keydownProcessed.current) return;
+    if (isCompleted) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
@@ -219,7 +210,7 @@ export function DrillUI({ drill }: DrillUIProps) {
 
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
-       if (!keydownProcessed.current && !activeStep?.isSequential) {
+       if (!activeStep?.isSequential) {
           setPressedKeys(new Set());
        }
     };
