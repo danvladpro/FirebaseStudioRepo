@@ -1,4 +1,5 @@
 
+
 import { GridState, ChallengeStep } from './types';
 
 export const deepCloneGridState = (state: GridState): GridState => {
@@ -22,21 +23,19 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
     };
     let newCellStyles = { ...cellStyles };
 
-    const { activeCell, selectedCells } = newSelection;
-
-    const getCellsToApply = () => selectedCells.size > 0 ? selectedCells : new Set([`${activeCell.row}-${activeCell.col}`]);
+    const getCellsToApply = () => newSelection.selectedCells.size > 0 ? newSelection.selectedCells : new Set([`${newSelection.activeCell.row}-${newSelection.activeCell.col}`]);
 
     switch (action) {
         case 'SELECT_ROW':
             newSelection.selectedCells.clear();
             for (let c = 0; c < newGridData[0].length; c++) {
-                newSelection.selectedCells.add(`${activeCell.row}-${c}`);
+                newSelection.selectedCells.add(`${newSelection.activeCell.row}-${c}`);
             }
             break;
         case 'SELECT_COLUMN':
             newSelection.selectedCells.clear();
             for (let r = 0; r < newGridData.length; r++) {
-                newSelection.selectedCells.add(`${r}-${activeCell.col}`);
+                newSelection.selectedCells.add(`${r}-${newSelection.activeCell.col}`);
             }
             break;
         case 'SELECT_ALL':
@@ -49,10 +48,10 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'INSERT_ROW':
              const rowsToInsertAt = new Set<number>();
-            if (selectedCells.size > 0) {
-                selectedCells.forEach(cell => rowsToInsertAt.add(parseInt(cell.split('-')[0])));
+            if (newSelection.selectedCells.size > 0) {
+                newSelection.selectedCells.forEach(cell => rowsToInsertAt.add(parseInt(cell.split('-')[0])));
             } else {
-                rowsToInsertAt.add(activeCell.row);
+                rowsToInsertAt.add(newSelection.activeCell.row);
             }
             const sortedInsertRows = Array.from(rowsToInsertAt).sort((a,b) => b - a);
             sortedInsertRows.forEach(rowIndex => {
@@ -62,10 +61,10 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'DELETE_ROW':
             const rowsToDelete = new Set<number>();
-            if (selectedCells.size > 0) {
-                selectedCells.forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
+            if (newSelection.selectedCells.size > 0) {
+                newSelection.selectedCells.forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
             } else {
-                rowsToDelete.add(activeCell.row);
+                rowsToDelete.add(newSelection.activeCell.row);
             }
             
             const sortedRowsToDelete = Array.from(rowsToDelete).sort((a, b) => b - a);
@@ -76,7 +75,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             });
 
             newSelection.selectedCells.clear();
-            newSelection.activeCell.row = Math.min(activeCell.row, newGridData.length - 1);
+            newSelection.activeCell.row = Math.min(newSelection.activeCell.row, newGridData.length - 1);
             break;
         case 'CUT':
             getCellsToApply().forEach(cellId => {
@@ -85,7 +84,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'PASTE_STATIC_VALUE':
             if (action.payload?.value) {
-                newGridData[activeCell.row][activeCell.col] = action.payload.value;
+                newGridData[newSelection.activeCell.row][newSelection.activeCell.col] = action.payload.value;
             }
             // Clear "cut" styling from all cells after paste
             newCellStyles = {}; 
@@ -95,16 +94,16 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 const { direction, amount = 1 } = action.payload;
                 switch (direction) {
                     case 'down':
-                        newSelection.activeCell.row = Math.min(newGridData.length - 1, activeCell.row + amount);
+                        newSelection.activeCell.row = Math.min(newGridData.length - 1, newSelection.activeCell.row + amount);
                         break;
                     case 'up':
-                        newSelection.activeCell.row = Math.max(0, activeCell.row - amount);
+                        newSelection.activeCell.row = Math.max(0, newSelection.activeCell.row - amount);
                         break;
                     case 'right':
-                        newSelection.activeCell.col = Math.min(newGridData[0].length - 1, activeCell.col + amount);
+                        newSelection.activeCell.col = Math.min(newGridData[0].length - 1, newSelection.activeCell.col + amount);
                         break;
                     case 'left':
-                        newSelection.activeCell.col = Math.max(0, activeCell.col - amount);
+                        newSelection.activeCell.col = Math.max(0, newSelection.activeCell.col - amount);
                         break;
                 }
                 newSelection.selectedCells.clear();
