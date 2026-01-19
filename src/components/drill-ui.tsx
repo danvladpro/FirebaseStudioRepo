@@ -263,15 +263,14 @@ export function DrillUI({ drill }: DrillUIProps) {
             <div
               key={index}
               className={cn(
-                "h-10 rounded-md transition-all duration-300 flex items-center justify-center",
+                "h-10 rounded-md transition-all duration-300 flex items-center justify-center font-bold text-lg",
                 index === currentRep && !isCompleted && "ring-2 ring-primary",
-                status === RepStatus.Pending && "bg-muted",
-                status === RepStatus.Correct && "bg-green-500",
-                status === RepStatus.Incorrect && "bg-destructive animate-shake"
+                status === RepStatus.Pending && "bg-muted text-muted-foreground",
+                status === RepStatus.Correct && "bg-green-500 text-white",
+                status === RepStatus.Incorrect && "bg-destructive text-white animate-shake"
               )}
             >
-                {status === RepStatus.Correct && <Check className="text-white" />}
-                {status === RepStatus.Incorrect && <X className="text-white" />}
+              {index + 1}
             </div>
           ))}
         </div>
