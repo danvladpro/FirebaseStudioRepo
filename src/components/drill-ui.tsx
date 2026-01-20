@@ -7,7 +7,6 @@ import { Drill } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle } from "lucide-react";
-import Confetti from 'react-confetti';
 import { useAuth } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
 import { toast } from "@/hooks/use-toast";
@@ -40,8 +39,6 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [isMac, setIsMac] = useState(false);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [sequence, setSequence] = useState<string[]>([]);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
@@ -72,8 +69,6 @@ export function DrillUI({ drill }: DrillUIProps) {
     setReps(Array(drill.repetitions).fill(RepStatus.Pending));
     setCurrentRep(0);
     setMistakes(0);
-    setShowConfetti(false);
-    setIsCompleted(false);
     resetForNewRep();
   }, [drill.repetitions, resetForNewRep]);
   
@@ -102,9 +97,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [activeStep, isMac, drill.steps]);
   
   const finishDrill = useCallback(async () => {
-    setIsCompleted(true);
     setLogicalStepIndex(drill.steps.length); // Prevent further input
-    setShowConfetti(true);
     if (user) {
       try {
         await updateUserPerformance({ uid: user.uid, setId: drill.id, time: 0, score: 100 });
@@ -116,42 +109,38 @@ export function DrillUI({ drill }: DrillUIProps) {
         });
       }
     }
-    setTimeout(() => router.push('/dashboard'), 3000);
-  }, [drill.id, drill.steps.length, router, user]);
+    router.push(`/drill-results?drillId=${drill.id}`);
+  }, [drill.id, router, user]);
 
   const handleStepSuccess = useCallback(() => {
     setStepFeedback('correct');
-
+    
+    // Immediately advance the logical step so the system is ready for the next input
     const isLastStep = logicalStepIndex === drill.steps.length - 1;
-
-    // Advance logical step immediately for next input
     if (isLastStep) {
-        const newReps = [...reps];
-        newReps[currentRep] = RepStatus.Correct;
-        setReps(newReps);
-
-        if (currentRep === drill.repetitions - 1) {
-            finishDrill();
-        } else {
-            setCurrentRep(prev => prev + 1);
-            setLogicalStepIndex(0);
-        }
+        setLogicalStepIndex(0); // Reset for next rep
     } else {
         setLogicalStepIndex(prev => prev + 1);
     }
-    
     setPressedKeys(new Set());
     setSequence([]);
 
-    // After animation, sync visual step
+    // After animation, sync visual step and rep counter
     setTimeout(() => {
         setStepFeedback(null);
         if (isLastStep) {
-             if (currentRep < drill.repetitions - 1) {
+            const newReps = [...reps];
+            newReps[currentRep] = RepStatus.Correct;
+            setReps(newReps);
+
+            if (currentRep === drill.repetitions - 1) {
+                finishDrill();
+            } else {
+                setCurrentRep(prev => prev + 1);
                 setVisualStepIndex(0);
-             }
+            }
         } else {
-             setVisualStepIndex(prev => prev + 1);
+            setVisualStepIndex(prev => prev + 1);
         }
     }, 400);
 
@@ -180,7 +169,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   };
   
   const processKeyPress = useCallback((key: string) => {
-    if (isCompleted || !activeStep || stepFeedback === 'correct') return;
+    if (!activeStep || stepFeedback === 'correct') return;
   
     const requiredKeys = getRequiredKeys();
     const normalizedKey = normalizeKey(key.toLowerCase());
@@ -214,11 +203,9 @@ export function DrillUI({ drill }: DrillUIProps) {
         handleIncorrect();
       }
     }
-  }, [activeStep, sequence, pressedKeys, getRequiredKeys, handleStepSuccess, handleIncorrect, isCompleted, stepFeedback]);
+  }, [activeStep, sequence, pressedKeys, getRequiredKeys, handleStepSuccess, handleIncorrect, stepFeedback]);
 
   useEffect(() => {
-    if (isCompleted) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
       processKeyPress(e.key);
@@ -238,11 +225,10 @@ export function DrillUI({ drill }: DrillUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, sequence, activeStep, isCompleted, processKeyPress]);
+  }, [pressedKeys, sequence, activeStep, processKeyPress]);
 
   return (
     <>
-     {showConfetti && <Confetti recycle={false} />}
     <Card className="w-full max-w-4xl">
       <CardHeader>
         <CardTitle>{drill.name}</CardTitle>
@@ -264,7 +250,7 @@ export function DrillUI({ drill }: DrillUIProps) {
               key={index}
               className={cn(
                 "h-10 rounded-md transition-all duration-300 flex items-center justify-center font-bold text-lg",
-                index === currentRep && !isCompleted && "ring-2 ring-primary",
+                index === currentRep && "ring-2 ring-primary",
                 status === RepStatus.Pending && "bg-muted text-muted-foreground",
                 status === RepStatus.Correct && "bg-green-500 text-white",
                 status === RepStatus.Incorrect && "bg-destructive text-white animate-shake"
