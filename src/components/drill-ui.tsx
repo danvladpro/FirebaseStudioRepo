@@ -39,6 +39,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [isMac, setIsMac] = useState(false);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [sequence, setSequence] = useState<string[]>([]);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
@@ -74,11 +75,14 @@ export function DrillUI({ drill }: DrillUIProps) {
   
   const normalizeKey = (key: string) => {
     const lower = key.toLowerCase();
-    if (["control", "controlleft", "controlright"].includes(lower)) return "Control";
-    if (["shift", "shiftleft", "shiftright"].includes(lower)) return "Shift";
-    if (["alt", "altleft", "altright"].includes(lower)) return "Alt";
-    if (["meta", "metaleft", "metaright", "command", "cmd"].includes(lower)) return "Meta";
-    return key;
+    if (["control", "ctrl"].includes(lower)) return "control";
+    if (["shift"].includes(lower)) return "shift";
+    if (["alt", "option"].includes(lower)) return "alt";
+    if (["meta", "command", "cmd", "win"].includes(lower)) return "meta";
+    if (["delete", "del"].includes(lower)) return "delete";
+    if (["enter", "return"].includes(lower)) return "enter";
+    if (key === ' ') return ' ';
+    return lower;
   };
 
   const getRequiredKeys = useCallback(() => {
@@ -88,7 +92,7 @@ export function DrillUI({ drill }: DrillUIProps) {
       if (isMac && k.toLowerCase() === 'control') {
         const isStrikethrough = drill.steps.some(s => s.keys.includes('5'));
         if (!isStrikethrough) {
-          return 'Meta';
+          return 'meta';
         }
       }
       return k;
@@ -114,6 +118,7 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   const handleStepSuccess = useCallback(() => {
     setStepFeedback('correct');
+    setIsAnimating(true);
     
     // Immediately advance the logical step so the system is ready for the next input
     const isLastStep = logicalStepIndex === drill.steps.length - 1;
@@ -128,6 +133,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     // After animation, sync visual step and rep counter
     setTimeout(() => {
         setStepFeedback(null);
+        setIsAnimating(false);
         if (isLastStep) {
             const newReps = [...reps];
             newReps[currentRep] = RepStatus.Correct;
@@ -169,10 +175,10 @@ export function DrillUI({ drill }: DrillUIProps) {
   };
   
   const processKeyPress = useCallback((key: string) => {
-    if (!activeStep || stepFeedback === 'correct') return;
+    if (!activeStep || isAnimating) return;
   
     const requiredKeys = getRequiredKeys();
-    const normalizedKey = normalizeKey(key.toLowerCase());
+    const normalizedKey = normalizeKey(key);
   
     if (activeStep.isSequential) {
       const newSequence = [...sequence, normalizedKey];
@@ -203,7 +209,7 @@ export function DrillUI({ drill }: DrillUIProps) {
         handleIncorrect();
       }
     }
-  }, [activeStep, sequence, pressedKeys, getRequiredKeys, handleStepSuccess, handleIncorrect, stepFeedback]);
+  }, [activeStep, sequence, pressedKeys, getRequiredKeys, handleStepSuccess, handleIncorrect, isAnimating]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -244,12 +250,12 @@ export function DrillUI({ drill }: DrillUIProps) {
             </div>
         </div>
 
-        <div className="grid grid-cols-5 md:grid-cols-10 gap-2 mb-8">
+        <div className="flex justify-center flex-wrap gap-2 mb-8">
           {reps.map((status, index) => (
             <div
               key={index}
               className={cn(
-                "h-10 rounded-md transition-all duration-300 flex items-center justify-center font-bold text-lg",
+                "h-10 w-10 rounded-md transition-all duration-300 flex items-center justify-center font-bold text-lg",
                 index === currentRep && "ring-2 ring-primary",
                 status === RepStatus.Pending && "bg-muted text-muted-foreground",
                 status === RepStatus.Correct && "bg-green-500 text-white",

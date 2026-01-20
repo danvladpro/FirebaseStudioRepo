@@ -77,6 +77,14 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             newSelection.selectedCells.clear();
             newSelection.activeCell.row = Math.min(newSelection.activeCell.row, newGridData.length - 1);
             break;
+        case 'DELETE_CONTENT':
+            getCellsToApply().forEach(cellId => {
+                const [r, c] = cellId.split('-').map(Number);
+                if (newGridData[r]?.[c] !== undefined) {
+                    newGridData[r][c] = '';
+                }
+            });
+            break;
         case 'CUT':
             getCellsToApply().forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], opacity: 0.8, border: '2px dashed hsl(var(--primary))' };
@@ -84,7 +92,10 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'PASTE_STATIC_VALUE':
             if (payload?.value) {
-                newGridData[newSelection.activeCell.row][newSelection.activeCell.col] = payload.value;
+                const [r, c] = `${newSelection.activeCell.row}-${newSelection.activeCell.col}`.split('-').map(Number);
+                if (newGridData[r] !== undefined && newGridData[r][c] !== undefined) {
+                  newGridData[r][c] = payload.value;
+                }
             }
             // Clear "cut" styling from all cells after paste
             newCellStyles = {}; 
@@ -106,9 +117,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                         newSelection.activeCell.col = Math.max(0, newSelection.activeCell.col - amount);
                         break;
                 }
-                newSelection.selectedCells = new Set([
-                  `${newSelection.activeCell.row}-${newSelection.activeCell.col}`
-                ]);
+                 newSelection.selectedCells = new Set([`${newSelection.activeCell.row}-${newSelection.activeCell.col}`]);
             }
             break;
         case 'APPLY_STYLE_BOLD':

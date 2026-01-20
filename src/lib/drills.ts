@@ -38,34 +38,182 @@ const defaultDrillGridState: GridState = {
     selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set(['0-0']) },
 };
 
+const dataWithContent: GridState = {
+    data: [
+        ['Value to Delete', '', ''],
+        ['Another Value', '', ''],
+        ['', '', ''],
+    ],
+    selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set(['0-0']) },
+};
+
+
 const drills: Drill[] = [
-    {
-        id: 'copy-paste-flow',
-        level: 'Beginner',
-        name: 'Copy & Paste Flow',
-        description: 'Practice copying a cell, moving down, and pasting.',
-        repetitions: 15,
-        mistakeLimit: 2,
-        initialGridState: defaultDrillGridState,
-        steps: [
-            { description: 'Copy', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'CUT' } }, // Using CUT for visual effect
-            { description: 'Move Down', keys: ['ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down', amount: 1 } } },
-            { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Copy' } } }
-        ]
+    // =======================
+// BEGINNER COMBINATION DRILLS
+// =======================
+
+
+{
+    id: 'delete-undo-redo',
+    level: 'Beginner',
+    name: 'Delete, Undo & Redo',
+    description: 'Safely remove data and verify changes.',
+    repetitions: 15,
+    mistakeLimit: 2,
+    initialGridState: dataWithContent,
+    steps: [
+      { description: 'Delete cell content', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
+      { description: 'Undo deletion', keys: ['Control', 'z'], iconName: 'Undo2', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Delete' } } },
+      { description: 'Redo deletion', keys: ['Control', 'y'], iconName: 'Redo2', gridEffect: { action: 'DELETE_CONTENT' } }
+    ]
+  },
+  
+  {
+    id: 'search-cycle-results',
+    level: 'Beginner',
+    name: 'Search and Cycle Results',
+    description: 'Find repeated values quickly.',
+    repetitions: 15,
+    mistakeLimit: 2,
+    steps: [
+      { description: 'Open Find', keys: ['Control', 'f'], iconName: 'Search' },
+      { description: 'Find next match', keys: ['Enter'], iconName: 'ArrowDownToLine' },
+      { description: 'Find next match', keys: ['Enter'], iconName: 'ArrowDownToLine' }
+    ]
+  },
+  
+  {
+    id: 'replace-decimal',
+    level: 'Beginner',
+    name: 'Find and Replace Decimal',
+    description: 'Replace formatting characters.',
+    repetitions: 12,
+    mistakeLimit: 2,
+    steps: [
+      { description: 'Open Replace dialog', keys: ['Control', 'h'], iconName: 'Replace' },
+      { description: 'Confirm replacement', keys: ['Enter'], iconName: 'Check' }
+    ]
+  },
+  
+  {
+    id: 'copy-to-next-sheet',
+    level: 'Beginner',
+    name: 'Copy to Another Sheet',
+    description: 'Move data across worksheets.',
+    repetitions: 15,
+    mistakeLimit: 2,
+    initialGridState: defaultDrillGridState,
+    steps: [
+      { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'CUT' } },
+      { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine' },
+      { description: 'Paste cell', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: {value: 'Value to Copy'} } }
+    ]
+  },
+  
+  {
+    id: 'emphasize-and-save',
+    level: 'Beginner',
+    name: 'Emphasize & Save',
+    description: 'Highlight important data and save.',
+    repetitions: 12,
+    mistakeLimit: 2,
+    initialGridState: defaultDrillGridState,
+    steps: [
+      { description: 'Bold text', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
+      { description: 'Underline text', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
+      { description: 'Save workbook', keys: ['Control', 's'], iconName: 'Save' }
+    ]
+  },
+  
+  {
+    id: 'delete-end-of-table',
+    level: 'Beginner',
+    name: 'Delete End of Table',
+    description: 'Quickly reach and clean last value.',
+    repetitions: 12,
+    mistakeLimit: 2,
+    initialGridState: dataWithContent,
+    steps: [
+      { description: 'Jump to last cell', keys: ['Control', 'End'], iconName: 'PanelBottomOpen', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'end' } } },
+      { description: 'Delete value', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } }
+    ]
+  },
+  
+  {
+    id: 'move-up-and-format',
+    level: 'Beginner',
+    name: 'Move Data Up & Reformat',
+    description: 'Relocate and restyle content.',
+    repetitions: 12,
+    mistakeLimit: 2,
+    initialGridState: {
+        data: [
+            ['', ''],
+            ['Value to Move', ''],
+        ],
+        selection: { activeCell: { row: 1, col: 0 }, selectedCells: new Set(['1-0']) },
     },
-    {
-        id: 'bold-italic-flow',
-        level: 'Beginner',
-        name: 'Formatting Flow',
-        description: 'Practice applying bold and then italic formatting.',
-        repetitions: 15,
-        mistakeLimit: 2,
-        initialGridState: defaultDrillGridState,
-        steps: [
-            { description: 'Bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
-            { description: 'Italicize', keys: ['Control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } }
-        ]
+    steps: [
+      { description: 'Cut value', keys: ['Control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },
+      { description: 'Move up', keys: ['ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'up' } } },
+      { description: 'Paste value', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Move' } } },
+      { description: 'Underline', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
+      { description: 'Bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } }
+    ]
+  },
+  
+  {
+    id: 'scan-large-data',
+    level: 'Beginner',
+    name: 'Scan Large Dataset',
+    description: 'Review big tables quickly.',
+    repetitions: 10,
+    mistakeLimit: 2,
+    steps: [
+      { description: 'Page down', keys: ['PageDown'], iconName: 'ArrowDownToLine' },
+      { description: 'Page down', keys: ['PageDown'], iconName: 'ArrowDownToLine' },
+      { description: 'Page up', keys: ['PageUp'], iconName: 'ArrowUpToLine' }
+    ]
+  },
+  
+  {
+    id: 'copy-to-row-edge',
+    level: 'Beginner',
+    name: 'Copy to Row Edge',
+    description: 'Extend values across a row.',
+    repetitions: 12,
+    mistakeLimit: 2,
+    initialGridState: {
+        data: [
+            ['Copy Me', '', '', 'Paste Here'],
+        ],
+        selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set(['0-0']) },
     },
+    steps: [
+      { description: 'Go to row start', keys: ['Home'], iconName: 'Home', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'home' } } },
+      { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy' },
+      { description: 'Jump to row edge', keys: ['Control', 'ArrowRight'], iconName: 'MoveRight', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'edgeRight' } } },
+      { description: 'Paste value', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Copy Me' } } }
+    ]
+  },
+  
+  {
+    id: 'cycle-worksheets',
+    level: 'Beginner',
+    name: 'Cycle Through Worksheets',
+    description: 'Navigate sheets efficiently.',
+    repetitions: 10,
+    mistakeLimit: 2,
+    steps: [
+      { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine' },
+      { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine' },
+      { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine' },
+      { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine' }
+    ]
+  },
+  
+  
     {
         id: 'select-row-delete-flow',
         level: 'Intermediate',

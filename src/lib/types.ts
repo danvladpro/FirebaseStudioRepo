@@ -17,6 +17,7 @@ export type GridEffectAction =
   | 'INSERT_ROW'
   | 'DELETE_ROW'
   | 'DELETE_COLUMN'
+  | 'DELETE_CONTENT'
   | 'CUT'
   | 'PASTE'
   | 'MOVE_SELECTION'
