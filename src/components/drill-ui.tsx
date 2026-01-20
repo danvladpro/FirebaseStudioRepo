@@ -79,8 +79,9 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (["alt", "option"].includes(lower)) return "alt";
     if (["meta", "command", "cmd", "win"].includes(lower)) return "meta";
     if (["delete", "del"].includes(lower)) return "delete";
-    if (["enter", "return"].includes(lower)) return "enter";
+    if (["enter", "return"].includes(lower)) return isMac ? 'return' : 'enter';
     if (key === ' ') return ' ';
+    if (key.startsWith('Arrow')) return key.toLowerCase();
     return lower;
   };
 
@@ -123,36 +124,32 @@ export function DrillUI({ drill }: DrillUIProps) {
         setPressedKeys(new Set());
         setSequence([]);
 
-        setVisualStepIndex(prevVisualStep => {
-            const isLastVisualStep = prevVisualStep === drill.steps.length - 1;
+        const isLastVisualStep = visualStepIndex === drill.steps.length - 1;
+        
+        if (isLastVisualStep) {
+             // End of a repetition
+            setReps(prevReps => {
+                const newReps = [...prevReps];
+                newReps[currentRep] = RepStatus.Correct;
+                return newReps;
+            });
             
-            if (isLastVisualStep) {
-                setCurrentRep(prevCurrentRep => {
-                    setReps(prevReps => {
-                        const newReps = [...prevReps];
-                        if (prevCurrentRep < newReps.length) {
-                            newReps[prevCurrentRep] = RepStatus.Correct;
-                        }
-                        return newReps;
-                    });
-
-                    if (prevCurrentRep === drill.repetitions - 1) {
-                        finishDrill();
-                        return prevCurrentRep;
-                    }
-
-                    // Reset for next repetition
-                    setLogicalStepIndex(0);
-                    return prevCurrentRep + 1;
-                });
-                return 0; // Reset visual step
+            const isLastRepetition = currentRep === drill.repetitions - 1;
+            if (isLastRepetition) {
+                finishDrill();
             } else {
-                setLogicalStepIndex(prev => prev + 1);
-                return prevVisualStep + 1; // Advance visual step
+                // Move to next repetition
+                setCurrentRep(prev => prev + 1);
+                setLogicalStepIndex(0);
+                setVisualStepIndex(0);
             }
-        });
+        } else {
+            // Next step in the current repetition
+            setLogicalStepIndex(prev => prev + 1);
+            setVisualStepIndex(prev => prev + 1);
+        }
     }, 400);
-  }, [drill.steps.length, drill.repetitions, finishDrill]);
+  }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
 
 
   const handleIncorrect = () => {
