@@ -117,33 +117,42 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   const handleStepSuccess = useCallback(() => {
     setStepFeedback('correct');
-    setLogicalStepIndex(prev => prev + 1); // Advance logical step immediately
-
-    setPressedKeys(new Set());
-    setSequence([]);
 
     setTimeout(() => {
-        // After animation delay, sync the visual step
-        setVisualStepIndex((prev) => {
-            const isLastStep = prev === drill.steps.length - 1;
-            if(isLastStep){
-                const newReps = [...reps];
-                newReps[currentRep] = RepStatus.Correct;
-                setReps(newReps);
-
-                if (currentRep === drill.repetitions - 1) {
-                    finishDrill();
-                } else {
-                    setCurrentRep(prevRep => prevRep + 1);
-                }
-                return 0; // Reset visual step for new rep
-            }
-            return prev + 1; // Go to next visual step
-        });
         setStepFeedback(null);
-    }, 400); // Animation duration
+        setPressedKeys(new Set());
+        setSequence([]);
 
-  }, [currentRep, drill.steps.length, finishDrill, reps]);
+        setVisualStepIndex(prevVisualStep => {
+            const isLastVisualStep = prevVisualStep === drill.steps.length - 1;
+            
+            if (isLastVisualStep) {
+                setCurrentRep(prevCurrentRep => {
+                    setReps(prevReps => {
+                        const newReps = [...prevReps];
+                        if (prevCurrentRep < newReps.length) {
+                            newReps[prevCurrentRep] = RepStatus.Correct;
+                        }
+                        return newReps;
+                    });
+
+                    if (prevCurrentRep === drill.repetitions - 1) {
+                        finishDrill();
+                        return prevCurrentRep;
+                    }
+
+                    // Reset for next repetition
+                    setLogicalStepIndex(0);
+                    return prevCurrentRep + 1;
+                });
+                return 0; // Reset visual step
+            } else {
+                setLogicalStepIndex(prev => prev + 1);
+                return prevVisualStep + 1; // Advance visual step
+            }
+        });
+    }, 400);
+  }, [drill.steps.length, drill.repetitions, finishDrill]);
 
 
   const handleIncorrect = () => {
