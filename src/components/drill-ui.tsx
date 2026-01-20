@@ -39,7 +39,6 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [isMac, setIsMac] = useState(false);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [sequence, setSequence] = useState<string[]>([]);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
@@ -118,39 +117,33 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   const handleStepSuccess = useCallback(() => {
     setStepFeedback('correct');
-    setIsAnimating(true);
-    
-    // Immediately advance the logical step so the system is ready for the next input
-    const isLastStep = logicalStepIndex === drill.steps.length - 1;
-    if (isLastStep) {
-        setLogicalStepIndex(0); // Reset for next rep
-    } else {
-        setLogicalStepIndex(prev => prev + 1);
-    }
+    setLogicalStepIndex(prev => prev + 1); // Advance logical step immediately
+
     setPressedKeys(new Set());
     setSequence([]);
 
-    // After animation, sync visual step and rep counter
     setTimeout(() => {
-        setStepFeedback(null);
-        setIsAnimating(false);
-        if (isLastStep) {
-            const newReps = [...reps];
-            newReps[currentRep] = RepStatus.Correct;
-            setReps(newReps);
+        // After animation delay, sync the visual step
+        setVisualStepIndex((prev) => {
+            const isLastStep = prev === drill.steps.length - 1;
+            if(isLastStep){
+                const newReps = [...reps];
+                newReps[currentRep] = RepStatus.Correct;
+                setReps(newReps);
 
-            if (currentRep === drill.repetitions - 1) {
-                finishDrill();
-            } else {
-                setCurrentRep(prev => prev + 1);
-                setVisualStepIndex(0);
+                if (currentRep === drill.repetitions - 1) {
+                    finishDrill();
+                } else {
+                    setCurrentRep(prevRep => prevRep + 1);
+                }
+                return 0; // Reset visual step for new rep
             }
-        } else {
-            setVisualStepIndex(prev => prev + 1);
-        }
-    }, 400);
+            return prev + 1; // Go to next visual step
+        });
+        setStepFeedback(null);
+    }, 400); // Animation duration
 
-  }, [logicalStepIndex, drill.steps.length, currentRep, reps, drill.repetitions, finishDrill]);
+  }, [currentRep, drill.steps.length, finishDrill, reps]);
 
 
   const handleIncorrect = () => {
@@ -175,10 +168,18 @@ export function DrillUI({ drill }: DrillUIProps) {
   };
   
   const processKeyPress = useCallback((key: string) => {
-    if (!activeStep || isAnimating) return;
+    if (logicalStepIndex >= drill.steps.length || stepFeedback === 'correct') return;
   
     const requiredKeys = getRequiredKeys();
     const normalizedKey = normalizeKey(key);
+    
+    if (requiredKeys.size === 1 && activeStep.isSequential !== true) {
+      const singleRequiredKey = normalizeKey(requiredKeys.values().next().value.toLowerCase());
+      if (normalizedKey === singleRequiredKey) {
+        handleStepSuccess();
+        return;
+      }
+    }
   
     if (activeStep.isSequential) {
       const newSequence = [...sequence, normalizedKey];
@@ -209,9 +210,11 @@ export function DrillUI({ drill }: DrillUIProps) {
         handleIncorrect();
       }
     }
-  }, [activeStep, sequence, pressedKeys, getRequiredKeys, handleStepSuccess, handleIncorrect, isAnimating]);
+  }, [logicalStepIndex, drill.steps.length, stepFeedback, getRequiredKeys, activeStep, sequence, pressedKeys, handleStepSuccess, handleIncorrect]);
 
   useEffect(() => {
+    if (logicalStepIndex >= drill.steps.length) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
       processKeyPress(e.key);
@@ -231,7 +234,7 @@ export function DrillUI({ drill }: DrillUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, sequence, activeStep, processKeyPress]);
+  }, [logicalStepIndex, pressedKeys, sequence, activeStep, processKeyPress]);
 
   return (
     <>
