@@ -194,34 +194,13 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     }, {} as Record<string, Drill[]>);
   }, []);
 
-  const isBeginnerCompleted = (setsByLevel['Beginner']?.completed || 0) === (setsByLevel['Beginner']?.total || 0);
-  const isIntermediateCompleted = (setsByLevel['Intermediate']?.completed || 0) === (setsByLevel['Intermediate']?.total || 0);
-  
-  const isBasicExamPassed = (examStats['exam-basic']?.bestScore ?? 0) === 100;
-  const isIntermediateExamPassed = (examStats['exam-intermediate']?.bestScore ?? 0) === 100;
-
-  const isIntermediateUnlocked = isBeginnerCompleted || isBasicExamPassed;
-  const isAdvancedUnlocked = isIntermediateCompleted || isIntermediateExamPassed;
-
   const getIsSetLocked = (set: ChallengeSet) => {
-    if (isLimited) {
-      if (set.id === 'formatting-basics' || set.id === 'general-productivity') return false;
-      return true;
+    if (isPremium) return false;
+
+    if (set.id === 'formatting-basics' || set.id === 'general-productivity') {
+        return false;
     }
-    if (set.category === 'Scenario') return false;
-
-    if (set.level === 'Intermediate' && !isIntermediateUnlocked) return true;
-    if (set.level === 'Advanced' && !isAdvancedUnlocked) return true;
-    
-    return false;
-  };
-
-  const getSetLockTooltip = (set: ChallengeSet) => {
-    if (isLimited && set.id !== 'formatting-basics' && set.id !== 'general-productivity') return "Upgrade to Premium to unlock this set.";
-    if (set.level === 'Intermediate' && !isIntermediateUnlocked) return "Complete all Beginner sets or pass the Basic Exam to unlock.";
-    if (set.level === 'Advanced' && !isIntermediateUnlocked) return "Complete all Intermediate sets or pass the Intermediate Exam to unlock.";
-    if (set.category === 'Scenario' && isLimited) return "Upgrade to Premium to access scenarios.";
-    return "";
+    return true;
   };
 
   const shortcutSetsToDisplay = CHALLENGE_SETS.map(set => ({ ...set, isLocked: getIsSetLocked(set) }));
@@ -239,10 +218,8 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const levelOrder: (keyof typeof groupedShortcutSets)[] = ['General','Beginner', 'Intermediate', 'Advanced'];
 
   const getIsExamLocked = (examId: string) => {
-    if (isLimited) return true;
-    if (examId === 'exam-intermediate' && (examStats['exam-basic']?.bestScore ?? 0) < 100) return true;
-    if (examId === 'exam-advanced' && (examStats['exam-intermediate']?.bestScore ?? 0) < 100) return true;
-    return false;
+    if (isPremium) return false;
+    return true;
   };
   
   const getExamLockTooltip = (examId: string) => {
@@ -345,6 +322,11 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     return cardContent;
   }
   
+  const getSetLockTooltip = (set: ChallengeSet) => {
+    if (isLimited && set.id !== 'formatting-basics' && set.id !== 'general-productivity') return "Upgrade to Premium to unlock this set.";
+    return "";
+  };
+
   const renderSetCard = (set: ChallengeSet & { isLocked: boolean }) => {
     const Icon = iconMap[set.iconName];
     const setStats = stats[set.id];
@@ -638,7 +620,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                     {levelOrder.map(level => {
                         if (!groupedShortcutSets[level] && !drillsByLevel[level]) return null;
                         
-                        const areChallengesForLevelPassed = (setsByLevel[level]?.completed || 0) === (setsByLevel[level]?.total || 0);
+                        const areChallengesForLevelPassed = isPremium || (setsByLevel[level]?.completed || 0) === (setsByLevel[level]?.total || 0);
 
                         return (
                             <div key={level} className="mb-8">
@@ -672,8 +654,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
                                                     return drillsForLevel.map((drill, index) => {
                                                         const isDrillPassed = stats[drill.id]?.bestScore === 100;
-                                                        const isNextDrill = areChallengesForLevelPassed && index === firstIncompleteDrillIndex;
-                                                        const isDrillLocked = !areChallengesForLevelPassed || index > firstIncompleteDrillIndex;
+                                                        const isDrillLocked = !isPremium && (!areChallengesForLevelPassed || index > firstIncompleteDrillIndex);
+                                                        const isNextDrill = !isDrillLocked && !isDrillPassed && index === firstIncompleteDrillIndex;
+                                                        
 
                                                         const tooltipContent = isDrillLocked 
                                                             ? (!areChallengesForLevelPassed 
