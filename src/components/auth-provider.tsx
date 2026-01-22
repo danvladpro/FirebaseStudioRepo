@@ -27,9 +27,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const sub = userProfile?.subscription;
   const isPremium = 
-    !!sub &&
+    (!!sub &&
     sub.status === 'active' &&
-    (sub.type === 'lifetime' || (!!sub.expiresAt && isFuture(new Date(sub.expiresAt))));
+    (sub.type === 'lifetime' || (!!sub.expiresAt && isFuture(new Date(sub.expiresAt))))) || userProfile?.preview === true;
 
 
   useEffect(() => {

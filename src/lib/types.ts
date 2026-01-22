@@ -92,4 +92,5 @@ export interface UserProfile {
   performance?: UserStats;
   masteryCertificateId?: string | null;
   missingKeys?: string[];
+  preview?: boolean;
 }
