@@ -85,6 +85,11 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 }
             });
             break;
+        case 'COPY':
+            getCellsToApply().forEach(cellId => {
+                newCellStyles[cellId] = { ...newCellStyles[cellId], border: '2px dashed hsl(var(--primary))' };
+            });
+            break;
         case 'CUT':
             getCellsToApply().forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], opacity: 0.8, border: '2px dashed hsl(var(--primary))' };
@@ -118,6 +123,66 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                         break;
                 }
                  newSelection.selectedCells = new Set([`${newSelection.activeCell.row}-${newSelection.activeCell.col}`]);
+            }
+            break;
+        case 'MOVE_SELECTION_ADVANCED':
+            if (payload?.to) {
+                switch (payload.to) {
+                    case 'edgeRight': newSelection.activeCell.col = newGridData[0].length - 1; break;
+                    case 'edgeLeft': newSelection.activeCell.col = 0; break;
+                    case 'edgeUp': newSelection.activeCell.row = 0; break;
+                    case 'edgeDown': newSelection.activeCell.row = newGridData.length - 1; break;
+                    case 'home': newSelection.activeCell.col = 0; break;
+                    case 'topLeft': newSelection.activeCell = { row: 0, col: 0 }; break;
+                    case 'end': newSelection.activeCell = { row: newGridData.length - 1, col: newGridData[0].length - 1 }; break;
+                }
+                newSelection.selectedCells.clear();
+                newSelection.selectedCells.add(`${newSelection.activeCell.row}-${newSelection.activeCell.col}`);
+            }
+            break;
+        case 'EXTEND_SELECTION':
+            if (payload?.direction) {
+                const { row, col } = newSelection.activeCell;
+                let nextRow = row, nextCol = col;
+                switch (payload.direction) {
+                    case 'right': nextCol = Math.min(newGridData[0].length - 1, col + 1); break;
+                    case 'left': nextCol = Math.max(0, col - 1); break;
+                    case 'down': nextRow = Math.min(newGridData.length - 1, row + 1); break;
+                    case 'up': nextRow = Math.max(0, row - 1); break;
+                }
+                newSelection.activeCell = { row: nextRow, col: nextCol };
+                newSelection.selectedCells.add(`${nextRow}-${nextCol}`);
+            }
+            break;
+        case 'SELECT_TO_EDGE':
+            if (payload?.direction) {
+                const { row, col } = newSelection.activeCell;
+                switch (payload.direction) {
+                    case 'right':
+                        for (let c = col; c < newGridData[0].length; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
+                        break;
+                    case 'left':
+                        for (let c = 0; c <= col; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
+                        break;
+                    case 'down':
+                        for (let r = row; r < newGridData.length; r++) { newSelection.selectedCells.add(`${r}-${col}`); }
+                        break;
+                    case 'up':
+                        for (let r = 0; r <= row; r++) { newSelection.selectedCells.add(`${r}-${col}`); }
+                        break;
+                }
+            }
+            break;
+        case 'SELECT_TO_END':
+            {
+                const { row, col } = newSelection.activeCell;
+                const endRow = newGridData.length - 1;
+                const endCol = newGridData[0].length - 1;
+                for (let r = row; r <= endRow; r++) {
+                    for (let c = (r === row ? col : 0); c <= endCol; c++) {
+                        newSelection.selectedCells.add(`${r}-${c}`);
+                    }
+                }
             }
             break;
         case 'APPLY_STYLE_BOLD':
