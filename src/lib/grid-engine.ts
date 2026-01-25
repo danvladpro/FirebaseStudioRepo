@@ -211,7 +211,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                     const endRow = newGridData.length - 1;
                     const endCol = newGridData[0].length - 1;
                     for (let r = row; r <= endRow; r++) {
-                        for (let c = (r === row ? col : 0); c <= endCol; c++) {
+                        for (let c = col; c <= endCol; c++) {
                             newSelection.selectedCells.add(`${r}-${c}`);
                         }
                     }
