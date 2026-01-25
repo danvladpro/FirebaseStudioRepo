@@ -122,7 +122,8 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                         newSelection.activeCell.col = Math.max(0, newSelection.activeCell.col - amount);
                         break;
                 }
-                 newSelection.selectedCells = new Set([`${newSelection.activeCell.row}-${newSelection.activeCell.col}`]);
+                newSelection.selectedCells.clear();
+                newSelection.selectedCells.add(`${newSelection.activeCell.row}-${newSelection.activeCell.col}`);
             }
             break;
         case 'MOVE_SELECTION_ADVANCED':
