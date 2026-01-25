@@ -27,36 +27,36 @@ export interface DrillSet {
     drills: Drill[];
 }
 
-const defaultDrillGridState: GridState = {
-    data: [
-        ['Value to Copy', ''],
-        ['', ''],
-        ['', ''],
-        ['', ''],
-        ['', ''],
-    ],
-    selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
-};
+const createGridState = (data: string[][]): GridState => ({
+  sheets: [{
+    name: 'Sheet1',
+    data,
+    selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() }
+  }],
+  activeSheetIndex: 0
+});
 
-const dataWithContent: GridState = {
-    data: [
-        ['Value to Delete', '', ''],
-        ['Another Value', '', ''],
-        ['', '', ''],
-    ],
-    selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
-};
+const defaultDrillGridState = createGridState([
+  ['Value to Copy', ''],
+  ['', ''],
+  ['', ''],
+  ['', ''],
+  ['', ''],
+]);
 
-const tableDataGridState: GridState = {
-  data: [
-      ['ID', 'Name', 'Date', 'Amount'],
-      ['1', 'Project A', '2026-01-01', '500'],
-      ['2', 'Project B', '2026-01-05', '1200'],
-      ['3', 'Project C', '2026-01-10', '750'],
-      ['4', 'Project D', '2026-01-15', '2000'],
-  ],
-  selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
-};
+const dataWithContent = createGridState([
+  ['Value to Delete', '', ''],
+  ['Another Value', '', ''],
+  ['', '', ''],
+]);
+
+const tableDataGridState = createGridState([
+    ['ID', 'Name', 'Date', 'Amount'],
+    ['1', 'Project A', '2026-01-01', '500'],
+    ['2', 'Project B', '2026-01-05', '1200'],
+    ['3', 'Project C', '2026-01-10', '750'],
+    ['4', 'Project D', '2026-01-15', '2000'],
+]);
 
 
 
@@ -105,10 +105,7 @@ const drills: Drill[] = [
     description: 'Move values across a row using jump navigation.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: {
-        data: [['Copy Me', '', '', 'Paste Here']],
-        selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
-    },
+    initialGridState: createGridState([['Copy Me', '', '', 'Paste Here']]),
     steps: [
       { description: 'Go to row start', keys: ['Home'], iconName: 'Home', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } } },
       { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy' },
@@ -259,10 +256,7 @@ const drills: Drill[] = [
     description: 'Relocate and restyle content using arrow keys.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: {
-        data: [['', ''], ['Value to Move', '']],
-        selection: { activeCell: { row: 1, col: 0 }, selectedCells: new Set() },
-    },
+    initialGridState: createGridState([['', ''], ['Value to Move', '']]),
     steps: [
       { description: 'Cut value', keys: ['Control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },
       { description: 'Move up', keys: ['ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'up' } } },
@@ -409,7 +403,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
     steps: [
-      { description: 'Select column', keys: ['Control', 'Space'], iconName: 'Columns', gridEffect: { action: 'SELECT_COLUMN' } },
+      { description: 'Select column', keys: ['Control', ' '], iconName: 'Columns', gridEffect: { action: 'SELECT_COLUMN' } },
       { description: 'Apply bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
       { description: 'Apply underline', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } }
     ]
@@ -423,7 +417,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
     steps: [
-      { description: 'Select row', keys: ['Shift', 'Space'], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
+      { description: 'Select row', keys: ['Shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
       { description: 'Apply italic', keys: ['Control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } }
     ]
   },
@@ -492,7 +486,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
     steps: [
-      { description: 'Select column', keys: ['Control', 'Space'], iconName: 'Columns', gridEffect: { action: 'SELECT_COLUMN' } },
+      { description: 'Select column', keys: ['Control', ' '], iconName: 'Columns', gridEffect: { action: 'SELECT_COLUMN' } },
       { description: 'Insert AutoSum', keys: ['Alt', '='], iconName: 'Sigma', gridEffect: { action: 'PASTE' } },
       { description: 'Confirm formula', keys: ['Enter'], iconName: 'CornerDownLeft', gridEffect: { action: 'PASTE' } }
     ]

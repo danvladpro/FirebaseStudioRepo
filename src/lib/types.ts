@@ -1,13 +1,18 @@
-
 import { type LucideIcon, type LucideProps } from "lucide-react";
 import { ElementType } from "react";
 
-export interface GridState {
+export interface Sheet {
+  name: string;
   data: string[][];
   selection: {
     activeCell: { row: number; col: number };
     selectedCells: Set<string>;
   };
+}
+
+export interface GridState {
+  sheets: Sheet[];
+  activeSheetIndex: number;
 }
 
 export type GridEffectAction =
@@ -32,7 +37,8 @@ export type GridEffectAction =
   | 'APPLY_STYLE_UNDERLINE'
   | 'APPLY_STYLE_STRIKETHROUGH'
   | 'APPLY_STYLE_CURRENCY'
-  | 'APPLY_STYLE_PERCENTAGE';
+  | 'APPLY_STYLE_PERCENTAGE'
+  | 'SWITCH_SHEET';
 
 export interface GridEffect {
   action: GridEffectAction;

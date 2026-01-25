@@ -46,17 +46,17 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   const activeStep = drill.steps[logicalStepIndex];
 
-  const { gridState: displayedGridState, cellStyles: displayedCellStyles } = calculateGridStateForStep(
+  const { gridState: displayedGridState, cellStyles: displayedCellStyles } = drill.initialGridState ? calculateGridStateForStep(
     drill.steps,
     drill.initialGridState!,
     visualStepIndex - 1
-  );
+  ) : { gridState: null, cellStyles: {} };
 
-  const { gridState: previewGridState, cellStyles: previewCellStyles } = calculateGridStateForStep(
+  const { gridState: previewGridState, cellStyles: previewCellStyles } = drill.initialGridState ? calculateGridStateForStep(
     drill.steps,
     drill.initialGridState!,
     visualStepIndex
-  );
+  ) : { gridState: null, cellStyles: {} };
   
   const resetForNewRep = useCallback(() => {
     setLogicalStepIndex(0);
@@ -127,7 +127,6 @@ export function DrillUI({ drill }: DrillUIProps) {
         const isLastVisualStep = visualStepIndex === drill.steps.length - 1;
         
         if (isLastVisualStep) {
-             // End of a repetition
             setReps(prevReps => {
                 const newReps = [...prevReps];
                 newReps[currentRep] = RepStatus.Correct;
@@ -138,13 +137,11 @@ export function DrillUI({ drill }: DrillUIProps) {
             if (isLastRepetition) {
                 finishDrill();
             } else {
-                // Move to next repetition
                 setCurrentRep(prev => prev + 1);
                 setLogicalStepIndex(0);
                 setVisualStepIndex(0);
             }
         } else {
-            // Next step in the current repetition
             setLogicalStepIndex(prev => prev + 1);
             setVisualStepIndex(prev => prev + 1);
         }
@@ -282,8 +279,7 @@ export function DrillUI({ drill }: DrillUIProps) {
              {displayedGridState && (
                 <div className="max-w-md mx-auto">
                     <VisualGrid 
-                        data={displayedGridState.data}
-                        selection={displayedGridState.selection}
+                        gridState={displayedGridState}
                         cellStyles={displayedCellStyles}
                         previewState={previewGridState ? {
                             gridState: previewGridState,

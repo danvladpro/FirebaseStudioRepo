@@ -1,14 +1,16 @@
-
-
-import { GridState, ChallengeStep } from './types';
+import { GridState, ChallengeStep, Sheet } from './types';
 
 export const deepCloneGridState = (state: GridState): GridState => {
   return {
-    data: state.data.map(row => [...row]),
-    selection: {
-      activeCell: { ...state.selection.activeCell },
-      selectedCells: new Set(state.selection.selectedCells),
-    }
+    sheets: state.sheets.map(sheet => ({
+      name: sheet.name,
+      data: sheet.data.map(row => [...row]),
+      selection: {
+        activeCell: { ...sheet.selection.activeCell },
+        selectedCells: new Set(sheet.selection.selectedCells),
+      }
+    })),
+    activeSheetIndex: state.activeSheetIndex,
   };
 };
 
@@ -16,20 +18,35 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
     if (!step.gridEffect) return { newGridState: gridState, newCellStyles: cellStyles };
 
     const { action, payload } = step.gridEffect;
-    let newGridData = gridState.data.map(row => [...row]);
-    let newSelection: GridState['selection'] = { 
-        activeCell: { ...gridState.selection.activeCell },
-        selectedCells: new Set(gridState.selection.selectedCells)
-    };
+    let newGridState = deepCloneGridState(gridState);
     let newCellStyles = { ...cellStyles };
 
+    // Handle sheet-level actions first
+    if (action === 'SWITCH_SHEET') {
+        if (payload?.direction === 'next') {
+            newGridState.activeSheetIndex = Math.min(newGridState.sheets.length - 1, newGridState.activeSheetIndex + 1);
+        } else if (payload?.direction === 'previous') {
+            newGridState.activeSheetIndex = Math.max(0, newGridState.activeSheetIndex - 1);
+        }
+        return { newGridState, newCellStyles };
+    }
+    
+    const activeSheet = newGridState.sheets[newGridState.activeSheetIndex];
+    if (!activeSheet) {
+        return { newGridState, newCellStyles };
+    }
+
+    let { data: newGridData, selection: newSelection } = activeSheet;
+    
     const getCellsToApply = () => newSelection.selectedCells.size > 0 ? newSelection.selectedCells : new Set([`${newSelection.activeCell.row}-${newSelection.activeCell.col}`]);
 
     switch (action) {
         case 'SELECT_ROW':
             newSelection.selectedCells.clear();
-            for (let c = 0; c < newGridData[0].length; c++) {
-                newSelection.selectedCells.add(`${newSelection.activeCell.row}-${c}`);
+            if (newGridData.length > 0 && newGridData[0]) {
+                for (let c = 0; c < newGridData[0].length; c++) {
+                    newSelection.selectedCells.add(`${newSelection.activeCell.row}-${c}`);
+                }
             }
             break;
         case 'SELECT_COLUMN':
@@ -55,7 +72,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             }
             const sortedInsertRows = Array.from(rowsToInsertAt).sort((a,b) => b - a);
             sortedInsertRows.forEach(rowIndex => {
-                const newRow = new Array(newGridData[0].length).fill('');
+                const newRow = new Array(newGridData[0]?.length || 0).fill('');
                 newGridData.splice(rowIndex, 0, newRow);
             });
             break;
@@ -75,7 +92,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             });
 
             newSelection.selectedCells.clear();
-            newSelection.activeCell.row = Math.min(newSelection.activeCell.row, newGridData.length - 1);
+            newSelection.activeCell.row = Math.max(0, Math.min(newSelection.activeCell.row, newGridData.length - 1));
             break;
         case 'DELETE_CONTENT':
             getCellsToApply().forEach(cellId => {
@@ -102,11 +119,11 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                   newGridData[r][c] = payload.value;
                 }
             }
-            // Clear "cut" styling from all cells after paste
             newCellStyles = {}; 
             break;
         case 'MOVE_SELECTION':
             if (payload?.direction) {
+                newSelection.selectedCells.clear();
                 const { direction, amount = 1 } = payload;
                 switch (direction) {
                     case 'down':
@@ -116,31 +133,36 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                         newSelection.activeCell.row = Math.max(0, newSelection.activeCell.row - amount);
                         break;
                     case 'right':
-                        newSelection.activeCell.col = Math.min(newGridData[0].length - 1, newSelection.activeCell.col + amount);
+                        if (newGridData[0]) {
+                            newSelection.activeCell.col = Math.min(newGridData[0].length - 1, newSelection.activeCell.col + amount);
+                        }
                         break;
                     case 'left':
                         newSelection.activeCell.col = Math.max(0, newSelection.activeCell.col - amount);
                         break;
                 }
-                newSelection.selectedCells.clear();
             }
             break;
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
+                newSelection.selectedCells.clear();
+                const hasData = newGridData.length > 0 && newGridData[0]?.length > 0;
                 switch (payload.to) {
-                    case 'edgeRight': newSelection.activeCell.col = newGridData[0].length - 1; break;
+                    case 'edgeRight': newSelection.activeCell.col = hasData ? newGridData[0].length - 1 : 0; break;
                     case 'edgeLeft': newSelection.activeCell.col = 0; break;
                     case 'edgeUp': newSelection.activeCell.row = 0; break;
-                    case 'edgeDown': newSelection.activeCell.row = newGridData.length - 1; break;
+                    case 'edgeDown': newSelection.activeCell.row = hasData ? newGridData.length - 1 : 0; break;
                     case 'home': newSelection.activeCell.col = 0; break;
                     case 'topLeft': newSelection.activeCell = { row: 0, col: 0 }; break;
-                    case 'end': newSelection.activeCell = { row: newGridData.length - 1, col: newGridData[0].length - 1 }; break;
+                    case 'end': newSelection.activeCell = { row: hasData ? newGridData.length - 1 : 0, col: hasData ? newGridData[0].length - 1 : 0 }; break;
                 }
-                newSelection.selectedCells.clear();
             }
             break;
         case 'EXTEND_SELECTION':
             if (payload?.direction) {
+                if(newSelection.selectedCells.size === 0) {
+                    newSelection.selectedCells.add(`${newSelection.activeCell.row}-${newSelection.activeCell.col}`);
+                }
                 const { row, col } = newSelection.activeCell;
                 let nextRow = row, nextCol = col;
                 switch (payload.direction) {
@@ -156,9 +178,14 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         case 'SELECT_TO_EDGE':
             if (payload?.direction) {
                 const { row, col } = newSelection.activeCell;
+                if(newSelection.selectedCells.size === 0) {
+                    newSelection.selectedCells.add(`${row}-${col}`);
+                }
                 switch (payload.direction) {
                     case 'right':
-                        for (let c = col; c < newGridData[0].length; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
+                        if (newGridData[0]) {
+                            for (let c = col; c < newGridData[0].length; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
+                        }
                         break;
                     case 'left':
                         for (let c = 0; c <= col; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
@@ -175,11 +202,13 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         case 'SELECT_TO_END':
             {
                 const { row, col } = newSelection.activeCell;
-                const endRow = newGridData.length - 1;
-                const endCol = newGridData[0].length - 1;
-                for (let r = row; r <= endRow; r++) {
-                    for (let c = (r === row ? col : 0); c <= endCol; c++) {
-                        newSelection.selectedCells.add(`${r}-${c}`);
+                if (newGridData.length > 0 && newGridData[0]) {
+                    const endRow = newGridData.length - 1;
+                    const endCol = newGridData[0].length - 1;
+                    for (let r = row; r <= endRow; r++) {
+                        for (let c = (r === row ? col : 0); c <= endCol; c++) {
+                            newSelection.selectedCells.add(`${r}-${c}`);
+                        }
                     }
                 }
             }
@@ -228,12 +257,13 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
     }
 
+    newGridState.sheets[newGridState.activeSheetIndex] = activeSheet;
+
     return {
-        newGridState: { data: newGridData, selection: newSelection },
+        newGridState,
         newCellStyles
     };
 };
-
 
 export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridState: GridState, targetStepIndex: number): { gridState: GridState | null, cellStyles: Record<string, React.CSSProperties> } => {
     if (!initialGridState) return { gridState: null, cellStyles: {} };

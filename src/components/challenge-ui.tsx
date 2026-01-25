@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
@@ -402,11 +403,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         </CardHeader>
         <CardContent className="text-center py-8">
             
-            {displayedGridState && displayedGridState.data && (
+            {displayedGridState && (
                 <div className="mb-6">
                     <VisualGrid 
-                        data={displayedGridState.data} 
-                        selection={displayedGridState.selection} 
+                        gridState={displayedGridState} 
                         cellStyles={displayedCellStyles}
                         previewState={previewGridState ? {
                             gridState: previewGridState,

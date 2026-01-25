@@ -6,20 +6,58 @@ const singleStep = (challenge: Omit<Challenge, 'steps'>): Challenge => ({
     steps: [{ description: challenge.description, keys: challenge.keys!, iconName: challenge.iconName!, isSequential: challenge.isSequential, gridEffect: challenge.gridEffect }]
 });
 
-const defaultGridState: GridState = {
-    data: [
-      ['ID', 'Product', 'Region', 'Sales', 'Commission'],
-      ['#101', 'Gadget', 'North', '1200', '5%'],
-      ['#102', 'Widget', 'South', '850', '6%'],
-      ['#103', 'Doohickey', 'East', '2100', '4%'],
-      ['#104', 'Thingamajig', 'West', '500', '7%'],
-    ],
-    selection: { activeCell: { row: 2, col: 2 }, selectedCells: new Set() },
-};
+const createDefaultGridState = (): GridState => ({
+  sheets: [
+    {
+      name: 'Sheet1',
+      data: [
+        ['ID', 'Product', 'Region', 'Sales', 'Commission'],
+        ['#101', 'Gadget', 'North', '1200', '5%'],
+        ['#102', 'Widget', 'South', '850', '6%'],
+        ['#103', 'Doohickey', 'East', '2100', '4%'],
+        ['#104', 'Thingamajig', 'West', '500', '7%'],
+      ],
+      selection: { activeCell: { row: 2, col: 2 }, selectedCells: new Set() },
+    },
+  ],
+  activeSheetIndex: 0,
+});
+
+const createMultiSheetGridState = (): GridState => ({
+  sheets: [
+    {
+      name: 'Sheet1',
+      data: [
+        ['ID', 'Product', 'Region', 'Sales', 'Commission'],
+        ['#101', 'Gadget', 'North', '1200', '5%'],
+        ['#102', 'Widget', 'South', '850', '6%'],
+      ],
+      selection: { activeCell: { row: 1, col: 1 }, selectedCells: new Set() },
+    },
+    {
+      name: 'Sheet2',
+      data: [
+        ['Summary', 'Total'],
+        ['North', '1200'],
+        ['South', '850'],
+      ],
+      selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
+    },
+     {
+      name: 'Sheet3',
+      data: [
+        ['Notes', ''],
+        ['Check numbers for Q3', ''],
+      ],
+      selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
+    }
+  ],
+  activeSheetIndex: 0,
+});
+
 export const CHALLENGE_SETS: ChallengeSet[] = [
   // ==========================================
   // LEVEL 1: BEGINNER (Warp Speed)
-  // Goal: Movement and basic selection.
   // ==========================================
   {
     id: "warp-speed-navigation",
@@ -29,15 +67,15 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Navigation",
     iconName: "Zap",
     challenges: [
-      singleStep({ description: "Move to edge of data", keys: ["Control", "ArrowRight"], iconName: "MoveRight", initialGridState: defaultGridState, gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } }),
-      singleStep({ description: "Beginning of row", keys: ["Home"], iconName: "Home", initialGridState: defaultGridState, gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } } }),
-      singleStep({ description: "Top-left (A1)", keys: ["Control", "Home"], iconName: "PanelTopOpen", initialGridState: defaultGridState, gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } } }),
-      singleStep({ description: "Last used cell", keys: ["Control", "End"], iconName: "PanelBottomOpen", initialGridState: defaultGridState, gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } }),
-      singleStep({ description: "Page down", keys: ["PageDown"], iconName: "ArrowDownToLine", initialGridState: defaultGridState }),
-      singleStep({ description: "Page up", keys: ["PageUp"], iconName: "ArrowUpToLine", initialGridState: defaultGridState }),
-      singleStep({ description: "Next sheet", keys: ["Control", "PageDown"], iconName: "ArrowRightToLine", initialGridState: defaultGridState }),
-      singleStep({ description: "Previous sheet", keys: ["Control", "PageUp"], iconName: "ArrowLeftToLine", initialGridState: defaultGridState }),
-      singleStep({ description: "Open 'Go To' dialog", keys: ["F5"], iconName: "Locate", initialGridState: defaultGridState }),
+      singleStep({ description: "Jump to: Most Right cell", keys: ["Control", "ArrowRight"], iconName: "MoveRight", initialGridState: createDefaultGridState(), gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } }),
+      singleStep({ description: "Jump to: Beginning of row", keys: ["Home"], iconName: "Home", initialGridState: createDefaultGridState(), gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } } }),
+      singleStep({ description: "Jump to: Top-Left (A1)", keys: ["Control", "Home"], iconName: "PanelTopOpen", initialGridState: createDefaultGridState(), gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } } }),
+      singleStep({ description: "Jump to: Last Used Cell", keys: ["Control", "End"], iconName: "PanelBottomOpen", initialGridState: createDefaultGridState(), gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } }),
+      singleStep({ description: "Scroll: one Page Down", keys: ["PageDown"], iconName: "ArrowDownToLine", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Scroll: one Page Up", keys: ["PageUp"], iconName: "ArrowUpToLine", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Go to: Next WorkSheet", keys: ["Control", "PageDown"], iconName: "ArrowRightToLine", initialGridState: createMultiSheetGridState(), gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } }),
+      singleStep({ description: "Go to: Previous sheet", keys: ["Control", "PageUp"], iconName: "ArrowLeftToLine", initialGridState: createMultiSheetGridState(), gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } }),
+      singleStep({ description: "Open 'Go To' dialog", keys: ["F5"], iconName: "Locate", initialGridState: createDefaultGridState() }),
     ],
   },
   {
@@ -48,12 +86,12 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Selection",
     iconName: "MousePointerSquareDashed",
     challenges: [
-      singleStep({ description: "Extend selection", keys: ["Shift", "ArrowRight"], iconName: "MoveRight", initialGridState: defaultGridState, gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } }),
-      singleStep({ description: "Select to edge", keys: ["Control", "Shift", "ArrowRight"], iconName: "ArrowRight", initialGridState: defaultGridState, gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } }),
-      singleStep({ description: "Select current region", keys: ["Control", "Shift", "8"], iconName: "AppWindow", initialGridState: defaultGridState, gridEffect: { action: 'SELECT_ALL' } }),
-      singleStep({ description: "Select entire sheet", keys: ["Control", "a"], iconName: "SelectAll", gridEffect: { action: 'SELECT_ALL' }, initialGridState: defaultGridState }),
-      singleStep({ description: "Select to last cell", keys: ["Control", "Shift", "End"], iconName: "ArrowDownRightSquare", initialGridState: defaultGridState, gridEffect: { action: 'SELECT_TO_END' } }),
-      singleStep({ description: "Add non-adjacent cells", keys: ["Shift", "F8"], iconName: "PlusSquare", initialGridState: defaultGridState }),
+      singleStep({ description: "Extend selection", keys: ["Shift", "ArrowRight"], iconName: "MoveRight", initialGridState: createDefaultGridState(), gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } }),
+      singleStep({ description: "Select to edge", keys: ["Control", "Shift", "ArrowRight"], iconName: "ArrowRight", initialGridState: createDefaultGridState(), gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } }),
+      singleStep({ description: "Select current region", keys: ["Control", "Shift", "8"], iconName: "AppWindow", initialGridState: createDefaultGridState(), gridEffect: { action: 'SELECT_ALL' } }),
+      singleStep({ description: "Select entire sheet", keys: ["Control", "a"], iconName: "SelectAll", gridEffect: { action: 'SELECT_ALL' }, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Select to last cell", keys: ["Control", "Shift", "End"], iconName: "ArrowDownRightSquare", initialGridState: createDefaultGridState(), gridEffect: { action: 'SELECT_TO_END' } }),
+      singleStep({ description: "Add non-adjacent cells", keys: ["Shift", "F8"], iconName: "PlusSquare", initialGridState: createDefaultGridState() }),
     ],
   },
   {
@@ -64,24 +102,23 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "General",
     iconName: "ClipboardPaste",
     challenges: [
-      singleStep({ description: "Save workbook", keys: ["Control", "s"], iconName: "Save", initialGridState: defaultGridState }),
-      singleStep({ description: "Undo", keys: ["Control", "z"], iconName: "Undo2", initialGridState: defaultGridState }),
-      singleStep({ description: "Redo", keys: ["Control", "y"], iconName: "Redo2", initialGridState: defaultGridState }),
-      singleStep({ description: "Copy", keys: ["Control", "c"], iconName: "Copy", gridEffect: { action: 'COPY' }, initialGridState: defaultGridState }),
-      singleStep({ description: "Cut", keys: ["Control", "x"], iconName: "Scissors", gridEffect: { action: 'CUT' }, initialGridState: defaultGridState }),
-      singleStep({ description: "Paste", keys: ["Control", "v"], iconName: "ClipboardPaste", initialGridState: defaultGridState }),
-      singleStep({ description: "Bold", keys: ["Control", "b"], iconName: "Bold", gridEffect: { action: 'APPLY_STYLE_BOLD' }, initialGridState: defaultGridState }),
-      singleStep({ description: "Italicize", keys: ["Control", "i"], iconName: "Italic", gridEffect: { action: 'APPLY_STYLE_ITALIC' }, initialGridState: defaultGridState }),
-      singleStep({ description: "Underline", keys: ["Control", "u"], iconName: "Underline", gridEffect: { action: 'APPLY_STYLE_UNDERLINE' }, initialGridState: defaultGridState }),
-      singleStep({ description: "Strikethrough", keys: ["Control", "5"], iconName: "Strikethrough", gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' }, initialGridState: defaultGridState }),
-      singleStep({ description: "Open Find", keys: ["Control", "f"], iconName: "Search", initialGridState: defaultGridState }),
-      singleStep({ description: "Open Replace", keys: ["Control", "h"], iconName: "Replace", initialGridState: defaultGridState }),
+      singleStep({ description: "Save workbook", keys: ["Control", "s"], iconName: "Save", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Undo", keys: ["Control", "z"], iconName: "Undo2", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Redo", keys: ["Control", "y"], iconName: "Redo2", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Copy", keys: ["Control", "c"], iconName: "Copy", gridEffect: { action: 'COPY' }, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Cut", keys: ["Control", "x"], iconName: "Scissors", gridEffect: { action: 'CUT' }, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Paste", keys: ["Control", "v"], iconName: "ClipboardPaste", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Bold", keys: ["Control", "b"], iconName: "Bold", gridEffect: { action: 'APPLY_STYLE_BOLD' }, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Italicize", keys: ["Control", "i"], iconName: "Italic", gridEffect: { action: 'APPLY_STYLE_ITALIC' }, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Underline", keys: ["Control", "u"], iconName: "Underline", gridEffect: { action: 'APPLY_STYLE_UNDERLINE' }, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Strikethrough", keys: ["Control", "5"], iconName: "Strikethrough", gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' }, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Open Find", keys: ["Control", "f"], iconName: "Search", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Open Replace", keys: ["Control", "h"], iconName: "Replace", initialGridState: createDefaultGridState() }),
     ],
   },
 
   // ==========================================
   // LEVEL 2: INTERMEDIATE (Grid Surgeon)
-  // Goal: Formula logic and data structure.
   // ==========================================
   {
     id: "structural-management",
@@ -91,14 +128,14 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Management",
     iconName: "Layers",
     challenges: [
-      singleStep({ description: "Select column", keys: ["Control", " "], iconName: "Columns3", gridEffect: { action: 'SELECT_COLUMN' } }),
-      singleStep({ description: "Select row", keys: ["Shift", " "], iconName: "Rows3", gridEffect: { action: 'SELECT_ROW' } }),
-      singleStep({ description: "Insert row/col", keys: ["Control", "Shift", "="], iconName: "Sheet", gridEffect: { action: 'INSERT_ROW' } }),
-      singleStep({ description: "Delete row/col", keys: ["Control", "-"], iconName: "Trash2", gridEffect: { action: 'DELETE_ROW' } }),
-      singleStep({ description: "Hide rows", keys: ["Control", "9"], iconName: "EyeOff" }),
-      singleStep({ description: "Unhide rows", keys: ["Control", "Shift", "("], iconName: "Eye" }),
-      singleStep({ description: "Hide columns", keys: ["Control", "0"], iconName: "EyeOff" }),
-      singleStep({ description: "Select visible only", keys: ["Alt", ";"], iconName: "Aperture" }),
+      singleStep({ description: "Select column", keys: ["Control", " "], iconName: "Columns3", initialGridState: createDefaultGridState(), gridEffect: { action: 'SELECT_COLUMN' } }),
+      singleStep({ description: "Select row", keys: ["Shift", " "], iconName: "Rows3", initialGridState: createDefaultGridState(), gridEffect: { action: 'SELECT_ROW' } }),
+      singleStep({ description: "Insert row/col", keys: ["Control", "Shift", "="], iconName: "Sheet", initialGridState: createDefaultGridState(), gridEffect: { action: 'INSERT_ROW' } }),
+      singleStep({ description: "Delete row/col", keys: ["Control", "-"], iconName: "Trash2", initialGridState: createDefaultGridState(), gridEffect: { action: 'DELETE_ROW' } }),
+      singleStep({ description: "Hide rows", keys: ["Control", "9"], iconName: "EyeOff", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Unhide rows", keys: ["Control", "Shift", "("], iconName: "Eye", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Hide columns", keys: ["Control", "0"], iconName: "EyeOff", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Select visible only", keys: ["Alt", ";"], iconName: "Aperture", initialGridState: createDefaultGridState() }),
     ],
   },
   {
@@ -109,17 +146,17 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Formulas",
     iconName: "FunctionSquare",
     challenges: [
-      singleStep({ description: "Edit cell", keys: ["F2"], iconName: "Pencil" }),
-      singleStep({ description: "Start formula", keys: ["="], iconName: "Sigma" }),
-      singleStep({ description: "Lock reference (F4)", keys: ["F4"], iconName: "Anchor" }),
-      singleStep({ description: "Repeat last action", keys: ["F4"], iconName: "Repeat" }),
-      singleStep({ description: "AutoSum", keys: ["Alt", "="], iconName: "Calculator" }),
-      singleStep({ description: "Toggle formulas", keys: ["Control", "`"], iconName: "FileCode" }),
-      singleStep({ description: "Name Manager", keys: ["Control", "F3"], iconName: "BookUser" }),
-      singleStep({ description: "Create from selection", keys: ["Control", "Shift", "F3"], iconName: "CaseUpper" }),
-      singleStep({ description: "Create Table", keys: ["Control", "t"], iconName: "Table" }),
-      singleStep({ description: "Apply Filter", keys: ["Control", "Shift", "l"], iconName: "Filter" }),
-      singleStep({ description: "Filter dropdown", keys: ["Alt", "ArrowDown"], iconName: "ChevronDownSquare" }),
+      singleStep({ description: "Edit cell", keys: ["F2"], iconName: "Pencil", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Start formula", keys: ["="], iconName: "Sigma", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Lock reference (F4)", keys: ["F4"], iconName: "Anchor", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Repeat last action", keys: ["F4"], iconName: "Repeat", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "AutoSum", keys: ["Alt", "="], iconName: "Calculator", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Toggle formulas", keys: ["Control", "`"], iconName: "FileCode", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Name Manager", keys: ["Control", "F3"], iconName: "BookUser", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Create from selection", keys: ["Control", "Shift", "F3"], iconName: "CaseUpper", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Create Table", keys: ["Control", "t"], iconName: "Table", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Apply Filter", keys: ["Control", "Shift", "l"], iconName: "Filter", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Filter dropdown", keys: ["Alt", "ArrowDown"], iconName: "ChevronDownSquare", initialGridState: createDefaultGridState() }),
     ],
   },
   {
@@ -130,19 +167,18 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Data",
     iconName: "Wand2",
     challenges: [
-      singleStep({ description: "Flash Fill", keys: ["Control", "e"], iconName: "Wand2" }),
-      singleStep({ description: "Fill Down", keys: ["Control", "d"], iconName: "ArrowDownSquare" }),
-      singleStep({ description: "Fill Right", keys: ["Control", "r"], iconName: "ArrowRightSquare" }),
-      singleStep({ description: "Insert Date", keys: ["Control", ";"], iconName: "CalendarDays" }),
-      singleStep({ description: "Insert Time", keys: ["Control", "Shift", ";"], iconName: "Clock" }),
-      singleStep({ description: "Insert line break", keys: ["Alt", "Enter"], iconName: "WrapText" }),
-      singleStep({ description: "Insert Comment", keys: ["Shift", "F2"], iconName: "MessageSquarePlus" }),
+      singleStep({ description: "Flash Fill", keys: ["Control", "e"], iconName: "Wand2", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Fill Down", keys: ["Control", "d"], iconName: "ArrowDownSquare", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Fill Right", keys: ["Control", "r"], iconName: "ArrowRightSquare", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Insert Date", keys: ["Control", ";"], iconName: "CalendarDays", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Insert Time", keys: ["Control", "Shift", ";"], iconName: "Clock", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Insert line break", keys: ["Alt", "Enter"], iconName: "WrapText", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Insert Comment", keys: ["Shift", "F2"], iconName: "MessageSquarePlus", initialGridState: createDefaultGridState() }),
     ],
   },
 
   // ==========================================
   // LEVEL 3: ADVANCED (No-Ribbon Master)
-  // Goal: Sequential Alt-codes and formatting.
   // ==========================================
   {
     id: "presentation-polish",
@@ -152,15 +188,15 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Ribbon",
     iconName: "Palette",
     challenges: [
-      singleStep({ description: "Center align", keys: ["Alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true }),
-      singleStep({ description: "Merge & Center", keys: ["Alt", "h", "m", "c"], iconName: "Merge", isSequential: true }),
-      singleStep({ description: "Wrap Text", keys: ["Alt", "h", "w"], iconName: "WrapText", isSequential: true }),
-      singleStep({ description: "Apply all borders", keys: ["Alt", "h", "b", "a"], iconName: "Grid", isSequential: true }),
-      singleStep({ description: "Thick box border", keys: ["Alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true }),
-      singleStep({ description: "Fill Color", keys: ["Alt", "h", "h"], iconName: "PaintBucket", isSequential: true }), // NEW
-      singleStep({ description: "Clear formatting", keys: ["Alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true }),
-      singleStep({ description: "Auto-fit width", keys: ["Alt", "h", "o", "i"], iconName: "ArrowsLeftRight", isSequential: true }), // NEW
-      singleStep({ description: "Set column width", keys: ["Alt", "h", "o", "w"], iconName: "Columns", isSequential: true }),
+      singleStep({ description: "Center align", keys: ["Alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Merge & Center", keys: ["Alt", "h", "m", "c"], iconName: "Merge", isSequential: true, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Wrap Text", keys: ["Alt", "h", "w"], iconName: "WrapText", isSequential: true, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Apply all borders", keys: ["Alt", "h", "b", "a"], iconName: "Grid", isSequential: true, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Thick box border", keys: ["Alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Fill Color", keys: ["Alt", "h", "h"], iconName: "PaintBucket", isSequential: true, initialGridState: createDefaultGridState() }), // NEW
+      singleStep({ description: "Clear formatting", keys: ["Alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Auto-fit width", keys: ["Alt", "h", "o", "i"], iconName: "ArrowsLeftRight", isSequential: true, initialGridState: createDefaultGridState() }), // NEW
+      singleStep({ description: "Set column width", keys: ["Alt", "h", "o", "w"], iconName: "Columns", isSequential: true, initialGridState: createDefaultGridState() }),
     ],
   },
   {
@@ -171,14 +207,14 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Formatting",
     iconName: "DollarSign",
     challenges: [
-      singleStep({ description: "Currency format", keys: ["Control", "Shift", "$"], iconName: "DollarSign" }),
-      singleStep({ description: "Percentage format", keys: ["Control", "Shift", "%"], iconName: "Percent" }),
-      singleStep({ description: "General format", keys: ["Control", "Shift", "~"], iconName: "Hash" }),
-      singleStep({ description: "Date format", keys: ["Control", "Shift", "#"], iconName: "Calendar" }),
-      singleStep({ description: "Time format", keys: ["Control", "Shift", "@"], iconName: "Clock" }),
-      singleStep({ description: "Increase decimal", keys: ["Alt", "h", "0"], iconName: "PlusCircle", isSequential: true }),
-      singleStep({ description: "Decrease decimal", keys: ["Alt", "h", "9"], iconName: "MinusCircle", isSequential: true }),
-      singleStep({ description: "Open Format Cells", keys: ["Control", "1"], iconName: "Settings2" }),
+      singleStep({ description: "Currency format", keys: ["Control", "Shift", "$"], iconName: "DollarSign", initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_CURRENCY' } }),
+      singleStep({ description: "Percentage format", keys: ["Control", "Shift", "%"], iconName: "Percent", initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } }),
+      singleStep({ description: "General format", keys: ["Control", "Shift", "~"], iconName: "Hash", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Date format", keys: ["Control", "Shift", "#"], iconName: "Calendar", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Time format", keys: ["Control", "Shift", "@"], iconName: "Clock", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Increase decimal", keys: ["Alt", "h", "0"], iconName: "PlusCircle", isSequential: true, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Decrease decimal", keys: ["Alt", "h", "9"], iconName: "MinusCircle", isSequential: true, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Open Format Cells", keys: ["Control", "1"], iconName: "Settings2", initialGridState: createDefaultGridState() }),
     ],
   },
   {
@@ -189,12 +225,12 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Data",
     iconName: "ShieldCheck",
     challenges: [
-      singleStep({ description: "Open Sort dialog", keys: ["Alt", "d", "s"], iconName: "ArrowDownUp", isSequential: true }),
-      singleStep({ description: "Paste Special", keys: ["Control", "Alt", "v"], iconName: "ClipboardSignature" }),
-      singleStep({ description: "Group rows/cols", keys: ["Alt", "Shift", "ArrowRight"], iconName: "Group" }),
-      singleStep({ description: "Ungroup rows/cols", keys: ["Alt", "Shift", "ArrowLeft"], iconName: "Ungroup" }),
-      singleStep({ description: "Toggle Gridlines", keys: ["Alt", "w", "v", "g"], iconName: "Grid3X3", isSequential: true }), // NEW
-      singleStep({ description: "Freeze Panes", keys: ["Alt", "w", "f", "f"], iconName: "Lock", isSequential: true }), // NEW
+      singleStep({ description: "Open Sort dialog", keys: ["Alt", "d", "s"], iconName: "ArrowDownUp", isSequential: true, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Paste Special", keys: ["Control", "Alt", "v"], iconName: "ClipboardSignature", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Group rows/cols", keys: ["Alt", "Shift", "ArrowRight"], iconName: "Group", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Ungroup rows/cols", keys: ["Alt", "Shift", "ArrowLeft"], iconName: "Ungroup", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Toggle Gridlines", keys: ["Alt", "w", "v", "g"], iconName: "Grid3X3", isSequential: true, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Freeze Panes", keys: ["Alt", "w", "f", "f"], iconName: "Lock", isSequential: true, initialGridState: createDefaultGridState() }),
     ],
   },
 ];
@@ -210,7 +246,7 @@ export const SCENARIO_SETS: ChallengeSet[] = [
         challenges: [
             {
                 description: "Select a full row, then delete it.",
-                initialGridState: defaultGridState,
+                initialGridState: createDefaultGridState(),
                 steps: [
                     { description: "Select the entire row", keys: ["Shift", " "], iconName: "Rows3", gridEffect: { action: 'SELECT_ROW' } },
                     { description: "Delete the selected row(s)", keys: ["Control", "-"], iconName: "Trash2", gridEffect: { action: 'DELETE_ROW' } },
@@ -218,7 +254,7 @@ export const SCENARIO_SETS: ChallengeSet[] = [
             },
             {
                 description: "Select the current table, then cut it.",
-                initialGridState: defaultGridState,
+                initialGridState: createDefaultGridState(),
                 steps: [
                     { description: "Select the entire table", keys: ["Control", "a"], iconName: "SelectAll", gridEffect: { action: 'SELECT_ALL' } },
                     { description: "Cut the selection", keys: ["Control", "x"], iconName: "Scissors", gridEffect: { action: 'CUT' } },
@@ -226,10 +262,7 @@ export const SCENARIO_SETS: ChallengeSet[] = [
             },
             {
                 description: "Select a column and format it as Currency.",
-                initialGridState: {
-                    ...defaultGridState,
-                    selection: { activeCell: { row: 1, col: 3 }, selectedCells: new Set() }
-                },
+                initialGridState: createDefaultGridState(),
                 steps: [
                     { description: "Select the entire column", keys: ["Control", " "], iconName: "Columns3", gridEffect: { action: 'SELECT_COLUMN' } },
                     { description: "Apply the Currency format", keys: ["Control", "Shift", "$"], iconName: "DollarSign", gridEffect: { action: 'APPLY_STYLE_CURRENCY'} },
@@ -237,7 +270,7 @@ export const SCENARIO_SETS: ChallengeSet[] = [
             },
              {
                 description: "Select a range, then bold it.",
-                initialGridState: defaultGridState,
+                initialGridState: createDefaultGridState(),
                 steps: [
                     { description: "Select the entire table", keys: ["Control", "a"], iconName: "SelectAll", gridEffect: { action: 'SELECT_ALL' }},
                     { description: "Bold the current selection", keys: ["Control", "b"], iconName: "Bold", gridEffect: { action: 'APPLY_STYLE_BOLD' } },
@@ -245,7 +278,7 @@ export const SCENARIO_SETS: ChallengeSet[] = [
             },
             {
                 description: "Switch to formula view to check your work, then switch back.",
-                initialGridState: defaultGridState,
+                initialGridState: createDefaultGridState(),
                 steps: [
                     { description: "Toggle displaying formulas or values", keys: ["Control", "`"], iconName: "FileCode" },
                     { description: "Toggle displaying formulas or values", keys: ["Control", "`"], iconName: "FileText" },
@@ -286,13 +319,11 @@ export const ADVANCED_EXAM: ChallengeSet = {
   challenges: [
       ...getChallengesByLevel("Advanced"),
       // Also include some tricky ones from other levels
-      singleStep({ description: "Use Flash Fill to automatically fill a column", keys: ["Control", "e"], iconName: "Wand2" }),
-      singleStep({ description: "Select only the visible cells in a selection", keys: ["Alt", ";"], iconName: "Aperture" })
+      singleStep({ description: "Use Flash Fill to automatically fill a column", keys: ["Control", "e"], iconName: "Wand2", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Select only the visible cells in a selection", keys: ["Alt", ";"], iconName: "Aperture", initialGridState: createDefaultGridState() })
   ]
 };
 
 export const ALL_EXAM_SETS = [BASIC_EXAM, INTERMEDIATE_EXAM, ADVANCED_EXAM];
 
 export const ALL_CHALLENGE_SETS = [...CHALLENGE_SETS, ...SCENARIO_SETS, ...ALL_EXAM_SETS];
-
-    

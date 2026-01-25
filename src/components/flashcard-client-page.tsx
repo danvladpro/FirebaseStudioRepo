@@ -117,11 +117,10 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
 
                 <CardContent className="py-8 px-6 md:px-8 text-center flex flex-col items-center">
                     
-                    {initialDisplayGridState && initialDisplayGridState.data && (
+                    {initialDisplayGridState && (
                         <div className="mb-6 w-full max-w-lg">
                              <VisualGrid 
-                                data={initialDisplayGridState.data} 
-                                selection={initialDisplayGridState.selection}
+                                gridState={initialDisplayGridState} 
                                 cellStyles={initialDisplayCellStyles}
                                 previewState={finalDisplayGridState ? {
                                     gridState: finalDisplayGridState,
