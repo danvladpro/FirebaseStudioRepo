@@ -14,7 +14,7 @@ const defaultGridState: GridState = {
       ['#103', 'Doohickey', 'East', '2100', '4%'],
       ['#104', 'Thingamajig', 'West', '500', '7%'],
     ],
-    selection: { activeCell: { row: 2, col: 2 }, selectedCells: new Set(['2-2']) },
+    selection: { activeCell: { row: 2, col: 2 }, selectedCells: new Set() },
 };
 export const CHALLENGE_SETS: ChallengeSet[] = [
   // ==========================================
@@ -294,3 +294,5 @@ export const ADVANCED_EXAM: ChallengeSet = {
 export const ALL_EXAM_SETS = [BASIC_EXAM, INTERMEDIATE_EXAM, ADVANCED_EXAM];
 
 export const ALL_CHALLENGE_SETS = [...CHALLENGE_SETS, ...SCENARIO_SETS, ...ALL_EXAM_SETS];
+
+    

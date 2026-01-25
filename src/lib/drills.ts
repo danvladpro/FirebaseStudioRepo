@@ -35,7 +35,7 @@ const defaultDrillGridState: GridState = {
         ['', ''],
         ['', ''],
     ],
-    selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set(['0-0']) },
+    selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
 };
 
 const dataWithContent: GridState = {
@@ -44,7 +44,7 @@ const dataWithContent: GridState = {
         ['Another Value', '', ''],
         ['', '', ''],
     ],
-    selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set(['0-0']) },
+    selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
 };
 
 const tableDataGridState: GridState = {
@@ -55,7 +55,7 @@ const tableDataGridState: GridState = {
       ['3', 'Project C', '2026-01-10', '750'],
       ['4', 'Project D', '2026-01-15', '2000'],
   ],
-  selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set(['0-0']) },
+  selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
 };
 
 
@@ -94,7 +94,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: dataWithContent,
     steps: [
-      { description: 'Jump to last cell', keys: ['Control', 'End'], iconName: 'PanelBottomOpen', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'end' } } },
+      { description: 'Jump to last cell', keys: ['Control', 'End'], iconName: 'PanelBottomOpen', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } },
       { description: 'Delete value', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } }
     ]
   },
@@ -107,12 +107,12 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: {
         data: [['Copy Me', '', '', 'Paste Here']],
-        selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set(['0-0']) },
+        selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
     },
     steps: [
-      { description: 'Go to row start', keys: ['Home'], iconName: 'Home', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'home' } } },
+      { description: 'Go to row start', keys: ['Home'], iconName: 'Home', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } } },
       { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy' },
-      { description: 'Jump to row edge', keys: ['Control', 'ArrowRight'], iconName: 'MoveRight', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'edgeRight' } } },
+      { description: 'Jump to row edge', keys: ['Control', 'ArrowRight'], iconName: 'MoveRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
       { description: 'Paste value', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Copy Me' } } }
     ]
   },
@@ -261,7 +261,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: {
         data: [['', ''], ['Value to Move', '']],
-        selection: { activeCell: { row: 1, col: 0 }, selectedCells: new Set(['1-0']) },
+        selection: { activeCell: { row: 1, col: 0 }, selectedCells: new Set() },
     },
     steps: [
       { description: 'Cut value', keys: ['Control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },
@@ -293,9 +293,9 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: tableDataGridState,
     steps: [
-      { description: 'Go to Start', keys: ['Control', 'Home'], iconName: 'ArrowUpLeft', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'up', amount: 10 } } },
+      { description: 'Go to Start', keys: ['Control', 'Home'], iconName: 'ArrowUpLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } } },
       { description: 'Underline', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
-      { description: 'Go to End', keys: ['Control', 'End'], iconName: 'ArrowDownRight' },
+      { description: 'Go to End', keys: ['Control', 'End'], iconName: 'ArrowDownRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } },
       { description: 'Underline', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } }
     ]
   },
@@ -918,7 +918,7 @@ const drills: Drill[] = [
 ];
 
 export const DRILL_SET: DrillSet = {
-    id: 'micro-flow-drills',
-    name: 'Micro-Flow Drills',
-    drills: drills,
+  id: "muscle-memory-drills",
+  name: "Muscle Memory Drills",
+  drills: drills,
 };
