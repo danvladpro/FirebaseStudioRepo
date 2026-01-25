@@ -1,3 +1,4 @@
+
 "use client";
 
 import { cn } from "@/lib/utils";
@@ -22,10 +23,8 @@ export function VisualGrid({
 }: VisualGridProps) {
     if (!gridState) return null;
 
-    const activeSheet = gridState.sheets[gridState.activeSheetIndex];
-    if (!activeSheet) return null;
-
-    const { data, selection } = activeSheet;
+    const initialSheet = gridState.sheets[gridState.activeSheetIndex];
+    if (!initialSheet) return null;
 
     const previewSheet = previewState
         ? previewState.gridState.sheets[previewState.gridState.activeSheetIndex]
@@ -35,11 +34,9 @@ export function VisualGrid({
         previewState &&
         gridState.activeSheetIndex !== previewState.gridState.activeSheetIndex;
 
-    // Use preview data if accentuating (except sheet switch)
-    const gridData =
-        isAccentuating && previewSheet && !isSheetSwitch
-            ? previewSheet.data
-            : data;
+    // If accentuating, use the preview state's data/selection, otherwise use initial
+    const finalSheet = (isAccentuating && previewSheet && !isSheetSwitch) ? previewSheet : initialSheet;
+    const gridDataToRender = finalSheet.data;
 
     const getFinalCellStyles = (
         baseStyles: Record<string, React.CSSProperties>
@@ -59,12 +56,26 @@ export function VisualGrid({
     };
 
     const finalCellStyles = getFinalCellStyles(cellStyles);
-
-    // Determine the final active sheet for tab styling
+    
     const finalActiveSheetIndex =
         isAccentuating && isSheetSwitch && previewState
             ? previewState.gridState.activeSheetIndex
             : gridState.activeSheetIndex;
+
+    // Selection logic for the final state (when card is flipped)
+    const { activeCell: finalActiveCell, selectedCells: finalSelectedCells } = finalSheet.selection;
+    const isRangeSelection = finalSelectedCells.size > 1;
+
+    let selectionBounds = { minRow: Infinity, maxRow: -1, minCol: Infinity, maxCol: -1 };
+    if (isRangeSelection) {
+        finalSelectedCells.forEach(cellId => {
+            const [r, c] = cellId.split('-').map(Number);
+            selectionBounds.minRow = Math.min(selectionBounds.minRow, r);
+            selectionBounds.maxRow = Math.max(selectionBounds.maxRow, r);
+            selectionBounds.minCol = Math.min(selectionBounds.minCol, c);
+            selectionBounds.maxCol = Math.max(selectionBounds.maxCol, c);
+        });
+    }
 
     return (
         <div className="p-2 bg-muted/50 rounded-lg border">
@@ -73,8 +84,8 @@ export function VisualGrid({
                     <thead>
                         <tr>
                             <th className="p-1 w-10"></th>
-                            {gridData.length > 0 &&
-                                gridData[0].map((_, colIndex) => (
+                            {gridDataToRender.length > 0 &&
+                                gridDataToRender[0].map((_, colIndex) => (
                                     <th
                                         key={colIndex}
                                         className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-t-sm"
@@ -85,7 +96,7 @@ export function VisualGrid({
                         </tr>
                     </thead>
                     <tbody>
-                        {gridData.map((row, rowIndex) => (
+                        {gridDataToRender.map((row, rowIndex) => (
                             <tr key={rowIndex}>
                                 <td className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-l-sm">
                                     {rowIndex + 1}
@@ -93,56 +104,46 @@ export function VisualGrid({
 
                                 {row.map((cell, colIndex) => {
                                     const cellId = `${rowIndex}-${colIndex}`;
+                                    
+                                    // Preview hint (blue)
+                                    const isPreviewSelected = !isAccentuating && previewSheet && previewSheet.selection.selectedCells.has(cellId);
+                                    const isPreviewActive = !isAccentuating && previewSheet && previewSheet.selection.activeCell.row === rowIndex && previewSheet.selection.activeCell.col === colIndex;
 
-                                    // Final selection (green)
-                                    const finalActiveCell =
-                                        isAccentuating && previewSheet && !isSheetSwitch
-                                            ? previewSheet.selection.activeCell
-                                            : selection.activeCell;
-                                    const finalSelectedCells =
-                                        isAccentuating && previewSheet && !isSheetSwitch
-                                            ? previewSheet.selection.selectedCells
-                                            : selection.selectedCells;
+                                    // Initial state selection (before flip)
+                                    const isInitialActive = !isAccentuating && initialSheet.selection.activeCell.row === rowIndex && initialSheet.selection.activeCell.col === colIndex;
 
-                                    const isSelected = finalSelectedCells?.has(cellId);
-                                    const isActive =
-                                        finalActiveCell?.row === rowIndex &&
-                                        finalActiveCell?.col === colIndex;
-
-                                    // Preview hint (blue, only before accentuation)
-                                    const isPreviewSelected =
-                                        !isAccentuating &&
-                                        previewSheet &&
-                                        previewSheet.selection.selectedCells.has(cellId);
-                                    const isPreviewActive =
-                                        !isAccentuating &&
-                                        previewSheet &&
-                                        previewSheet.selection.activeCell.row === rowIndex &&
-                                        previewSheet.selection.activeCell.col === colIndex;
-
-                                    const cellStyle = finalCellStyles[cellId] || {};
-
-                                    if ("backgroundColor" in cellStyle) {
-                                        delete cellStyle.backgroundColor;
-                                    }
+                                    // Final state selection (after flip)
+                                    const isSelectedInFinal = isAccentuating && finalSelectedCells.has(cellId);
+                                    const isActiveInFinal = isAccentuating && finalActiveCell?.row === rowIndex && finalActiveCell?.col === colIndex;
 
                                     return (
                                         <td
                                             key={colIndex}
                                             className={cn(
                                                 "border border-border/50 p-1.5 text-sm truncate transition-colors duration-200",
-
-                                                // Preview (blue)
+                                                
+                                                // Preview Styles
                                                 isPreviewSelected && "bg-blue-500/15",
-                                                isPreviewActive &&
-                                                    "ring-2 ring-blue-500 ring-inset",
+                                                isPreviewActive && "ring-2 ring-blue-500 ring-inset",
+                                                
+                                                // Initial State Style (before flip)
+                                                isInitialActive && "ring-2 ring-emerald-600 ring-inset",
 
-                                                // Final selection (green)
-                                                isSelected && "bg-emerald-500/20",
-                                                isActive &&
-                                                    "bg-emerald-500/30 ring-2 ring-emerald-600 ring-inset"
+                                                // Final State Styles (after flip)
+                                                isSelectedInFinal && (() => {
+                                                    if (isRangeSelection) {
+                                                        const classes = [isActiveInFinal ? 'bg-background' : 'bg-emerald-500/20'];
+                                                        if (rowIndex === selectionBounds.minRow) classes.push('border-t-2 border-t-emerald-600');
+                                                        if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2 border-b-emerald-600');
+                                                        if (colIndex === selectionBounds.minCol) classes.push('border-l-2 border-l-emerald-600');
+                                                        if (colIndex === selectionBounds.maxCol) classes.push('border-r-2 border-r-emerald-600');
+                                                        return classes;
+                                                    }
+                                                    // Single cell selection in final state
+                                                    return 'ring-2 ring-emerald-600 ring-inset bg-emerald-500/20';
+                                                })()
                                             )}
-                                            style={cellStyle}
+                                            style={finalCellStyles[cellId] || {}}
                                         >
                                             {cell}
                                         </td>
@@ -157,7 +158,6 @@ export function VisualGrid({
             {/* Sheet Tabs */}
             <div className="flex items-center border-t border-border mt-1 pt-1 -mx-2 -mb-2 px-1">
                 {gridState.sheets.map((sheet, index) => {
-                    const isCurrentlyActive = index === gridState.activeSheetIndex;
                     const isPreviewTarget =
                         !isAccentuating &&
                         isSheetSwitch &&
@@ -169,20 +169,9 @@ export function VisualGrid({
                             key={index}
                             className={cn(
                                 "px-3 py-1 text-sm border-b-2 rounded-t-sm transition-all duration-300",
-
-                                // Preview style (yellow)
-                                isPreviewTarget &&
-                                    "ring-2 ring-yellow-500 font-semibold text-yellow-700 dark:text-yellow-400 border-yellow-500 bg-yellow-500/10",
-
-                                // Active sheet
-                                (isAccentuating ? isFinalActive : isCurrentlyActive) &&
-                                    !isPreviewTarget &&
-                                    "font-semibold text-primary border-primary bg-background",
-
-                                // Inactive
-                                !(isAccentuating ? isFinalActive : isCurrentlyActive) &&
-                                    !isPreviewTarget &&
-                                    "text-muted-foreground border-transparent hover:bg-accent"
+                                isPreviewTarget && "font-semibold text-yellow-700 dark:text-yellow-400 border-yellow-500 bg-yellow-500/10",
+                                isFinalActive && !isPreviewTarget && "font-semibold text-primary border-primary bg-background",
+                                !isFinalActive && !isPreviewTarget && "text-muted-foreground border-transparent hover:bg-accent"
                             )}
                             disabled
                         >
@@ -194,3 +183,5 @@ export function VisualGrid({
         </div>
     );
 }
+
+    
