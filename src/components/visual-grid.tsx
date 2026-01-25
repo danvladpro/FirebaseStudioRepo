@@ -83,7 +83,10 @@ export function VisualGrid({ data, selection, cellStyles = {}, previewState = nu
                                             rowIndex === 0 && !previewState && "font-semibold bg-muted/80",
                                             
                                             // Base state (only apply if not showing the final state)
-                                            !isAccentuating && { 'bg-primary/20': isSelected, 'ring-2 ring-primary ring-inset': isActive, },
+                                            !isAccentuating && {
+                                                'bg-primary/20': isSelected,
+                                                'ring-2 ring-primary ring-inset': isActive,
+                                            },
 
                                             // Preview state for hints in challenge UI
                                             !isAccentuating && previewState && {
