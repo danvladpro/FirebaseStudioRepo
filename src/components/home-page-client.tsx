@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap, Dumbbell, Repeat, Check } from "lucide-react";
+import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap, Dumbbell, Repeat, Check, ClipboardPaste, Wand2, Palette, DollarSign, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,8 +26,8 @@ import Image from "next/image";
 import { CertificateModal } from "./certificate-modal";
 import { DRILL_SET, Drill } from "@/lib/drills";
 
-const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
-    ClipboardCopy,
+const iconMap: Record<string, ElementType> = {
+    ClipboardPaste,
     ArrowRightLeft,
     MousePointerSquareDashed,
     Pilcrow,
@@ -42,7 +42,11 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     HelpCircle,
     Zap,
     Dumbbell,
-    Repeat
+    Repeat,
+    Wand2,
+    Palette,
+    DollarSign,
+    ShieldCheck,
 };
 
 
@@ -219,7 +223,9 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
 
   const getIsExamLocked = (examId: string) => {
     if (isPremium) return false;
-    return true;
+    if (examId === 'exam-intermediate' && (examStats['exam-basic']?.bestScore ?? 0) < 100) return true;
+    if (examId === 'exam-advanced' && (examStats['exam-intermediate']?.bestScore ?? 0) < 100) return true;
+    return isLimited;
   };
   
   const getExamLockTooltip = (examId: string) => {
