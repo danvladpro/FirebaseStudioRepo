@@ -24,12 +24,28 @@ export function VisualGrid({ gridState, cellStyles = {}, previewState = null, is
     if (!activeSheet) return null;
 
     const { data, selection } = activeSheet;
-    const { activeCell, selectedCells } = selection;
 
     const previewSheet = (previewState) ? previewState.gridState.sheets[previewState.gridState.activeSheetIndex] : null;
+    const isSheetSwitch = isAccentuating && previewState && gridState.activeSheetIndex !== previewState.gridState.activeSheetIndex;
 
-    // Use preview data if accentuating, otherwise current data
-    const gridData = isAccentuating && previewSheet ? previewSheet.data : data;
+    // Use preview data if accentuating, UNLESS it's a sheet switch action.
+    const gridData = (isAccentuating && previewSheet && !isSheetSwitch) ? previewSheet.data : data;
+
+    // During a sheet switch, the selection shouldn't change either.
+    const finalSelection = (isAccentuating && previewSheet && !isSheetSwitch) ? previewSheet.selection : selection;
+
+    const getFinalCellStyles = (baseStyles: Record<string, React.CSSProperties>) => {
+        if (isAccentuating && previewState && !isSheetSwitch) {
+            let combinedStyles = { ...baseStyles };
+            for (const cellId in previewState.cellStyles) {
+                combinedStyles[cellId] = { ...combinedStyles[cellId], ...previewState.cellStyles[cellId], transition: 'all 0.3s ease-in-out' };
+            }
+            return combinedStyles;
+        }
+        return baseStyles;
+    }
+
+    const finalCellStyles = getFinalCellStyles(cellStyles);
 
     return (
         <div className="p-2 bg-muted/50 rounded-lg border">
@@ -47,24 +63,17 @@ export function VisualGrid({ gridState, cellStyles = {}, previewState = null, is
                     </thead>
                     <tbody>
                         {gridData.map((row, rowIndex) => {
-                            const isRowDeletedInPreview = previewState && !previewState.gridState.sheets[previewState.gridState.activeSheetIndex].data.some(previewRow => JSON.stringify(previewRow) === JSON.stringify(row));
-
                             return (
-                            <tr key={rowIndex} className={cn(isRowDeletedInPreview && !isAccentuating && 'opacity-30 line-through transition-opacity')}>
+                            <tr key={rowIndex}>
                                 <td className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-l-sm">
                                     {rowIndex + 1}
                                 </td>
                                 {row.map((cell, colIndex) => {
                                     const cellId = `${rowIndex}-${colIndex}`;
 
-                                    const finalSelection = isAccentuating && previewSheet ? previewSheet.selection : selection;
                                     const isSelected = finalSelection.selectedCells.has(cellId);
                                     const isActive = finalSelection.activeCell.row === rowIndex && finalSelection.activeCell.col === colIndex;
-
-                                    let finalStyle = cellStyles[cellId] || {};
-                                    if (isAccentuating && previewState?.cellStyles) {
-                                         finalStyle = { ...finalStyle, ...previewState.cellStyles[cellId], transition: 'all 0.3s ease-in-out' };
-                                    }
+                                    const cellStyle = finalCellStyles[cellId] || {};
 
                                     return (
                                         <td
@@ -74,7 +83,7 @@ export function VisualGrid({ gridState, cellStyles = {}, previewState = null, is
                                                 isSelected && "bg-primary/20",
                                                 isActive && "ring-2 ring-primary ring-inset",
                                             )}
-                                            style={finalStyle}
+                                            style={cellStyle}
                                         >
                                             {cell}
                                         </td>
@@ -87,20 +96,25 @@ export function VisualGrid({ gridState, cellStyles = {}, previewState = null, is
             </div>
              {/* Sheet Tabs */}
             <div className="flex items-center border-t border-border mt-1 pt-1 -mx-2 -mb-2 px-1">
-                {gridState.sheets.map((sheet, index) => (
+                {gridState.sheets.map((sheet, index) => {
+                    const isTargetSheet = isSheetSwitch && previewState && index === previewState.gridState.activeSheetIndex;
+                    const isNormalActive = !isSheetSwitch && index === gridState.activeSheetIndex;
+
+                    return (
                     <button
                         key={index}
                         className={cn(
-                            "px-3 py-1 text-sm border-b-2 rounded-t-sm",
-                            index === gridState.activeSheetIndex
-                                ? "font-semibold text-primary border-primary bg-background"
-                                : "text-muted-foreground border-transparent hover:bg-accent"
+                            "px-3 py-1 text-sm border-b-2 rounded-t-sm transition-all duration-300",
+                            isTargetSheet && "ring-2 ring-yellow-500 font-semibold text-yellow-700 dark:text-yellow-400 border-yellow-500 bg-yellow-500/10",
+                            isNormalActive && "font-semibold text-primary border-primary bg-background",
+                            !isTargetSheet && !isNormalActive && "text-muted-foreground border-transparent hover:bg-accent"
                         )}
                         disabled
                     >
                         {sheet.name}
                     </button>
-                ))}
+                    )
+                })}
             </div>
         </div>
     );

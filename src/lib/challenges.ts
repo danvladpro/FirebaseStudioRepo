@@ -31,23 +31,30 @@ const createMultiSheetGridState = (): GridState => ({
         ['ID', 'Product', 'Region', 'Sales', 'Commission'],
         ['#101', 'Gadget', 'North', '1200', '5%'],
         ['#102', 'Widget', 'South', '850', '6%'],
+        ['#103', 'Doohickey', 'East', '2100', '4%'],
+        ['#104', 'Thingamajig', 'West', '500', '7%'],
       ],
       selection: { activeCell: { row: 1, col: 1 }, selectedCells: new Set() },
     },
     {
       name: 'Sheet2',
       data: [
-        ['Summary', 'Total'],
-        ['North', '1200'],
-        ['South', '850'],
+        ['Summary', 'Total','','',''],
+        ['North', '1200','','',''],
+        ['South', '850','','',''],
+        ['', '','','',''],
+        ['', '','','',''],
       ],
       selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
     },
      {
       name: 'Sheet3',
       data: [
-        ['Notes', ''],
-        ['Check numbers for Q3', ''],
+        ['Notes', '','','',''],
+        ['Check numbers for Q3', '','','',''],
+        ['', '','','',''],
+        ['', '','','',''],
+        ['', '','','','']
       ],
       selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
     }
