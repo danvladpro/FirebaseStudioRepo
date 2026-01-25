@@ -82,16 +82,16 @@ export function VisualGrid({ data, selection, cellStyles = {}, previewState = nu
                                             "border border-border/50 p-1.5 text-sm truncate transition-colors duration-200",
                                             rowIndex === 0 && !previewState && "font-semibold bg-muted/80",
                                             
-                                            // Base state
-                                            { 'bg-primary/20': isSelected, 'ring-2 ring-primary ring-inset': isActive, },
+                                            // Base state (only apply if not showing the final state)
+                                            !isAccentuating && { 'bg-primary/20': isSelected, 'ring-2 ring-primary ring-inset': isActive, },
 
-                                            // Preview state
+                                            // Preview state for hints in challenge UI
                                             !isAccentuating && previewState && {
                                                 'bg-blue-500/10 shadow-inner shadow-blue-500/10': isPreviewSelected,
                                                 'ring-2 ring-blue-500 ring-inset': isPreviewActive,
                                             },
 
-                                            // Accentuation state
+                                            // Accentuation state (the final state after an action)
                                             isAccentuating && previewState && {
                                                 'bg-primary/20': isPreviewSelected,
                                                 'ring-2 ring-primary ring-inset': isPreviewActive,
