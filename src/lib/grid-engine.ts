@@ -1,3 +1,4 @@
+
 import { GridState, ChallengeStep, Sheet } from './types';
 
 export const deepCloneGridState = (state: GridState): GridState => {
@@ -185,16 +186,20 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                     case 'right':
                         if (newGridData[0]) {
                             for (let c = col; c < newGridData[0].length; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
+                            newSelection.activeCell.col = newGridData[0].length - 1;
                         }
                         break;
                     case 'left':
                         for (let c = 0; c <= col; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
+                        newSelection.activeCell.col = 0;
                         break;
                     case 'down':
                         for (let r = row; r < newGridData.length; r++) { newSelection.selectedCells.add(`${r}-${col}`); }
+                        newSelection.activeCell.row = newGridData.length - 1;
                         break;
                     case 'up':
                         for (let r = 0; r <= row; r++) { newSelection.selectedCells.add(`${r}-${col}`); }
+                        newSelection.activeCell.row = 0;
                         break;
                 }
             }
@@ -210,6 +215,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                             newSelection.selectedCells.add(`${r}-${c}`);
                         }
                     }
+                    newSelection.activeCell = { row: endRow, col: endCol };
                 }
             }
             break;
