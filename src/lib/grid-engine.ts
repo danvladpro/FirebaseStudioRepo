@@ -123,7 +123,6 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                         break;
                 }
                 newSelection.selectedCells.clear();
-                newSelection.selectedCells.add(`${newSelection.activeCell.row}-${newSelection.activeCell.col}`);
             }
             break;
         case 'MOVE_SELECTION_ADVANCED':
@@ -138,7 +137,6 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                     case 'end': newSelection.activeCell = { row: newGridData.length - 1, col: newGridData[0].length - 1 }; break;
                 }
                 newSelection.selectedCells.clear();
-                newSelection.selectedCells.add(`${newSelection.activeCell.row}-${newSelection.activeCell.col}`);
             }
             break;
         case 'EXTEND_SELECTION':
