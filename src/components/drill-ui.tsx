@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Drill } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle } from "lucide-react";
+import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle, MousePointerClick } from "lucide-react";
 import { useAuth } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
 import { toast } from "@/hooks/use-toast";
@@ -14,6 +14,7 @@ import { Separator } from "./ui/separator";
 import { VisualGrid } from "./visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
 import * as icons from 'lucide-react';
+import { VisualKeyboard } from "./visual-keyboard";
 
 interface DrillUIProps {
   drill: Drill;
@@ -25,9 +26,33 @@ enum RepStatus {
   Incorrect,
 }
 
+const KeyDisplay = ({ value }: { value: string }) => {
+    const isModifier = ["Control", "Shift", "Alt", "Meta", "Command", "Option"].includes(value);
+    const isLetter = value.length === 1 && value.match(/[a-z]/i);
+
+    const displayValue: Record<string, string> = {
+        'Control': 'Ctrl',
+        'Meta': 'Cmd',
+        'Command': 'Cmd',
+        'Alt': 'Alt',
+        'Option': 'Opt',
+        ' ': 'Space'
+    }
+
+    return (
+        <kbd className={cn(
+            "px-2 py-1.5 text-xs font-semibold rounded-md border-b-2 text-muted-foreground bg-muted",
+            isModifier ? "min-w-[4rem] text-center" : "",
+            isLetter ? "uppercase" : ""
+        )}>
+            {displayValue[value] || value}
+        </kbd>
+    );
+};
+
 export function DrillUI({ drill }: DrillUIProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [reps, setReps] = useState<RepStatus[]>(() => Array(drill.repetitions).fill(RepStatus.Pending));
   const [currentRep, setCurrentRep] = useState(0);
   
@@ -39,12 +64,31 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [isMac, setIsMac] = useState(false);
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [sequence, setSequence] = useState<string[]>([]);
+  const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
+
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
 
   const activeStep = drill.steps[logicalStepIndex];
+
+  useEffect(() => {
+    if (!activeStep || !userProfile?.missingKeys) {
+        setIsVirtualKeyboardMode(false);
+        return;
+    }
+
+    const requiredKeysForStep = activeStep.keys.map(k => k.toLowerCase());
+    const userMissingKeys = userProfile.missingKeys.map(k => k.toLowerCase());
+    
+    // Normalize F-Keys for checking
+    const normalizedRequired = requiredKeysForStep.map(k => k.startsWith('f') && k.length > 1 && !isNaN(Number(k.substring(1))) ? 'f-keys (f1-f12)' : k);
+    
+    const needsVirtual = normalizedRequired.some(key => userMissingKeys.includes(key));
+    setIsVirtualKeyboardMode(needsVirtual);
+  }, [activeStep, userProfile?.missingKeys]);
+
 
   const { gridState: displayedGridState, cellStyles: displayedCellStyles } = drill.initialGridState ? calculateGridStateForStep(
     drill.steps,
@@ -215,8 +259,33 @@ export function DrillUI({ drill }: DrillUIProps) {
     }
   }, [logicalStepIndex, drill.steps.length, stepFeedback, getRequiredKeys, activeStep, sequence, pressedKeys, handleStepSuccess, handleIncorrect]);
 
+  const handleVirtualKeyClick = (key: string) => {
+      const normalized = normalizeKey(key);
+
+      if (activeStep.isSequential) {
+          processKeyPress(normalized);
+      } else {
+        const newKeys = new Set(pressedKeys);
+        if (newKeys.has(normalized)) {
+            newKeys.delete(normalized);
+        } else {
+            newKeys.add(normalized);
+        }
+        setPressedKeys(newKeys);
+        
+        const requiredKeys = getRequiredKeys();
+        const normalizedRequiredKeys = new Set(Array.from(requiredKeys).map(k => normalizeKey(k.toLowerCase())));
+        const sortedPressed = [...newKeys].sort().join(',');
+        const sortedRequired = [...normalizedRequiredKeys].sort().join(',');
+
+        if (sortedPressed === sortedRequired) {
+            handleStepSuccess();
+        }
+      }
+  };
+
   useEffect(() => {
-    if (logicalStepIndex >= drill.steps.length) return;
+    if (logicalStepIndex >= drill.steps.length || isVirtualKeyboardMode) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
@@ -237,7 +306,7 @@ export function DrillUI({ drill }: DrillUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [logicalStepIndex, pressedKeys, sequence, activeStep, processKeyPress]);
+  }, [logicalStepIndex, pressedKeys, sequence, activeStep, processKeyPress, isVirtualKeyboardMode]);
 
   return (
     <>
@@ -333,16 +402,43 @@ export function DrillUI({ drill }: DrillUIProps) {
         </div>
 
       </CardContent>
-       <CardFooter className="bg-muted/50 min-h-[80px] flex items-center justify-center gap-2 flex-wrap p-4">
-            {stepFeedback === null && (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                    <Keyboard className="h-8 w-8" />
-                    <span className="text-lg">Use your keyboard</span>
-                </div>
-            )}
+       <CardFooter className="bg-muted/50 min-h-[80px] flex items-center justify-center gap-4 flex-wrap p-4">
             {stepFeedback === 'correct' && <CheckCircle className="h-10 w-10 text-green-500" />}
             {stepFeedback === 'incorrect' && <XCircle className="h-10 w-10 text-destructive" />}
+            {stepFeedback === null && (
+              isVirtualKeyboardMode ? (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <MousePointerClick className="h-8 w-8" />
+                  <span className="text-lg">Click the keys below</span>
+                </div>
+              ) : (
+                 <div className="flex items-center gap-2">
+                    {activeStep.isSequential ? (
+                    sequence.length > 0 ? (
+                        sequence.map((key, index) => <KeyDisplay key={index} value={key} />)
+                    ) : <span className="text-muted-foreground">Press the required keys in sequence...</span>
+                    ) : (
+                    pressedKeys.size > 0 ? (
+                        Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} />)
+                    ) : (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <Keyboard className="h-8 w-8" />
+                            <span className="text-lg">Use your keyboard</span>
+                        </div>
+                    )
+                    )}
+                </div>
+              )
+            )}
        </CardFooter>
+        {isVirtualKeyboardMode && (
+          <div className="border-t p-4">
+              <VisualKeyboard 
+                  highlightedKeys={activeStep.isSequential ? sequence : Array.from(pressedKeys)}
+                  onKeyClick={handleVirtualKeyClick}
+              />
+          </div>
+        )}
     </Card>
     </>
   );
