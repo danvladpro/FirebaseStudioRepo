@@ -119,10 +119,10 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: tableDataGridState,
     steps: [
-      { description: 'Jump Top', keys: ['Control', 'ArrowUp'], iconName: 'ArrowUp' },
-      { description: 'Jump Right', keys: ['Control', 'ArrowRight'], iconName: 'ArrowRight' },
-      { description: 'Jump Bottom', keys: ['Control', 'ArrowDown'], iconName: 'ArrowDown' },
-      { description: 'Jump Left', keys: ['Control', 'ArrowLeft'], iconName: 'ArrowLeft' }
+      { description: 'Jump Top', keys: ['Control', 'ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
+      { description: 'Jump Right', keys: ['Control', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
+      { description: 'Jump Bottom', keys: ['Control', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeDown' } } },
+      { description: 'Jump Left', keys: ['Control', 'ArrowLeft'], iconName: 'ArrowLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } } }
     ]
   },
   {
@@ -162,8 +162,8 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: tableDataGridState,
     steps: [
-      { description: 'Expand right', keys: ['Shift', 'ArrowRight'], iconName: 'ArrowRight' },
-      { description: 'Expand right again', keys: ['Shift', 'ArrowRight'], iconName: 'ArrowRight' },
+      { description: 'Expand right', keys: ['Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
+      { description: 'Expand right again', keys: ['Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
       { description: 'Copy block', keys: ['Control', 'c'], iconName: 'Copy' }
     ]
   },
@@ -177,7 +177,7 @@ const drills: Drill[] = [
     initialGridState: tableDataGridState,
     steps: [
       { description: 'Select row', keys: ['Shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
-      { description: 'Extend down', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown' }
+      { description: 'Extend down', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } }
     ]
   },
   {
@@ -189,11 +189,11 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: tableDataGridState,
     steps: [
-      { description: 'Select to right edge', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight' },
-      { description: 'Extend one row down', keys: ['Shift', 'ArrowDown'], iconName: 'ArrowDown' },
+      { description: 'Select to right edge', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
+      { description: 'Extend one row down', keys: ['Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } },
       { description: 'Copy block', keys: ['Control', 'c'], iconName: 'Copy' },
-      { description: 'Next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine' },
-      { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste' }
+      { description: 'Next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
+      { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Pasted Data' } } }
     ]
   },
   {
@@ -205,7 +205,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: tableDataGridState,
     steps: [
-      { description: 'Extend to end', keys: ['Control', 'Shift', 'End'], iconName: 'ArrowDownRight' }
+      { description: 'Extend to end', keys: ['Control', 'Shift', 'End'], iconName: 'ArrowDownRight', gridEffect: { action: 'SELECT_TO_END' } }
     ]
   },
   {
@@ -245,8 +245,8 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
     steps: [
-      { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'CUT' } },
-      { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine' },
+      { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
+      { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
       { description: 'Paste cell', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: {value: 'Value to Copy'} } }
     ]
   },
@@ -344,9 +344,9 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: tableDataGridState,
     steps: [
-      { description: 'Jump top', keys: ['Control', 'ArrowUp'], iconName: 'ArrowUp' },
+      { description: 'Jump top', keys: ['Control', 'ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
       { description: 'Bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
-      { description: 'Jump bottom', keys: ['Control', 'ArrowDown'], iconName: 'ArrowDown' },
+      { description: 'Jump bottom', keys: ['Control', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeDown' } } },
       { description: 'Delete', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } }
     ]
   },
@@ -473,8 +473,8 @@ const drills: Drill[] = [
     initialGridState: defaultDrillGridState,
     steps: [
       { description: 'Select current region', keys: ['Control', 'Shift', '8'], iconName: 'Scan', gridEffect: { action: 'SELECT_ALL' } },
-      { description: 'Create table', keys: ['Control', 't'], iconName: 'Table', gridEffect: { action: 'PASTE' } },
-      { description: 'Confirm table', keys: ['Enter'], iconName: 'CornerDownLeft', gridEffect: { action: 'PASTE' } }
+      { description: 'Create table', keys: ['Control', 't'], iconName: 'Table' },
+      { description: 'Confirm table', keys: ['Enter'], iconName: 'CornerDownLeft' }
     ]
   },
   {
@@ -486,8 +486,8 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
     steps: [
-      { description: 'Select visible cells', keys: ['Alt', ';'], iconName: 'Eye', gridEffect: { action: 'SELECT_ALL' } },
-      { description: 'Copy selection', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'CUT' } },
+      { description: 'Select visible cells', keys: ['Alt', ';'], iconName: 'Eye' },
+      { description: 'Copy selection', keys: ['Control', 'c'], iconName: 'Copy' },
       { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine' },
       { description: 'Paste values', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Filtered Data' } } }
     ]
@@ -501,9 +501,9 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
     steps: [
-      { description: 'Edit formula', keys: ['F2'], iconName: 'Edit3', gridEffect: { action: 'MOVE_SELECTION' } },
-      { description: 'Toggle absolute reference', keys: ['F4'], iconName: 'Lock', gridEffect: { action: 'MOVE_SELECTION' } },
-      { description: 'Confirm formula', keys: ['Enter'], iconName: 'CornerDownLeft', gridEffect: { action: 'PASTE' } }
+      { description: 'Edit formula', keys: ['F2'], iconName: 'Edit3' },
+      { description: 'Toggle absolute reference', keys: ['F4'], iconName: 'Lock' },
+      { description: 'Confirm formula', keys: ['Enter'], iconName: 'CornerDownLeft' }
     ]
   },
   {
@@ -515,8 +515,8 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
     steps: [
-      { description: 'Show formulas', keys: ['Control', '`'], iconName: 'Code', gridEffect: { action: 'SELECT_ALL' } },
-      { description: 'Hide formulas', keys: ['Control', '`'], iconName: 'EyeOff', gridEffect: { action: 'SELECT_ALL' } }
+      { description: 'Show formulas', keys: ['Control', '`'], iconName: 'Code' },
+      { description: 'Hide formulas', keys: ['Control', '`'], iconName: 'EyeOff' }
     ]
   },
   {
@@ -529,8 +529,8 @@ const drills: Drill[] = [
     initialGridState: defaultDrillGridState,
     steps: [
       { description: 'Select column', keys: ['Control', ' '], iconName: 'Columns', gridEffect: { action: 'SELECT_COLUMN' } },
-      { description: 'Insert AutoSum', keys: ['Alt', '='], iconName: 'Sigma', gridEffect: { action: 'PASTE' } },
-      { description: 'Confirm formula', keys: ['Enter'], iconName: 'CornerDownLeft', gridEffect: { action: 'PASTE' } }
+      { description: 'Insert AutoSum', keys: ['Alt', '='], iconName: 'Sigma' },
+      { description: 'Confirm formula', keys: ['Enter'], iconName: 'CornerDownLeft' }
     ]
   },
   {
@@ -636,10 +636,10 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: tableDataGridState,
     steps: [
-      { description: 'Select header', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_ALL' } },
+      { description: 'Select header', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
       { description: 'Bold header', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
-      { description: 'Jump to bottom', keys: ['Control', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down', amount: 4 } } },
-      { description: 'Select last row', keys: ['Control', 'Shift', 'ArrowLeft'], iconName: 'ArrowLeft' },
+      { description: 'Jump to bottom', keys: ['Control', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeDown' } } },
+      { description: 'Select last row', keys: ['Control', 'Shift', 'ArrowLeft'], iconName: 'ArrowLeft', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'left' } } },
       { description: 'Italicize', keys: ['Control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } }
     ]
   },
@@ -706,7 +706,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: tableDataGridState,
     steps: [
-      { description: 'Select col down', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown' },
+      { description: 'Select col down', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } },
       { description: 'Apply Date', keys: ['Control', 'Shift', '#'], iconName: 'Calendar' }
     ]
   },
@@ -818,7 +818,7 @@ const drills: Drill[] = [
     initialGridState: defaultDrillGridState,
     steps: [
       { description: 'Copy range', keys: ['Control', 'c'], iconName: 'Copy' },
-      { description: 'Paste values', keys: ['Control', 'Alt', 'v'], iconName: 'ClipboardSignature', gridEffect: { action: 'PASTE_STATIC_VALUE' } }
+      { description: 'Paste values', keys: ['Control', 'Alt', 'v'], iconName: 'ClipboardSignature' }
     ]
   },
   {
