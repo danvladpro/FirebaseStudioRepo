@@ -182,24 +182,66 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 if(newSelection.selectedCells.size === 0) {
                     newSelection.selectedCells.add(`${row}-${col}`);
                 }
+
+                // Check if a full row or column is selected
+                const isFullRowSelected = newGridData[0] && newSelection.selectedCells.size >= newGridData[0].length && Array.from(newSelection.selectedCells).every(id => id.startsWith(`${row}-`));
+                const isFullColSelected = newSelection.selectedCells.size >= newGridData.length && Array.from(newSelection.selectedCells).every(id => id.endsWith(`-${col}`));
+
+
                 switch (payload.direction) {
                     case 'right':
-                        if (newGridData[0]) {
-                            for (let c = col; c < newGridData[0].length; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
+                        if (isFullColSelected && newGridData[0]) {
+                             for (let c = col; c < newGridData[0].length; c++) {
+                                for(let r = 0; r < newGridData.length; r++) {
+                                    newSelection.selectedCells.add(`${r}-${c}`);
+                                }
+                            }
                             newSelection.activeCell.col = newGridData[0].length - 1;
+                        } else {
+                            if (newGridData[0]) {
+                                for (let c = col; c < newGridData[0].length; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
+                                newSelection.activeCell.col = newGridData[0].length - 1;
+                            }
                         }
                         break;
                     case 'left':
-                        for (let c = 0; c <= col; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
-                        newSelection.activeCell.col = 0;
+                         if (isFullColSelected && newGridData[0]) {
+                             for (let c = 0; c <= col; c++) {
+                                for(let r = 0; r < newGridData.length; r++) {
+                                    newSelection.selectedCells.add(`${r}-${c}`);
+                                }
+                            }
+                            newSelection.activeCell.col = 0;
+                        } else {
+                            for (let c = 0; c <= col; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
+                            newSelection.activeCell.col = 0;
+                        }
                         break;
                     case 'down':
-                        for (let r = row; r < newGridData.length; r++) { newSelection.selectedCells.add(`${r}-${col}`); }
-                        newSelection.activeCell.row = newGridData.length - 1;
+                        if (isFullRowSelected) {
+                            for (let r = row; r < newGridData.length; r++) {
+                                for (let c = 0; c < newGridData[r].length; c++) {
+                                    newSelection.selectedCells.add(`${r}-${c}`);
+                                }
+                            }
+                            newSelection.activeCell.row = newGridData.length - 1;
+                        } else {
+                            for (let r = row; r < newGridData.length; r++) { newSelection.selectedCells.add(`${r}-${col}`); }
+                            newSelection.activeCell.row = newGridData.length - 1;
+                        }
                         break;
                     case 'up':
-                        for (let r = 0; r <= row; r++) { newSelection.selectedCells.add(`${r}-${col}`); }
-                        newSelection.activeCell.row = 0;
+                         if (isFullRowSelected) {
+                            for (let r = 0; r <= row; r++) {
+                                for (let c = 0; c < newGridData[r].length; c++) {
+                                    newSelection.selectedCells.add(`${r}-${c}`);
+                                }
+                            }
+                            newSelection.activeCell.row = 0;
+                        } else {
+                            for (let r = 0; r <= row; r++) { newSelection.selectedCells.add(`${r}-${col}`); }
+                            newSelection.activeCell.row = 0;
+                        }
                         break;
                 }
             }

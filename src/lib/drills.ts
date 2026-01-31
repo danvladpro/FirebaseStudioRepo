@@ -1,4 +1,5 @@
 
+import { Row } from "react-day-picker";
 import { ChallengeLevel, GridEffect, GridState } from "./types";
 import { type LucideIcon } from "lucide-react";
 
@@ -27,11 +28,11 @@ export interface DrillSet {
     drills: Drill[];
 }
 
-const createGridState = (data: string[][]): GridState => ({
+const createGridState = (data: string[][] , activeSheetIndex: number = 0,Row: number=0, Col: number=0): GridState => ({
   sheets: [{
     name: 'Sheet1',
     data,
-    selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() }
+    selection: { activeCell: { row: Row, col: Col }, selectedCells: new Set() }
   }],
   activeSheetIndex: 0
 });
@@ -84,28 +85,41 @@ const defaultDrillGridState = createGridState([
   ['', ''],
 ]);
 
+const createDefaultGridState = (): GridState => ({
+  sheets: [
+    {
+      name: 'Sheet1',
+      data: [
+        ['ID', 'Product', 'Region', 'Sales', 'Commission'],
+        ['#101', 'Gadget', 'North', '1200', '5%'],
+        ['#102', 'Widget', 'South', '850', '6%'],
+        ['#103', 'Doohickey', 'East', '2100', '4%'],
+        ['#104', 'Thingamajig', 'West', '500', '7%'],
+      ],
+      selection: { activeCell: { row: 4, col: 0 }, selectedCells: new Set() },
+    },
+  ],
+  activeSheetIndex: 0,
+});
+
 const dataWithContent = createGridState([
   ['Value to Delete', '', ''],
   ['Another Value', '', ''],
   ['', '', ''],
 ]);
 
-const tableDataGridState = createGridState([
-    ['ID', 'Name', 'Date', 'Amount'],
+const bigTable = [['ID', 'Name', 'Date', 'Amount'],
     ['1', 'Project A', '2026-01-01', '500'],
     ['2', 'Project B', '2026-01-05', '1200'],
     ['3', 'Project C', '2026-01-10', '750'],
     ['4', 'Project D', '2026-01-15', '2000'],
-]);
+
+]
 
 
 
 const drills: Drill[] = [
   
-    // =======================
-// BEGINNER COMBINATION DRILLS
-// =======================
-
 // ==========================================
   // LEVEL 1: BEGINNER (Warp Speed)
   // Focus: Navigation, Selection, & Basic Moves
@@ -117,7 +131,7 @@ const drills: Drill[] = [
     description: 'Jump around the perimeter of a table using Control.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Jump Top', keys: ['Control', 'ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
       { description: 'Jump Right', keys: ['Control', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
@@ -132,7 +146,7 @@ const drills: Drill[] = [
     description: 'Quickly reach and clean the last value in a list.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: dataWithContent,
+    initialGridState: createGridState(bigTable,0,0,0),
     steps: [
       { description: 'Jump to last cell', keys: ['Control', 'End'], iconName: 'PanelBottomOpen', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } },
       { description: 'Delete value', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } }
@@ -145,22 +159,27 @@ const drills: Drill[] = [
     description: 'Move values across a row using jump navigation.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: createGridState([['Copy Me', '', '', 'Paste Here']]),
+    initialGridState: createGridState([
+      ['Copy Me', 'Text', 'Text', 'Paste Here'],
+      ['Number', 'Text', 'Text', 'Number'],
+      ['Number', 'Text', 'Text', 'Number'],
+      ['','','','']
+     ],0,0,2),
     steps: [
-      { description: 'Go to row start', keys: ['Home'], iconName: 'Home', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } } },
+      { description: 'Go to row start', keys: ['Control', 'ArrowLeft'], iconName: 'Home', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } } },
       { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy' },
       { description: 'Jump to row edge', keys: ['Control', 'ArrowRight'], iconName: 'MoveRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
-      { description: 'Paste value', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Copy Me' } } }
+      { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Copy Me' } } }
     ]
   },
   {
     id: 'expand-selection-horizontally',
     level: 'Beginner',
     name: 'Expanding Selection',
-    description: 'Grow a selection across columns without a mouse.',
+    description: 'Select all 3 cells to your right.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Expand right', keys: ['Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
       { description: 'Expand right again', keys: ['Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
@@ -174,7 +193,7 @@ const drills: Drill[] = [
     description: 'Highlight multiple full rows instantly.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,0,2),
     steps: [
       { description: 'Select row', keys: ['Shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
       { description: 'Extend down', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } }
@@ -187,7 +206,7 @@ const drills: Drill[] = [
     description: 'Capture a block and move it to another sheet.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Select to right edge', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
       { description: 'Extend one row down', keys: ['Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } },
@@ -203,7 +222,7 @@ const drills: Drill[] = [
     description: 'Select everything from current cell to the end of data.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Extend to end', keys: ['Control', 'Shift', 'End'], iconName: 'ArrowDownRight', gridEffect: { action: 'SELECT_TO_END' } }
     ]
@@ -327,7 +346,7 @@ const drills: Drill[] = [
     description: 'Underline the very first and last cells using Home/End jumps.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Go to Start', keys: ['Control', 'Home'], iconName: 'ArrowUpLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } } },
       { description: 'Underline', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
@@ -342,7 +361,7 @@ const drills: Drill[] = [
     description: 'Quick clean up of a small range headers and footers.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Jump top', keys: ['Control', 'ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
       { description: 'Bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
@@ -401,7 +420,7 @@ const drills: Drill[] = [
     description: 'Locate a value, exit search, and apply bolding.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Open Find', keys: ['Control', 'f'], iconName: 'Search' },
       { description: 'Confirm Find', keys: ['Enter'], iconName: 'CornerDownLeft' },
@@ -552,7 +571,7 @@ const drills: Drill[] = [
     description: 'Use F4 to quickly apply the same style elsewhere.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Underline', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
       { description: 'Move down', keys: ['ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } } },
@@ -580,7 +599,7 @@ const drills: Drill[] = [
     description: 'Select a block and fill every cell with a single value.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Select region', keys: ['Control', 'Shift', '8'], iconName: 'BoxSelect', gridEffect: { action: 'SELECT_ALL' } },
       { description: 'Type 9', keys: ['9'], iconName: 'Type' },
@@ -594,7 +613,7 @@ const drills: Drill[] = [
     description: 'Access the filter menu without a mouse.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Open dropdown', keys: ['Alt', 'ArrowDown'], iconName: 'Filter' },
       { description: 'Move to item', keys: ['ArrowDown'], iconName: 'ArrowDown' },
@@ -634,7 +653,7 @@ const drills: Drill[] = [
     description: 'Apply distinct styles to table boundaries.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Select header', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
       { description: 'Bold header', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
@@ -704,7 +723,7 @@ const drills: Drill[] = [
     description: 'Format adjacent columns with distinct data types.',
     repetitions: 8,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Select col down', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } },
       { description: 'Apply Date', keys: ['Control', 'Shift', '#'], iconName: 'Calendar' }
@@ -871,7 +890,7 @@ const drills: Drill[] = [
     description: 'Instantly fix column widths so no data is cut off.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Select all', keys: ['Control', 'a'], iconName: 'Frame' },
       { description: 'Auto-fit width', keys: ['Alt', 'h', 'o', 'i'], iconName: 'Frame' }
@@ -884,7 +903,7 @@ const drills: Drill[] = [
     description: 'Open the fill color menu to highlight a selection.',
     repetitions: 8,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Select row', keys: ['Shift', ' '], iconName: 'Rows' },
       { description: 'Open Fill Color', keys: ['Alt', 'h', 'h'], iconName: 'PaintBucket' }
@@ -897,7 +916,7 @@ const drills: Drill[] = [
     description: 'Create collapsible row groups for large datasets.',
     repetitions: 8,
     mistakeLimit: 2,
-    initialGridState: tableDataGridState,
+    initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Select rows', keys: ['Shift', 'ArrowDown'], iconName: 'Rows' },
       { description: 'Group selected', keys: ['Shift', 'Alt', 'ArrowRight'], iconName: 'FolderPlus' }
