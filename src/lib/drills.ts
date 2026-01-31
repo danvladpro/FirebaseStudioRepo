@@ -131,7 +131,7 @@ const drills: Drill[] = [
     description: 'Jump around the perimeter of a table using Control.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
+    initialGridState: createGridState(bigTable,0,4,0),
     steps: [
       { description: 'Jump Top', keys: ['Control', 'ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
       { description: 'Jump Right', keys: ['Control', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
