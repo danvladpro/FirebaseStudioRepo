@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -84,6 +85,14 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (lower === 'escape') return 'esc';
     if (lower === ' ') return ' ';
     if (lower.startsWith('arrow')) return lower;
+    if (lower === 'enter' || lower === 'return') return isMac ? 'return' : 'enter';
+    if (lower === 'backspace') return 'backspace';
+    if (lower === 'delete') return 'delete';
+    if (lower === 'pageup') return 'pageup';
+    if (lower === 'pagedown') return 'pagedown';
+    if (lower === 'home') return 'home';
+    if (lower === 'end') return 'end';
+    if (lower === 'insert') return 'insert';
     return lower;
   };
 
@@ -129,19 +138,15 @@ export function DrillUI({ drill }: DrillUIProps) {
     visualStepIndex
   ) : { gridState: null, cellStyles: {} };
   
-  const resetForNewRep = useCallback(() => {
-    setLogicalStepIndex(0);
-    setVisualStepIndex(0);
-    setPressedKeys(new Set());
-    setSequence([]);
-  }, []);
-  
   const resetDrill = useCallback(() => {
     setReps(Array(drill.repetitions).fill(RepStatus.Pending));
     setCurrentRep(0);
     setMistakes(0);
-    resetForNewRep();
-  }, [drill.repetitions, resetForNewRep]);
+    setLogicalStepIndex(0);
+    setVisualStepIndex(0);
+    setPressedKeys(new Set());
+    setSequence([]);
+  }, [drill.repetitions]);
   
   const finishDrill = useCallback(async () => {
     setLogicalStepIndex(drill.steps.length); // Prevent further input
@@ -157,7 +162,7 @@ export function DrillUI({ drill }: DrillUIProps) {
       }
     }
     router.push(`/drill-results?drillId=${drill.id}`);
-  }, [drill.id, router, user]);
+  }, [drill.id, router, user, drill.steps.length]);
 
   const handleStepSuccess = useCallback(() => {
     setStepFeedback('correct');
@@ -191,18 +196,21 @@ export function DrillUI({ drill }: DrillUIProps) {
     }, 400);
   }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
 
-  const handleIncorrect = () => {
+  const handleIncorrect = useCallback(() => {
     setStepFeedback('incorrect');
-    const newReps = [...reps];
-    newReps[currentRep] = RepStatus.Incorrect;
-    setReps(newReps);
-    
-    setMistakes(prev => {
-        const newMistakeCount = prev + 1;
-        if (newMistakeCount >= drill.mistakeLimit) {
-            setTimeout(resetDrill, 1000);
+    setReps(prevReps => {
+        const newReps = [...prevReps];
+        if (newReps[currentRep] !== RepStatus.Incorrect) {
+            newReps[currentRep] = RepStatus.Incorrect;
+            setMistakes(prev => {
+                const newMistakeCount = prev + 1;
+                if (newMistakeCount >= drill.mistakeLimit) {
+                    setTimeout(resetDrill, 1000);
+                }
+                return newMistakeCount;
+            });
         }
-        return newMistakeCount;
+        return newReps;
     });
     
     setTimeout(() => {
@@ -210,66 +218,50 @@ export function DrillUI({ drill }: DrillUIProps) {
         setPressedKeys(new Set());
         setSequence([]);
     }, 500);
-  };
-  
-  const processSequentialKeyPress = useCallback((key: string) => {
-    if (logicalStepIndex >= drill.steps.length || stepFeedback === 'correct' || !activeStep?.isSequential) return;
-    
-    const requiredKeys = getRequiredKeys();
-    const newSequence = [...sequence, key];
-    setSequence(newSequence);
-    
-    const requiredSequence = Array.from(requiredKeys);
-    
-    for (let i = 0; i < newSequence.length; i++) {
-        if (newSequence[i] !== requiredSequence[i]) {
-            handleIncorrect();
-            return;
-        }
-    }
-    if (newSequence.length === requiredSequence.length) {
-        handleStepSuccess();
-    }
-  }, [logicalStepIndex, drill.steps.length, stepFeedback, activeStep, getRequiredKeys, sequence, handleIncorrect, handleStepSuccess]);
-  
+  }, [currentRep, drill.mistakeLimit, resetDrill]);
+
   const handleVirtualKeyClick = (key: string) => {
       const normalized = normalizeKey(key);
 
       if (activeStep.isSequential) {
-          processSequentialKeyPress(normalized);
+          setSequence(prev => [...prev, normalized]);
       } else {
-        const newKeys = new Set(pressedKeys);
-        if (newKeys.has(normalized)) {
-            newKeys.delete(normalized);
-        } else {
-            newKeys.add(normalized);
-        }
-        setPressedKeys(newKeys);
+        setPressedKeys(prev => {
+            const newKeys = new Set(prev);
+            if (newKeys.has(normalized)) {
+                newKeys.delete(normalized);
+            } else {
+                newKeys.add(normalized);
+            }
+            return newKeys;
+        });
       }
   };
 
+  // Effect for handling physical keyboard input
   useEffect(() => {
-    if (logicalStepIndex >= drill.steps.length || stepFeedback === 'correct') return;
+    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if(e.repeat) return;
+      if (e.repeat) return;
       e.preventDefault();
       const key = normalizeKey(e.key);
-      const newKeys = new Set(pressedKeys);
-      newKeys.add(key);
-      setPressedKeys(newKeys);
       
-      if (activeStep.isSequential) {
-        processSequentialKeyPress(key);
+      setPressedKeys(prev => new Set(prev).add(key));
+
+      if (activeStep?.isSequential) {
+        setSequence(prev => [...prev, key]);
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
-       const key = normalizeKey(e.key);
-       const newKeys = new Set(pressedKeys);
-       newKeys.delete(key);
-       setPressedKeys(newKeys);
+      const key = normalizeKey(e.key);
+      setPressedKeys(prev => {
+        const newKeys = new Set(prev);
+        newKeys.delete(key);
+        return newKeys;
+      });
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -279,33 +271,53 @@ export function DrillUI({ drill }: DrillUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [logicalStepIndex, drill.steps.length, pressedKeys, sequence, activeStep, processSequentialKeyPress, stepFeedback]);
-  
+  }, [logicalStepIndex, drill.steps.length, stepFeedback, activeStep?.isSequential, isMac]);
+
+  // Effect for processing non-sequential (chord) shortcuts
   useEffect(() => {
-    if (logicalStepIndex >= drill.steps.length || stepFeedback === 'correct' || activeStep.isSequential || pressedKeys.size === 0) return;
+    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null || activeStep.isSequential || pressedKeys.size === 0) return;
 
     const requiredKeys = getRequiredKeys();
     
-    const heldKeys = new Set(Array.from(pressedKeys).filter(k => {
-        const isModifier = ['control', 'shift', 'alt', 'meta'].includes(k);
-        return !isModifier; // Only consider non-modifier keys as "final" keys in a chord
-    }));
+    const heldNonModifierKeys = Array.from(pressedKeys).filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
 
-    // If there are no non-modifier keys being held, don't check yet
-    if (heldKeys.size === 0 && requiredKeys.size > 1) return;
+    if (heldNonModifierKeys.length === 0 && requiredKeys.size > 1) {
+      if (Array.from(requiredKeys).every(k => ['control', 'shift', 'alt', 'meta'].includes(k))) {
+         // All required keys are modifiers, check on size match
+      } else {
+        return;
+      }
+    }
     
     const sortedPressed = [...pressedKeys].sort().join(',');
     const sortedRequired = [...requiredKeys].sort().join(',');
   
     if (sortedPressed === sortedRequired) {
         handleStepSuccess();
-    } else {
-        // Only trigger incorrect if the number of keys matches the requirement but they are wrong
-        if (pressedKeys.size >= requiredKeys.size) {
-            handleIncorrect();
-        }
+    } else if (pressedKeys.size >= requiredKeys.size) {
+        handleIncorrect();
     }
   }, [pressedKeys, logicalStepIndex, drill.steps.length, stepFeedback, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect]);
+
+  // Effect for processing sequential shortcuts
+  useEffect(() => {
+    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null || !activeStep?.isSequential || sequence.length === 0) return;
+    
+    const requiredKeys = getRequiredKeys();
+    const requiredSequence = Array.from(requiredKeys);
+
+    for (let i = 0; i < sequence.length; i++) {
+        if (sequence[i] !== requiredSequence[i]) {
+            handleIncorrect();
+            return;
+        }
+    }
+
+    if (sequence.length === requiredSequence.length) {
+        handleStepSuccess();
+    }
+  }, [sequence, logicalStepIndex, drill.steps.length, stepFeedback, activeStep, getRequiredKeys, handleIncorrect, handleStepSuccess]);
+
 
   return (
     <Card className="w-full max-w-5xl">
@@ -432,7 +444,10 @@ export function DrillUI({ drill }: DrillUIProps) {
               )
             )}
        </CardFooter>
-        <div className="border-t min-h-[310px] flex items-center justify-center">
+        <div className={cn(
+            "min-h-[310px] flex items-center justify-center",
+            isVirtualKeyboardMode && "border-t"
+        )}>
             {isVirtualKeyboardMode && (
                 <div className="p-4">
                     <VisualKeyboard 
@@ -445,3 +460,4 @@ export function DrillUI({ drill }: DrillUIProps) {
     </Card>
   );
 }
+
