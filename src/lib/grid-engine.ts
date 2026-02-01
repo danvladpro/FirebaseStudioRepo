@@ -1,3 +1,4 @@
+
 import { GridState, ChallengeStep, Sheet } from './types';
 
 const deepCloneSelection = (selection: Sheet['selection']): Sheet['selection'] => ({
