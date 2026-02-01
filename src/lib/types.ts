@@ -13,6 +13,12 @@ export interface Sheet {
 export interface GridState {
   sheets: Sheet[];
   activeSheetIndex: number;
+  clipboard: {
+    data: string[][];
+    isCut: boolean;
+    sourceSheetIndex: number;
+    sourceSelection: Sheet['selection'];
+  } | null;
 }
 
 export type GridEffectAction =

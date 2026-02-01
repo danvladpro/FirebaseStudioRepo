@@ -1,20 +1,28 @@
 import { GridState, ChallengeStep, Sheet } from './types';
 
+const deepCloneSelection = (selection: Sheet['selection']): Sheet['selection'] => ({
+    activeCell: { ...selection.activeCell },
+    anchorCell: { ...selection.anchorCell },
+});
+
 export const deepCloneGridState = (state: GridState): GridState => {
   return {
     sheets: state.sheets.map(sheet => ({
       name: sheet.name,
       data: sheet.data.map(row => [...row]),
-      selection: {
-        activeCell: { ...sheet.selection.activeCell },
-        anchorCell: { ...sheet.selection.anchorCell },
-      }
+      selection: deepCloneSelection(sheet.selection),
     })),
     activeSheetIndex: state.activeSheetIndex,
+    clipboard: state.clipboard ? {
+        data: state.clipboard.data.map(row => [...row]),
+        isCut: state.clipboard.isCut,
+        sourceSheetIndex: state.clipboard.sourceSheetIndex,
+        sourceSelection: deepCloneSelection(state.clipboard.sourceSelection),
+    } : null,
   };
 };
 
-const getCellsInRange = (selection: Sheet['selection']): Set<string> => {
+const getCellsToApply = (selection: Sheet['selection']): Set<string> => {
     const { activeCell, anchorCell } = selection;
     const cells = new Set<string>();
 
@@ -46,6 +54,8 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         } else if (payload?.direction === 'previous') {
             newGridState.activeSheetIndex = Math.max(0, newGridState.activeSheetIndex - 1);
         }
+        // Clear styles when switching sheets, which removes the copy/cut border
+        newCellStyles = {};
         return { newGridState, newCellStyles };
     }
     
@@ -55,8 +65,6 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
     }
 
     let { data: newGridData, selection: newSelection } = activeSheet;
-    
-    const getCellsToApply = () => getCellsInRange(newSelection);
 
     switch (action) {
         case 'SELECT_ROW':
@@ -127,25 +135,33 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         case 'SELECT_TO_EDGE':
             if (payload?.direction) {
                 let { row, col } = newSelection.activeCell;
-                const isFullRowSelected = newSelection.anchorCell.col === 0 && newSelection.activeCell.col === (newGridData[0]?.length - 1 || 0);
+                const {anchorCell} = newSelection;
 
-                switch (payload.direction) {
-                    case 'right': if (newGridData[0]) col = newGridData[0].length - 1; break;
-                    case 'left': col = 0; break;
-                    case 'down': row = newGridData.length - 1; break;
-                    case 'up': row = 0; break;
-                }
-                
+                // Check if a full row or column is already selected
+                const isFullRowSelected = newGridData[0] && anchorCell.col === 0 && newSelection.activeCell.col === newGridData[0].length - 1;
+                const isFullColSelected = anchorCell.row === 0 && newSelection.activeCell.row === newGridData.length - 1;
+
                 if (isFullRowSelected && (payload.direction === 'down' || payload.direction === 'up')) {
+                    row = payload.direction === 'down' ? newGridData.length - 1 : 0;
                     newSelection.activeCell = { row, col: newSelection.activeCell.col };
-                } else {
+                } else if (isFullColSelected && (payload.direction === 'left' || payload.direction === 'right')) {
+                    col = payload.direction === 'right' ? (newGridData[0]?.length -1 || 0) : 0;
+                     newSelection.activeCell = { row: newSelection.activeCell.row, col };
+                }
+                else {
+                    switch (payload.direction) {
+                        case 'right': if (newGridData[0]) col = newGridData[0].length - 1; break;
+                        case 'left': col = 0; break;
+                        case 'down': row = newGridData.length - 1; break;
+                        case 'up': row = 0; break;
+                    }
                     newSelection.activeCell = { row, col };
                 }
             }
             break;
 
         case 'SELECT_TO_END':
-            if (newGridData.length > 0 && newGridData[0]) {
+             if (newGridData.length > 0 && newGridData[0]) {
                 newSelection.activeCell = { row: newGridData.length - 1, col: newGridData[0].length - 1 };
             }
             break;
@@ -153,7 +169,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         // ---Destructive/Formatting Actions---
         case 'INSERT_ROW':
              const rowsToInsertAt = new Set<number>();
-             getCellsToApply().forEach(cell => rowsToInsertAt.add(parseInt(cell.split('-')[0])));
+             getCellsToApply(newSelection).forEach(cell => rowsToInsertAt.add(parseInt(cell.split('-')[0])));
              const sortedInsertRows = Array.from(rowsToInsertAt).sort((a,b) => b - a);
              sortedInsertRows.forEach(rowIndex => {
                 const newRow = new Array(newGridData[0]?.length || 0).fill('');
@@ -162,7 +178,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
              break;
         case 'DELETE_ROW':
             const rowsToDelete = new Set<number>();
-            getCellsToApply().forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
+            getCellsToApply(newSelection).forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
             const sortedRowsToDelete = Array.from(rowsToDelete).sort((a, b) => b - a);
             sortedRowsToDelete.forEach(rowIndex => {
                 if (rowIndex >= 0 && rowIndex < newGridData.length) {
@@ -173,21 +189,100 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             newSelection.anchorCell = { ...newSelection.activeCell };
             break;
         case 'DELETE_CONTENT':
-            getCellsToApply().forEach(cellId => {
+            getCellsToApply(newSelection).forEach(cellId => {
                 const [r, c] = cellId.split('-').map(Number);
                 if (newGridData[r]?.[c] !== undefined) newGridData[r][c] = '';
             });
             break;
-        case 'COPY':
-            getCellsToApply().forEach(cellId => {
+        case 'COPY': {
+            const { anchorCell, activeCell } = newSelection;
+            const minRow = Math.min(anchorCell.row, activeCell.row);
+            const maxRow = Math.max(anchorCell.row, activeCell.row);
+            const minCol = Math.min(anchorCell.col, activeCell.col);
+            const maxCol = Math.max(anchorCell.col, activeCell.col);
+
+            const copiedData: string[][] = [];
+            for (let r = minRow; r <= maxRow; r++) {
+                const rowData = newGridData[r].slice(minCol, maxCol + 1);
+                copiedData.push(rowData);
+            }
+            
+            newGridState.clipboard = {
+                data: copiedData,
+                isCut: false,
+                sourceSheetIndex: newGridState.activeSheetIndex,
+                sourceSelection: deepCloneSelection(newSelection),
+            };
+
+            getCellsToApply(newSelection).forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], border: '2px dashed hsl(var(--primary))' };
             });
             break;
-        case 'CUT':
-            getCellsToApply().forEach(cellId => {
+        }
+        case 'CUT': {
+            const { anchorCell, activeCell } = newSelection;
+            const minRow = Math.min(anchorCell.row, activeCell.row);
+            const maxRow = Math.max(anchorCell.row, activeCell.row);
+            const minCol = Math.min(anchorCell.col, activeCell.col);
+            const maxCol = Math.max(anchorCell.col, activeCell.col);
+
+            const copiedData: string[][] = [];
+            for (let r = minRow; r <= maxRow; r++) {
+                const rowData = newGridData[r].slice(minCol, maxCol + 1);
+                copiedData.push(rowData);
+            }
+
+            newGridState.clipboard = {
+                data: copiedData,
+                isCut: true,
+                sourceSheetIndex: newGridState.activeSheetIndex,
+                sourceSelection: deepCloneSelection(newSelection),
+            };
+
+            getCellsToApply(newSelection).forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], opacity: 0.8, border: '2px dashed hsl(var(--primary))' };
             });
             break;
+        }
+        case 'PASTE': {
+            if (!newGridState.clipboard) break;
+
+            const { data: clipboardData, isCut, sourceSheetIndex, sourceSelection } = newGridState.clipboard;
+            const { row: startRow, col: startCol } = newSelection.activeCell;
+
+            // Paste data
+            clipboardData.forEach((row, rowIndex) => {
+                row.forEach((cellValue, colIndex) => {
+                    const targetRow = startRow + rowIndex;
+                    const targetCol = startCol + colIndex;
+                    if (newGridData[targetRow]?.[targetCol] !== undefined) {
+                        newGridData[targetRow][colIndex + startCol] = cellValue;
+                    }
+                });
+            });
+
+            // If it was a CUT operation, clear the source
+            if (isCut) {
+                const sourceSheet = newGridState.sheets[sourceSheetIndex];
+                const minRow = Math.min(sourceSelection.anchorCell.row, sourceSelection.activeCell.row);
+                const maxRow = Math.max(sourceSelection.anchorCell.row, sourceSelection.activeCell.row);
+                const minCol = Math.min(sourceSelection.anchorCell.col, sourceSelection.activeCell.col);
+                const maxCol = Math.max(sourceSelection.anchorCell.col, sourceSelection.activeCell.col);
+
+                for (let r = minRow; r <= maxRow; r++) {
+                    for (let c = minCol; c <= maxCol; c++) {
+                        if (sourceSheet.data[r]?.[c] !== undefined) {
+                            sourceSheet.data[r][c] = '';
+                        }
+                    }
+                }
+            }
+            
+            // Clear clipboard and styles
+            newGridState.clipboard = null;
+            newCellStyles = {};
+            break;
+        }
         case 'PASTE_STATIC_VALUE':
             if (payload?.value) {
                 const {row, col} = newSelection.activeCell;
@@ -196,27 +291,27 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             newCellStyles = {}; 
             break;
         case 'APPLY_STYLE_BOLD':
-            getCellsToApply().forEach(cellId => {
+            getCellsToApply(newSelection).forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], fontWeight: 'bold' };
             });
             break;
         case 'APPLY_STYLE_ITALIC':
-            getCellsToApply().forEach(cellId => {
+            getCellsToApply(newSelection).forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], fontStyle: 'italic' };
             });
             break;
         case 'APPLY_STYLE_UNDERLINE':
-            getCellsToApply().forEach(cellId => {
+            getCellsToApply(newSelection).forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], textDecoration: 'underline' };
             });
             break;
         case 'APPLY_STYLE_STRIKETHROUGH':
-            getCellsToApply().forEach(cellId => {
+            getCellsToApply(newSelection).forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], textDecoration: 'line-through' };
             });
             break;
         case 'APPLY_STYLE_CURRENCY':
-            getCellsToApply().forEach(cellId => {
+            getCellsToApply(newSelection).forEach(cellId => {
                 const [r, c] = cellId.split('-').map(Number);
                 if (newGridData[r]?.[c] !== undefined) {
                     const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
@@ -225,7 +320,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             });
             break;
         case 'APPLY_STYLE_PERCENTAGE':
-            getCellsToApply().forEach(cellId => {
+            getCellsToApply(newSelection).forEach(cellId => {
                 const [r, c] = cellId.split('-').map(Number);
                 if (newGridData[r]?.[c] !== undefined) {
                     const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));

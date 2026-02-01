@@ -1,4 +1,3 @@
-
 import { ChallengeSet, ChallengeLevel, Challenge, GridState } from "./types";
 
 const singleStep = (challenge: Omit<Challenge, 'steps'>): Challenge => ({
@@ -21,6 +20,7 @@ const createDefaultGridState = (): GridState => ({
     },
   ],
   activeSheetIndex: 0,
+  clipboard: null,
 });
 
 const createMultiSheetGridState = (activeSheet: number = 0): GridState => ({
@@ -59,7 +59,8 @@ const createMultiSheetGridState = (activeSheet: number = 0): GridState => ({
       selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
     }
   ],
-  activeSheetIndex: activeSheet
+  activeSheetIndex: activeSheet,
+  clipboard: null,
 });
 
 export const CHALLENGE_SETS: ChallengeSet[] = [
@@ -114,7 +115,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Redo", keys: ["Control", "y"], iconName: "Redo2", initialGridState: createDefaultGridState() }),
       singleStep({ description: "Copy", keys: ["Control", "c"], iconName: "Copy", gridEffect: { action: 'COPY' }, initialGridState: createDefaultGridState() }),
       singleStep({ description: "Cut", keys: ["Control", "x"], iconName: "Scissors", gridEffect: { action: 'CUT' }, initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Paste", keys: ["Control", "v"], iconName: "ClipboardPaste", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Paste", keys: ["Control", "v"], iconName: "ClipboardPaste", initialGridState: createDefaultGridState(), gridEffect: { action: 'PASTE' } }),
       singleStep({ description: "Bold", keys: ["Control", "b"], iconName: "Bold", gridEffect: { action: 'APPLY_STYLE_BOLD' }, initialGridState: createDefaultGridState() }),
       singleStep({ description: "Italicize", keys: ["Control", "i"], iconName: "Italic", gridEffect: { action: 'APPLY_STYLE_ITALIC' }, initialGridState: createDefaultGridState() }),
       singleStep({ description: "Underline", keys: ["Control", "u"], iconName: "Underline", gridEffect: { action: 'APPLY_STYLE_UNDERLINE' }, initialGridState: createDefaultGridState() }),

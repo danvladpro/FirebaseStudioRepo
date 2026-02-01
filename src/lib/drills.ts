@@ -1,4 +1,3 @@
-
 import { Row } from "react-day-picker";
 import { ChallengeLevel, GridEffect, GridState } from "./types";
 import { type LucideIcon } from "lucide-react";
@@ -34,7 +33,8 @@ const createGridState = (data: string[][] , activeSheetIndex: number = 0,Row: nu
     data,
     selection: { activeCell: { row: Row, col: Col }, anchorCell: { row: Row, col: Col } }
   }],
-  activeSheetIndex: activeSheetIndex
+  activeSheetIndex: activeSheetIndex,
+  clipboard: null,
 });
 
 const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => ({
@@ -74,6 +74,7 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
     }
   ],
   activeSheetIndex,
+  clipboard: null,
 });
 
 
@@ -154,7 +155,7 @@ const drills: Drill[] = [
       { description: 'Go to row start', keys: ['Control', 'ArrowLeft'], iconName: 'Home', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } } },
       { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
       { description: 'Jump to row edge', keys: ['Control', 'ArrowRight'], iconName: 'MoveRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
-      { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Copy Me' } } }
+      { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } }
     ]
   },
   { //4
@@ -181,7 +182,7 @@ const drills: Drill[] = [
     initialGridState: createGridState(bigTable,0,0,2),
     steps: [
       { description: 'Select row', keys: ['Shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
-      { description: 'Extend down', keys: ['Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } }
+      { description: 'Extend down', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } }
     ]
   },
   { //6
@@ -197,7 +198,7 @@ const drills: Drill[] = [
       { description: 'Extend one row down', keys: ['Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } },
       { description: 'Copy block', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
       { description: 'Next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
-      { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Pasted Data' } } }
+      { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } }
     ]
   },
   {
@@ -238,7 +239,7 @@ const drills: Drill[] = [
     steps: [
       { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
       { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
-      { description: 'Paste cell', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: {value: 'Value to Copy'} } }
+      { description: 'Paste cell', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } }
     ]
   },
   {
@@ -293,7 +294,7 @@ const drills: Drill[] = [
     steps: [
       { description: 'Cut value', keys: ['Control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },  
       { description: 'Move all the way up', keys: ['Control','ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
-      { description: 'Paste value', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Move' } } },
+      { description: 'Paste value', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
       { description: 'Underline', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
       { description: 'Bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } }
     ]
@@ -480,7 +481,7 @@ const drills: Drill[] = [
       { description: 'Select visible cells', keys: ['Alt', ';'], iconName: 'Eye' },
       { description: 'Copy selection', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
       { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
-      { description: 'Paste values', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Filtered Data' } } }
+      { description: 'Paste values', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } }
     ]
   },
   {
