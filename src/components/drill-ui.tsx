@@ -206,6 +206,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     processingRef.current = true;
 
     setStepFeedback('incorrect');
+    
     setReps(prevReps => {
         const newReps = [...prevReps];
         if (newReps[currentRep] !== RepStatus.Incorrect) {
@@ -230,29 +231,31 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [currentRep, drill.mistakeLimit, resetDrill]);
 
   const handleVirtualKeyClick = (key: string) => {
-      const normalized = normalizeKey(key);
+    if (processingRef.current || stepFeedback !== null) return;
+    
+    const normalized = normalizeKey(key);
 
-      if (activeStep.isSequential) {
-          setSequence(prev => [...prev, normalized]);
-      } else {
-        setPressedKeys(prev => {
-            const newKeys = new Set(prev);
-            if (newKeys.has(normalized)) {
-                newKeys.delete(normalized);
-            } else {
-                newKeys.add(normalized);
-            }
-            return newKeys;
-        });
-      }
+    if (activeStep.isSequential) {
+        setSequence(prev => [...prev, normalized]);
+    } else {
+      setPressedKeys(prev => {
+          const newKeys = new Set(prev);
+          if (newKeys.has(normalized)) {
+              newKeys.delete(normalized);
+          } else {
+              newKeys.add(normalized);
+          }
+          return newKeys;
+      });
+    }
   };
 
   // Effect for handling physical keyboard input
   useEffect(() => {
-    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null) return;
+    if (logicalStepIndex >= drill.steps.length) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.repeat) return;
+      if (e.repeat || processingRef.current || stepFeedback !== null) return;
       e.preventDefault();
       const key = normalizeKey(e.key);
       
@@ -265,6 +268,8 @@ export function DrillUI({ drill }: DrillUIProps) {
 
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
+      if (processingRef.current || stepFeedback !== null) return;
+      
       const key = normalizeKey(e.key);
       setPressedKeys(prev => {
         const newKeys = new Set(prev);
@@ -280,7 +285,7 @@ export function DrillUI({ drill }: DrillUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [logicalStepIndex, drill.steps.length, stepFeedback, activeStep?.isSequential, isMac]);
+  }, [logicalStepIndex, drill.steps.length, activeStep?.isSequential, isMac, stepFeedback]);
 
   // Effect for processing non-sequential (chord) shortcuts
   useEffect(() => {
@@ -454,7 +459,7 @@ export function DrillUI({ drill }: DrillUIProps) {
             )}
        </CardFooter>
         <div className={cn(
-            "min-h-[310px] flex items-center justify-center",
+            "min-h-[310px] flex items-center justify-center transition-all",
             isVirtualKeyboardMode && "border-t"
         )}>
             {isVirtualKeyboardMode && (
@@ -469,5 +474,3 @@ export function DrillUI({ drill }: DrillUIProps) {
     </Card>
   );
 }
-
-    
