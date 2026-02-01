@@ -102,9 +102,12 @@ export function VisualGrid({
                                                 
                                                 (() => {
                                                     const classes: string[] = [];
-                                                     if (isRangeSelection) {
-                                                        if (isSelected) {
-                                                             if (isAccentuating) {
+                                                    if (isRangeSelection) {
+                                                        const isWithinBounds = rowIndex >= selectionBounds.minRow && rowIndex <= selectionBounds.maxRow &&
+                                                                               colIndex >= selectionBounds.minCol && colIndex <= selectionBounds.maxCol;
+
+                                                        if (isWithinBounds) {
+                                                            if (isAccentuating) {
                                                                 classes.push(isActive ? 'bg-background' : 'bg-emerald-500/20');
                                                                 if (rowIndex === selectionBounds.minRow) classes.push('border-t-2 border-t-emerald-600');
                                                                 if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2 border-b-emerald-600');
