@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Drill } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
@@ -68,6 +68,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [sequence, setSequence] = useState<string[]>([]);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
+  const processingRef = useRef(false);
 
 
   useEffect(() => {
@@ -165,6 +166,9 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [drill.id, router, user, drill.steps.length]);
 
   const handleStepSuccess = useCallback(() => {
+    if (processingRef.current) return;
+    processingRef.current = true;
+
     setStepFeedback('correct');
 
     setTimeout(() => {
@@ -193,10 +197,14 @@ export function DrillUI({ drill }: DrillUIProps) {
             setLogicalStepIndex(prev => prev + 1);
             setVisualStepIndex(prev => prev + 1);
         }
+        processingRef.current = false;
     }, 400);
   }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
 
   const handleIncorrect = useCallback(() => {
+    if (processingRef.current) return;
+    processingRef.current = true;
+
     setStepFeedback('incorrect');
     setReps(prevReps => {
         const newReps = [...prevReps];
@@ -217,6 +225,7 @@ export function DrillUI({ drill }: DrillUIProps) {
         setStepFeedback(null);
         setPressedKeys(new Set());
         setSequence([]);
+        processingRef.current = false;
     }, 500);
   }, [currentRep, drill.mistakeLimit, resetDrill]);
 
@@ -461,3 +470,4 @@ export function DrillUI({ drill }: DrillUIProps) {
   );
 }
 
+    
