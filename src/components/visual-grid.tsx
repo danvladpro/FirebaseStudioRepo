@@ -30,14 +30,13 @@ export function VisualGrid({
         ? previewState.gridState.sheets[previewState.gridState.activeSheetIndex]
         : null;
 
-    const finalSheet = (isAccentuating && previewSheet) ? previewSheet : initialSheet;
-    const gridDataToRender = finalSheet.data;
-    
-    // Determine which selection object to use based on accentuation
+    // If we are animating a success, show the final state, otherwise show the initial state.
+    const finalSheet = (isAccentuating && previewSheet) ? previewSheet : initialSheet;    
     const finalSelection = isAccentuating ? (previewSheet?.selection || initialSheet.selection) : initialSheet.selection;
+    const gridDataToRender = finalSheet.data;
+
     const finalCellStyles = isAccentuating ? (previewState ? previewState.cellStyles : cellStyles) : cellStyles;
 
-    // Calculate bounds for the main selection being displayed
     const isRangeSelection = finalSelection.selectedCells.size > 1;
     let selectionBounds = { minRow: Infinity, maxRow: -1, minCol: Infinity, maxCol: -1 };
     if (isRangeSelection) {
@@ -83,9 +82,12 @@ export function VisualGrid({
                                 {row.map((cell, colIndex) => {
                                     const cellId = `${rowIndex}-${colIndex}`;
                                     
-                                    // Preview Logic (only when not accentuating)
+                                    const { activeCell, selectedCells } = finalSelection;
+                                    const isSelected = selectedCells.has(cellId);
+                                    const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
+
                                     const isPreviewing = !isAccentuating && previewSheet;
-                                    const previewSelection = isPreviewing ? previewSheet.selection : null;
+                                    const previewSelection = isPreviewing ? previewSheet?.selection : null;
                                     const isPreviewActive = isPreviewing && previewSelection?.activeCell.row === rowIndex && previewSelection?.activeCell.col === colIndex;
                                     const isPreviewRange = isPreviewing && (previewSelection?.selectedCells.size ?? 0) > 1;
 
@@ -94,37 +96,38 @@ export function VisualGrid({
                                             key={colIndex}
                                             className={cn(
                                                 "border border-border/50 p-1.5 text-sm truncate transition-colors duration-200",
-                                                // Preview styling (if applicable)
+                                                
                                                 isPreviewing && !isPreviewRange && isPreviewActive && "bg-emerald-500/20",
                                                 isPreviewing && isPreviewRange && previewSelection?.selectedCells.has(cellId) && "bg-blue-500/15",
                                                 
-                                                // Main selection styling
                                                 (() => {
-                                                    const { activeCell, selectedCells } = finalSelection;
-                                                    const isSelected = selectedCells.has(cellId);
-                                                    const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
-
-                                                    if (isRangeSelection) {
+                                                    const classes: string[] = [];
+                                                     if (isRangeSelection) {
                                                         if (isSelected) {
-                                                            const borderColor = isAccentuating ? 'emerald-600' : 'primary';
-                                                            const bgColor = isAccentuating ? 'bg-emerald-500/20' : 'bg-blue-500/15';
-                                                            const classes = [isActive ? 'bg-background' : bgColor];
-
-                                                            if (rowIndex === selectionBounds.minRow) classes.push(`border-t-2 border-t-${borderColor}`);
-                                                            if (rowIndex === selectionBounds.maxRow) classes.push(`border-b-2 border-b-${borderColor}`);
-                                                            if (colIndex === selectionBounds.minCol) classes.push(`border-l-2 border-l-${borderColor}`);
-                                                            if (colIndex === selectionBounds.maxCol) classes.push(`border-r-2 border-r-${borderColor}`);
-                                                            return classes;
+                                                             if (isAccentuating) {
+                                                                classes.push(isActive ? 'bg-background' : 'bg-emerald-500/20');
+                                                                if (rowIndex === selectionBounds.minRow) classes.push('border-t-2 border-t-emerald-600');
+                                                                if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2 border-b-emerald-600');
+                                                                if (colIndex === selectionBounds.minCol) classes.push('border-l-2 border-l-emerald-600');
+                                                                if (colIndex === selectionBounds.maxCol) classes.push('border-r-2 border-r-emerald-600');
+                                                            } else {
+                                                                classes.push(isActive ? 'bg-background' : 'bg-blue-500/15');
+                                                                if (rowIndex === selectionBounds.minRow) classes.push('border-t-2 border-t-primary');
+                                                                if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2 border-b-primary');
+                                                                if (colIndex === selectionBounds.minCol) classes.push('border-l-2 border-l-primary');
+                                                                if (colIndex === selectionBounds.maxCol) classes.push('border-r-2 border-r-primary');
+                                                            }
                                                         }
                                                     } else { // Single cell selection
                                                         if (isActive) {
                                                             if (isAccentuating) {
-                                                                return 'ring-2 ring-emerald-600 ring-inset bg-emerald-500/20';
+                                                                classes.push('ring-2 ring-emerald-600 ring-inset bg-emerald-500/20');
                                                             } else {
-                                                                return 'ring-2 ring-primary ring-inset';
+                                                                classes.push('ring-2 ring-primary ring-inset');
                                                             }
                                                         }
                                                     }
+                                                    return classes;
                                                 })()
                                             )}
                                             style={finalCellStyles[cellId] || {}}
