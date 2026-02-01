@@ -92,29 +92,27 @@ export function VisualGrid({
 
                                     const getCellClasses = () => {
                                         const classes: string[] = [];
-                                        const isWithinBounds = rowIndex >= selectionBounds.minRow && rowIndex <= selectionBounds.maxRow &&
-                                                               colIndex >= selectionBounds.minCol && colIndex <= selectionBounds.maxCol;
-
+                                        
                                         if (isRangeSelection && isSelected) {
-                                            // Range selection fill
+                                            // Apply background fill to all cells in the range first.
                                             if (isAccentuating) {
-                                                classes.push(isActive ? 'bg-background' : 'bg-emerald-500/20');
+                                                classes.push('bg-emerald-500/20');
                                             } else {
-                                                classes.push(isActive ? 'bg-background' : 'bg-blue-500/15');
+                                                classes.push('bg-blue-500/15');
+                                            }
+                                            
+                                            // The active cell within a range has a transparent background.
+                                            if (isActive) {
+                                                classes.push('bg-background');
                                             }
 
-                                            // Range selection border
-                                            if (isAccentuating) {
-                                                if (rowIndex === selectionBounds.minRow) classes.push('border-t-2', 'border-t-emerald-600');
-                                                if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2', 'border-b-emerald-600');
-                                                if (colIndex === selectionBounds.minCol) classes.push('border-l-2', 'border-l-emerald-600');
-                                                if (colIndex === selectionBounds.maxCol) classes.push('border-r-2', 'border-r-emerald-600');
-                                            } else {
-                                                if (rowIndex === selectionBounds.minRow) classes.push('border-t-2', 'border-t-primary');
-                                                if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2', 'border-b-primary');
-                                                if (colIndex === selectionBounds.minCol) classes.push('border-l-2', 'border-l-primary');
-                                                if (colIndex === selectionBounds.maxCol) classes.push('border-r-2', 'border-r-primary');
-                                            }
+                                            // Apply outer borders to the range
+                                            const borderColor = isAccentuating ? 'border-emerald-600' : 'border-primary';
+                                            if (rowIndex === selectionBounds.minRow) classes.push('border-t-2', borderColor);
+                                            if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2', borderColor);
+                                            if (colIndex === selectionBounds.minCol) classes.push('border-l-2', borderColor);
+                                            if (colIndex === selectionBounds.maxCol) classes.push('border-r-2', borderColor);
+
                                         } else if (isActive) { // Single cell selection
                                             if (isAccentuating) {
                                                 classes.push('ring-2', 'ring-emerald-600', 'ring-inset', 'bg-emerald-500/20');

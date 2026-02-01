@@ -234,7 +234,7 @@ const drills: Drill[] = [
     description: 'Move data across worksheets.',
     repetitions: 15,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
+    initialGridState: createMultiSheetGridState(0),
     steps: [
       { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
       { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
@@ -275,7 +275,7 @@ const drills: Drill[] = [
     description: 'Highlight important data and save your work.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
+    initialGridState: createMultiSheetGridState(0),
     steps: [
       { description: 'Bold text', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
       { description: 'Underline text', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
