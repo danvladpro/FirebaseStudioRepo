@@ -30,7 +30,6 @@ export function VisualGrid({
         ? previewState.gridState.sheets[previewState.gridState.activeSheetIndex]
         : null;
 
-    // If we are animating a success, show the final state, otherwise show the initial state.
     const finalSheet = (isAccentuating && previewSheet) ? previewSheet : initialSheet;    
     const finalSelection = isAccentuating ? (previewSheet?.selection || initialSheet.selection) : initialSheet.selection;
     const gridDataToRender = finalSheet.data;
@@ -91,47 +90,57 @@ export function VisualGrid({
                                     const isPreviewActive = isPreviewing && previewSelection?.activeCell.row === rowIndex && previewSelection?.activeCell.col === colIndex;
                                     const isPreviewRange = isPreviewing && (previewSelection?.selectedCells.size ?? 0) > 1;
 
+                                    const getCellClasses = () => {
+                                        const classes: string[] = [];
+                                        const isWithinBounds = rowIndex >= selectionBounds.minRow && rowIndex <= selectionBounds.maxRow &&
+                                                               colIndex >= selectionBounds.minCol && colIndex <= selectionBounds.maxCol;
+
+                                        if (isRangeSelection && isSelected) {
+                                            // Range selection fill
+                                            if (isAccentuating) {
+                                                classes.push(isActive ? 'bg-background' : 'bg-emerald-500/20');
+                                            } else {
+                                                classes.push(isActive ? 'bg-background' : 'bg-blue-500/15');
+                                            }
+
+                                            // Range selection border
+                                            if (isAccentuating) {
+                                                if (rowIndex === selectionBounds.minRow) classes.push('border-t-2', 'border-t-emerald-600');
+                                                if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2', 'border-b-emerald-600');
+                                                if (colIndex === selectionBounds.minCol) classes.push('border-l-2', 'border-l-emerald-600');
+                                                if (colIndex === selectionBounds.maxCol) classes.push('border-r-2', 'border-r-emerald-600');
+                                            } else {
+                                                if (rowIndex === selectionBounds.minRow) classes.push('border-t-2', 'border-t-primary');
+                                                if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2', 'border-b-primary');
+                                                if (colIndex === selectionBounds.minCol) classes.push('border-l-2', 'border-l-primary');
+                                                if (colIndex === selectionBounds.maxCol) classes.push('border-r-2', 'border-r-primary');
+                                            }
+                                        } else if (isActive) { // Single cell selection
+                                            if (isAccentuating) {
+                                                classes.push('ring-2', 'ring-emerald-600', 'ring-inset', 'bg-emerald-500/20');
+                                            } else {
+                                                classes.push('ring-2', 'ring-primary', 'ring-inset');
+                                            }
+                                        }
+
+                                        // Preview logic
+                                        if(isPreviewing) {
+                                            if (isPreviewRange && previewSelection?.selectedCells.has(cellId)) {
+                                                classes.push('bg-blue-500/15');
+                                            } else if (!isPreviewRange && isPreviewActive) {
+                                                classes.push('bg-emerald-500/20');
+                                            }
+                                        }
+
+                                        return classes;
+                                    };
+
                                     return (
                                         <td
                                             key={colIndex}
                                             className={cn(
                                                 "border border-border/50 p-1.5 text-sm truncate transition-colors duration-200",
-                                                
-                                                isPreviewing && !isPreviewRange && isPreviewActive && "bg-emerald-500/20",
-                                                isPreviewing && isPreviewRange && previewSelection?.selectedCells.has(cellId) && "bg-blue-500/15",
-                                                
-                                                (() => {
-                                                    const classes: string[] = [];
-                                                    if (isRangeSelection) {
-                                                        const isWithinBounds = rowIndex >= selectionBounds.minRow && rowIndex <= selectionBounds.maxRow &&
-                                                                               colIndex >= selectionBounds.minCol && colIndex <= selectionBounds.maxCol;
-
-                                                        if (isWithinBounds) {
-                                                            if (isAccentuating) {
-                                                                classes.push(isActive ? 'bg-background' : 'bg-emerald-500/20');
-                                                                if (rowIndex === selectionBounds.minRow) classes.push('border-t-2 border-t-emerald-600');
-                                                                if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2 border-b-emerald-600');
-                                                                if (colIndex === selectionBounds.minCol) classes.push('border-l-2 border-l-emerald-600');
-                                                                if (colIndex === selectionBounds.maxCol) classes.push('border-r-2 border-r-emerald-600');
-                                                            } else {
-                                                                classes.push(isActive ? 'bg-background' : 'bg-blue-500/15');
-                                                                if (rowIndex === selectionBounds.minRow) classes.push('border-t-2 border-t-primary');
-                                                                if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2 border-b-primary');
-                                                                if (colIndex === selectionBounds.minCol) classes.push('border-l-2 border-l-primary');
-                                                                if (colIndex === selectionBounds.maxCol) classes.push('border-r-2 border-r-primary');
-                                                            }
-                                                        }
-                                                    } else { // Single cell selection
-                                                        if (isActive) {
-                                                            if (isAccentuating) {
-                                                                classes.push('ring-2 ring-emerald-600 ring-inset bg-emerald-500/20');
-                                                            } else {
-                                                                classes.push('ring-2 ring-primary ring-inset');
-                                                            }
-                                                        }
-                                                    }
-                                                    return classes;
-                                                })()
+                                                ...getCellClasses()
                                             )}
                                             style={finalCellStyles[cellId] || {}}
                                         >

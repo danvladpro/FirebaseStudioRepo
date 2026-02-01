@@ -34,7 +34,7 @@ const createGridState = (data: string[][] , activeSheetIndex: number = 0,Row: nu
     data,
     selection: { activeCell: { row: Row, col: Col }, selectedCells: new Set() }
   }],
-  activeSheetIndex: 0
+  activeSheetIndex: activeSheetIndex
 });
 
 const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => ({
@@ -53,10 +53,10 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
     {
       name: 'Sheet2',
       data: [
-        ['Summary', 'Total','','',''],
+        ['Sheet #', '2','','',''],
+        ['Item', 'Total','','',''],
         ['North', '1200','','',''],
         ['South', '850','','',''],
-        ['', '','','',''],
         ['', '','','',''],
       ],
       selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
@@ -64,11 +64,11 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
      {
       name: 'Sheet3',
       data: [
-        ['Notes', '','','',''],
-        ['Check numbers for Q3', '','','',''],
+        ['Sheet #', '3','','',''],
+        ['Note', '','','',''],
+        ['1', 'Buy bread','','',''],
+        ['2', 'Sell skis','','',''],
         ['', '','','',''],
-        ['', '','','',''],
-        ['', '','','','']
       ],
       selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
     }
@@ -85,22 +85,7 @@ const defaultDrillGridState = createGridState([
   ['', ''],
 ]);
 
-const createDefaultGridState = (): GridState => ({
-  sheets: [
-    {
-      name: 'Sheet1',
-      data: [
-        ['ID', 'Product', 'Region', 'Sales', 'Commission'],
-        ['#101', 'Gadget', 'North', '1200', '5%'],
-        ['#102', 'Widget', 'South', '850', '6%'],
-        ['#103', 'Doohickey', 'East', '2100', '4%'],
-        ['#104', 'Thingamajig', 'West', '500', '7%'],
-      ],
-      selection: { activeCell: { row: 4, col: 0 }, selectedCells: new Set() },
-    },
-  ],
-  activeSheetIndex: 0,
-});
+
 
 const dataWithContent = createGridState([
   ['Value to Delete', '', ''],
@@ -234,25 +219,12 @@ const drills: Drill[] = [
     description: 'Navigate between tabs efficiently.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createMultiSheetGridState(1),
+    initialGridState: createMultiSheetGridState(0),
     steps: [
       { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
       { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
       { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
       { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } }
-    ]
-  },
-  {
-    id: 'jump-worksheets-review',
-    level: 'Beginner',
-    name: 'Quick Sheet Review',
-    description: 'Flick back and forth between sheets.',
-    repetitions: 15,
-    mistakeLimit: 2,
-    initialGridState: createMultiSheetGridState(1),
-    steps: [
-      { description: 'Next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
-      { description: 'Previous sheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } }
     ]
   },
   {
