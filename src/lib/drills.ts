@@ -32,7 +32,7 @@ const createGridState = (data: string[][] , activeSheetIndex: number = 0,Row: nu
   sheets: [{
     name: 'Sheet1',
     data,
-    selection: { activeCell: { row: Row, col: Col }, selectedCells: new Set() }
+    selection: { activeCell: { row: Row, col: Col }, anchorCell: { row: Row, col: Col } }
   }],
   activeSheetIndex: activeSheetIndex
 });
@@ -48,7 +48,7 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
         ['#103', 'Doohickey', 'East', '2100', '4%'],
         ['#104', 'Thingamajig', 'West', '500', '7%'],
       ],
-      selection: { activeCell: { row: 1, col: 1 }, selectedCells: new Set() },
+      selection: { activeCell: { row: 1, col: 1 }, anchorCell: { row: 1, col: 1 } },
     },
     {
       name: 'Sheet2',
@@ -59,7 +59,7 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
         ['South', '850','','',''],
         ['', '','','',''],
       ],
-      selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
+      selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
     },
      {
       name: 'Sheet3',
@@ -70,7 +70,7 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
         ['2', 'Sell skis','','',''],
         ['', '','','',''],
       ],
-      selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
+      selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
     }
   ],
   activeSheetIndex,
@@ -109,7 +109,7 @@ const drills: Drill[] = [
   // LEVEL 1: BEGINNER (Warp Speed)
   // Focus: Navigation, Selection, & Basic Moves
   // ==========================================
-  {
+  { // 1 
     id: 'navigate-block-edges',
     level: 'Beginner',
     name: 'Navigate Data Block Edges',
@@ -124,7 +124,7 @@ const drills: Drill[] = [
       { description: 'Jump Left', keys: ['Control', 'ArrowLeft'], iconName: 'ArrowLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } } }
     ]
   },
-  {
+  { // 2
     id: 'delete-end-of-table',
     level: 'Beginner',
     name: 'Jump and Clean',
@@ -137,7 +137,7 @@ const drills: Drill[] = [
       { description: 'Delete value', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } }
     ]
   },
-  {
+  { //3
     id: 'copy-to-row-edge',
     level: 'Beginner',
     name: 'Jump and Paste',
@@ -152,12 +152,12 @@ const drills: Drill[] = [
      ],0,0,2),
     steps: [
       { description: 'Go to row start', keys: ['Control', 'ArrowLeft'], iconName: 'Home', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } } },
-      { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy' },
+      { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
       { description: 'Jump to row edge', keys: ['Control', 'ArrowRight'], iconName: 'MoveRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
       { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Copy Me' } } }
     ]
   },
-  {
+  { //4
     id: 'expand-selection-horizontally',
     level: 'Beginner',
     name: 'Expanding Selection',
@@ -168,10 +168,10 @@ const drills: Drill[] = [
     steps: [
       { description: 'Expand right', keys: ['Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
       { description: 'Expand right again', keys: ['Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
-      { description: 'Copy block', keys: ['Control', 'c'], iconName: 'Copy' }
+      { description: 'Copy block', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } }
     ]
   },
-  {
+  { //5
     id: 'extend-row-selection-down',
     level: 'Beginner',
     name: 'Quick Row Selection',
@@ -181,21 +181,21 @@ const drills: Drill[] = [
     initialGridState: createGridState(bigTable,0,0,2),
     steps: [
       { description: 'Select row', keys: ['Shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
-      { description: 'Extend down', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } }
+      { description: 'Extend down', keys: ['Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } }
     ]
   },
-  {
+  { //6
     id: 'select-rectangular-range',
     level: 'Beginner',
     name: 'Select & Move Range',
     description: 'Capture a block and move it to another sheet.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
+    initialGridState: createMultiSheetGridState(0),
     steps: [
       { description: 'Select to right edge', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
       { description: 'Extend one row down', keys: ['Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } },
-      { description: 'Copy block', keys: ['Control', 'c'], iconName: 'Copy' },
+      { description: 'Copy block', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
       { description: 'Next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
       { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Pasted Data' } } }
     ]
@@ -219,12 +219,12 @@ const drills: Drill[] = [
     description: 'Navigate between tabs efficiently.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createMultiSheetGridState(0),
+    initialGridState: createMultiSheetGridState(1),
     steps: [
       { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
-      { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
       { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
-      { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } }
+      { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
+      { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } }
     ]
   },
   {
@@ -289,10 +289,10 @@ const drills: Drill[] = [
     description: 'Relocate and restyle content using arrow keys.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: createGridState([['', ''], ['Value to Move', '']]),
+    initialGridState: createGridState([['', ''], ['', ''],['Value to Move', ''],['', ''],],0,2,0),
     steps: [
-      { description: 'Cut value', keys: ['Control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },
-      { description: 'Move up', keys: ['ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'up' } } },
+      { description: 'Cut value', keys: ['Control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },  
+      { description: 'Move all the way up', keys: ['Control','ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
       { description: 'Paste value', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Move' } } },
       { description: 'Underline', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
       { description: 'Bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } }
@@ -478,8 +478,8 @@ const drills: Drill[] = [
     initialGridState: defaultDrillGridState,
     steps: [
       { description: 'Select visible cells', keys: ['Alt', ';'], iconName: 'Eye' },
-      { description: 'Copy selection', keys: ['Control', 'c'], iconName: 'Copy' },
-      { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine' },
+      { description: 'Copy selection', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
+      { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
       { description: 'Paste values', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Filtered Data' } } }
     ]
   },
@@ -808,7 +808,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
     steps: [
-      { description: 'Copy range', keys: ['Control', 'c'], iconName: 'Copy' },
+      { description: 'Copy range', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
       { description: 'Paste values', keys: ['Control', 'Alt', 'v'], iconName: 'ClipboardSignature' }
     ]
   },
@@ -864,7 +864,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
     steps: [
-      { description: 'Select all', keys: ['Control', 'a'], iconName: 'Frame' },
+      { description: 'Select all', keys: ['Control', 'a'], iconName: 'Frame', gridEffect: { action: 'SELECT_ALL' } },
       { description: 'Auto-fit width', keys: ['Alt', 'h', 'o', 'i'], iconName: 'Frame' }
     ]
   },
@@ -877,7 +877,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
     steps: [
-      { description: 'Select row', keys: ['Shift', ' '], iconName: 'Rows' },
+      { description: 'Select row', keys: ['Shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
       { description: 'Open Fill Color', keys: ['Alt', 'h', 'h'], iconName: 'PaintBucket' }
     ]
   },
@@ -890,7 +890,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
     steps: [
-      { description: 'Select rows', keys: ['Shift', 'ArrowDown'], iconName: 'Rows' },
+      { description: 'Select rows', keys: ['Shift', 'ArrowDown'], iconName: 'Rows', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } },
       { description: 'Group selected', keys: ['Shift', 'Alt', 'ArrowRight'], iconName: 'FolderPlus' }
     ]
   },

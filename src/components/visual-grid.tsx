@@ -36,17 +36,12 @@ export function VisualGrid({
 
     const finalCellStyles = isAccentuating ? (previewState ? previewState.cellStyles : cellStyles) : cellStyles;
 
-    const isRangeSelection = finalSelection.selectedCells.size > 1;
-    let selectionBounds = { minRow: Infinity, maxRow: -1, minCol: Infinity, maxCol: -1 };
-    if (isRangeSelection) {
-        finalSelection.selectedCells.forEach(cellId => {
-            const [r, c] = cellId.split('-').map(Number);
-            selectionBounds.minRow = Math.min(selectionBounds.minRow, r);
-            selectionBounds.maxRow = Math.max(selectionBounds.maxRow, r);
-            selectionBounds.minCol = Math.min(selectionBounds.minCol, c);
-            selectionBounds.maxCol = Math.max(selectionBounds.maxCol, c);
-        });
-    }
+    const { activeCell, anchorCell } = finalSelection;
+    const minRow = Math.min(anchorCell.row, activeCell.row);
+    const maxRow = Math.max(anchorCell.row, activeCell.row);
+    const minCol = Math.min(anchorCell.col, activeCell.col);
+    const maxCol = Math.max(anchorCell.col, activeCell.col);
+    const isRangeSelection = (minRow !== maxRow || minCol !== maxCol);
 
     const isSheetSwitch = previewState && gridState.activeSheetIndex !== previewState.gridState.activeSheetIndex;
     const finalActiveSheetIndex = (isAccentuating && isSheetSwitch && previewState)
@@ -80,19 +75,14 @@ export function VisualGrid({
 
                                 {row.map((cell, colIndex) => {
                                     const cellId = `${rowIndex}-${colIndex}`;
-                                    
-                                    const { activeCell, selectedCells } = finalSelection;
-                                    const isSelected = selectedCells.has(cellId);
                                     const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
 
                                     const isPreviewing = !isAccentuating && previewSheet;
-                                    const previewSelection = isPreviewing ? previewSheet?.selection : null;
-                                    const isPreviewActive = isPreviewing && previewSelection?.activeCell.row === rowIndex && previewSelection?.activeCell.col === colIndex;
-                                    const isPreviewRange = isPreviewing && (previewSelection?.selectedCells.size ?? 0) > 1;
-
+                                    
                                     const getCellClasses = () => {
                                         const classes: string[] = [];
-                                        
+                                        const isSelected = rowIndex >= minRow && rowIndex <= maxRow && colIndex >= minCol && colIndex <= maxCol;
+
                                         if (isRangeSelection && isSelected) {
                                             // Apply background fill to all cells in the range first.
                                             if (isAccentuating) {
@@ -108,10 +98,10 @@ export function VisualGrid({
 
                                             // Apply outer borders to the range
                                             const borderColor = isAccentuating ? 'border-emerald-600' : 'border-primary';
-                                            if (rowIndex === selectionBounds.minRow) classes.push('border-t-2', borderColor);
-                                            if (rowIndex === selectionBounds.maxRow) classes.push('border-b-2', borderColor);
-                                            if (colIndex === selectionBounds.minCol) classes.push('border-l-2', borderColor);
-                                            if (colIndex === selectionBounds.maxCol) classes.push('border-r-2', borderColor);
+                                            if (rowIndex === minRow) classes.push('border-t-2', borderColor);
+                                            if (rowIndex === maxRow) classes.push('border-b-2', borderColor);
+                                            if (colIndex === minCol) classes.push('border-l-2', borderColor);
+                                            if (colIndex === maxCol) classes.push('border-r-2', borderColor);
 
                                         } else if (isActive) { // Single cell selection
                                             if (isAccentuating) {
@@ -122,10 +112,18 @@ export function VisualGrid({
                                         }
 
                                         // Preview logic
-                                        if(isPreviewing) {
-                                            if (isPreviewRange && previewSelection?.selectedCells.has(cellId)) {
+                                        if(isPreviewing && previewSheet) {
+                                            const { activeCell: pActive, anchorCell: pAnchor } = previewSheet.selection;
+                                            const pMinRow = Math.min(pAnchor.row, pActive.row);
+                                            const pMaxRow = Math.max(pAnchor.row, pActive.row);
+                                            const pMinCol = Math.min(pAnchor.col, pActive.col);
+                                            const pMaxCol = Math.max(pAnchor.col, pActive.col);
+                                            const isPreviewSelected = rowIndex >= pMinRow && rowIndex <= pMaxRow && colIndex >= pMinCol && colIndex <= pMaxCol;
+                                            const isPreviewRange = pMinRow !== pMaxRow || pMinCol !== pMaxCol;
+
+                                            if (isPreviewRange && isPreviewSelected) {
                                                 classes.push('bg-blue-500/15');
-                                            } else if (!isPreviewRange && isPreviewActive) {
+                                            } else if (!isPreviewRange && rowIndex === pActive.row && colIndex === pActive.col) {
                                                 classes.push('bg-emerald-500/20');
                                             }
                                         }

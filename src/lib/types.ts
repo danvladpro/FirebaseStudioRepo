@@ -6,7 +6,7 @@ export interface Sheet {
   data: string[][];
   selection: {
     activeCell: { row: number; col: number };
-    selectedCells: Set<string>;
+    anchorCell: { row: number; col: number };
   };
 }
 

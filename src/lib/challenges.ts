@@ -17,7 +17,7 @@ const createDefaultGridState = (): GridState => ({
         ['#103', 'Doohickey', 'East', '2100', '4%'],
         ['#104', 'Thingamajig', 'West', '500', '7%'],
       ],
-      selection: { activeCell: { row: 2, col: 2 }, selectedCells: new Set() },
+      selection: { activeCell: { row: 2, col: 2 }, anchorCell: { row: 2, col: 2 } },
     },
   ],
   activeSheetIndex: 0,
@@ -34,7 +34,7 @@ const createMultiSheetGridState = (activeSheet: number = 0): GridState => ({
         ['#103', 'Doohickey', 'East', '2100', '4%'],
         ['#104', 'Thingamajig', 'West', '500', '7%'],
       ],
-      selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
+      selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
     },
     {
       name: 'Sheet2',
@@ -45,7 +45,7 @@ const createMultiSheetGridState = (activeSheet: number = 0): GridState => ({
         ['', '','','',''],
         ['', '','','',''],
       ],
-      selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
+      selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
     },
      {
       name: 'Sheet3',
@@ -56,7 +56,7 @@ const createMultiSheetGridState = (activeSheet: number = 0): GridState => ({
         ['', '','','',''],
         ['', '','','','']
       ],
-      selection: { activeCell: { row: 0, col: 0 }, selectedCells: new Set() },
+      selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
     }
   ],
   activeSheetIndex: activeSheet

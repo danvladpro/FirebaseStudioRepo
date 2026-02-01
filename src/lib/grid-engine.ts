@@ -1,4 +1,3 @@
-
 import { GridState, ChallengeStep, Sheet } from './types';
 
 export const deepCloneGridState = (state: GridState): GridState => {
@@ -8,12 +7,30 @@ export const deepCloneGridState = (state: GridState): GridState => {
       data: sheet.data.map(row => [...row]),
       selection: {
         activeCell: { ...sheet.selection.activeCell },
-        selectedCells: new Set(sheet.selection.selectedCells),
+        anchorCell: { ...sheet.selection.anchorCell },
       }
     })),
     activeSheetIndex: state.activeSheetIndex,
   };
 };
+
+const getCellsInRange = (selection: Sheet['selection']): Set<string> => {
+    const { activeCell, anchorCell } = selection;
+    const cells = new Set<string>();
+
+    const minRow = Math.min(anchorCell.row, activeCell.row);
+    const maxRow = Math.max(anchorCell.row, activeCell.row);
+    const minCol = Math.min(anchorCell.col, activeCell.col);
+    const maxCol = Math.max(anchorCell.col, activeCell.col);
+
+    for (let r = minRow; r <= maxRow; r++) {
+        for (let c = minCol; c <= maxCol; c++) {
+            cells.add(`${r}-${c}`);
+        }
+    }
+    return cells;
+};
+
 
 export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellStyles: Record<string, React.CSSProperties>): { newGridState: GridState, newCellStyles: Record<string, React.CSSProperties> } => {
     if (!step.gridEffect) return { newGridState: gridState, newCellStyles: cellStyles };
@@ -39,68 +56,126 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
 
     let { data: newGridData, selection: newSelection } = activeSheet;
     
-    const getCellsToApply = () => newSelection.selectedCells.size > 0 ? newSelection.selectedCells : new Set([`${newSelection.activeCell.row}-${newSelection.activeCell.col}`]);
+    const getCellsToApply = () => getCellsInRange(newSelection);
 
     switch (action) {
         case 'SELECT_ROW':
-            newSelection.selectedCells.clear();
             if (newGridData.length > 0 && newGridData[0]) {
-                for (let c = 0; c < newGridData[0].length; c++) {
-                    newSelection.selectedCells.add(`${newSelection.activeCell.row}-${c}`);
-                }
+                const row = newSelection.activeCell.row;
+                newSelection.anchorCell = { row, col: 0 };
+                newSelection.activeCell = { row, col: newGridData[0].length - 1 };
             }
             break;
         case 'SELECT_COLUMN':
-            newSelection.selectedCells.clear();
-            for (let r = 0; r < newGridData.length; r++) {
-                newSelection.selectedCells.add(`${r}-${newSelection.activeCell.col}`);
+             if (newGridData.length > 0) {
+                const col = newSelection.activeCell.col;
+                newSelection.anchorCell = { row: 0, col };
+                newSelection.activeCell = { row: newGridData.length - 1, col };
             }
             break;
         case 'SELECT_ALL':
-            newSelection.selectedCells.clear();
-            for (let r = 0; r < newGridData.length; r++) {
-                for (let c = 0; c < newGridData[r].length; c++) {
-                    newSelection.selectedCells.add(`${r}-${c}`);
+            if (newGridData.length > 0 && newGridData[0]) {
+                newSelection.anchorCell = { row: 0, col: 0 };
+                newSelection.activeCell = { row: newGridData.length - 1, col: newGridData[0].length - 1 };
+            }
+            break;
+        case 'MOVE_SELECTION':
+            if (payload?.direction) {
+                const { direction, amount = 1 } = payload;
+                let { row, col } = newSelection.activeCell;
+                switch (direction) {
+                    case 'down': row = Math.min(newGridData.length - 1, row + amount); break;
+                    case 'up': row = Math.max(0, row - amount); break;
+                    case 'right': if (newGridData[0]) col = Math.min(newGridData[0].length - 1, col + amount); break;
+                    case 'left': col = Math.max(0, col - amount); break;
+                }
+                newSelection.activeCell = { row, col };
+                newSelection.anchorCell = { row, col };
+            }
+            break;
+            
+        case 'MOVE_SELECTION_ADVANCED':
+             if (payload?.to) {
+                let { row, col } = newSelection.activeCell;
+                switch(payload.to) {
+                    case 'edgeRight': if (newGridData[0]) col = newGridData[0].length - 1; break;
+                    case 'home': col = 0; break;
+                    case 'topLeft': row = 0; col = 0; break;
+                    case 'end': if (newGridData.length > 0 && newGridData[0]) { row = newGridData.length - 1; col = newGridData[0].length - 1; } break;
+                    case 'edgeUp': row = 0; break;
+                    case 'edgeDown': row = newGridData.length - 1; break;
+                    case 'edgeLeft': col = 0; break;
+                }
+                newSelection.activeCell = { row, col };
+                newSelection.anchorCell = { row, col };
+            }
+            break;
+        
+        case 'EXTEND_SELECTION':
+            if (payload?.direction) {
+                let { row, col } = newSelection.activeCell;
+                switch (payload.direction) {
+                    case 'right': if (newGridData[0]) col = Math.min(newGridData[0].length - 1, col + 1); break;
+                    case 'left':  col = Math.max(0, col - 1); break;
+                    case 'down':  row = Math.min(newGridData.length - 1, row + 1); break;
+                    case 'up':    row = Math.max(0, row - 1); break;
+                }
+                newSelection.activeCell = { row, col };
+            }
+            break;
+            
+        case 'SELECT_TO_EDGE':
+            if (payload?.direction) {
+                let { row, col } = newSelection.activeCell;
+                const isFullRowSelected = newSelection.anchorCell.col === 0 && newSelection.activeCell.col === (newGridData[0]?.length - 1 || 0);
+
+                switch (payload.direction) {
+                    case 'right': if (newGridData[0]) col = newGridData[0].length - 1; break;
+                    case 'left': col = 0; break;
+                    case 'down': row = newGridData.length - 1; break;
+                    case 'up': row = 0; break;
+                }
+                
+                if (isFullRowSelected && (payload.direction === 'down' || payload.direction === 'up')) {
+                    newSelection.activeCell = { row, col: newSelection.activeCell.col };
+                } else {
+                    newSelection.activeCell = { row, col };
                 }
             }
             break;
+
+        case 'SELECT_TO_END':
+            if (newGridData.length > 0 && newGridData[0]) {
+                newSelection.activeCell = { row: newGridData.length - 1, col: newGridData[0].length - 1 };
+            }
+            break;
+
+        // ---Destructive/Formatting Actions---
         case 'INSERT_ROW':
              const rowsToInsertAt = new Set<number>();
-            if (newSelection.selectedCells.size > 0) {
-                newSelection.selectedCells.forEach(cell => rowsToInsertAt.add(parseInt(cell.split('-')[0])));
-            } else {
-                rowsToInsertAt.add(newSelection.activeCell.row);
-            }
-            const sortedInsertRows = Array.from(rowsToInsertAt).sort((a,b) => b - a);
-            sortedInsertRows.forEach(rowIndex => {
+             getCellsToApply().forEach(cell => rowsToInsertAt.add(parseInt(cell.split('-')[0])));
+             const sortedInsertRows = Array.from(rowsToInsertAt).sort((a,b) => b - a);
+             sortedInsertRows.forEach(rowIndex => {
                 const newRow = new Array(newGridData[0]?.length || 0).fill('');
                 newGridData.splice(rowIndex, 0, newRow);
-            });
-            break;
+             });
+             break;
         case 'DELETE_ROW':
             const rowsToDelete = new Set<number>();
-            if (newSelection.selectedCells.size > 0) {
-                newSelection.selectedCells.forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
-            } else {
-                rowsToDelete.add(newSelection.activeCell.row);
-            }
-            
+            getCellsToApply().forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
             const sortedRowsToDelete = Array.from(rowsToDelete).sort((a, b) => b - a);
             sortedRowsToDelete.forEach(rowIndex => {
                 if (rowIndex >= 0 && rowIndex < newGridData.length) {
                     newGridData.splice(rowIndex, 1);
                 }
             });
-
-            newSelection.selectedCells.clear();
             newSelection.activeCell.row = Math.max(0, Math.min(newSelection.activeCell.row, newGridData.length - 1));
+            newSelection.anchorCell = { ...newSelection.activeCell };
             break;
         case 'DELETE_CONTENT':
             getCellsToApply().forEach(cellId => {
                 const [r, c] = cellId.split('-').map(Number);
-                if (newGridData[r]?.[c] !== undefined) {
-                    newGridData[r][c] = '';
-                }
+                if (newGridData[r]?.[c] !== undefined) newGridData[r][c] = '';
             });
             break;
         case 'COPY':
@@ -115,151 +190,10 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'PASTE_STATIC_VALUE':
             if (payload?.value) {
-                const [r, c] = `${newSelection.activeCell.row}-${newSelection.activeCell.col}`.split('-').map(Number);
-                if (newGridData[r] !== undefined && newGridData[r][c] !== undefined) {
-                  newGridData[r][c] = payload.value;
-                }
+                const {row, col} = newSelection.activeCell;
+                if (newGridData[row]?.[col] !== undefined) newGridData[row][col] = payload.value;
             }
             newCellStyles = {}; 
-            break;
-        case 'MOVE_SELECTION':
-            if (payload?.direction) {
-                newSelection.selectedCells.clear();
-                const { direction, amount = 1 } = payload;
-                switch (direction) {
-                    case 'down':
-                        newSelection.activeCell.row = Math.min(newGridData.length - 1, newSelection.activeCell.row + amount);
-                        break;
-                    case 'up':
-                        newSelection.activeCell.row = Math.max(0, newSelection.activeCell.row - amount);
-                        break;
-                    case 'right':
-                        if (newGridData[0]) {
-                            newSelection.activeCell.col = Math.min(newGridData[0].length - 1, newSelection.activeCell.col + amount);
-                        }
-                        break;
-                    case 'left':
-                        newSelection.activeCell.col = Math.max(0, newSelection.activeCell.col - amount);
-                        break;
-                }
-            }
-            break;
-        case 'MOVE_SELECTION_ADVANCED':
-            if (payload?.to) {
-                newSelection.selectedCells.clear();
-                const hasData = newGridData.length > 0 && newGridData[0]?.length > 0;
-                switch (payload.to) {
-                    case 'edgeRight': newSelection.activeCell.col = hasData ? newGridData[0].length - 1 : 0; break;
-                    case 'edgeLeft': newSelection.activeCell.col = 0; break;
-                    case 'edgeUp': newSelection.activeCell.row = 0; break;
-                    case 'edgeDown': newSelection.activeCell.row = hasData ? newGridData.length - 1 : 0; break;
-                    case 'home': newSelection.activeCell.col = 0; break;
-                    case 'topLeft': newSelection.activeCell = { row: 0, col: 0 }; break;
-                    case 'end': newSelection.activeCell = { row: hasData ? newGridData.length - 1 : 0, col: hasData ? newGridData[0].length - 1 : 0 }; break;
-                }
-            }
-            break;
-        case 'EXTEND_SELECTION':
-            if (payload?.direction) {
-                if(newSelection.selectedCells.size === 0) {
-                    newSelection.selectedCells.add(`${newSelection.activeCell.row}-${newSelection.activeCell.col}`);
-                }
-                const { row, col } = newSelection.activeCell;
-                let nextRow = row, nextCol = col;
-                switch (payload.direction) {
-                    case 'right': nextCol = Math.min(newGridData[0].length - 1, col + 1); break;
-                    case 'left': nextCol = Math.max(0, col - 1); break;
-                    case 'down': nextRow = Math.min(newGridData.length - 1, row + 1); break;
-                    case 'up': nextRow = Math.max(0, row - 1); break;
-                }
-                newSelection.activeCell = { row: nextRow, col: nextCol };
-                newSelection.selectedCells.add(`${nextRow}-${nextCol}`);
-            }
-            break;
-        case 'SELECT_TO_EDGE':
-            if (payload?.direction) {
-                const { row, col } = newSelection.activeCell;
-                if(newSelection.selectedCells.size === 0) {
-                    newSelection.selectedCells.add(`${row}-${col}`);
-                }
-
-                // Check if a full row or column is selected
-                const isFullRowSelected = newGridData[0] && newSelection.selectedCells.size >= newGridData[0].length && Array.from(newSelection.selectedCells).every(id => id.startsWith(`${row}-`));
-                const isFullColSelected = newSelection.selectedCells.size >= newGridData.length && Array.from(newSelection.selectedCells).every(id => id.endsWith(`-${col}`));
-
-
-                switch (payload.direction) {
-                    case 'right':
-                        if (isFullColSelected && newGridData[0]) {
-                             for (let c = col; c < newGridData[0].length; c++) {
-                                for(let r = 0; r < newGridData.length; r++) {
-                                    newSelection.selectedCells.add(`${r}-${c}`);
-                                }
-                            }
-                            newSelection.activeCell.col = newGridData[0].length - 1;
-                        } else {
-                            if (newGridData[0]) {
-                                for (let c = col; c < newGridData[0].length; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
-                                newSelection.activeCell.col = newGridData[0].length - 1;
-                            }
-                        }
-                        break;
-                    case 'left':
-                         if (isFullColSelected && newGridData[0]) {
-                             for (let c = 0; c <= col; c++) {
-                                for(let r = 0; r < newGridData.length; r++) {
-                                    newSelection.selectedCells.add(`${r}-${c}`);
-                                }
-                            }
-                            newSelection.activeCell.col = 0;
-                        } else {
-                            for (let c = 0; c <= col; c++) { newSelection.selectedCells.add(`${row}-${c}`); }
-                            newSelection.activeCell.col = 0;
-                        }
-                        break;
-                    case 'down':
-                        if (isFullRowSelected) {
-                            for (let r = row; r < newGridData.length; r++) {
-                                for (let c = 0; c < newGridData[r].length; c++) {
-                                    newSelection.selectedCells.add(`${r}-${c}`);
-                                }
-                            }
-                            newSelection.activeCell.row = newGridData.length - 1;
-                        } else {
-                            for (let r = row; r < newGridData.length; r++) { newSelection.selectedCells.add(`${r}-${col}`); }
-                            newSelection.activeCell.row = newGridData.length - 1;
-                        }
-                        break;
-                    case 'up':
-                         if (isFullRowSelected) {
-                            for (let r = 0; r <= row; r++) {
-                                for (let c = 0; c < newGridData[r].length; c++) {
-                                    newSelection.selectedCells.add(`${r}-${c}`);
-                                }
-                            }
-                            newSelection.activeCell.row = 0;
-                        } else {
-                            for (let r = 0; r <= row; r++) { newSelection.selectedCells.add(`${r}-${col}`); }
-                            newSelection.activeCell.row = 0;
-                        }
-                        break;
-                }
-            }
-            break;
-        case 'SELECT_TO_END':
-            {
-                const { row, col } = newSelection.activeCell;
-                if (newGridData.length > 0 && newGridData[0]) {
-                    const endRow = newGridData.length - 1;
-                    const endCol = newGridData[0].length - 1;
-                    for (let r = row; r <= endRow; r++) {
-                        for (let c = col; c <= endCol; c++) {
-                            newSelection.selectedCells.add(`${r}-${c}`);
-                        }
-                    }
-                    newSelection.activeCell = { row: endRow, col: endCol };
-                }
-            }
             break;
         case 'APPLY_STYLE_BOLD':
             getCellsToApply().forEach(cellId => {
@@ -284,22 +218,18 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         case 'APPLY_STYLE_CURRENCY':
             getCellsToApply().forEach(cellId => {
                 const [r, c] = cellId.split('-').map(Number);
-                if (r < newGridData.length && c < newGridData[r].length) {
+                if (newGridData[r]?.[c] !== undefined) {
                     const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
-                    if (!isNaN(numericValue)) {
-                        newGridData[r][c] = `$${numericValue.toFixed(2)}`;
-                    }
+                    if (!isNaN(numericValue)) newGridData[r][c] = `$${numericValue.toFixed(2)}`;
                 }
             });
             break;
         case 'APPLY_STYLE_PERCENTAGE':
             getCellsToApply().forEach(cellId => {
                 const [r, c] = cellId.split('-').map(Number);
-                if (r < newGridData.length && c < newGridData[r].length) {
+                if (newGridData[r]?.[c] !== undefined) {
                     const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
-                    if (!isNaN(numericValue)) {
-                        newGridData[r][c] = `${numericValue}%`;
-                    }
+                    if (!isNaN(numericValue)) newGridData[r][c] = `${numericValue}%`;
                 }
             });
             break;
