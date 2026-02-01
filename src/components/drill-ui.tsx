@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -312,25 +311,27 @@ export function DrillUI({ drill }: DrillUIProps) {
     <>
     <Card className="w-full max-w-4xl">
       <CardHeader>
-        <CardTitle>{drill.name}</CardTitle>
-        <CardDescription>{drill.description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-4 text-center">
-            <p className="text-sm text-muted-foreground">Mistakes</p>
-            <div className="flex justify-center gap-2 mt-1">
-                {[...Array(drill.mistakeLimit)].map((_, i) => (
-                    <div key={i} className={cn("w-6 h-6 rounded-full border", i < mistakes ? "bg-destructive" : "bg-muted")}></div>
-                ))}
+        <div className="flex justify-between items-start mb-4">
+            <div>
+                <CardTitle>{drill.name}</CardTitle>
+                <CardDescription>{drill.description}</CardDescription>
+            </div>
+             <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-muted-foreground">Mistakes</p>
+                <div className="flex items-center gap-1.5">
+                    {[...Array(drill.mistakeLimit)].map((_, i) => (
+                        <div key={i} className={cn("w-5 h-5 rounded-full border", i < mistakes ? "bg-destructive" : "bg-muted")}></div>
+                    ))}
+                </div>
             </div>
         </div>
-
-        <div className="flex justify-center flex-wrap gap-2 mb-8">
+        
+        <div className="flex justify-center flex-wrap gap-2">
           {reps.map((status, index) => (
             <div
               key={index}
               className={cn(
-                "h-10 w-10 rounded-md transition-all duration-300 flex items-center justify-center font-bold text-lg",
+                "h-8 w-8 rounded-md transition-all duration-300 flex items-center justify-center font-bold text-base",
                 index === currentRep && "ring-2 ring-primary",
                 status === RepStatus.Pending && "bg-muted text-muted-foreground",
                 status === RepStatus.Correct && "bg-green-500 text-white",
@@ -341,10 +342,9 @@ export function DrillUI({ drill }: DrillUIProps) {
             </div>
           ))}
         </div>
-
-        <Separator />
-        
-        <div className="mt-8 grid md:grid-cols-2 gap-8 items-center">
+      </CardHeader>
+      <CardContent className="border-t pt-6">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
              {displayedGridState && (
                 <div className="max-w-md mx-auto">
                     <VisualGrid 
