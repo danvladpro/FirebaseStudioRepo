@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -256,23 +255,21 @@ export function DrillUI({ drill }: DrillUIProps) {
       if(e.repeat) return;
       e.preventDefault();
       const key = normalizeKey(e.key);
+      const newKeys = new Set(pressedKeys);
+      newKeys.add(key);
+      setPressedKeys(newKeys);
+      
       if (activeStep.isSequential) {
         processSequentialKeyPress(key);
-      } else {
-        const newKeys = new Set(pressedKeys);
-        newKeys.add(key);
-        setPressedKeys(newKeys);
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
        const key = normalizeKey(e.key);
-       if (!activeStep?.isSequential) {
-          const newKeys = new Set(pressedKeys);
-          newKeys.delete(key);
-          setPressedKeys(newKeys);
-       }
+       const newKeys = new Set(pressedKeys);
+       newKeys.delete(key);
+       setPressedKeys(newKeys);
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -289,22 +286,28 @@ export function DrillUI({ drill }: DrillUIProps) {
 
     const requiredKeys = getRequiredKeys();
     
-    if (pressedKeys.size < requiredKeys.size) {
-        return;
-    }
+    const heldKeys = new Set(Array.from(pressedKeys).filter(k => {
+        const isModifier = ['control', 'shift', 'alt', 'meta'].includes(k);
+        return !isModifier; // Only consider non-modifier keys as "final" keys in a chord
+    }));
 
+    // If there are no non-modifier keys being held, don't check yet
+    if (heldKeys.size === 0 && requiredKeys.size > 1) return;
+    
     const sortedPressed = [...pressedKeys].sort().join(',');
     const sortedRequired = [...requiredKeys].sort().join(',');
   
     if (sortedPressed === sortedRequired) {
         handleStepSuccess();
     } else {
-        handleIncorrect();
+        // Only trigger incorrect if the number of keys matches the requirement but they are wrong
+        if (pressedKeys.size >= requiredKeys.size) {
+            handleIncorrect();
+        }
     }
   }, [pressedKeys, logicalStepIndex, drill.steps.length, stepFeedback, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect]);
 
   return (
-    <>
     <Card className="w-full max-w-5xl">
       <CardHeader>
         <div className="flex justify-between items-start mb-4">
@@ -429,15 +432,16 @@ export function DrillUI({ drill }: DrillUIProps) {
               )
             )}
        </CardFooter>
-        {isVirtualKeyboardMode && (
-          <div className="border-t p-4">
-              <VisualKeyboard 
-                  highlightedKeys={activeStep.isSequential ? sequence : Array.from(pressedKeys)}
-                  onKeyClick={handleVirtualKeyClick}
-              />
-          </div>
-        )}
+        <div className="border-t min-h-[310px] flex items-center justify-center">
+            {isVirtualKeyboardMode && (
+                <div className="p-4">
+                    <VisualKeyboard 
+                        highlightedKeys={activeStep.isSequential ? sequence : Array.from(pressedKeys)}
+                        onKeyClick={handleVirtualKeyClick}
+                    />
+                </div>
+            )}
+        </div>
     </Card>
-    </>
   );
 }
