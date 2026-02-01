@@ -1,3 +1,4 @@
+
 import { Row } from "react-day-picker";
 import { ChallengeLevel, GridEffect, GridState } from "./types";
 import { type LucideIcon } from "lucide-react";
@@ -186,6 +187,35 @@ const drills: Drill[] = [
     ]
   },
   { //6
+    id: 'cycle-worksheets',
+    level: 'Beginner',
+    name: 'Sheet Surfing',
+    description: 'Navigate between tabs efficiently.',
+    repetitions: 10,
+    mistakeLimit: 2,
+    initialGridState: createMultiSheetGridState(1),
+    steps: [
+      { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
+      { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
+      { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
+      { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
+    ]
+  },
+  { //7
+    id: 'copy-to-next-sheet',
+    level: 'Beginner',
+    name: 'Cross-Sheet Copy',
+    description: 'Move data across worksheets.',
+    repetitions: 15,
+    mistakeLimit: 2,
+    initialGridState: createMultiSheetGridState(0),
+    steps: [
+      { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
+      { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
+      { description: 'Paste cell', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } }
+    ]
+  },
+  { //8
     id: 'select-rectangular-range',
     level: 'Beginner',
     name: 'Select & Move Range',
@@ -211,35 +241,6 @@ const drills: Drill[] = [
     initialGridState: createGridState(bigTable,0,2,0),
     steps: [
       { description: 'Extend to end', keys: ['Control', 'Shift', 'End'], iconName: 'ArrowDownRight', gridEffect: { action: 'SELECT_TO_END' } }
-    ]
-  },
-  {
-    id: 'cycle-worksheets',
-    level: 'Beginner',
-    name: 'Sheet Surfing',
-    description: 'Navigate between tabs efficiently.',
-    repetitions: 10,
-    mistakeLimit: 2,
-    initialGridState: createMultiSheetGridState(1),
-    steps: [
-      { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
-      { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
-      { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
-      { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } }
-    ]
-  },
-  {
-    id: 'copy-to-next-sheet',
-    level: 'Beginner',
-    name: 'Cross-Sheet Copy',
-    description: 'Move data across worksheets.',
-    repetitions: 15,
-    mistakeLimit: 2,
-    initialGridState: createMultiSheetGridState(0),
-    steps: [
-      { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
-      { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
-      { description: 'Paste cell', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } }
     ]
   },
   {
