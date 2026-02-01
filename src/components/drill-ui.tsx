@@ -29,17 +29,18 @@ enum RepStatus {
 }
 
 const KeyDisplay = ({ value }: { value: string }) => {
-    const isModifier = ["Control", "Shift", "Alt", "Meta", "Command", "Option"].includes(value);
+    const isModifier = ["control", "shift", "alt", "meta"].includes(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
     const displayValue: Record<string, string> = {
-        'Control': 'Ctrl',
-        'Meta': 'Cmd',
-        'Command': 'Cmd',
-        'Alt': 'Alt',
-        'Option': 'Opt',
+        'control': 'Ctrl',
+        'meta': 'Cmd',
+        'command': 'Cmd',
+        'alt': 'Alt',
+        'option': 'Opt',
         ' ': 'Space'
     }
+    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
 
     return (
         <kbd className={cn(
@@ -47,7 +48,7 @@ const KeyDisplay = ({ value }: { value: string }) => {
             isModifier ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
-            {displayValue[value] || value}
+            {displayValue[value] || capitalizedValue}
         </kbd>
     );
 };
@@ -75,21 +76,46 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   const activeStep = drill.steps[logicalStepIndex];
 
+  const normalizeKey = (key: string) => {
+    const lower = key.toLowerCase();
+    if (["control", "ctrl", "controlleft", "controlright"].includes(lower)) return "control";
+    if (["shift", "shiftleft", "shiftright"].includes(lower)) return "shift";
+    if (["alt", "option", "altleft", "altright"].includes(lower)) return "alt";
+    if (["meta", "command", "cmd", "win", "metaleft", "metaright"].includes(lower)) return "meta";
+    if (lower === 'escape') return 'esc';
+    if (lower === ' ') return ' ';
+    if (lower.startsWith('arrow')) return lower;
+    return lower;
+  };
+
+  const getRequiredKeys = useCallback(() => {
+    if (!activeStep) return new Set<string>();
+    const isStrikethrough = drill.steps.some(s => s.keys.includes('5'));
+    
+    const keys = activeStep.keys.map(k => {
+      const lowerK = k.toLowerCase();
+      if (isMac && lowerK === 'control' && !isStrikethrough) {
+          return 'meta';
+      }
+      return lowerK;
+    });
+    return new Set(keys);
+  }, [activeStep, isMac, drill.steps]);
+
   useEffect(() => {
     if (!activeStep || !userProfile?.missingKeys) {
         setIsVirtualKeyboardMode(false);
         return;
     }
 
-    const requiredKeysForStep = activeStep.keys.map(k => k.toLowerCase());
+    const requiredKeysForStep = Array.from(getRequiredKeys());
     const userMissingKeys = userProfile.missingKeys.map(k => k.toLowerCase());
     
-    // Normalize F-Keys for checking
     const normalizedRequired = requiredKeysForStep.map(k => k.startsWith('f') && k.length > 1 && !isNaN(Number(k.substring(1))) ? 'f-keys (f1-f12)' : k);
     
     const needsVirtual = normalizedRequired.some(key => userMissingKeys.includes(key));
     setIsVirtualKeyboardMode(needsVirtual);
-  }, [activeStep, userProfile?.missingKeys]);
+  }, [activeStep, userProfile?.missingKeys, getRequiredKeys]);
 
 
   const { gridState: displayedGridState, cellStyles: displayedCellStyles } = drill.initialGridState ? calculateGridStateForStep(
@@ -117,34 +143,6 @@ export function DrillUI({ drill }: DrillUIProps) {
     setMistakes(0);
     resetForNewRep();
   }, [drill.repetitions, resetForNewRep]);
-  
-  const normalizeKey = (key: string) => {
-    const lower = key.toLowerCase();
-    if (["control", "ctrl"].includes(lower)) return "control";
-    if (["shift"].includes(lower)) return "shift";
-    if (["alt", "option"].includes(lower)) return "alt";
-    if (["meta", "command", "cmd", "win"].includes(lower)) return "meta";
-    if (["delete", "del"].includes(lower)) return "delete";
-    if (["enter", "return"].includes(lower)) return isMac ? 'return' : 'enter';
-    if (key === ' ') return ' ';
-    if (key.startsWith('Arrow')) return key.toLowerCase();
-    return lower;
-  };
-
-  const getRequiredKeys = useCallback(() => {
-    if (!activeStep) return new Set();
-
-    const keys = activeStep.keys.map(k => {
-      if (isMac && k.toLowerCase() === 'control') {
-        const isStrikethrough = drill.steps.some(s => s.keys.includes('5'));
-        if (!isStrikethrough) {
-          return 'meta';
-        }
-      }
-      return k;
-    });
-    return new Set(keys);
-  }, [activeStep, isMac, drill.steps]);
   
   const finishDrill = useCallback(async () => {
     setLogicalStepIndex(drill.steps.length); // Prevent further input
@@ -194,7 +192,6 @@ export function DrillUI({ drill }: DrillUIProps) {
     }, 400);
   }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
 
-
   const handleIncorrect = () => {
     setStepFeedback('incorrect');
     const newReps = [...reps];
@@ -216,56 +213,31 @@ export function DrillUI({ drill }: DrillUIProps) {
     }, 500);
   };
   
-  const processKeyPress = useCallback((key: string) => {
-    if (logicalStepIndex >= drill.steps.length || stepFeedback === 'correct') return;
-  
-    const requiredKeys = getRequiredKeys();
-    const normalizedKey = normalizeKey(key);
+  const processSequentialKeyPress = useCallback((key: string) => {
+    if (logicalStepIndex >= drill.steps.length || stepFeedback === 'correct' || !activeStep?.isSequential) return;
     
-    if (requiredKeys.size === 1 && activeStep.isSequential !== true) {
-      const singleRequiredKey = normalizeKey(requiredKeys.values().next().value.toLowerCase());
-      if (normalizedKey === singleRequiredKey) {
-        handleStepSuccess();
-        return;
-      }
-    }
-  
-    if (activeStep.isSequential) {
-      const newSequence = [...sequence, normalizedKey];
-      setSequence(newSequence);
-      
-      const requiredSequence = Array.from(requiredKeys).map(k => normalizeKey(k.toLowerCase()));
-      
-      for (let i = 0; i < newSequence.length; i++) {
+    const requiredKeys = getRequiredKeys();
+    const newSequence = [...sequence, key];
+    setSequence(newSequence);
+    
+    const requiredSequence = Array.from(requiredKeys);
+    
+    for (let i = 0; i < newSequence.length; i++) {
         if (newSequence[i] !== requiredSequence[i]) {
-          handleIncorrect();
-          return;
+            handleIncorrect();
+            return;
         }
-      }
-      if (newSequence.length === requiredSequence.length) {
-        handleStepSuccess();
-      }
-    } else {
-      const newKeys = new Set(pressedKeys);
-      newKeys.add(normalizedKey);
-      setPressedKeys(newKeys);
-      
-      const sortedPressed = [...newKeys].sort().join(',');
-      const sortedRequired = [...Array.from(requiredKeys).map(k => normalizeKey(k.toLowerCase()))].sort().join(',');
-  
-      if (sortedPressed === sortedRequired) {
-        handleStepSuccess();
-      } else if (newKeys.size >= requiredKeys.size) {
-        handleIncorrect();
-      }
     }
-  }, [logicalStepIndex, drill.steps.length, stepFeedback, getRequiredKeys, activeStep, sequence, pressedKeys, handleStepSuccess, handleIncorrect]);
-
+    if (newSequence.length === requiredSequence.length) {
+        handleStepSuccess();
+    }
+  }, [logicalStepIndex, drill.steps.length, stepFeedback, activeStep, getRequiredKeys, sequence, handleIncorrect, handleStepSuccess]);
+  
   const handleVirtualKeyClick = (key: string) => {
       const normalized = normalizeKey(key);
 
       if (activeStep.isSequential) {
-          processKeyPress(normalized);
+          processSequentialKeyPress(normalized);
       } else {
         const newKeys = new Set(pressedKeys);
         if (newKeys.has(normalized)) {
@@ -274,30 +246,32 @@ export function DrillUI({ drill }: DrillUIProps) {
             newKeys.add(normalized);
         }
         setPressedKeys(newKeys);
-        
-        const requiredKeys = getRequiredKeys();
-        const normalizedRequiredKeys = new Set(Array.from(requiredKeys).map(k => normalizeKey(k.toLowerCase())));
-        const sortedPressed = [...newKeys].sort().join(',');
-        const sortedRequired = [...normalizedRequiredKeys].sort().join(',');
-
-        if (sortedPressed === sortedRequired) {
-            handleStepSuccess();
-        }
       }
   };
 
   useEffect(() => {
-    if (logicalStepIndex >= drill.steps.length || isVirtualKeyboardMode) return;
+    if (logicalStepIndex >= drill.steps.length || stepFeedback === 'correct') return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if(e.repeat) return;
       e.preventDefault();
-      processKeyPress(e.key);
+      const key = normalizeKey(e.key);
+      if (activeStep.isSequential) {
+        processSequentialKeyPress(key);
+      } else {
+        const newKeys = new Set(pressedKeys);
+        newKeys.add(key);
+        setPressedKeys(newKeys);
+      }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
+       const key = normalizeKey(e.key);
        if (!activeStep?.isSequential) {
-          setPressedKeys(new Set());
+          const newKeys = new Set(pressedKeys);
+          newKeys.delete(key);
+          setPressedKeys(newKeys);
        }
     };
 
@@ -308,7 +282,26 @@ export function DrillUI({ drill }: DrillUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [logicalStepIndex, pressedKeys, sequence, activeStep, processKeyPress, isVirtualKeyboardMode]);
+  }, [logicalStepIndex, drill.steps.length, pressedKeys, sequence, activeStep, processSequentialKeyPress, stepFeedback]);
+  
+  useEffect(() => {
+    if (logicalStepIndex >= drill.steps.length || stepFeedback === 'correct' || activeStep.isSequential || pressedKeys.size === 0) return;
+
+    const requiredKeys = getRequiredKeys();
+    
+    if (pressedKeys.size < requiredKeys.size) {
+        return;
+    }
+
+    const sortedPressed = [...pressedKeys].sort().join(',');
+    const sortedRequired = [...requiredKeys].sort().join(',');
+  
+    if (sortedPressed === sortedRequired) {
+        handleStepSuccess();
+    } else {
+        handleIncorrect();
+    }
+  }, [pressedKeys, logicalStepIndex, drill.steps.length, stepFeedback, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect]);
 
   return (
     <>
@@ -355,7 +348,7 @@ export function DrillUI({ drill }: DrillUIProps) {
         </div>
       </CardHeader>
       <CardContent className="border-t pt-6">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-12 items-start">
              {displayedGridState && (
                 <div className="max-w-md mx-auto">
                     <VisualGrid 
@@ -370,7 +363,6 @@ export function DrillUI({ drill }: DrillUIProps) {
                 </div>
             )}
             <div className={cn(!displayedGridState && "md:col-span-2")}>
-                <p className="text-sm text-muted-foreground text-center mb-4">Repetition {currentRep + 1} of {drill.repetitions}</p>
                 <div className="flex flex-col gap-2">
                     {drill.steps.map((step, index) => {
                         const Icon = icons[step.iconName];
@@ -400,11 +392,6 @@ export function DrillUI({ drill }: DrillUIProps) {
                                         </p>
                                     </div>
                                 </div>
-                                {index < drill.steps.length - 1 && (
-                                    <div className="h-6 flex justify-center">
-                                        <ChevronDown className="w-5 h-5 text-muted-foreground/50" />
-                                    </div>
-                                )}
                             </div>
                         );
                     })}
@@ -413,9 +400,9 @@ export function DrillUI({ drill }: DrillUIProps) {
         </div>
 
       </CardContent>
-       <CardFooter className="bg-muted/50 min-h-[50px] flex items-center justify-center gap-4 flex-wrap p-4">
-            {stepFeedback === 'correct' && <CheckCircle className="h-10 w-10 text-green-500" />}
-            {stepFeedback === 'incorrect' && <XCircle className="h-10 w-10 text-destructive" />}
+       <CardFooter className="bg-muted/50 h-[60px] flex items-center justify-center gap-4 p-4">
+            {stepFeedback === 'correct' && <CheckCircle className="h-8 w-8 text-green-500" />}
+            {stepFeedback === 'incorrect' && <XCircle className="h-8 w-8 text-destructive" />}
             {stepFeedback === null && (
               isVirtualKeyboardMode ? (
                 <div className="flex items-center gap-2 text-muted-foreground">

@@ -22,17 +22,18 @@ interface ChallengeUIProps {
 }
 
 const KeyDisplay = ({ value }: { value: string }) => {
-    const isModifier = ["Control", "Shift", "Alt", "Meta", "Command", "Option"].includes(value);
+    const isModifier = ["control", "shift", "alt", "meta"].includes(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
     const displayValue: Record<string, string> = {
-        'Control': 'Ctrl',
-        'Meta': 'Cmd',
-        'Command': 'Cmd',
-        'Alt': 'Alt',
-        'Option': 'Opt',
+        'control': 'Ctrl',
+        'meta': 'Cmd',
+        'command': 'Cmd',
+        'alt': 'Alt',
+        'option': 'Opt',
         ' ': 'Space'
     }
+    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
 
     return (
         <kbd className={cn(
@@ -40,7 +41,7 @@ const KeyDisplay = ({ value }: { value: string }) => {
             isModifier ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
-            {displayValue[value] || value}
+            {displayValue[value] || capitalizedValue}
         </kbd>
     );
 };
@@ -78,7 +79,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
-  
 
   const isAdvancing = useRef(false);
   const keydownProcessed = useRef(false);
@@ -98,28 +98,31 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${indicesToUse.length}&skippedIndices=${skippedParam}&mode=${mode}`);
   }, [router, set.id, startTime, mode, skippedIndices]);
 
-
   const normalizeKey = (key: string) => {
     const lower = key.toLowerCase();
-    if (lower === "control" || lower === "controlleft" || lower === "controlright") return "Control";
-    if (lower === "shift" || lower === "shiftleft" || lower === "shiftright") return "Shift";
-    if (lower === "alt" || lower === "altleft" || lower === "altright") return "Alt";
-    if (lower === "meta" || lower === "metaleft" || lower === "metaright" || lower === "command" || lower === "cmd" ) return isMac ? "Meta" : "Meta"; // Virtual kbd sends "meta"
-    return key;
+    if (["control", "ctrl", "controlleft", "controlright"].includes(lower)) return "control";
+    if (["shift", "shiftleft", "shiftright"].includes(lower)) return "shift";
+    if (["alt", "option", "altleft", "altright"].includes(lower)) return "alt";
+    if (["meta", "command", "cmd", "win", "metaleft", "metaright"].includes(lower)) return "meta";
+    if (lower === 'escape') return 'esc';
+    if (lower === ' ') return ' ';
+    if (lower.startsWith('arrow')) return lower;
+    return lower;
   };
 
   const getRequiredKeys = useCallback(() => {
-    if (!currentStep) return new Set();
+    if (!currentStep) return new Set<string>();
 
     const isStrikethrough = currentStep.description.toLowerCase().includes('strikethrough');
 
     const keys = currentStep.keys.map(k => {
+      const lowerK = k.toLowerCase();
       if (isMac) {
-        if (k.toLowerCase() === 'control' && !isStrikethrough) {
-          return 'Meta'; 
+        if (lowerK === 'control' && !isStrikethrough) {
+          return 'meta'; 
         }
       }
-      return k;
+      return lowerK;
     });
     return new Set(keys);
   }, [currentStep, isMac]);
@@ -130,16 +133,14 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         return;
     }
 
-    const requiredKeysForStep = currentStep.keys.map(k => k.toLowerCase());
+    const requiredKeysForStep = Array.from(getRequiredKeys());
     const userMissingKeys = userProfile.missingKeys.map(k => k.toLowerCase());
     
-    // Normalize F-Keys for checking
     const normalizedRequired = requiredKeysForStep.map(k => k.startsWith('f') && k.length > 1 && !isNaN(Number(k.substring(1))) ? 'f-keys (f1-f12)' : k);
     
     const needsVirtual = normalizedRequired.some(key => userMissingKeys.includes(key));
     setIsVirtualKeyboardMode(needsVirtual);
-}, [currentStep, userProfile?.missingKeys]);
-
+}, [currentStep, userProfile?.missingKeys, getRequiredKeys]);
 
   const resetForNextStep = () => {
     setFeedback(null);
@@ -148,7 +149,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setSequence([]);
     keydownProcessed.current = false;
   };
-
   
   const moveToNextChallenge = useCallback(() => {
     if (isAdvancing.current) return;
@@ -197,7 +197,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             setCurrentStepIndex(prev => prev + 1);
             resetForNextStep();
         }
-    }, 400); // Increased delay to allow accentuation to be visible
+    }, 400);
   }, [currentStepIndex, currentChallenge, moveToNextChallenge]);
   
   const handleIncorrect = () => {
@@ -209,46 +209,27 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       keydownProcessed.current = false;
     }, 500);
   };
-
-  const processKeyPress = useCallback((key: string) => {
-    if (isAdvancing.current || keydownProcessed.current) return;
   
+  const processSequentialKeyPress = useCallback((key: string) => {
+    if (isAdvancing.current || keydownProcessed.current || !currentStep?.isSequential) return;
+    
     const requiredKeys = getRequiredKeys();
-    const normalizedRequiredKeys = new Set(Array.from(requiredKeys).map(k => normalizeKey(k.toLowerCase())));
-    const normalizedKey = normalizeKey(key.toLowerCase());
-  
-    if (currentStep.isSequential) {
-      const newSequence = [...sequence, normalizedKey];
-      setSequence(newSequence);
-      
-      const requiredSequence = Array.from(requiredKeys).map(k => normalizeKey(k.toLowerCase()));
-      
-      for (let i = 0; i < newSequence.length; i++) {
-        if (newSequence[i] !== requiredSequence[i]) {
-          handleIncorrect();
-          return;
-        }
-      }
-      if (newSequence.length === requiredSequence.length) {
-        keydownProcessed.current = true;
-        advanceStepOrChallenge();
-      }
-    } else {
-      const newKeys = new Set(pressedKeys);
-      newKeys.add(normalizedKey);
-      setPressedKeys(newKeys);
-      
-      const sortedPressed = [...newKeys].sort().join(',');
-      const sortedRequired = [...normalizedRequiredKeys].sort().join(',');
-  
-      if (sortedPressed === sortedRequired) {
-        keydownProcessed.current = true;
-        advanceStepOrChallenge();
-      } else if (newKeys.size >= requiredKeys.size) {
+    const newSequence = [...sequence, key]; // key is already normalized
+    setSequence(newSequence);
+    
+    const requiredSequence = Array.from(requiredKeys); // Already lowercase from getRequiredKeys
+    
+    for (let i = 0; i < newSequence.length; i++) {
+      if (newSequence[i] !== requiredSequence[i]) {
         handleIncorrect();
+        return;
       }
     }
-  }, [currentStep, sequence, pressedKeys, getRequiredKeys, advanceStepOrChallenge]);
+    if (newSequence.length === requiredSequence.length) {
+      keydownProcessed.current = true;
+      advanceStepOrChallenge();
+    }
+  }, [currentStep, sequence, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
 
   useEffect(() => {
     if (currentChallengeIndex === 0 && currentStepIndex === 0 && startTime === 0) {
@@ -265,44 +246,55 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     return () => clearInterval(timer);
   }, [startTime, mode]);
   
-    useEffect(() => {
-        if (mode !== 'timed') return;
+  useEffect(() => {
+      if (mode !== 'timed') return;
 
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
 
-        setCountdown(8);
+      setCountdown(8);
 
-        const autoSkip = () => {
-           handleSkip();
-        }
+      const autoSkip = () => {
+         handleSkip();
+      }
 
-        timeoutRef.current = setTimeout(autoSkip, 8000);
-        
-        intervalRef.current = setInterval(() => {
-            setCountdown(prev => Math.max(0, prev - 1));
-        }, 1000);
+      timeoutRef.current = setTimeout(autoSkip, 8000);
+      
+      intervalRef.current = setInterval(() => {
+          setCountdown(prev => Math.max(0, prev - 1));
+      }, 1000);
 
-        return () => {
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-            if (intervalRef.current) clearInterval(intervalRef.current);
-        };
-    }, [currentChallengeIndex, currentStepIndex, handleSkip, mode]);
-
+      return () => {
+          if (timeoutRef.current) clearTimeout(timeoutRef.current);
+          if (intervalRef.current) clearInterval(intervalRef.current);
+      };
+  }, [currentChallengeIndex, currentStepIndex, handleSkip, mode]);
 
   useEffect(() => {
-    if (!currentStep || feedback === 'correct' || isVirtualKeyboardMode) return;
+    if (!currentStep || feedback === 'correct') return;
     
     const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.repeat) return;
         e.preventDefault();
         const key = normalizeKey(e.key);
-        processKeyPress(key);
+
+        if (currentStep.isSequential) {
+            processSequentialKeyPress(key);
+        } else {
+            const newKeys = new Set(pressedKeys);
+            newKeys.add(key);
+            setPressedKeys(newKeys);
+        }
     };
     
     const handleKeyUp = (e: KeyboardEvent) => {
         e.preventDefault();
-        if (!currentStep.isSequential && !keydownProcessed.current) {
-            setPressedKeys(new Set());
+        const key = normalizeKey(e.key);
+
+        if (!currentStep.isSequential) {
+            const newKeys = new Set(pressedKeys);
+            newKeys.delete(key);
+            setPressedKeys(newKeys);
         }
     };
 
@@ -313,13 +305,33 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [pressedKeys, sequence, currentStep, feedback, isVirtualKeyboardMode, processKeyPress]);
+  }, [pressedKeys, sequence, currentStep, feedback, processSequentialKeyPress]);
+  
+  useEffect(() => {
+    if (!currentStep || currentStep.isSequential || keydownProcessed.current || pressedKeys.size === 0) return;
+
+    const requiredKeys = getRequiredKeys();
+
+    if (pressedKeys.size < requiredKeys.size) {
+        return;
+    }
+
+    const sortedPressed = [...pressedKeys].sort().join(',');
+    const sortedRequired = [...requiredKeys].sort().join(',');
+
+    if (sortedPressed === sortedRequired) {
+        keydownProcessed.current = true;
+        advanceStepOrChallenge();
+    } else {
+        handleIncorrect();
+    }
+  }, [pressedKeys, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
 
   const handleVirtualKeyClick = (key: string) => {
       const normalized = normalizeKey(key);
 
       if (currentStep.isSequential) {
-          processKeyPress(normalized);
+          processSequentialKeyPress(normalized);
       } else {
         const newKeys = new Set(pressedKeys);
         if (newKeys.has(normalized)) {
@@ -328,19 +340,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             newKeys.add(normalized);
         }
         setPressedKeys(newKeys);
-        
-        const requiredKeys = getRequiredKeys();
-        const normalizedRequiredKeys = new Set(Array.from(requiredKeys).map(k => normalizeKey(k.toLowerCase())));
-        const sortedPressed = [...newKeys].sort().join(',');
-        const sortedRequired = [...normalizedRequiredKeys].sort().join(',');
-
-        if (sortedPressed === sortedRequired) {
-            keydownProcessed.current = true;
-            advanceStepOrChallenge();
-        }
       }
   };
-
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;
   
