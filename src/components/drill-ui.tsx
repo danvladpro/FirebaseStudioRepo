@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Drill } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle, MousePointerClick } from "lucide-react";
+import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle, MousePointerClick, ArrowLeft } from "lucide-react";
 import { useAuth } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
 import { toast } from "@/hooks/use-toast";
@@ -15,6 +15,8 @@ import { VisualGrid } from "./visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
 import * as icons from 'lucide-react';
 import { VisualKeyboard } from "./visual-keyboard";
+import { Button } from "./ui/button";
+import Link from "next/link";
 
 interface DrillUIProps {
   drill: Drill;
@@ -312,9 +314,17 @@ export function DrillUI({ drill }: DrillUIProps) {
     <>
     <Card className="w-full max-w-5xl">
       <CardHeader>
-        <div className="mb-4">
-            <CardTitle>{drill.name}</CardTitle>
-            <CardDescription>{drill.description}</CardDescription>
+        <div className="flex justify-between items-start mb-4">
+            <div>
+                <CardTitle>{drill.name}</CardTitle>
+                <CardDescription>{drill.description}</CardDescription>
+            </div>
+            <Button asChild variant="outline" size="sm">
+                <Link href="/dashboard">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Dashboard
+                </Link>
+            </Button>
         </div>
         
         <div className="flex justify-between items-center">
