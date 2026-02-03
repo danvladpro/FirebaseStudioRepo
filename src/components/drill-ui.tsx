@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Drill } from "@/lib/drills";
+import { Drill, ALL_DRILL_STEPS } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle, MousePointerClick, ArrowLeft } from "lucide-react";
@@ -75,7 +75,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
 
-  const activeStep = drill.steps[logicalStepIndex];
+  const activeStep = drill.steps[logicalStepIndex] ? ALL_DRILL_STEPS[drill.steps[logicalStepIndex]] : null;
 
   const normalizeKey = (key: string) => {
     const lower = key.toLowerCase();
@@ -99,7 +99,7 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   const getRequiredKeys = useCallback(() => {
     if (!activeStep) return new Set<string>();
-    const isStrikethrough = drill.steps.some(s => s.keys.includes('5'));
+    const isStrikethrough = drill.steps.some(stepId => ALL_DRILL_STEPS[stepId].keys.includes('5'));
     
     const keys = activeStep.keys.map(k => {
       const lowerK = k.toLowerCase();
@@ -126,15 +126,16 @@ export function DrillUI({ drill }: DrillUIProps) {
     setIsVirtualKeyboardMode(needsVirtual);
   }, [activeStep, userProfile?.missingKeys, getRequiredKeys]);
 
+  const drillStepsForGridEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
 
   const { gridState: displayedGridState, cellStyles: displayedCellStyles } = drill.initialGridState ? calculateGridStateForStep(
-    drill.steps,
+    drillStepsForGridEngine,
     drill.initialGridState!,
     visualStepIndex - 1
   ) : { gridState: null, cellStyles: {} };
 
   const { gridState: previewGridState, cellStyles: previewCellStyles } = drill.initialGridState ? calculateGridStateForStep(
-    drill.steps,
+    drillStepsForGridEngine,
     drill.initialGridState!,
     visualStepIndex
   ) : { gridState: null, cellStyles: {} };
@@ -231,11 +232,11 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [currentRep, drill.mistakeLimit, resetDrill]);
 
   const handleVirtualKeyClick = (key: string) => {
-    if (processingRef.current || stepFeedback !== null) return;
+    if (stepFeedback !== null) return;
     
     const normalized = normalizeKey(key);
 
-    if (activeStep.isSequential) {
+    if (activeStep?.isSequential) {
         setSequence(prev => [...prev, normalized]);
     } else {
       setPressedKeys(prev => {
@@ -255,7 +256,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (logicalStepIndex >= drill.steps.length) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.repeat || processingRef.current || stepFeedback !== null) return;
+      if (e.repeat || stepFeedback !== null) return;
       e.preventDefault();
       const key = normalizeKey(e.key);
       
@@ -268,7 +269,7 @@ export function DrillUI({ drill }: DrillUIProps) {
 
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
-      if (processingRef.current || stepFeedback !== null) return;
+      if (stepFeedback !== null) return;
       
       const key = normalizeKey(e.key);
       setPressedKeys(prev => {
@@ -289,7 +290,7 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   // Effect for processing non-sequential (chord) shortcuts
   useEffect(() => {
-    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null || activeStep.isSequential || pressedKeys.size === 0) return;
+    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null || !activeStep || activeStep.isSequential || pressedKeys.size === 0) return;
 
     const requiredKeys = getRequiredKeys();
     
@@ -315,7 +316,7 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   // Effect for processing sequential shortcuts
   useEffect(() => {
-    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null || !activeStep?.isSequential || sequence.length === 0) return;
+    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null || !activeStep || !activeStep.isSequential || sequence.length === 0) return;
     
     const requiredKeys = getRequiredKeys();
     const requiredSequence = Array.from(requiredKeys);
@@ -393,7 +394,8 @@ export function DrillUI({ drill }: DrillUIProps) {
             )}
             <div className={cn(!displayedGridState && "md:col-span-2")}>
                 <div className="flex flex-col gap-2">
-                    {drill.steps.map((step, index) => {
+                    {drill.steps.map((stepId, index) => {
+                        const step = ALL_DRILL_STEPS[stepId];
                         const Icon = icons[step.iconName];
                         const isStepActive = index === visualStepIndex;
                         const isStepCompleted = index < visualStepIndex;
@@ -432,7 +434,7 @@ export function DrillUI({ drill }: DrillUIProps) {
        <CardFooter className="bg-muted/50 h-[60px] flex items-center justify-center gap-4 p-4">
             {stepFeedback === 'correct' && <CheckCircle className="h-8 w-8 text-green-500" />}
             {stepFeedback === 'incorrect' && <XCircle className="h-8 w-8 text-destructive" />}
-            {stepFeedback === null && (
+            {stepFeedback === null && activeStep && (
               isVirtualKeyboardMode ? (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MousePointerClick className="h-8 w-8" />
@@ -462,7 +464,7 @@ export function DrillUI({ drill }: DrillUIProps) {
             "min-h-[310px] flex items-center justify-center transition-all",
             isVirtualKeyboardMode && "border-t"
         )}>
-            {isVirtualKeyboardMode && (
+            {isVirtualKeyboardMode && activeStep && (
                 <div className="p-4">
                     <VisualKeyboard 
                         highlightedKeys={activeStep.isSequential ? sequence : Array.from(pressedKeys)}
