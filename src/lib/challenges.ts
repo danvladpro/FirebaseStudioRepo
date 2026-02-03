@@ -99,7 +99,6 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Select current region", keys: ["Control", "Shift", "8"], iconName: "AppWindow", initialGridState: createDefaultGridState(), gridEffect: { action: 'SELECT_ALL' } }),
       singleStep({ description: "Select entire sheet", keys: ["Control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' }, initialGridState: createDefaultGridState() }),
       singleStep({ description: "Select to last cell", keys: ["Control", "Shift", "End"], iconName: "ArrowDownRightSquare", initialGridState: createDefaultGridState(), gridEffect: { action: 'SELECT_TO_END' } }),
-      singleStep({ description: "Add non-adjacent cells", keys: ["Shift", "F8"], iconName: "PlusSquare", initialGridState: createDefaultGridState() }),
     ],
   },
   {

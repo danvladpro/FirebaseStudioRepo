@@ -133,6 +133,31 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = React.useState(false);
 
+  const SCROLL_POSITION_KEY = 'dashboardScrollPosition';
+
+  // Effect to save scroll position as the user scrolls
+  React.useEffect(() => {
+    const handleScroll = () => {
+      sessionStorage.setItem(SCROLL_POSITION_KEY, window.scrollY.toString());
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // Effect to restore scroll position when the component mounts
+  React.useEffect(() => {
+    const savedPosition = sessionStorage.getItem(SCROLL_POSITION_KEY);
+    if (savedPosition) {
+      // A small timeout can help ensure the page layout is stable before scrolling
+      setTimeout(() => {
+        window.scrollTo({ top: parseInt(savedPosition, 10), behavior: 'auto' });
+      }, 100);
+    }
+  }, []);
+
   const isLimited = !isPremium;
 
   const examStats = {

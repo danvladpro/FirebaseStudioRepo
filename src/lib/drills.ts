@@ -111,7 +111,21 @@ const drills: Drill[] = [
   // LEVEL 1: BEGINNER (Warp Speed)
   // Focus: Navigation, Selection, & Basic Moves
   // ==========================================
-  { // 1 
+  {  // OK!
+    id: 'delete-undo-redo',
+    level: 'Beginner',
+    name: 'Delete, Undo & Redo',
+    description: 'Safely remove data and verify changes.',
+    repetitions: 15,
+    mistakeLimit: 2,
+    initialGridState: dataWithContent,
+    steps: [
+      { description: 'Delete cell content', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
+      { description: 'Undo deletion', keys: ['Control', 'z'], iconName: 'Undo2', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Delete' } } },
+      { description: 'Redo deletion', keys: ['Control', 'y'], iconName: 'Redo2', gridEffect: { action: 'DELETE_CONTENT' } }
+    ]
+  },
+  { // OK!
     id: 'navigate-block-edges',
     level: 'Beginner',
     name: 'Navigate Data Block Edges',
@@ -126,20 +140,7 @@ const drills: Drill[] = [
       { description: 'Jump Left', keys: ['Control', 'ArrowLeft'], iconName: 'ArrowLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } } }
     ]
   },
-  { // 2
-    id: 'delete-end-of-table',
-    level: 'Beginner',
-    name: 'Jump and Clean',
-    description: 'Quickly reach and clean the last value in a list.',
-    repetitions: 12,
-    mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,0,0),
-    steps: [
-      { description: 'Jump to last cell', keys: ['Control', 'End'], iconName: 'PanelBottomOpen', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } },
-      { description: 'Delete value', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } }
-    ]
-  },
-  { //3
+  { // OK!
     id: 'copy-to-row-edge',
     level: 'Beginner',
     name: 'Jump and Paste',
@@ -158,8 +159,8 @@ const drills: Drill[] = [
       { description: 'Jump to row edge', keys: ['Control', 'ArrowRight'], iconName: 'MoveRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
       { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } }
     ]
-  },
-  { //4
+  },  
+  { // OK!
     id: 'expand-selection-horizontally',
     level: 'Beginner',
     name: 'Expanding Selection',
@@ -170,23 +171,13 @@ const drills: Drill[] = [
     steps: [
       { description: 'Expand right', keys: ['Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
       { description: 'Expand right again', keys: ['Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
-      { description: 'Copy block', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } }
+      { description: 'Copy block', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
+      { description: 'Move down', keys: ['ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } } },
+      { description: 'Paste cell', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } }
     ]
   },
-  { //5
-    id: 'extend-row-selection-down',
-    level: 'Beginner',
-    name: 'Quick Row Selection',
-    description: 'Highlight multiple full rows instantly.',
-    repetitions: 12,
-    mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,0,2),
-    steps: [
-      { description: 'Select row', keys: ['Shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
-      { description: 'Extend down', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } }
-    ]
-  },
-  { //6
+
+  { // OK!
     id: 'cycle-worksheets',
     level: 'Beginner',
     name: 'Sheet Surfing',
@@ -201,7 +192,7 @@ const drills: Drill[] = [
       { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
     ]
   },
-  { //7
+  { // OK!
     id: 'copy-to-next-sheet',
     level: 'Beginner',
     name: 'Cross-Sheet Copy',
@@ -215,7 +206,21 @@ const drills: Drill[] = [
       { description: 'Paste cell', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } }
     ]
   },
-  { //8
+  {
+    id: 'select-and-italicize-table',
+    level: 'Beginner',
+    name: 'Select and Italicize Table',
+    description: 'Quickly select a whole data table and apply italic formatting.',
+    repetitions: 10,
+    mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 0, 0),
+    steps: [
+      { description: 'Select down to table edge', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } },
+      { description: 'Select right to table edge', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
+      { description: 'Apply Italic', keys: ['Control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } },
+    ]
+  },
+  { // Ok!
     id: 'select-rectangular-range',
     level: 'Beginner',
     name: 'Select & Move Range',
@@ -231,19 +236,22 @@ const drills: Drill[] = [
       { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } }
     ]
   },
-  {
-    id: 'extend-selection-last-cell',
+  { // ok!
+    id: 'extend-row-selection-down',
     level: 'Beginner',
-    name: 'One-Shot Workspace Selection',
-    description: 'Select everything from current cell to the end of data.',
+    name: 'Quick Multiple Row Selection',
+    description: 'Highlight multiple full rows instantly.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
+    initialGridState: createGridState(bigTable,0,0,2),
     steps: [
-      { description: 'Extend to end', keys: ['Control', 'Shift', 'End'], iconName: 'ArrowDownRight', gridEffect: { action: 'SELECT_TO_END' } }
+      { description: 'Select row', keys: ['Shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
+      { description: 'Extend down', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } },
+      { description: 'Bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } }
     ]
   },
-  {
+
+  { //ok
     id: 'scan-large-data',
     level: 'Beginner',
     name: 'Scan Large Dataset',
@@ -256,21 +264,7 @@ const drills: Drill[] = [
       { description: 'Page up', keys: ['PageUp'], iconName: 'ArrowUpToLine' }
     ]
   },
-  {
-    id: 'delete-undo-redo',
-    level: 'Beginner',
-    name: 'Delete, Undo & Redo',
-    description: 'Safely remove data and verify changes.',
-    repetitions: 15,
-    mistakeLimit: 2,
-    initialGridState: dataWithContent,
-    steps: [
-      { description: 'Delete cell content', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
-      { description: 'Undo deletion', keys: ['Control', 'z'], iconName: 'Undo2', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Delete' } } },
-      { description: 'Redo deletion', keys: ['Control', 'y'], iconName: 'Redo2', gridEffect: { action: 'DELETE_CONTENT' } }
-    ]
-  },
-  {
+  { //ok 
     id: 'emphasize-and-save',
     level: 'Beginner',
     name: 'Emphasize & Save',
@@ -279,6 +273,7 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
     steps: [
+      { description: 'Select Current Region', keys: ["Control", "Shift", "8"], iconName: "AppWindow", gridEffect: { action: 'SELECT_ALL' } },
       { description: 'Bold text', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
       { description: 'Underline text', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
       { description: 'Save workbook', keys: ['Control', 's'], iconName: 'Save' }
@@ -310,7 +305,8 @@ const drills: Drill[] = [
     initialGridState: dataWithContent,
     steps: [
       { description: 'Strikethrough', keys: ['Control', '5'], iconName: 'Strikethrough', gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } },
-      { description: 'Undo', keys: ['Control', 'z'], iconName: 'Undo2', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Delete' } } }
+      { description: 'Undo', keys: ['Control', 'z'], iconName: 'Undo2', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Delete' } } },
+      { description: 'Redo deletion', keys: ['Control', 'y'], iconName: 'Redo2', gridEffect: { action: 'DELETE_CONTENT' } }
     ]
   },
   {
@@ -344,6 +340,19 @@ const drills: Drill[] = [
     ]
   },
   {
+    id: 'extend-selection-last-cell',
+    level: 'Beginner',
+    name: 'One-Shot Workspace Selection',
+    description: 'Select everything from current cell to the end of data.',
+    repetitions: 12,
+    mistakeLimit: 2,
+    initialGridState: createGridState(bigTable,0,2,0),
+    steps: [
+      { description: 'Extend to end', keys: ['Control', 'Shift', 'End'], iconName: 'ArrowDownRight', gridEffect: { action: 'SELECT_TO_END' } },
+      { description: 'Underline text', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
+    ]
+  },
+  {
     id: 'find-and-cycle',
     level: 'Beginner',
     name: 'Find and Cycle Results',
@@ -352,9 +361,9 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     steps: [
       { description: 'Open Find dialog', keys: ['Control', 'f'], iconName: 'Search' },
-      { description: 'Find next result', keys: ['Enter'], iconName: 'ArrowDown' },
-      { description: 'Find next result', keys: ['Enter'], iconName: 'ArrowDown' },
-      { description: 'Close Find dialog', keys: ['Escape'], iconName: 'X' },
+      { description: 'Find next result', keys: ['Return'], iconName: 'ArrowDown' },
+      { description: 'Find next result', keys: ['Return'], iconName: 'ArrowDown' },
+      { description: 'Close Find dialog', keys: ['Esc'], iconName: 'X' },
     ]
   },
   {
@@ -368,23 +377,11 @@ const drills: Drill[] = [
       { description: 'Open Replace dialog', keys: ['Control', 'h'], iconName: 'Replace' },
       { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type' },
       { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type' },
-      { description: 'Confirm replacement', keys: ['Enter'], iconName: 'Check' },
+      { description: 'Replace All', keys: ['Control','A'], iconName: 'Check' },
     ]
   },
-  {
-    id: 'select-and-italicize-table',
-    level: 'Beginner',
-    name: 'Select and Italicize Table',
-    description: 'Quickly select a whole data table and apply italic formatting.',
-    repetitions: 10,
-    mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 0, 0),
-    steps: [
-      { description: 'Select down to table edge', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } },
-      { description: 'Select right to table edge', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
-      { description: 'Apply Italic', keys: ['Control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } },
-    ]
-  },
+
+
   {
     id: 'select-all-copy-new-paste',
     level: 'Beginner',
@@ -396,7 +393,7 @@ const drills: Drill[] = [
     steps: [
       { description: 'Select all data', keys: ['Control', 'a'], iconName: 'Frame', gridEffect: { action: 'SELECT_ALL' } },
       { description: 'Copy selection', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
-      { description: 'Go to next sheet (simulating New)', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
+      { description: 'Go to next sheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
       { description: 'Paste data', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
     ]
   },
