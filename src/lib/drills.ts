@@ -193,7 +193,7 @@ const drills: Drill[] = [
     description: 'Navigate between tabs efficiently.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createMultiSheetGridState(1),
+    initialGridState: createMultiSheetGridState(0),
     steps: [
       { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
       { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
@@ -341,6 +341,76 @@ const drills: Drill[] = [
       { description: 'Bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
       { description: 'Jump bottom', keys: ['Control', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeDown' } } },
       { description: 'Delete', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } }
+    ]
+  },
+  {
+    id: 'find-and-cycle',
+    level: 'Beginner',
+    name: 'Find and Cycle Results',
+    description: 'Practice finding a term and cycling through the results.',
+    repetitions: 12,
+    mistakeLimit: 2,
+    steps: [
+      { description: 'Open Find dialog', keys: ['Control', 'f'], iconName: 'Search' },
+      { description: 'Find next result', keys: ['Enter'], iconName: 'ArrowDown' },
+      { description: 'Find next result', keys: ['Enter'], iconName: 'ArrowDown' },
+      { description: 'Close Find dialog', keys: ['Escape'], iconName: 'X' },
+    ]
+  },
+  {
+    id: 'replace-comma-with-dot',
+    level: 'Beginner',
+    name: 'Quick Replace',
+    description: 'Learn the sequence to open Replace, enter values, and confirm.',
+    repetitions: 12,
+    mistakeLimit: 2,
+    steps: [
+      { description: 'Open Replace dialog', keys: ['Control', 'h'], iconName: 'Replace' },
+      { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type' },
+      { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type' },
+      { description: 'Confirm replacement', keys: ['Enter'], iconName: 'Check' },
+    ]
+  },
+  {
+    id: 'select-and-italicize-table',
+    level: 'Beginner',
+    name: 'Select and Italicize Table',
+    description: 'Quickly select a whole data table and apply italic formatting.',
+    repetitions: 10,
+    mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 0, 0),
+    steps: [
+      { description: 'Select down to table edge', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } },
+      { description: 'Select right to table edge', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
+      { description: 'Apply Italic', keys: ['Control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } },
+    ]
+  },
+  {
+    id: 'select-all-copy-new-paste',
+    level: 'Beginner',
+    name: 'Workspace Duplication',
+    description: 'Select all data, copy it, and paste it into a new context.',
+    repetitions: 10,
+    mistakeLimit: 2,
+    initialGridState: createMultiSheetGridState(0),
+    steps: [
+      { description: 'Select all data', keys: ['Control', 'a'], iconName: 'Frame', gridEffect: { action: 'SELECT_ALL' } },
+      { description: 'Copy selection', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
+      { description: 'Go to next sheet (simulating New)', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
+      { description: 'Paste data', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
+    ]
+  },
+  {
+    id: 'select-all-and-delete',
+    level: 'Beginner',
+    name: 'Select All and Delete',
+    description: 'Quickly select all data in the current region and delete it.',
+    repetitions: 12,
+    mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 2, 0),
+    steps: [
+      { description: 'Select current region', keys: ['Control', 'a'], iconName: 'Frame', gridEffect: { action: 'SELECT_ALL' } },
+      { description: 'Delete content', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
     ]
   },
 
