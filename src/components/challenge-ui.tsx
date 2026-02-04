@@ -78,6 +78,18 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
+
+    const handleBlur = () => {
+      // When the window loses focus, clear all pressed keys to prevent "stuck" keys.
+      setPressedKeys(new Set());
+      setSequence([]);
+    };
+
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      window.removeEventListener('blur', handleBlur);
+    };
   }, []);
 
   const isAdvancing = useRef(false);
@@ -190,7 +202,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setFeedback("correct");
     setIsAccentuating(true);
     
-    // Clear only non-modifier keys, allowing modifiers to be held
     setPressedKeys(currentKeys => {
       const newKeys = new Set<string>();
       for (const key of currentKeys) {
@@ -216,11 +227,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (keydownProcessed.current) return;
     keydownProcessed.current = true;
     
-    setFeedback("incorrect");
-
-    // Clear keys immediately to stop further processing
     setPressedKeys(new Set());
     setSequence([]);
+
+    setFeedback("incorrect");
 
     setTimeout(() => {
       setFeedback(null);
@@ -232,10 +242,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (keydownProcessed.current || !currentStep?.isSequential) return;
     
     const requiredKeys = getRequiredKeys();
-    const newSequence = [...sequence, key]; // key is already normalized
+    const newSequence = [...sequence, key]; 
     setSequence(newSequence);
     
-    const requiredSequence = Array.from(requiredKeys); // Already lowercase from getRequiredKeys
+    const requiredSequence = Array.from(requiredKeys); 
     
     for (let i = 0; i < newSequence.length; i++) {
       if (newSequence[i] !== requiredSequence[i]) {
@@ -291,6 +301,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (feedback !== null) return;
     
     const handleKeyDown = (e: KeyboardEvent) => {
+        if (feedback !== null) return;
         if (e.repeat) return;
         e.preventDefault();
         const key = normalizeKey(e.key);
@@ -326,7 +337,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (!currentStep || currentStep.isSequential || keydownProcessed.current) return;
 
     const requiredKeys = getRequiredKeys();
-    // Don't do anything if we haven't pressed enough keys
     if (pressedKeys.size < requiredKeys.size) {
       return;
     }
@@ -340,8 +350,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         const pressedNonModifiers = [...pressedKeys].filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
         const requiredNonModifiers = [...requiredKeys].filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
         
-        // A mistake is when a non-modifier is pressed that isn't required,
-        // or if we have too many non-modifier keys.
         const hasWrongKey = pressedNonModifiers.some(k => !requiredKeys.has(k));
         const hasTooManyKeys = pressedNonModifiers.length > requiredNonModifiers.length;
         
@@ -355,18 +363,18 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       if (feedback !== null) return;
       const normalized = normalizeKey(key);
 
+      setPressedKeys(prev => {
+          const newKeys = new Set(prev);
+          if (newKeys.has(normalized)) {
+              newKeys.delete(normalized);
+          } else {
+              newKeys.add(normalized);
+          }
+          return newKeys;
+      });
+
       if (currentStep.isSequential) {
           processSequentialKeyPress(normalized);
-      } else {
-        setPressedKeys(prev => {
-            const newKeys = new Set(prev);
-            if (newKeys.has(normalized)) {
-                newKeys.delete(normalized);
-            } else {
-                newKeys.add(normalized);
-            }
-            return newKeys;
-        });
       }
   };
 
@@ -548,5 +556,3 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </div>
   );
 }
-
-    

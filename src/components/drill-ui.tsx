@@ -73,6 +73,18 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
+    
+    const handleBlur = () => {
+      // When the window loses focus, clear all pressed keys to prevent "stuck" keys.
+      setPressedKeys(new Set());
+      setSequence([]);
+    };
+
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      window.removeEventListener('blur', handleBlur);
+    };
   }, []);
 
   const activeStep = drill.steps[logicalStepIndex] ? ALL_DRILL_STEPS[drill.steps[logicalStepIndex]] : null;
@@ -216,14 +228,16 @@ export function DrillUI({ drill }: DrillUIProps) {
   const handleIncorrect = useCallback(() => {
     if (processingRef.current) return;
     processingRef.current = true;
-
-    setStepFeedback('incorrect');
+    
     setPressedKeys(new Set());
     setSequence([]);
+    
+    setStepFeedback('incorrect');
     
     setReps(prevReps => {
         const newReps = [...prevReps];
         if (newReps[currentRep] === RepStatus.Incorrect) {
+            // Already marked as incorrect, no need to increment mistake count again.
             return prevReps;
         }
 
@@ -251,30 +265,29 @@ export function DrillUI({ drill }: DrillUIProps) {
     
     const normalized = normalizeKey(key);
 
+    setPressedKeys(prev => {
+        const newKeys = new Set(prev);
+        if (newKeys.has(normalized)) {
+            newKeys.delete(normalized);
+        } else {
+            newKeys.add(normalized);
+        }
+        return newKeys;
+    });
+    
     if (activeStep?.isSequential) {
         setSequence(prev => [...prev, normalized]);
-    } else {
-      setPressedKeys(prev => {
-          const newKeys = new Set(prev);
-          if (newKeys.has(normalized)) {
-              newKeys.delete(normalized);
-          } else {
-              newKeys.add(normalized);
-          }
-          return newKeys;
-      });
     }
   };
 
   useEffect(() => {
-    if (stepFeedback !== null || logicalStepIndex >= drill.steps.length) return;
+    if (logicalStepIndex >= drill.steps.length) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (stepFeedback !== null) return;
       if (e.repeat) return;
       e.preventDefault();
       
-      if (stepFeedback !== null) return;
-
       const key = normalizeKey(e.key);
       
       setPressedKeys(prev => new Set(prev).add(key));
