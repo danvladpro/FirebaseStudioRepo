@@ -1,4 +1,5 @@
 
+import { MoveRight } from "lucide-react";
 import { ChallengeLevel, GridEffect, GridState } from "./types";
 
 export interface DrillStep {
@@ -11,67 +12,70 @@ export interface DrillStep {
 
 // This is the new centralized repository of all possible drill steps.
 export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
-  // Navigation
+  // ----- Navigation
+  // Arrows
+  moveDown: { description: 'Move down', keys: ['ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } } },
+  moveUp: { description: 'Move up', keys: ['ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'up' } } },
+  moveLeft: { description: 'Move left', keys: ['ArrowLeft'], iconName: 'ArrowLeft', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'left' } } },
+  MoveRight: { description: 'Move right', keys: ['ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'right' } } },
+  // Jumping
   jumpTop: { description: 'Jump Top', keys: ['Control', 'ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
   jumpRight: { description: 'Jump Right', keys: ['Control', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
   jumpBottom: { description: 'Jump Bottom', keys: ['Control', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeDown' } } },
   jumpLeft: { description: 'Jump Left', keys: ['Control', 'ArrowLeft'], iconName: 'ArrowLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } } },
-  goToRowStart: { description: 'Go to row start', keys: ['Control', 'ArrowLeft'], iconName: 'Home', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } } },
-  jumpToRowEdge: { description: 'Jump to row edge', keys: ['Control', 'ArrowRight'], iconName: 'MoveRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
-  goToStart: { description: 'Go to Start', keys: ['Control', 'Home'], iconName: 'ArrowUpLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } } },
-  goToEnd: { description: 'Go to End', keys: ['Control', 'End'], iconName: 'ArrowDownRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } },
-  moveDown: { description: 'Move down', keys: ['ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } } },
-  moveUp: { description: 'Move all the way up', keys: ['Control','ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
+  // Home & End
+  jumpStart: { description: 'Go to Start', keys: ['Control', 'Home'], iconName: 'ArrowUpLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } } },
+  jumpEnd: { description: 'Go to End', keys: ['Control', 'End'], iconName: 'ArrowDownRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } },
+  // Jumping sheets/pages
   nextSheet: { description: 'Next worksheet', keys: ['Control', 'PageDown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
   prevSheet: { description: 'Previous worksheet', keys: ['Control', 'PageUp'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
   pageDown: { description: 'Page down', keys: ['PageDown'], iconName: 'ArrowDownToLine' },
   pageUp: { description: 'Page up', keys: ['PageUp'], iconName: 'ArrowUpToLine' },
+  // other
   openGoTo: { description: 'Open Go To', keys: ['F5'], iconName: 'Navigation' },
   
-  // Selection
+
+  // ------ Selection
   selectRow: { description: 'Select row', keys: ['Shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
   selectCol: { description: 'Select column', keys: ['Control', ' '], iconName: 'Columns', gridEffect: { action: 'SELECT_COLUMN' } },
-  selectAll: { description: 'Select all data', keys: ['Control', 'a'], iconName: 'Frame', gridEffect: { action: 'SELECT_ALL' } },
-  selectCurrentRegion: { description: 'Select current region', keys: ['Control', 'a'], iconName: 'Frame', gridEffect: { action: 'SELECT_ALL' } },
+ 
+  selectCurrentRegion:  { description: 'Select All', keys: ['Control', 'a'], iconName: 'Frame', gridEffect: { action: 'SELECT_ALL' } },
   selectCurrentRegion8: { description: 'Select current region', keys: ['Control', 'Shift', '8'], iconName: 'Scan', gridEffect: { action: 'SELECT_ALL' } },
+
   expandRight: { description: 'Expand right', keys: ['Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
-  extendDown: { description: 'Extend one row down', keys: ['Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } },
-  selectToRightEdge: { description: 'Select to right edge', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
-  selectDownToEdge: { description: 'Select down to table edge', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } },
-  selectLeftToEdge: { description: 'Select last row', keys: ['Control', 'Shift', 'ArrowLeft'], iconName: 'ArrowLeft', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'left' } } },
-  selectExtendDown: { description: 'Extend down', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } },
-  extendToEnd: { description: 'Extend to end', keys: ['Control', 'Shift', 'End'], iconName: 'ArrowDownRight', gridEffect: { action: 'SELECT_TO_END' } },
-  selectVisible: { description: 'Select visible cells', keys: ['Alt', ';'], iconName: 'Eye' },
+  extendDown:  { description: 'Extend down', keys: ['Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } },
+  expandLeft:  { description: 'Expand left', keys: ['Shift', 'ArrowLeft'], iconName: 'ArrowLeft', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'left' } } },
+  expandUp:    { description: 'Expand up', keys: ['Shift', 'ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'up' } } },
+
+  selectRightToEdge: { description: 'Select all to the right', keys: ['Control', 'Shift', 'ArrowRight'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
+  selectDownToEdge:  { description:  'Select all to the bottom', keys: ['Control', 'Shift', 'ArrowDown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } },
+  selectLeftToEdge:  { description:  'Select all to the left', keys: ['Control', 'Shift', 'ArrowLeft'], iconName: 'ArrowLeft', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'left' } } },
+  selectUpToEdge:    { description:  'Select all to the top', keys: ['Control', 'Shift', 'ArrowUp'], iconName: 'ArrowUp', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'up' } } },
+  selectToEnd:       { description: 'Extend to end', keys: ['Control', 'Shift', 'End'], iconName: 'ArrowDownRight', gridEffect: { action: 'SELECT_TO_END' } },
+  selectVisible:     { description: 'Select visible cells', keys: ['Alt', ';'], iconName: 'Eye' },
 
   // Actions (Copy, Paste, Undo, etc.)
-  copy: { description: 'Copy cell', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
-  copyBlock: { description: 'Copy block', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
   copySelection: { description: 'Copy selection', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
-  copyRange: { description: 'Copy range', keys: ['Control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
-  paste: { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
-  pasteCell: { description: 'Paste cell', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
-  pasteValue: { description: 'Paste value', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
-  pasteData: { description: 'Paste data', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
+  pasteData: { description: 'Paste', keys: ['Control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
+  
   pasteValuesOnly: { description: 'Paste values', keys: ['Control', 'Alt', 'v'], iconName: 'ClipboardSignature' },
   cut: { description: 'Cut value', keys: ['Control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },
-  deleteContent: { description: 'Delete cell content', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
-  deleteContentAll: { description: 'Delete content', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
+  deleteContent: { description: 'Delete content', keys: ['Delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
+
   undo: { description: 'Undo deletion', keys: ['Control', 'z'], iconName: 'Undo2', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Delete' } } },
   undoAction: { description: 'Undo action', keys: ['Control', 'z'], iconName: 'Undo2' },
   undoInsert: { description: 'Undo insert', keys: ['Control', 'z'], iconName: 'Undo2' },
+
   redo: { description: 'Redo deletion', keys: ['Control', 'y'], iconName: 'Redo2', gridEffect: { action: 'DELETE_CONTENT' } },
+  redoStrike: { description: 'Redo deletion', keys: ['Control', 'y'], iconName: 'Redo2', gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } },
   save: { description: 'Save workbook', keys: ['Control', 's'], iconName: 'Save' },
 
   // Formatting
-  bold: { description: 'Bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
-  boldResult: { description: 'Bold result', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
-  boldText: { description: 'Bold text', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
-  boldHeader: { description: 'Bold header', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
-  italic: { description: 'Apply italic', keys: ['Control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } },
-  italicize: { description: 'Italicize', keys: ['Control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } },
-  underline: { description: 'Underline', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
-  underlineText: { description: 'Underline text', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
+  bold:          { description: 'Apply Bold', keys: ['Control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
+  italic:        { description: 'Apply italic', keys: ['Control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } },
+  underline:     { description: 'Underline', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
   strikethrough: { description: 'Strikethrough', keys: ['Control', '5'], iconName: 'Strikethrough', gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } },
+  
   applyCurrency: { description: 'Apply currency', keys: ['Control', 'Shift', '$'], iconName: 'DollarSign', gridEffect: { action: 'APPLY_STYLE_CURRENCY' } },
   applyPercentage: { description: 'Apply percentage', keys: ['Control', 'Shift', '%'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
   applyGeneralFormat: { description: 'Apply General format', keys: ['Control', 'Shift', '~'], iconName: 'Hash' },
@@ -179,9 +183,9 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
       name: 'Sheet2',
       data: [
         ['Sheet #', '2','','',''],
-        ['Item', 'Total','','',''],
-        ['North', '1200','','',''],
-        ['South', '850','','',''],
+        ['', '','','',''],
+        ['', '','','',''],
+        ['', '','','',''],
         ['', '','','',''],
       ],
       selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
@@ -190,9 +194,9 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
       name: 'Sheet3',
       data: [
         ['Sheet #', '3','','',''],
-        ['Note', '','','',''],
-        ['1', 'Buy bread','','',''],
-        ['2', 'Sell skis','','',''],
+        ['', '','','',''],
+        ['', '','','',''],
+        ['', '','','',''],
         ['', '','','',''],
       ],
       selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
@@ -212,13 +216,6 @@ const defaultDrillGridState = createGridState([
 ]);
 
 
-
-const dataWithContent = createGridState([
-  ['Value to Delete', '', ''],
-  ['Another Value', '', ''],
-  ['', '', ''],
-]);
-
 const bigTable = [['ID', 'Name', 'Date', 'Amount'],
     ['1', 'Project A', '2026-01-01', '500'],
     ['2', 'Project B', '2026-01-05', '1200'],
@@ -236,15 +233,19 @@ const drills: Drill[] = [
   // Focus: Navigation, Selection, & Basic Moves
   // ==========================================
   {
-    id: 'delete-undo-redo',
+    id: 'strikethrough-undo',
     level: 'Beginner',
-    name: 'Delete, Undo & Redo',
-    description: 'Safely remove data and verify changes.',
-    repetitions: 15,
-    mistakeLimit: 2,
-    initialGridState: dataWithContent,
-    steps: ['deleteContent', 'undo', 'redo']
+    name: 'Strikethrough Logic',
+    description: 'Apply strikethrough and revert.',
+    repetitions: 10, mistakeLimit: 2,
+    initialGridState: createGridState([
+      ['Strikethrough', '', ''],
+      ['ABC', '', ''],
+      ['', '', ''],
+    ]),
+    steps: ['strikethrough', 'undoAction', 'redoStrike']
   },
+
   {
     id: 'navigate-block-edges',
     level: 'Beginner',
@@ -260,33 +261,30 @@ const drills: Drill[] = [
     level: 'Beginner',
     name: 'Jump and Paste',
     description: 'Move values across a row using jump navigation.',
-    repetitions: 12,
-    mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 2,
     initialGridState: createGridState([
       ['Copy Me', 'Text', 'Text', 'Paste Here'],
       ['Number', 'Text', 'Text', 'Number'],
       ['Number', 'Text', 'Text', 'Number'],
       ['','','','']
      ],0,0,2),
-    steps: ['goToRowStart', 'copy', 'jumpToRowEdge', 'paste']
+    steps: ['jumpLeft', 'copySelection', 'jumpRight', 'pasteData']
   },  
   {
     id: 'expand-selection-horizontally',
     level: 'Beginner',
     name: 'Expanding Selection',
     description: 'Select all 3 cells to your right.',
-    repetitions: 12,
-    mistakeLimit: 2,
+    repetitions: 12,mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['expandRight', 'expandRight', 'copyBlock', 'moveDown', 'pasteCell']
+    steps: ['expandRight', 'expandRight', 'copySelection', 'moveDown', 'pasteData']
   },
   {
     id: 'cycle-worksheets',
     level: 'Beginner',
     name: 'Sheet Surfing',
     description: 'Navigate between tabs efficiently.',
-    repetitions: 10,
-    mistakeLimit: 2,
+    repetitions: 10, mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
     steps: ['nextSheet', 'nextSheet', 'prevSheet', 'prevSheet']
   },
@@ -295,50 +293,45 @@ const drills: Drill[] = [
     level: 'Beginner',
     name: 'Cross-Sheet Copy',
     description: 'Move data across worksheets.',
-    repetitions: 15,
-    mistakeLimit: 2,
+    repetitions: 15,mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
-    steps: ['copy', 'nextSheet', 'paste']
+    steps: ['copySelection', 'nextSheet', 'pasteData']
   },
   {
-    id: 'select-and-italicize-table',
+    id: 'select-and-italic-table',
     level: 'Beginner',
     name: 'Select and Italicize Table',
     description: 'Quickly select a whole data table and apply italic formatting.',
-    repetitions: 10,
-    mistakeLimit: 2,
+    repetitions: 10, mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 0, 0),
-    steps: ['selectDownToEdge', 'selectToRightEdge', 'italic']
+    steps: ['selectDownToEdge', 'selectRightToEdge', 'italic']
   },
   {
     id: 'select-all-and-delete',
     level: 'Beginner',
     name: 'Select All and Delete',
     description: 'Quickly select all data in the current region and delete it.',
-    repetitions: 12,
-    mistakeLimit: 2,
+    repetitions: 12,mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['selectCurrentRegion', 'deleteContentAll']
+    steps: ['selectCurrentRegion', 'deleteContent']
   },
   {
     id: 'select-rectangular-range',
     level: 'Beginner',
     name: 'Select & Move Range',
     description: 'Capture a block and move it to another sheet.',
-    repetitions: 10,
-    mistakeLimit: 2,
+    repetitions: 10, mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
-    steps: ['selectToRightEdge', 'extendDown', 'copyBlock', 'nextSheet', 'paste']
+    steps: ['selectRightToEdge', 'extendDown', 'copySelection', 'nextSheet', 'pasteData']
   },
   {
     id: 'extend-row-selection-down',
     level: 'Beginner',
     name: 'Quick Multiple Row Selection',
     description: 'Highlight multiple full rows instantly.',
-    repetitions: 12,
-    mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,0,2),
-    steps: ['selectRow', 'selectExtendDown', 'bold']
+    steps: ['selectRow', 'selectDownToEdge', 'bold']
   },
 
   {
@@ -346,8 +339,7 @@ const drills: Drill[] = [
     level: 'Beginner',
     name: 'Scan Large Dataset',
     description: 'Review big tables quickly using Page keys.',
-    repetitions: 10,
-    mistakeLimit: 2,
+    repetitions: 10, mistakeLimit: 2,
     steps: ['pageDown', 'pageDown', 'pageUp']
   },
   {
@@ -355,48 +347,34 @@ const drills: Drill[] = [
     level: 'Beginner',
     name: 'Emphasize & Save',
     description: 'Highlight important data and save your work.',
-    repetitions: 12,
-    mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
-    steps: ['selectCurrentRegion8', 'boldText', 'underlineText', 'save']
+    steps: ['selectCurrentRegion8', 'bold', 'underline', 'save']
   },
   {
     id: 'move-up-and-format',
     level: 'Beginner',
     name: 'Relocate & Style',
     description: 'Relocate and restyle content using arrow keys.',
-    repetitions: 12,
-    mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 2,
     initialGridState: createGridState([['', ''], ['', ''],['Value to Move', ''],['', ''],],0,2,0),
-    steps: ['cut', 'moveUp', 'pasteValue', 'underline', 'bold']
-  },
-  {
-    id: 'strikethrough-undo',
-    level: 'Beginner',
-    name: 'Strikethrough Logic',
-    description: 'Apply strikethrough and revert.',
-    repetitions: 10,
-    mistakeLimit: 2,
-    initialGridState: dataWithContent,
-    steps: ['strikethrough', 'undo', 'redo']
+    steps: ['cut', 'jumpTop', 'pasteData', 'underline', 'bold']
   },
   {
     id: 'emphasize-start-end',
     level: 'Beginner',
     name: 'Start and End Focus',
     description: 'Underline the very first and last cells using Home/End jumps.',
-    repetitions: 10,
-    mistakeLimit: 2,
+    repetitions: 10, mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['goToStart', 'underline', 'goToEnd', 'underline']
+    steps: ['jumpStart', 'underline', 'jumpEnd', 'underline']
   },
   {
     id: 'bold-header-delete-last',
     level: 'Beginner',
     name: 'Boundary Cleanup',
     description: 'Quick clean up of a small range headers and footers.',
-    repetitions: 12,
-    mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
     steps: ['selectCol', 'bold', 'jumpRight', 'selectCol', 'strikethrough']
   },
@@ -405,18 +383,16 @@ const drills: Drill[] = [
     level: 'Beginner',
     name: 'One-Shot Workspace Selection',
     description: 'Select everything from current cell to the end of data.',
-    repetitions: 12,
-    mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['extendToEnd', 'underlineText']
+    steps: ['selectToEnd', 'underline']
   },
   {
     id: 'find-and-cycle',
     level: 'Beginner',
     name: 'Find and Cycle Results',
     description: 'Practice finding a term and cycling through the results.',
-    repetitions: 12,
-    mistakeLimit: 2,
+    repetitions: 12,mistakeLimit: 2,
     steps: ['openFind', 'findNextResult', 'findNextResult', 'closeDialog']
   },
   {
@@ -424,8 +400,7 @@ const drills: Drill[] = [
     level: 'Beginner',
     name: 'Quick Replace',
     description: 'Learn the sequence to open Replace, enter values, and confirm.',
-    repetitions: 12,
-    mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 2,
     steps: ['openReplace', 'typeComma', 'typePeriod', 'replaceAll']
   },
 
@@ -438,7 +413,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
-    steps: ['selectAll', 'copySelection', 'nextSheet', 'pasteData']
+    steps: ['selectCurrentRegion', 'copySelection', 'nextSheet', 'pasteData']
   },
 
 
@@ -481,7 +456,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['openFind', 'confirmFind', 'findNext', 'closeDialog', 'boldResult']
+    steps: ['openFind', 'confirmFind', 'findNext', 'closeDialog', 'bold']
   },
   {
     id: 'find-next-sheet',
@@ -648,7 +623,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectToRightEdge', 'boldHeader', 'jumpBottom', 'selectLeftToEdge', 'italicize']
+    steps: ['selectRightToEdge', 'bold', 'jumpBottom', 'selectLeftToEdge', 'italic']
   },
   {
     id: 'insert-row-undo',
@@ -678,7 +653,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['selectAll', 'applyGeneralFormat']
+    steps: ['selectCurrentRegion', 'applyGeneralFormat']
   },
   {
     id: 'hide-unhide-rows',
@@ -733,7 +708,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['selectAll', 'applyAllBorders']
+    steps: ['selectCurrentRegion', 'applyAllBorders']
   },
   {
     id: 'thick-border-block',
@@ -743,7 +718,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['selectToRightEdge', 'selectToRightEdge', 'applyThickBorder']
+    steps: ['selectRightToEdge', 'selectRightToEdge', 'applyThickBorder']
   },
   {
     id: 'wrap-and-center-header',
@@ -763,7 +738,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['goToStart', 'clearFormatting']
+    steps: ['jumpStart', 'clearFormatting']
   },
   {
     id: 'currency-decimal-cleanup',
@@ -783,7 +758,7 @@ const drills: Drill[] = [
     repetitions: 12,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['copyRange', 'pasteValuesOnly']
+    steps: ['copySelection', 'pasteValuesOnly']
   },
   {
     id: 'underline-centered-numbers',
@@ -823,7 +798,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectAll', 'autofitColumns']
+    steps: ['selectCurrentRegion', 'autofitColumns']
   },
   {
     id: 'highlight-header-fill',

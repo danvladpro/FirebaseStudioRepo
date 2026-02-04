@@ -91,13 +91,21 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         case 'MOVE_SELECTION':
             if (payload?.direction) {
                 const { direction, amount = 1 } = payload;
-                let { row, col } = newSelection.activeCell;
+
+                // If a range is selected, a non-Shift key move should originate from the anchor cell,
+                // which mimics Excel's behavior where the initial cell of a selection remains the active one for such moves.
+                const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
+                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+
+                let { row, col } = startCell;
+                
                 switch (direction) {
                     case 'down': row = Math.min(newGridData.length - 1, row + amount); break;
                     case 'up': row = Math.max(0, row - amount); break;
                     case 'right': if (newGridData[0]) col = Math.min(newGridData[0].length - 1, col + amount); break;
                     case 'left': col = Math.max(0, col - amount); break;
                 }
+                // A move without Shift collapses the selection to the new cell.
                 newSelection.activeCell = { row, col };
                 newSelection.anchorCell = { row, col };
             }
