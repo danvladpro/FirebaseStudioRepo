@@ -151,6 +151,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [drill.repetitions]);
   
   const finishDrill = useCallback(async () => {
+    processingRef.current = true; // Lock processing
     setLogicalStepIndex(drill.steps.length); // Prevent further input
     if (user) {
       try {
@@ -172,6 +173,16 @@ export function DrillUI({ drill }: DrillUIProps) {
 
     setStepFeedback('correct');
 
+    setPressedKeys(currentKeys => {
+      const newKeys = new Set<string>();
+      for (const key of currentKeys) {
+        if (['control', 'shift', 'alt', 'meta'].includes(key)) {
+          newKeys.add(key);
+        }
+      }
+      return newKeys;
+    });
+
     setTimeout(() => {
         setStepFeedback(null);
         setSequence([]);
@@ -192,12 +203,13 @@ export function DrillUI({ drill }: DrillUIProps) {
                 setCurrentRep(prev => prev + 1);
                 setLogicalStepIndex(0);
                 setVisualStepIndex(0);
+                processingRef.current = false;
             }
         } else {
             setLogicalStepIndex(prev => prev + 1);
             setVisualStepIndex(prev => prev + 1);
+            processingRef.current = false;
         }
-        processingRef.current = false;
     }, 400);
   }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
 
@@ -206,6 +218,9 @@ export function DrillUI({ drill }: DrillUIProps) {
     processingRef.current = true;
 
     setStepFeedback('incorrect');
+    
+    setPressedKeys(new Set());
+    setSequence([]);
     
     setReps(prevReps => {
         const newReps = [...prevReps];
@@ -224,8 +239,6 @@ export function DrillUI({ drill }: DrillUIProps) {
     
     setTimeout(() => {
         setStepFeedback(null);
-        setPressedKeys(new Set());
-        setSequence([]);
         processingRef.current = false;
     }, 500);
   }, [currentRep, drill.mistakeLimit, resetDrill]);
@@ -250,9 +263,8 @@ export function DrillUI({ drill }: DrillUIProps) {
     }
   };
 
-  // Effect for handling physical keyboard input
   useEffect(() => {
-    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null) return;
+    if (stepFeedback !== null || logicalStepIndex >= drill.steps.length) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
@@ -284,37 +296,34 @@ export function DrillUI({ drill }: DrillUIProps) {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [logicalStepIndex, drill.steps.length, activeStep?.isSequential, isMac, stepFeedback]);
+  }, [logicalStepIndex, drill.steps.length, activeStep?.isSequential, stepFeedback]);
 
-  // Effect for processing non-sequential (chord) shortcuts
   useEffect(() => {
-    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null || !activeStep || activeStep.isSequential || pressedKeys.size === 0) return;
+    if (processingRef.current || !activeStep || activeStep.isSequential) return;
 
     const requiredKeys = getRequiredKeys();
-    
-    const heldNonModifierKeys = Array.from(pressedKeys).filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
-
-    if (heldNonModifierKeys.length === 0 && requiredKeys.size > 1) {
-      if (Array.from(requiredKeys).every(k => ['control', 'shift', 'alt', 'meta'].includes(k))) {
-         // All required keys are modifiers, check on size match
-      } else {
-        return;
-      }
-    }
+    if (pressedKeys.size < requiredKeys.size) return;
     
     const sortedPressed = [...pressedKeys].sort().join(',');
     const sortedRequired = [...requiredKeys].sort().join(',');
   
     if (sortedPressed === sortedRequired) {
         handleStepSuccess();
-    } else if (pressedKeys.size >= requiredKeys.size) {
-        handleIncorrect();
+    } else {
+        const pressedNonModifiers = [...pressedKeys].filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
+        const requiredNonModifiers = [...requiredKeys].filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
+        
+        const hasWrongKey = pressedNonModifiers.some(k => !requiredKeys.has(k));
+        const hasTooManyKeys = pressedNonModifiers.length > requiredNonModifiers.length;
+        
+        if (hasWrongKey || hasTooManyKeys) {
+            handleIncorrect();
+        }
     }
-  }, [pressedKeys, logicalStepIndex, drill.steps.length, stepFeedback, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect]);
+  }, [pressedKeys, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect]);
 
-  // Effect for processing sequential shortcuts
   useEffect(() => {
-    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null || !activeStep || !activeStep.isSequential || sequence.length === 0) return;
+    if (processingRef.current || !activeStep || !activeStep.isSequential || sequence.length === 0) return;
     
     const requiredKeys = getRequiredKeys();
     const requiredSequence = Array.from(requiredKeys);
@@ -329,7 +338,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (sequence.length === requiredSequence.length) {
         handleStepSuccess();
     }
-  }, [sequence, logicalStepIndex, drill.steps.length, stepFeedback, activeStep, getRequiredKeys, handleIncorrect, handleStepSuccess]);
+  }, [sequence, activeStep, getRequiredKeys, handleIncorrect, handleStepSuccess]);
 
 
   return (
@@ -474,3 +483,5 @@ export function DrillUI({ drill }: DrillUIProps) {
     </Card>
   );
 }
+
+    
