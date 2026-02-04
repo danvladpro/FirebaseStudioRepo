@@ -218,22 +218,25 @@ export function DrillUI({ drill }: DrillUIProps) {
     processingRef.current = true;
 
     setStepFeedback('incorrect');
-    
     setPressedKeys(new Set());
     setSequence([]);
     
     setReps(prevReps => {
         const newReps = [...prevReps];
-        if (newReps[currentRep] !== RepStatus.Incorrect) {
-            newReps[currentRep] = RepStatus.Incorrect;
-            setMistakes(prev => {
-                const newMistakeCount = prev + 1;
-                if (newMistakeCount >= drill.mistakeLimit) {
-                    setTimeout(resetDrill, 1000);
-                }
-                return newMistakeCount;
-            });
+        if (newReps[currentRep] === RepStatus.Incorrect) {
+            return prevReps;
         }
+
+        newReps[currentRep] = RepStatus.Incorrect;
+        
+        setMistakes(prevMistakes => {
+            const newMistakeCount = prevMistakes + 1;
+            if (newMistakeCount >= drill.mistakeLimit) {
+                setTimeout(resetDrill, 1000);
+            }
+            return newMistakeCount;
+        });
+
         return newReps;
     });
     
@@ -269,6 +272,9 @@ export function DrillUI({ drill }: DrillUIProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
       e.preventDefault();
+      
+      if (stepFeedback !== null) return;
+
       const key = normalizeKey(e.key);
       
       setPressedKeys(prev => new Set(prev).add(key));
@@ -482,6 +488,5 @@ export function DrillUI({ drill }: DrillUIProps) {
         </div>
     </Card>
   );
-}
 
     
