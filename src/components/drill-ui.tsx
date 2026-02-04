@@ -174,7 +174,6 @@ export function DrillUI({ drill }: DrillUIProps) {
 
     setTimeout(() => {
         setStepFeedback(null);
-        setPressedKeys(new Set());
         setSequence([]);
 
         const isLastVisualStep = visualStepIndex === drill.steps.length - 1;
@@ -253,10 +252,10 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   // Effect for handling physical keyboard input
   useEffect(() => {
-    if (logicalStepIndex >= drill.steps.length) return;
+    if (logicalStepIndex >= drill.steps.length || stepFeedback !== null) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.repeat || stepFeedback !== null) return;
+      if (e.repeat) return;
       e.preventDefault();
       const key = normalizeKey(e.key);
       
@@ -269,7 +268,6 @@ export function DrillUI({ drill }: DrillUIProps) {
 
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
-      if (stepFeedback !== null) return;
       
       const key = normalizeKey(e.key);
       setPressedKeys(prev => {

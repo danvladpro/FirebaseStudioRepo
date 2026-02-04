@@ -145,7 +145,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const resetForNextStep = () => {
     setFeedback(null);
     setIsAccentuating(false);
-    setPressedKeys(new Set());
     setSequence([]);
     keydownProcessed.current = false;
   };
