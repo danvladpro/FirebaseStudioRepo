@@ -161,14 +161,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (incorrectLockRef.current) return;
     incorrectLockRef.current = true;
     
-    setIsProcessing(true);
     setFeedback("incorrect");
     setPressedKeys(new Set());
     setSequence([]);
 
     setTimeout(() => {
       setFeedback(null);
-      setIsProcessing(false);
       incorrectLockRef.current = false;
     }, 500);
   }, []);
@@ -186,6 +184,15 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             setCurrentStepIndex(prev => prev + 1);
         }
         
+        setPressedKeys(prev => {
+            const newKeys = new Set<string>();
+            for (const key of prev) {
+                if (isModifier(key)) {
+                    newKeys.add(key);
+                }
+            }
+            return newKeys;
+        });
         setSequence([]);
         setFeedback(null);
         setIsAccentuating(false);

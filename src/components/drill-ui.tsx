@@ -182,29 +182,33 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (incorrectLockRef.current) return;
     incorrectLockRef.current = true;
     
-    setIsProcessing(true);
     setStepFeedback('incorrect');
     setPressedKeys(new Set());
     setSequence([]);
   
     setReps(prev => {
-      const next = [...prev];
-      next[currentRep] = RepStatus.Incorrect;
-      return next;
-    });
-
-    setMistakes(currentMistakes => {
-        const newMistakes = currentMistakes + 1;
-        if (newMistakes >= drill.mistakeLimit) {
-            setTimeout(resetDrill, 500);
+        const next = [...prev];
+        if (next[currentRep] !== RepStatus.Incorrect) {
+            next[currentRep] = RepStatus.Incorrect;
+            setMistakes(currentMistakes => {
+                const newMistakes = currentMistakes + 1;
+                if (newMistakes >= drill.mistakeLimit) {
+                    setTimeout(resetDrill, 500);
+                } else {
+                     setTimeout(() => {
+                        setStepFeedback(null);
+                        incorrectLockRef.current = false;
+                    }, 500);
+                }
+                return newMistakes;
+            });
         } else {
-            setTimeout(() => {
-              setStepFeedback(null);
-              setIsProcessing(false);
-              incorrectLockRef.current = false;
+             setTimeout(() => {
+                setStepFeedback(null);
+                incorrectLockRef.current = false;
             }, 500);
         }
-        return newMistakes;
+        return next;
     });
 
   }, [currentRep, drill.mistakeLimit, resetDrill]);
@@ -236,6 +240,15 @@ export function DrillUI({ drill }: DrillUIProps) {
             setVisualStepIndex(prev => prev + 1);
         }
 
+        setPressedKeys(prev => {
+            const newKeys = new Set<string>();
+            for (const key of prev) {
+                if (isModifier(key)) {
+                    newKeys.add(key);
+                }
+            }
+            return newKeys;
+        });
         setSequence([]);
         setStepFeedback(null);
         setIsProcessing(false);
