@@ -143,6 +143,24 @@ export function DrillUI({ drill }: DrillUIProps) {
     drill.initialGridState!,
     visualStepIndex
   ) : { gridState: null, cellStyles: {} };
+
+  const resetDrill = useCallback(() => {
+    toast({
+      title: "Mistake Limit Reached",
+      description: "Drill has been reset. Let's try again from the beginning!",
+      variant: "destructive"
+    });
+    setReps(Array(drill.repetitions).fill(RepStatus.Pending));
+    setCurrentRep(0);
+    setLogicalStepIndex(0);
+    setVisualStepIndex(0);
+    setMistakes(0);
+    setPressedKeys(new Set());
+    setSequence([]);
+    setStepFeedback(null);
+    incorrectLockRef.current = false;
+    setIsProcessing(false);
+  }, [drill.repetitions, toast]);
   
   const finishDrill = useCallback(async () => {
     setIsProcessing(true);
@@ -170,21 +188,27 @@ export function DrillUI({ drill }: DrillUIProps) {
     setPressedKeys(new Set());
     setSequence([]);
   
+    const newMistakes = mistakes + 1;
+    
     setReps(prev => {
       const next = [...prev];
-      if (next[currentRep] !== RepStatus.Incorrect) {
-        next[currentRep] = RepStatus.Incorrect;
-        setMistakes(m => m + 1);
-      }
+      next[currentRep] = RepStatus.Incorrect;
       return next;
     });
+
+    setMistakes(newMistakes);
+
+    if (newMistakes >= drill.mistakeLimit) {
+        setTimeout(resetDrill, 500); // Reset after showing feedback
+        return; // Stop here, resetDrill will handle unlocking
+    }
     
     setTimeout(() => {
       setStepFeedback(null);
       setIsProcessing(false);
       incorrectLockRef.current = false;
     }, 500);
-  }, [currentRep]);
+  }, [currentRep, mistakes, drill.mistakeLimit, resetDrill]);
 
   const handleStepSuccess = useCallback(() => {
     setIsProcessing(true);
@@ -296,6 +320,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   
 
   useEffect(() => {
+    if (incorrectLockRef.current) return;
     if (isProcessing || !activeStep || activeStep.isSequential) return;
 
     const requiredKeys = getRequiredKeys();
@@ -305,8 +330,9 @@ export function DrillUI({ drill }: DrillUIProps) {
     
     const requiredNonModifiers = new Set([...requiredKeys].filter(k => !isModifier(k)));
     const allRequiredNonModifiersPressed = [...requiredNonModifiers].every(k => pressedNonModifiers.has(k));
+    const extraNonModifiersPressed = [...pressedNonModifiers].some(k => !requiredNonModifiers.has(k));
 
-    if (pressedNonModifiers.size > requiredNonModifiers.size) {
+    if (extraNonModifiersPressed) {
         handleIncorrect();
         return;
     }
@@ -316,16 +342,18 @@ export function DrillUI({ drill }: DrillUIProps) {
         const pressedModifiers = new Set([...pressedKeys].filter(isModifier));
         
         const allRequiredModifiersPressed = [...requiredModifiers].every(k => pressedModifiers.has(k));
+        const extraModifiersPressed = [...pressedModifiers].some(k => !requiredModifiers.has(k));
         
-        if (allRequiredModifiersPressed && pressedModifiers.size === requiredModifiers.size) {
+        if (allRequiredModifiersPressed && !extraModifiersPressed) {
             handleStepSuccess();
-        } else if (pressedModifiers.size > requiredModifiers.size) {
+        } else if (pressedModifiers.size > requiredModifiers.size && requiredNonModifiers.size > 0) {
             handleIncorrect();
         }
     }
   }, [pressedKeys, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect, isProcessing]);
 
   useEffect(() => {
+    if (incorrectLockRef.current) return;
     if (isProcessing || !activeStep || !activeStep.isSequential || sequence.length === 0) return;
     
     const requiredSequence = Array.from(getRequiredKeys());
@@ -485,5 +513,3 @@ export function DrillUI({ drill }: DrillUIProps) {
     </Card>
   );
 }
-
-    

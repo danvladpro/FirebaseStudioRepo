@@ -219,7 +219,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [moveToNextChallenge, currentChallengeIndex, set.challenges.length, skippedIndices, finishChallenge, isProcessing]);
   
   const processSequentialKeyPress = useCallback((key: string) => {
-    if (isProcessing || !currentStep?.isSequential) return;
+    if (incorrectLockRef.current || isProcessing || !currentStep?.isSequential) return;
     
     const requiredKeys = getRequiredKeys();
     const newSequence = [...sequence, key]; 
@@ -319,6 +319,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentStep, isProcessing, processSequentialKeyPress, feedback]);
   
   useEffect(() => {
+    if (incorrectLockRef.current) return;
     if (isProcessing || !currentStep || currentStep.isSequential) return;
 
     const requiredKeys = getRequiredKeys();
@@ -349,6 +350,25 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         }
     }
   }, [pressedKeys, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect, isProcessing]);
+
+  useEffect(() => {
+    if (incorrectLockRef.current) return;
+    if (isProcessing || !currentStep || !currentStep.isSequential || sequence.length === 0) return;
+
+    const requiredSequence = Array.from(getRequiredKeys());
+
+    for (let i = 0; i < sequence.length; i++) {
+      if (sequence[i] !== requiredSequence[i]) {
+        handleIncorrect();
+        return;
+      }
+    }
+
+    if (sequence.length === requiredSequence.length) {
+      handleStepSuccess();
+    }
+  }, [sequence, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect, isProcessing]);
+
 
   const handleVirtualKeyClick = (key: string) => {
       if (isProcessing || feedback !== null) return;
@@ -547,5 +567,3 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </div>
   );
 }
-
-    
