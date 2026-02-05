@@ -157,8 +157,8 @@ export function DrillUI({ drill }: DrillUIProps) {
     setPressedKeys(new Set());
     setSequence([]);
     setStepFeedback(null);
-    incorrectLockRef.current = false;
     setIsProcessing(false);
+    incorrectLockRef.current = false;
   }, [drill.repetitions]);
   
   const finishDrill = useCallback(async () => {
@@ -185,11 +185,12 @@ export function DrillUI({ drill }: DrillUIProps) {
     setStepFeedback('incorrect');
     setPressedKeys(new Set());
     setSequence([]);
-  
+
     setReps(prev => {
         const next = [...prev];
         if (next[currentRep] !== RepStatus.Incorrect) {
             next[currentRep] = RepStatus.Incorrect;
+            
             setMistakes(currentMistakes => {
                 const newMistakes = currentMistakes + 1;
                 if (newMistakes >= drill.mistakeLimit) {
@@ -210,7 +211,6 @@ export function DrillUI({ drill }: DrillUIProps) {
         }
         return next;
     });
-
   }, [currentRep, drill.mistakeLimit, resetDrill]);
 
   const handleStepSuccess = useCallback(() => {
@@ -257,7 +257,7 @@ export function DrillUI({ drill }: DrillUIProps) {
 
 
   const handleVirtualKeyClick = (key: string) => {
-    if (isProcessing || stepFeedback !== null) return;
+    if (isProcessing || stepFeedback !== null || incorrectLockRef.current) return;
     
     const normalized = normalizeKey(key);
 
@@ -280,7 +280,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (logicalStepIndex >= drill.steps.length) return;
   
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isProcessing || e.repeat || stepFeedback !== null) {
+      if (isProcessing || e.repeat || stepFeedback !== null || incorrectLockRef.current) {
           e.preventDefault();
           return;
       }

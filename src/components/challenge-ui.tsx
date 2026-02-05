@@ -218,13 +218,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [moveToNextChallenge, currentChallengeIndex, set.challenges.length, skippedIndices, finishChallenge, isProcessing]);
   
   const processSequentialKeyPress = useCallback((key: string) => {
-    if (incorrectLockRef.current || isProcessing || !currentStep?.isSequential) return;
+    if (incorrectLockRef.current || isProcessing) return;
     
-    const requiredKeys = getRequiredKeys();
     const newSequence = [...sequence, key]; 
     setSequence(newSequence);
     
-    const requiredSequence = Array.from(requiredKeys); 
+    const requiredSequence = Array.from(getRequiredKeys()); 
     
     for (let i = 0; i < newSequence.length; i++) {
       if (newSequence[i] !== requiredSequence[i]) {
@@ -276,7 +275,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-        if (isProcessing || e.repeat || feedback !== null) {
+        if (isProcessing || e.repeat || feedback !== null || incorrectLockRef.current) {
             e.preventDefault();
             return;
         };
@@ -370,7 +369,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
 
   const handleVirtualKeyClick = (key: string) => {
-      if (isProcessing || feedback !== null) return;
+      if (isProcessing || feedback !== null || incorrectLockRef.current) return;
       const normalized = normalizeKey(key);
 
       setPressedKeys(prev => {
