@@ -170,7 +170,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (processingRef.current) return;
     processingRef.current = true;
   
-    setPressedKeys(new Set()); // Clear keys immediately to prevent re-triggering
+    setPressedKeys(new Set());
     setSequence([]);
   
     setReps(prev => {
@@ -195,16 +195,6 @@ export function DrillUI({ drill }: DrillUIProps) {
     processingRef.current = true;
 
     setStepFeedback('correct');
-
-    setPressedKeys(prev => {
-        const newKeys = new Set(prev);
-        const required = getRequiredKeys();
-        const requiredNonModifiers = [...required].filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
-        for (const key of requiredNonModifiers) {
-            newKeys.delete(key);
-        }
-        return newKeys;
-    });
 
     setTimeout(() => {
         setStepFeedback(null);
@@ -234,7 +224,7 @@ export function DrillUI({ drill }: DrillUIProps) {
             processingRef.current = false;
         }
     }, 400);
-  }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill, getRequiredKeys]);
+  }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
 
 
   const handleVirtualKeyClick = (key: string) => {
@@ -489,4 +479,5 @@ export function DrillUI({ drill }: DrillUIProps) {
   );
 
     
+
 

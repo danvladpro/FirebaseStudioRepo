@@ -182,7 +182,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (processingRef.current) return;
     processingRef.current = true;
     
-    setPressedKeys(new Set()); // Clear keys immediately to prevent re-triggering
+    setPressedKeys(new Set());
     setSequence([]);
 
     setFeedback("incorrect");
@@ -200,16 +200,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setFeedback("correct");
     setIsAccentuating(true);
     
-    setPressedKeys(prev => {
-        const newKeys = new Set(prev);
-        const required = getRequiredKeys();
-        const requiredNonModifiers = [...required].filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
-        for (const key of requiredNonModifiers) {
-            newKeys.delete(key);
-        }
-        return newKeys;
-    });
-
     setTimeout(() => {
         const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
         if (isLastStep) {
@@ -219,7 +209,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             resetForNextStep();
         }
     }, 400);
-  }, [currentStepIndex, currentChallenge, moveToNextChallenge, resetForNextStep, getRequiredKeys]);
+  }, [currentStepIndex, currentChallenge, moveToNextChallenge, resetForNextStep]);
   
   const processSequentialKeyPress = useCallback((key: string) => {
     if (processingRef.current || !currentStep?.isSequential) return;
