@@ -179,39 +179,40 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [drill.id, router, user, drill.steps.length]);
 
   const handleIncorrect = useCallback(() => {
-    if (incorrectLockRef.current) return;
+    if (incorrectLockRef.current) {
+      return;
+    }
     incorrectLockRef.current = true;
-    
-    setStepFeedback('incorrect');
+  
     setPressedKeys(new Set());
     setSequence([]);
-
-    setReps(prev => {
+    setStepFeedback('incorrect');
+  
+    const repAlreadyIncorrect = reps[currentRep] === RepStatus.Incorrect;
+  
+    if (!repAlreadyIncorrect) {
+      const newMistakes = mistakes + 1;
+      setMistakes(newMistakes);
+  
+      setReps(prev => {
         const next = [...prev];
-        if (next[currentRep] !== RepStatus.Incorrect) {
-            next[currentRep] = RepStatus.Incorrect;
-            
-            setMistakes(currentMistakes => {
-                const newMistakes = currentMistakes + 1;
-                if (newMistakes >= drill.mistakeLimit) {
-                    setTimeout(resetDrill, 500);
-                } else {
-                     setTimeout(() => {
-                        setStepFeedback(null);
-                        incorrectLockRef.current = false;
-                    }, 500);
-                }
-                return newMistakes;
-            });
-        } else {
-             setTimeout(() => {
-                setStepFeedback(null);
-                incorrectLockRef.current = false;
-            }, 500);
-        }
+        next[currentRep] = RepStatus.Incorrect;
         return next;
-    });
-  }, [currentRep, drill.mistakeLimit, resetDrill]);
+      });
+  
+      if (newMistakes >= drill.mistakeLimit) {
+        setTimeout(() => {
+          resetDrill();
+        }, 500);
+        return;
+      }
+    }
+    
+    setTimeout(() => {
+      setStepFeedback(null);
+      incorrectLockRef.current = false;
+    }, 500);
+  }, [reps, currentRep, mistakes, drill.mistakeLimit, resetDrill]);
 
   const handleStepSuccess = useCallback(() => {
     setIsProcessing(true);

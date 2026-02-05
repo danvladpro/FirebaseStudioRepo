@@ -161,9 +161,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (incorrectLockRef.current) return;
     incorrectLockRef.current = true;
     
-    setFeedback("incorrect");
     setPressedKeys(new Set());
     setSequence([]);
+    setFeedback("incorrect");
 
     setTimeout(() => {
       setFeedback(null);
