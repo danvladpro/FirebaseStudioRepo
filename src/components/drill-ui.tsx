@@ -73,6 +73,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [sequence, setSequence] = useState<string[]>([]);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const incorrectLockRef = useRef(false);
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
@@ -161,6 +162,9 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [drill.id, router, user, drill.steps.length]);
 
   const handleIncorrect = useCallback(() => {
+    if (incorrectLockRef.current) return;
+    incorrectLockRef.current = true;
+    
     setIsProcessing(true);
     setStepFeedback('incorrect');
     setPressedKeys(new Set());
@@ -178,6 +182,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     setTimeout(() => {
       setStepFeedback(null);
       setIsProcessing(false);
+      incorrectLockRef.current = false;
     }, 500);
   }, [currentRep]);
 
@@ -225,7 +230,7 @@ export function DrillUI({ drill }: DrillUIProps) {
 
 
   const handleVirtualKeyClick = (key: string) => {
-    if (isProcessing) return;
+    if (isProcessing || stepFeedback !== null) return;
     
     const normalized = normalizeKey(key);
 
@@ -248,7 +253,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (logicalStepIndex >= drill.steps.length) return;
   
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isProcessing || e.repeat) {
+      if (isProcessing || e.repeat || stepFeedback !== null) {
           e.preventDefault();
           return;
       }
@@ -287,7 +292,7 @@ export function DrillUI({ drill }: DrillUIProps) {
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', handleBlur);
     };
-  }, [logicalStepIndex, drill.steps.length, activeStep?.isSequential, isProcessing]);
+  }, [logicalStepIndex, drill.steps.length, activeStep?.isSequential, isProcessing, stepFeedback]);
   
 
   useEffect(() => {
@@ -299,24 +304,22 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (pressedNonModifiers.size === 0) return;
     
     const requiredNonModifiers = new Set([...requiredKeys].filter(k => !isModifier(k)));
+    const allRequiredNonModifiersPressed = [...requiredNonModifiers].every(k => pressedNonModifiers.has(k));
 
-    const extraNonModifiersPressed = [...pressedNonModifiers].some(k => !requiredNonModifiers.has(k));
-
-    if (extraNonModifiersPressed) {
+    if (pressedNonModifiers.size > requiredNonModifiers.size) {
         handleIncorrect();
         return;
     }
-
-    if (pressedNonModifiers.size === requiredNonModifiers.size) {
+    
+    if (allRequiredNonModifiersPressed) {
         const requiredModifiers = new Set([...requiredKeys].filter(isModifier));
         const pressedModifiers = new Set([...pressedKeys].filter(isModifier));
         
         const allRequiredModifiersPressed = [...requiredModifiers].every(k => pressedModifiers.has(k));
-        const extraModifiersPressed = [...pressedModifiers].some(k => !requiredModifiers.has(k));
         
-        if (allRequiredModifiersPressed && !extraModifiersPressed) {
+        if (allRequiredModifiersPressed && pressedModifiers.size === requiredModifiers.size) {
             handleStepSuccess();
-        } else if (allRequiredModifiersPressed && extraModifiersPressed) {
+        } else if (pressedModifiers.size > requiredModifiers.size) {
             handleIncorrect();
         }
     }

@@ -65,6 +65,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const [countdown, setCountdown] = useState(8);
   const [isMac, setIsMac] = useState(false);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
+  const incorrectLockRef = useRef(false);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
@@ -156,6 +157,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const handleIncorrect = useCallback(() => {
+    if (incorrectLockRef.current) return;
+    incorrectLockRef.current = true;
+    
     setIsProcessing(true);
     setFeedback("incorrect");
     setPressedKeys(new Set());
@@ -164,6 +168,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setTimeout(() => {
       setFeedback(null);
       setIsProcessing(false);
+      incorrectLockRef.current = false;
     }, 500);
   }, []);
 
@@ -272,7 +277,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-        if (isProcessing || e.repeat) {
+        if (isProcessing || e.repeat || feedback !== null) {
             e.preventDefault();
             return;
         };
@@ -311,7 +316,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener('blur', handleBlur);
     };
-  }, [currentStep, isProcessing, processSequentialKeyPress]);
+  }, [currentStep, isProcessing, processSequentialKeyPress, feedback]);
   
   useEffect(() => {
     if (isProcessing || !currentStep || currentStep.isSequential) return;
@@ -340,15 +345,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         if (allRequiredModifiersPressed && !extraModifiersPressed) {
             advanceStepOrChallenge();
         } else if (allRequiredModifiersPressed && extraModifiersPressed) {
-            // This condition means the user is pressing the right combo but with extra modifier keys.
-            // This should be treated as an incorrect attempt to avoid ambiguity.
             handleIncorrect();
         }
     }
   }, [pressedKeys, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect, isProcessing]);
 
   const handleVirtualKeyClick = (key: string) => {
-      if (isProcessing) return;
+      if (isProcessing || feedback !== null) return;
       const normalized = normalizeKey(key);
 
       setPressedKeys(prev => {
