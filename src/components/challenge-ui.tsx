@@ -114,12 +114,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const getRequiredKeys = useCallback(() => {
     if (!currentStep) return new Set<string>();
-
+    
     const keys = currentStep.keys.map(k => {
       const lowerK = k.toLowerCase();
-      // On Mac, treat 'control' in the definition as 'meta' (Cmd key)
       if (isMac && lowerK === 'control') {
-        return 'meta'; 
+          return 'meta';
       }
       return lowerK;
     });
@@ -178,8 +177,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setIsProcessing(true);
     setFeedback("correct");
     setIsAccentuating(true);
-    
-    const requiredKeysForCompletedStep = getRequiredKeys();
 
     setTimeout(() => {
         const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
@@ -189,20 +186,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             setCurrentStepIndex(prev => prev + 1);
         }
         
-        setPressedKeys(prev => {
-            const newKeys = new Set(prev);
-            const nonModifiers = [...requiredKeysForCompletedStep].filter(k => !isModifier(k));
-            nonModifiers.forEach(k => newKeys.delete(k));
-            return newKeys;
-        });
-        
         setSequence([]);
         setFeedback(null);
         setIsAccentuating(false);
         setIsProcessing(false);
 
     }, 400);
-  }, [currentStepIndex, currentChallenge, moveToNextChallenge, getRequiredKeys]);
+  }, [currentStepIndex, currentChallenge, moveToNextChallenge]);
 
   const handleSkip = useCallback(() => {
     if (isProcessing) return;
@@ -321,8 +311,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentStep, isProcessing, processSequentialKeyPress, feedback]);
   
   useEffect(() => {
-    if (incorrectLockRef.current) return;
-    if (isProcessing || !currentStep || currentStep.isSequential) return;
+    if (incorrectLockRef.current || isProcessing) return;
+    if (!currentStep || currentStep.isSequential) return;
 
     const requiredKeys = getRequiredKeys();
     
@@ -354,8 +344,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [pressedKeys, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect, isProcessing]);
 
   useEffect(() => {
-    if (incorrectLockRef.current) return;
-    if (isProcessing || !currentStep || !currentStep.isSequential || sequence.length === 0) return;
+    if (incorrectLockRef.current || isProcessing) return;
+    if (!currentStep || !currentStep.isSequential || sequence.length === 0) return;
 
     const requiredSequence = Array.from(getRequiredKeys());
 

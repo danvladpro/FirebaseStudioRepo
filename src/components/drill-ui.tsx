@@ -188,30 +188,30 @@ export function DrillUI({ drill }: DrillUIProps) {
     setSequence([]);
   
     setReps(prev => {
-      if (prev[currentRep] === RepStatus.Incorrect) return prev; // Guard
       const next = [...prev];
       next[currentRep] = RepStatus.Incorrect;
-      setMistakes(m => m + 1); // Sequentially update mistakes
       return next;
     });
 
-    if (mistakes + 1 >= drill.mistakeLimit) {
-        setTimeout(resetDrill, 500);
-        return;
-    }
-    
-    setTimeout(() => {
-      setStepFeedback(null);
-      setIsProcessing(false);
-      incorrectLockRef.current = false;
-    }, 500);
-  }, [currentRep, mistakes, drill.mistakeLimit, resetDrill]);
+    setMistakes(currentMistakes => {
+        const newMistakes = currentMistakes + 1;
+        if (newMistakes >= drill.mistakeLimit) {
+            setTimeout(resetDrill, 500);
+        } else {
+            setTimeout(() => {
+              setStepFeedback(null);
+              setIsProcessing(false);
+              incorrectLockRef.current = false;
+            }, 500);
+        }
+        return newMistakes;
+    });
+
+  }, [currentRep, drill.mistakeLimit, resetDrill]);
 
   const handleStepSuccess = useCallback(() => {
     setIsProcessing(true);
     setStepFeedback('correct');
-
-    const requiredKeysForCompletedStep = getRequiredKeys();
 
     setTimeout(() => {
         const isLastVisualStep = visualStepIndex === drill.steps.length - 1;
@@ -236,18 +236,11 @@ export function DrillUI({ drill }: DrillUIProps) {
             setVisualStepIndex(prev => prev + 1);
         }
 
-        setPressedKeys(prev => {
-            const newKeys = new Set(prev);
-            const nonModifiers = [...requiredKeysForCompletedStep].filter(k => !isModifier(k));
-            nonModifiers.forEach(k => newKeys.delete(k));
-            return newKeys;
-        });
-
         setSequence([]);
         setStepFeedback(null);
         setIsProcessing(false);
     }, 400);
-  }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill, getRequiredKeys]);
+  }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
 
 
   const handleVirtualKeyClick = (key: string) => {
@@ -317,8 +310,8 @@ export function DrillUI({ drill }: DrillUIProps) {
   
 
   useEffect(() => {
-    if (incorrectLockRef.current) return;
-    if (isProcessing || !activeStep || activeStep.isSequential) return;
+    if (incorrectLockRef.current || isProcessing) return;
+    if (!activeStep || activeStep.isSequential) return;
 
     const requiredKeys = getRequiredKeys();
     const pressedNonModifiers = new Set([...pressedKeys].filter(k => !isModifier(k)));
@@ -350,8 +343,8 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [pressedKeys, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect, isProcessing]);
 
   useEffect(() => {
-    if (incorrectLockRef.current) return;
-    if (isProcessing || !activeStep || !activeStep.isSequential || sequence.length === 0) return;
+    if (incorrectLockRef.current || isProcessing) return;
+    if (!activeStep || !activeStep.isSequential || sequence.length === 0) return;
     
     const requiredSequence = Array.from(getRequiredKeys());
 
