@@ -103,17 +103,16 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   const getRequiredKeys = useCallback(() => {
     if (!activeStep) return new Set<string>();
-    const isStrikethrough = drill.steps.some(stepId => ALL_DRILL_STEPS[stepId].keys.includes('5'));
     
     const keys = activeStep.keys.map(k => {
       const lowerK = k.toLowerCase();
-      if (isMac && lowerK === 'control' && !isStrikethrough) {
+      if (isMac && lowerK === 'control') {
           return 'meta';
       }
       return lowerK;
     });
     return new Set(keys);
-  }, [activeStep, isMac, drill.steps]);
+  }, [activeStep, isMac]);
 
   useEffect(() => {
     if (!activeStep || !userProfile?.missingKeys) {
@@ -160,7 +159,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     setStepFeedback(null);
     incorrectLockRef.current = false;
     setIsProcessing(false);
-  }, [drill.repetitions, toast]);
+  }, [drill.repetitions]);
   
   const finishDrill = useCallback(async () => {
     setIsProcessing(true);
@@ -188,19 +187,17 @@ export function DrillUI({ drill }: DrillUIProps) {
     setPressedKeys(new Set());
     setSequence([]);
   
-    const newMistakes = mistakes + 1;
-    
     setReps(prev => {
+      if (prev[currentRep] === RepStatus.Incorrect) return prev; // Guard
       const next = [...prev];
       next[currentRep] = RepStatus.Incorrect;
+      setMistakes(m => m + 1); // Sequentially update mistakes
       return next;
     });
 
-    setMistakes(newMistakes);
-
-    if (newMistakes >= drill.mistakeLimit) {
-        setTimeout(resetDrill, 500); // Reset after showing feedback
-        return; // Stop here, resetDrill will handle unlocking
+    if (mistakes + 1 >= drill.mistakeLimit) {
+        setTimeout(resetDrill, 500);
+        return;
     }
     
     setTimeout(() => {

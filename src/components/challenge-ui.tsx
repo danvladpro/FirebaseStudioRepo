@@ -60,11 +60,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const [isAccentuating, setIsAccentuating] = useState(false);
   const [skippedIndices, setSkippedIndices] = useState<number[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
   
   const [countdown, setCountdown] = useState(8);
   const [isMac, setIsMac] = useState(false);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
+  
+  const [isProcessing, setIsProcessing] = useState(false);
   const incorrectLockRef = useRef(false);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
@@ -81,6 +82,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
+  }, []);
 
   const finishChallenge = useCallback((finalSkippedIndices?: number[]) => {
     const indicesToUse = finalSkippedIndices || skippedIndices;
@@ -110,14 +115,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const getRequiredKeys = useCallback(() => {
     if (!currentStep) return new Set<string>();
 
-    const isStrikethrough = currentStep.description.toLowerCase().includes('strikethrough');
-
     const keys = currentStep.keys.map(k => {
       const lowerK = k.toLowerCase();
-      if (isMac) {
-        if (lowerK === 'control' && !isStrikethrough) {
-          return 'meta'; 
-        }
+      // On Mac, treat 'control' in the definition as 'meta' (Cmd key)
+      if (isMac && lowerK === 'control') {
+        return 'meta'; 
       }
       return lowerK;
     });
@@ -365,7 +367,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     }
 
     if (sequence.length === requiredSequence.length) {
-      handleStepSuccess();
+      advanceStepOrChallenge();
     }
   }, [sequence, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect, isProcessing]);
 
