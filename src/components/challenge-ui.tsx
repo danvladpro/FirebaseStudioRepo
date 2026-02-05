@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
 import { useRouter } from "next/navigation";
-import { ChallengeSet, ChallengeStep, GridState } from "@/lib/types";
+import { ChallengeSet, ChallengeStep } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, BookOpen, MousePointerClick, ArrowLeft } from "lucide-react";
@@ -21,8 +21,10 @@ interface ChallengeUIProps {
   mode: 'timed' | 'training';
 }
 
+const isModifier = (key: string) => ['control', 'shift', 'alt', 'meta'].includes(key);
+
 const KeyDisplay = ({ value }: { value: string }) => {
-    const isModifier = ["control", "shift", "alt", "meta"].includes(value);
+    const isModifierKey = isModifier(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
     const displayValue: Record<string, string> = {
@@ -38,7 +40,7 @@ const KeyDisplay = ({ value }: { value: string }) => {
     return (
         <kbd className={cn(
             "px-2 py-1.5 text-xs font-semibold rounded-md border-b-2 text-muted-foreground bg-muted",
-            isModifier ? "min-w-[4rem] text-center" : "",
+            isModifierKey ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
             {displayValue[value] || capitalizedValue}
@@ -58,6 +60,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const [isAccentuating, setIsAccentuating] = useState(false);
   const [skippedIndices, setSkippedIndices] = useState<number[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const [countdown, setCountdown] = useState(8);
   const [isMac, setIsMac] = useState(false);
@@ -75,8 +78,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     ? calculateGridStateForStep(currentChallenge.steps, initialGridState, currentStepIndex)
     : { gridState: null, cellStyles: {} };
 
-  const isAdvancing = useRef(false);
-  const processingRef = useRef(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -137,17 +138,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setIsVirtualKeyboardMode(needsVirtual);
 }, [currentStep, userProfile?.missingKeys, getRequiredKeys]);
 
-  const resetForNextStep = useCallback(() => {
-    setFeedback(null);
-    setIsAccentuating(false);
-    setSequence([]);
-    processingRef.current = false;
-  }, []);
-  
-  const moveToNextChallenge = useCallback(() => {
-    if (isAdvancing.current) return;
-    isAdvancing.current = true;
 
+  const moveToNextChallenge = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (intervalRef.current) clearInterval(intervalRef.current);
 
@@ -158,61 +150,71 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         return;
     }
 
-    setTimeout(() => {
-        setCurrentChallengeIndex(prev => prev + 1);
-        setCurrentStepIndex(0);
-        resetForNextStep();
-        setCountdown(8);
-        isAdvancing.current = false;
-    }, 300);
-  }, [currentChallengeIndex, set.challenges.length, finishChallenge, resetForNextStep]);
-
-  const handleSkip = useCallback(() => {
-    const newSkippedIndices = [...skippedIndices, currentChallengeIndex];
-    setSkippedIndices(newSkippedIndices);
-    
-    if (currentChallengeIndex === set.challenges.length - 1) {
-      finishChallenge(newSkippedIndices);
-    } else {
-      moveToNextChallenge();
-    }
-  }, [moveToNextChallenge, currentChallengeIndex, set.challenges.length, skippedIndices, finishChallenge]);
+    setCurrentChallengeIndex(prev => prev + 1);
+    setCurrentStepIndex(0);
+    setCountdown(8);
+  }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const handleIncorrect = useCallback(() => {
-    if (processingRef.current) return;
-    processingRef.current = true;
-    
+    setIsProcessing(true);
+    setFeedback("incorrect");
     setPressedKeys(new Set());
     setSequence([]);
 
-    setFeedback("incorrect");
-
     setTimeout(() => {
       setFeedback(null);
-      processingRef.current = false;
+      setIsProcessing(false);
     }, 500);
   }, []);
 
   const advanceStepOrChallenge = useCallback(() => {
-    if (processingRef.current) return;
-    processingRef.current = true;
-
+    setIsProcessing(true);
     setFeedback("correct");
     setIsAccentuating(true);
     
+    const requiredKeysForCompletedStep = getRequiredKeys();
+
     setTimeout(() => {
         const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
         if (isLastStep) {
             moveToNextChallenge();
         } else {
             setCurrentStepIndex(prev => prev + 1);
-            resetForNextStep();
         }
+        
+        setPressedKeys(prev => {
+            const newKeys = new Set(prev);
+            const nonModifiers = [...requiredKeysForCompletedStep].filter(k => !isModifier(k));
+            nonModifiers.forEach(k => newKeys.delete(k));
+            return newKeys;
+        });
+        
+        setSequence([]);
+        setFeedback(null);
+        setIsAccentuating(false);
+        setIsProcessing(false);
+
     }, 400);
-  }, [currentStepIndex, currentChallenge, moveToNextChallenge, resetForNextStep]);
+  }, [currentStepIndex, currentChallenge, moveToNextChallenge, getRequiredKeys]);
+
+  const handleSkip = useCallback(() => {
+    if (isProcessing) return;
+    const newSkippedIndices = [...skippedIndices, currentChallengeIndex];
+    setSkippedIndices(newSkippedIndices);
+    
+    setIsProcessing(true);
+    setTimeout(() => {
+        if (currentChallengeIndex === set.challenges.length - 1) {
+            finishChallenge(newSkippedIndices);
+        } else {
+            moveToNextChallenge();
+        }
+        setIsProcessing(false);
+    }, 100);
+  }, [moveToNextChallenge, currentChallengeIndex, set.challenges.length, skippedIndices, finishChallenge, isProcessing]);
   
   const processSequentialKeyPress = useCallback((key: string) => {
-    if (processingRef.current || !currentStep?.isSequential) return;
+    if (isProcessing || !currentStep?.isSequential) return;
     
     const requiredKeys = getRequiredKeys();
     const newSequence = [...sequence, key]; 
@@ -229,7 +231,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (newSequence.length === requiredSequence.length) {
       advanceStepOrChallenge();
     }
-  }, [currentStep, sequence, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
+  }, [currentStep, sequence, getRequiredKeys, advanceStepOrChallenge, handleIncorrect, isProcessing]);
 
   useEffect(() => {
     if (currentChallengeIndex === 0 && currentStepIndex === 0 && startTime === 0) {
@@ -254,9 +256,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
       setCountdown(8);
 
-      const autoSkip = () => {
-         handleSkip();
-      }
+      const autoSkip = () => handleSkip();
 
       timeoutRef.current = setTimeout(autoSkip, 8000);
       
@@ -272,8 +272,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-        if (feedback !== null || processingRef.current) return;
-        if (e.repeat) return;
+        if (isProcessing || e.repeat) {
+            e.preventDefault();
+            return;
+        };
         e.preventDefault();
         const key = normalizeKey(e.key);
 
@@ -309,36 +311,44 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener('blur', handleBlur);
     };
-  }, [currentStep, feedback, processSequentialKeyPress]);
+  }, [currentStep, isProcessing, processSequentialKeyPress]);
   
   useEffect(() => {
-    if (processingRef.current || !currentStep || currentStep.isSequential) return;
+    if (isProcessing || !currentStep || currentStep.isSequential) return;
 
     const requiredKeys = getRequiredKeys();
-    if (pressedKeys.size === 0 && requiredKeys.size > 0) return;
+    
+    const pressedNonModifiers = new Set([...pressedKeys].filter(k => !isModifier(k)));
+    if (pressedNonModifiers.size === 0) return;
 
-    const pressedNonModifiers = [...pressedKeys].filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
-    
-    if (pressedNonModifiers.length === 0) return;
-    
-    const requiredNonModifiers = [...requiredKeys].filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
-    
-    const hasWrongKey = pressedNonModifiers.some(k => !requiredKeys.has(k));
-    if (hasWrongKey) {
+    const requiredNonModifiers = new Set([...requiredKeys].filter(k => !isModifier(k)));
+
+    const allRequiredNonModifiersPressed = [...requiredNonModifiers].every(k => pressedNonModifiers.has(k));
+    const extraNonModifiersPressed = [...pressedNonModifiers].some(k => !requiredNonModifiers.has(k));
+
+    if (extraNonModifiersPressed) {
         handleIncorrect();
         return;
     }
     
-    const allRequiredPressed = [...requiredKeys].every(k => pressedKeys.has(k));
-    const noExtraNonModifiers = pressedNonModifiers.length === requiredNonModifiers.length;
-
-    if (allRequiredPressed && noExtraNonModifiers) {
-        advanceStepOrChallenge();
+    if (allRequiredNonModifiersPressed && pressedNonModifiers.size === requiredNonModifiers.size) {
+        const requiredModifiers = new Set([...requiredKeys].filter(isModifier));
+        const pressedModifiers = new Set([...pressedKeys].filter(isModifier));
+        const allRequiredModifiersPressed = [...requiredModifiers].every(k => pressedModifiers.has(k));
+        const extraModifiersPressed = [...pressedModifiers].some(k => !requiredModifiers.has(k));
+        
+        if (allRequiredModifiersPressed && !extraModifiersPressed) {
+            advanceStepOrChallenge();
+        } else if (allRequiredModifiersPressed && extraModifiersPressed) {
+            // This condition means the user is pressing the right combo but with extra modifier keys.
+            // This should be treated as an incorrect attempt to avoid ambiguity.
+            handleIncorrect();
+        }
     }
-  }, [pressedKeys, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
+  }, [pressedKeys, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect, isProcessing]);
 
   const handleVirtualKeyClick = (key: string) => {
-      if (feedback !== null || processingRef.current) return;
+      if (isProcessing) return;
       const normalized = normalizeKey(key);
 
       setPressedKeys(prev => {
@@ -526,7 +536,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 )
                 )}
             </div>
-            <Button variant="outline" size="sm" onClick={handleSkip} disabled={isAdvancing.current} className="hover:bg-primary/10 hover:text-primary">
+            <Button variant="outline" size="sm" onClick={handleSkip} disabled={isProcessing}>
                 Skip {isMultiStep ? 'Scenario' : 'Challenge'} <ChevronsRight className="ml-2 h-4 w-4" />
             </Button>
         </CardFooter>
@@ -534,3 +544,5 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </div>
   );
 }
+
+    

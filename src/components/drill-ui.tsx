@@ -28,8 +28,10 @@ enum RepStatus {
   Incorrect,
 }
 
+const isModifier = (key: string) => ['control', 'shift', 'alt', 'meta'].includes(key);
+
 const KeyDisplay = ({ value }: { value: string }) => {
-    const isModifier = ["control", "shift", "alt", "meta"].includes(value);
+    const isModifierKey = isModifier(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
     const displayValue: Record<string, string> = {
@@ -45,13 +47,15 @@ const KeyDisplay = ({ value }: { value: string }) => {
     return (
         <kbd className={cn(
             "px-2 py-1.5 text-xs font-semibold rounded-md border-b-2 text-muted-foreground bg-muted",
-            isModifier ? "min-w-[4rem] text-center" : "",
+            isModifierKey ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
             {displayValue[value] || capitalizedValue}
         </kbd>
     );
 };
+
+
 
 export function DrillUI({ drill }: DrillUIProps) {
   const router = useRouter();
@@ -68,7 +72,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [sequence, setSequence] = useState<string[]>([]);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
-  const processingRef = useRef(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
@@ -139,19 +143,9 @@ export function DrillUI({ drill }: DrillUIProps) {
     visualStepIndex
   ) : { gridState: null, cellStyles: {} };
   
-  const resetDrill = useCallback(() => {
-    setReps(Array(drill.repetitions).fill(RepStatus.Pending));
-    setCurrentRep(0);
-    setMistakes(0);
-    setLogicalStepIndex(0);
-    setVisualStepIndex(0);
-    setPressedKeys(new Set());
-    setSequence([]);
-  }, [drill.repetitions]);
-  
   const finishDrill = useCallback(async () => {
-    processingRef.current = true; // Lock processing
-    setLogicalStepIndex(drill.steps.length); // Prevent further input
+    setIsProcessing(true);
+    setLogicalStepIndex(drill.steps.length);
     if (user) {
       try {
         await updateUserPerformance({ uid: user.uid, setId: drill.id, time: 0, score: 100 });
@@ -167,9 +161,8 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [drill.id, router, user, drill.steps.length]);
 
   const handleIncorrect = useCallback(() => {
-    if (processingRef.current) return;
-    processingRef.current = true;
-  
+    setIsProcessing(true);
+    setStepFeedback('incorrect');
     setPressedKeys(new Set());
     setSequence([]);
   
@@ -181,25 +174,20 @@ export function DrillUI({ drill }: DrillUIProps) {
       }
       return next;
     });
-  
-    setStepFeedback('incorrect');
     
     setTimeout(() => {
       setStepFeedback(null);
-      processingRef.current = false;
+      setIsProcessing(false);
     }, 500);
   }, [currentRep]);
 
   const handleStepSuccess = useCallback(() => {
-    if (processingRef.current) return;
-    processingRef.current = true;
-
+    setIsProcessing(true);
     setStepFeedback('correct');
 
-    setTimeout(() => {
-        setStepFeedback(null);
-        setSequence([]);
+    const requiredKeysForCompletedStep = getRequiredKeys();
 
+    setTimeout(() => {
         const isLastVisualStep = visualStepIndex === drill.steps.length - 1;
         
         if (isLastVisualStep) {
@@ -216,19 +204,28 @@ export function DrillUI({ drill }: DrillUIProps) {
                 setCurrentRep(prev => prev + 1);
                 setLogicalStepIndex(0);
                 setVisualStepIndex(0);
-                processingRef.current = false;
             }
         } else {
             setLogicalStepIndex(prev => prev + 1);
             setVisualStepIndex(prev => prev + 1);
-            processingRef.current = false;
         }
+
+        setPressedKeys(prev => {
+            const newKeys = new Set(prev);
+            const nonModifiers = [...requiredKeysForCompletedStep].filter(k => !isModifier(k));
+            nonModifiers.forEach(k => newKeys.delete(k));
+            return newKeys;
+        });
+
+        setSequence([]);
+        setStepFeedback(null);
+        setIsProcessing(false);
     }, 400);
-  }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
+  }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill, getRequiredKeys]);
 
 
   const handleVirtualKeyClick = (key: string) => {
-    if (stepFeedback !== null || processingRef.current) return;
+    if (isProcessing) return;
     
     const normalized = normalizeKey(key);
 
@@ -249,79 +246,86 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   useEffect(() => {
     if (logicalStepIndex >= drill.steps.length) return;
-
+  
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (stepFeedback !== null || processingRef.current) return;
-      if (e.repeat) return;
+      if (isProcessing || e.repeat) {
+          e.preventDefault();
+          return;
+      }
       e.preventDefault();
-      
       const key = normalizeKey(e.key);
-      
+  
       setPressedKeys(prev => new Set(prev).add(key));
-
+  
       if (activeStep?.isSequential) {
         setSequence(prev => [...prev, key]);
       }
     };
-
+  
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
-      
       const key = normalizeKey(e.key);
+  
       setPressedKeys(prev => {
-        const newKeys = new Set(prev);
-        newKeys.delete(key);
-        return newKeys;
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
       });
     };
-    
+  
     const handleBlur = () => {
-        setPressedKeys(new Set());
-        setSequence([]);
+      setPressedKeys(new Set());
+      setSequence([]);
     };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
+  
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
     window.addEventListener('blur', handleBlur);
-
+  
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', handleBlur);
     };
-  }, [logicalStepIndex, drill.steps.length, activeStep?.isSequential, stepFeedback]);
+  }, [logicalStepIndex, drill.steps.length, activeStep?.isSequential, isProcessing]);
+  
 
   useEffect(() => {
-    if (processingRef.current || !activeStep || activeStep.isSequential) return;
+    if (isProcessing || !activeStep || activeStep.isSequential) return;
 
     const requiredKeys = getRequiredKeys();
-    if (pressedKeys.size === 0 && requiredKeys.size > 0) return;
-    
-    const pressedNonModifiers = [...pressedKeys].filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
+    const pressedNonModifiers = new Set([...pressedKeys].filter(k => !isModifier(k)));
 
-    if (pressedNonModifiers.length === 0) return;
+    if (pressedNonModifiers.size === 0) return;
     
-    const requiredNonModifiers = [...requiredKeys].filter(k => !['control', 'shift', 'alt', 'meta'].includes(k));
+    const requiredNonModifiers = new Set([...requiredKeys].filter(k => !isModifier(k)));
 
-    const hasWrongKey = pressedNonModifiers.some(k => !requiredKeys.has(k));
-    if (hasWrongKey) {
+    const extraNonModifiersPressed = [...pressedNonModifiers].some(k => !requiredNonModifiers.has(k));
+
+    if (extraNonModifiersPressed) {
         handleIncorrect();
         return;
     }
-    
-    const allRequiredPressed = [...requiredKeys].every(k => pressedKeys.has(k));
-    const noExtraNonModifiers = pressedNonModifiers.length === requiredNonModifiers.length;
-  
-    if (allRequiredPressed && noExtraNonModifiers) {
-        handleStepSuccess();
+
+    if (pressedNonModifiers.size === requiredNonModifiers.size) {
+        const requiredModifiers = new Set([...requiredKeys].filter(isModifier));
+        const pressedModifiers = new Set([...pressedKeys].filter(isModifier));
+        
+        const allRequiredModifiersPressed = [...requiredModifiers].every(k => pressedModifiers.has(k));
+        const extraModifiersPressed = [...pressedModifiers].some(k => !requiredModifiers.has(k));
+        
+        if (allRequiredModifiersPressed && !extraModifiersPressed) {
+            handleStepSuccess();
+        } else if (allRequiredModifiersPressed && extraModifiersPressed) {
+            handleIncorrect();
+        }
     }
-  }, [pressedKeys, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect]);
+  }, [pressedKeys, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect, isProcessing]);
 
   useEffect(() => {
-    if (processingRef.current || !activeStep || !activeStep.isSequential || sequence.length === 0) return;
+    if (isProcessing || !activeStep || !activeStep.isSequential || sequence.length === 0) return;
     
-    const requiredKeys = getRequiredKeys();
-    const requiredSequence = Array.from(requiredKeys);
+    const requiredSequence = Array.from(getRequiredKeys());
 
     for (let i = 0; i < sequence.length; i++) {
         if (sequence[i] !== requiredSequence[i]) {
@@ -333,7 +337,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (sequence.length === requiredSequence.length) {
         handleStepSuccess();
     }
-  }, [sequence, activeStep, getRequiredKeys, handleIncorrect, handleStepSuccess]);
+  }, [sequence, activeStep, getRequiredKeys, handleIncorrect, handleStepSuccess, isProcessing]);
 
 
   return (
@@ -463,7 +467,7 @@ export function DrillUI({ drill }: DrillUIProps) {
             )}
        </CardFooter>
         <div className={cn(
-            "min-h-[310px] flex items-center justify-center transition-all",
+            "min-h-[310px] flex items-center justify-center transition-colors",
             isVirtualKeyboardMode && "border-t"
         )}>
             {isVirtualKeyboardMode && activeStep && (
@@ -477,7 +481,6 @@ export function DrillUI({ drill }: DrillUIProps) {
         </div>
     </Card>
   );
+}
 
     
-
-
