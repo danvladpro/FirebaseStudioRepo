@@ -18,7 +18,7 @@ import { VisualKeyboard } from "./visual-keyboard";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import { FindReplaceDialog } from "./find-replace-dialog";
-import { calculateDialogStateForStep } from "@/lib/dialog-engine";
+import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-engine";
 
 interface DrillUIProps {
   drill: Drill;
@@ -116,19 +116,26 @@ export function DrillUI({ drill }: DrillUIProps) {
   });
 
   const drillStepsForEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
-  const dialogStateAfter = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex);
-
-  // New logic for preview state
-  const dialogStateForPreview = dialogStateAfter ? { ...dialogStateAfter } : null;
-  if (dialogStateForPreview) {
-      const currentStep = drill.steps[logicalStepIndex] ? ALL_DRILL_STEPS[drill.steps[logicalStepIndex]] : null;
-      const currentStepEffect = currentStep?.dialogEffect;
-
-      if (currentStepEffect?.action === 'SHOW') {
-          // If the current step's purpose is to SHOW the dialog, don't show it in the preview state.
-          dialogStateForPreview.isVisible = false;
-      }
+  
+  // Calculate state up to the step *before* the current one.
+  const dialogStateBefore = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex - 1);
+  
+  const activeDrillStep = ALL_DRILL_STEPS[drill.steps[logicalStepIndex]];
+  const previewEffect = activeDrillStep?.previewDialogEffect;
+  
+  // Apply the preview effect (if any) to the 'before' state.
+  let dialogStateForPreview = dialogStateBefore;
+  if (previewEffect) {
+      dialogStateForPreview = applyDialogEffect(dialogStateBefore, previewEffect);
   }
+  
+  // Patch for 'SHOW' steps, to prevent dialog from showing in preview
+  if (activeDrillStep?.dialogEffect?.action === 'SHOW') {
+      dialogStateForPreview.isVisible = false;
+  }
+  
+  // The state *after* the step is completed.
+  const dialogStateAfter = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex);
 
   const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : dialogStateForPreview;
 
@@ -235,11 +242,10 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [drill.id, router, user, drill.steps.length]);
 
   const handleIncorrect = useCallback(() => {
-    if (incorrectLockRef.current) return;
     incorrectLockRef.current = true;
-
     setPressedKeys(new Set());
     setSequence([]);
+
     setStepFeedback('incorrect');
 
     setReps(prevReps => {
@@ -250,21 +256,20 @@ export function DrillUI({ drill }: DrillUIProps) {
       return nextReps;
     });
 
-    setMistakes(currentMistakes => {
-        const newMistakes = currentMistakes + 1;
-        if (newMistakes >= drill.mistakeLimit) {
-            setTimeout(() => {
-                resetDrill();
-            }, 500);
-        } else {
-             setTimeout(() => {
-                setStepFeedback(null);
-                incorrectLockRef.current = false;
-            }, 500);
-        }
-        return newMistakes;
-    });
-  }, [currentRep, drill.mistakeLimit, resetDrill]);
+    const newMistakes = mistakes + 1;
+    setMistakes(newMistakes);
+
+    if (newMistakes >= drill.mistakeLimit) {
+      setTimeout(() => {
+        resetDrill();
+      }, 500);
+    } else {
+      setTimeout(() => {
+        setStepFeedback(null);
+        incorrectLockRef.current = false;
+      }, 500);
+    }
+  }, [currentRep, drill.mistakeLimit, resetDrill, mistakes]);
 
   const handleStepSuccess = useCallback(() => {
     setStepFeedback('correct');

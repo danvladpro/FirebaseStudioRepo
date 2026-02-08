@@ -9,6 +9,7 @@ export const initialDialogState: FindReplaceDialogState = {
     findValue: '',
     replaceValue: '',
     highlightedButton: null,
+    highlightedInput: null,
 };
 
 export const applyDialogEffect = (
@@ -19,6 +20,9 @@ export const applyDialogEffect = (
     // Every effect should clear the previous highlight unless it's setting a new one.
     if (effect.action !== 'HIGHLIGHT_BUTTON') {
         newState.highlightedButton = null;
+    }
+    if (effect.action !== 'HIGHLIGHT_INPUT') {
+        newState.highlightedInput = null;
     }
 
     switch (effect.action) {
@@ -46,8 +50,12 @@ export const applyDialogEffect = (
         case 'HIGHLIGHT_BUTTON':
             newState.highlightedButton = effect.payload;
             break;
+        case 'HIGHLIGHT_INPUT':
+            newState.highlightedInput = effect.payload;
+            break;
         case 'CLEAR_HIGHLIGHT':
             newState.highlightedButton = null;
+            newState.highlightedInput = null;
             break;
     }
     return newState;

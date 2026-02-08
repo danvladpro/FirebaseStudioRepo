@@ -16,7 +16,7 @@ import { useAuth } from "./auth-provider";
 import { VisualKeyboard } from "./visual-keyboard";
 import Link from "next/link";
 import { FindReplaceDialog } from "./find-replace-dialog";
-import { calculateDialogStateForStep } from "@/lib/dialog-engine";
+import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-engine";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -76,19 +76,22 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
 
-  const dialogStateAfter = currentChallenge ? calculateDialogStateForStep(currentChallenge.steps, currentStepIndex) : null;
-    
-  // New logic for preview state
-  const dialogStateForPreview = dialogStateAfter ? { ...dialogStateAfter } : null;
-  if (dialogStateForPreview) {
-      const currentStepEffect = currentChallenge.steps[currentStepIndex]?.dialogEffect;
-      if (currentStepEffect?.action === 'SHOW') {
-          // If the current step's purpose is to SHOW the dialog, don't show it in the preview state.
-          dialogStateForPreview.isVisible = false;
-      }
+  // --- Dialog State Calculation ---
+  const dialogStateBefore = calculateDialogStateForStep(currentChallenge.steps, currentStepIndex - 1);
+  const previewEffect = currentStep?.previewDialogEffect;
+  
+  let dialogStateForPreview = dialogStateBefore;
+  if (previewEffect) {
+    dialogStateForPreview = applyDialogEffect(dialogStateBefore, previewEffect);
   }
-
-  const finalDialogState = isAccentuating ? dialogStateAfter : dialogStateForPreview;
+  
+  if (currentStep?.dialogEffect?.action === 'SHOW') {
+    dialogStateForPreview.isVisible = false;
+  }
+  
+  const dialogStateAfter = calculateDialogStateForStep(currentChallenge.steps, currentStepIndex);
+  const finalDialogState = feedback === 'correct' ? dialogStateAfter : dialogStateForPreview;
+  // --- End Dialog State Calculation ---
 
   const initialGridState = currentChallenge?.initialGridState ?? null;
 
@@ -186,9 +189,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const handleIncorrect = useCallback(() => {
-    if (incorrectLockRef.current) return;
     incorrectLockRef.current = true;
-    
     setPressedKeys(new Set());
     setSequence([]);
     setFeedback("incorrect");

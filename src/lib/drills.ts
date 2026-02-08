@@ -9,6 +9,7 @@ export interface DrillStep {
   iconName: keyof typeof import("lucide-react");
   gridEffect?: GridEffect;
   dialogEffect?: DialogEffect;
+  previewDialogEffect?: DialogEffect;
 }
 
 // This is the new centralized repository of all possible drill steps.
@@ -120,16 +121,16 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   unhideRows: { description: 'Unhide all rows', keys: ['Control', 'a'], iconName: 'Eye' },
   groupRows: { description: 'Group selected', keys: ['Shift', 'Alt', 'ArrowRight'], iconName: 'FolderPlus' },
   openFind: { description: 'Open Find', keys: ['Control', 'f'], iconName: 'Search', dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } } },
-  findNext: { description: 'Find next match', keys: ['Enter'], iconName: 'ArrowDownToLine', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
-  confirmFind: { description: 'Confirm Find', keys: ['Enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
-  findNextResult: { description: 'Find next result', keys: ['Return'], iconName: 'ArrowDown', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
-  closeDialog: { description: 'Close Find dialog', keys: ['Esc'], iconName: 'X', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' } },
+  findNext: { description: 'Find next match', keys: ['Enter'], iconName: 'ArrowDownToLine', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
+  confirmFind: { description: 'Confirm Find', keys: ['Enter'], iconName: 'CornerDownLeft', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
+  findNextResult: { description: 'Find next result', keys: ['Return'], iconName: 'ArrowDown', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
+  closeDialog: { description: 'Close Find dialog', keys: ['Esc'], iconName: 'X', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' } },
   openReplace: { description: 'Open Replace dialog', keys: ['Control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } } },
-  confirmReplace: { description: 'Confirm replacement', keys: ['Enter'], iconName: 'Check', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
-  replaceAll: { description: 'Replace All', keys: ['Alt','A'], isSequential: true, iconName: 'CheckCheck', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' } },
-  tabToNext: { description: 'Tab to next field', keys: ['Tab'], iconName: 'ArrowRight', dialogEffect: { action: 'SET_TAB', payload: 'replace' } },
-  typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' } },
-  typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' } },
+  confirmReplace: { description: 'Confirm replacement', keys: ['Enter'], iconName: 'Check', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
+  replaceAll: { description: 'Replace All', keys: ['Alt','A'], isSequential: true, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' } },
+  tabToNext: { description: 'Tab to next field', keys: ['Tab'], iconName: 'ArrowRight', previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
+  typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
+  typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   type9: { description: 'Type "9"', keys: ['9'], iconName: 'Type' },
   openSortDialog: { description: 'Sort menu', keys: ['s'], iconName: 'ArrowUpDown' },
   openAltMenu: { description: 'Alt menu', keys: ['Alt'], iconName: 'Menu' },

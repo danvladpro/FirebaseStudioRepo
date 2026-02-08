@@ -58,9 +58,10 @@ export interface FindReplaceDialogState {
   findValue: string;
   replaceValue: string;
   highlightedButton?: 'findNext' | 'replace' | 'replaceAll' | 'close' | null;
+  highlightedInput?: 'find' | 'replace' | null;
 }
 
-export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT';
+export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT' | 'HIGHLIGHT_INPUT';
 
 export interface DialogEffect {
     action: DialogEffectAction;
@@ -74,6 +75,7 @@ export interface ChallengeStep {
   isSequential?: boolean;
   gridEffect?: GridEffect;
   dialogEffect?: DialogEffect;
+  previewDialogEffect?: DialogEffect;
 }
 
 export interface Challenge {
