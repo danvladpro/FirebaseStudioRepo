@@ -341,6 +341,7 @@ const drills: Drill[] = [
     name: 'Scan Large Dataset',
     description: 'Review big tables quickly using Page keys.',
     repetitions: 10, mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['pageDown', 'pageDown', 'pageUp']
   },
   {
@@ -394,6 +395,7 @@ const drills: Drill[] = [
     name: 'Find and Cycle Results',
     description: 'Practice finding a term and cycling through the results.',
     repetitions: 12,mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['openFind', 'findNextResult', 'findNextResult', 'closeDialog']
   },
   {
@@ -402,6 +404,7 @@ const drills: Drill[] = [
     name: 'Quick Replace',
     description: 'Learn the sequence to open Replace, enter values, and confirm.',
     repetitions: 12, mistakeLimit: 2,
+    initialGridState: createGridState([['Sales,North', 'Sales,South'], ['Profit,North', 'Profit,South']], 0, 0, 0),
     steps: ['openReplace', 'typeComma', 'tabToNext', 'typePeriod', 'replaceAll', 'closeDialog']
   },
 
@@ -429,6 +432,7 @@ const drills: Drill[] = [
     description: 'Find repeated values quickly using the Find dialog.',
     repetitions: 15,
     mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['openFind', 'findNext', 'findNext', 'closeDialog']
   },
   {
@@ -438,6 +442,7 @@ const drills: Drill[] = [
     description: 'Batch replace formatting characters.',
     repetitions: 12,
     mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['openReplace', 'confirmReplace', 'closeDialog']
   },
   {
@@ -447,6 +452,7 @@ const drills: Drill[] = [
     description: 'Use tab navigation to replace values without the mouse.',
     repetitions: 10,
     mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['openReplace', 'typeComma', 'tabToNext', 'typePeriod', 'closeDialog']
   },
   {
@@ -466,6 +472,7 @@ const drills: Drill[] = [
     description: 'Switch sheets and immediately trigger a search.',
     repetitions: 12,
     mistakeLimit: 2,
+    initialGridState: createMultiSheetGridState(0),
     steps: ['nextSheet', 'openFind', 'type9', 'confirmFind']
   },
   {
@@ -475,6 +482,7 @@ const drills: Drill[] = [
     description: 'Experiment with bulk changes and undo.',
     repetitions: 10,
     mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['openReplace', 'undoAction']
   },
   {
@@ -614,6 +622,7 @@ const drills: Drill[] = [
     description: 'Use the "Go To" dialog for precision movement.',
     repetitions: 8,
     mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['openGoTo', 'confirm']
   },
   {
@@ -828,6 +837,7 @@ const drills: Drill[] = [
     description: 'Access deep formatting options via the Format Cells window.',
     repetitions: 10,
     mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['openFormatCells', 'tabToTabs', 'confirm']
   },
   {
@@ -837,6 +847,7 @@ const drills: Drill[] = [
     description: 'Keep headers visible while scrolling down.',
     repetitions: 8,
     mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['freezePanes']
   },
   {
@@ -846,6 +857,7 @@ const drills: Drill[] = [
     description: 'Jump to a new worksheet and immediately toggle off gridlines for a clean look.',
     repetitions: 8,
     mistakeLimit: 2,
+    initialGridState: createMultiSheetGridState(0),
     steps: ['nextSheet', 'removeGridlines']
   }
 ];

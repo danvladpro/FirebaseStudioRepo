@@ -67,7 +67,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const [isMac, setIsMac] = useState(false);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
   
-  const [isProcessing, setIsProcessing] = useState(false);
   const incorrectLockRef = useRef(false);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
@@ -87,6 +86,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const keyHandlersRef = useRef({
+    handleKeyDown: (e: KeyboardEvent) => {},
+    handleKeyUp: (e: KeyboardEvent) => {},
+  });
   
   const normalizeKey = (key: string) => {
     const lower = key.toLowerCase();
@@ -183,7 +186,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, []);
 
   const advanceStepOrChallenge = useCallback(() => {
-    setIsProcessing(true);
     setFeedback("correct");
     setIsAccentuating(true);
 
@@ -207,29 +209,25 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         setSequence([]);
         setFeedback(null);
         setIsAccentuating(false);
-        setIsProcessing(false);
-
     }, 400);
   }, [currentStepIndex, currentChallenge, moveToNextChallenge]);
 
   const handleSkip = useCallback(() => {
-    if (isProcessing) return;
+    if (incorrectLockRef.current) return;
     const newSkippedIndices = [...skippedIndices, currentChallengeIndex];
     setSkippedIndices(newSkippedIndices);
     
-    setIsProcessing(true);
     setTimeout(() => {
         if (currentChallengeIndex === set.challenges.length - 1) {
             finishChallenge(newSkippedIndices);
         } else {
             moveToNextChallenge();
         }
-        setIsProcessing(false);
     }, 100);
-  }, [moveToNextChallenge, currentChallengeIndex, set.challenges.length, skippedIndices, finishChallenge, isProcessing]);
+  }, [moveToNextChallenge, currentChallengeIndex, set.challenges.length, skippedIndices, finishChallenge]);
   
   const processSequentialKeyPress = useCallback((key: string) => {
-    if (incorrectLockRef.current || isProcessing) return;
+    if (incorrectLockRef.current) return;
     
     const newSequence = [...sequence, key]; 
     setSequence(newSequence);
@@ -245,7 +243,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (newSequence.length === requiredSequence.length) {
       advanceStepOrChallenge();
     }
-  }, [sequence, getRequiredKeys, advanceStepOrChallenge, handleIncorrect, isProcessing]);
+  }, [sequence, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
 
   useEffect(() => {
     if (currentChallengeIndex === 0 && currentStepIndex === 0 && startTime === 0) {
@@ -284,17 +282,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       };
   }, [currentChallengeIndex, currentStepIndex, handleSkip, mode]);
 
-  const keyHandlersRef = useRef({
-    handleKeyDown: (e: KeyboardEvent) => {},
-    handleKeyUp: (e: KeyboardEvent) => {},
-  });
-
   useEffect(() => {
     keyHandlersRef.current.handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
-      if (isProcessing || incorrectLockRef.current) {
-        return;
-      }
+      if (incorrectLockRef.current) return;
       const key = normalizeKey(e.key);
       setPressedKeys(prev => new Set(prev).add(key));
       if (currentStep?.isSequential) {
@@ -311,7 +302,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         return newKeys;
       });
     };
-  });
+  }, [currentStep, processSequentialKeyPress]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => keyHandlersRef.current.handleKeyDown(e);
@@ -334,7 +325,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, []);
   
   useEffect(() => {
-    if (incorrectLockRef.current || isProcessing) return;
+    if (incorrectLockRef.current) return;
     if (!currentStep || currentStep.isSequential) return;
 
     const requiredKeys = getRequiredKeys();
@@ -364,10 +355,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             handleIncorrect();
         }
     }
-  }, [pressedKeys, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect, isProcessing]);
+  }, [pressedKeys, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
 
   useEffect(() => {
-    if (incorrectLockRef.current || isProcessing) return;
+    if (incorrectLockRef.current) return;
     if (!currentStep || !currentStep.isSequential || sequence.length === 0) return;
 
     const requiredSequence = Array.from(getRequiredKeys());
@@ -382,11 +373,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (sequence.length === requiredSequence.length) {
       advanceStepOrChallenge();
     }
-  }, [sequence, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect, isProcessing]);
+  }, [sequence, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
 
 
   const handleVirtualKeyClick = (key: string) => {
-      if (isProcessing || incorrectLockRef.current) return;
+      if (incorrectLockRef.current) return;
       const normalized = normalizeKey(key);
 
       setPressedKeys(prev => {
@@ -430,7 +421,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 Back to Dashboard
             </Link>
         </Button>
-        <FindReplaceDialog state={dialogState} />
 
         <Card className={cn(
             "w-full transform transition-all duration-500 mt-12",
@@ -464,7 +454,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             <Progress value={progress} className="w-full" />
             <p className="text-sm text-muted-foreground text-center pt-2">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>
         </CardHeader>
-        <CardContent className="text-center py-8">
+        <CardContent className="text-center py-8 relative">
+            <FindReplaceDialog state={dialogState} />
             
             {displayedGridState && (
                 <div className="mb-6">
@@ -575,7 +566,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 )
                 )}
             </div>
-            <Button variant="outline" size="sm" onClick={handleSkip} disabled={isProcessing}>
+            <Button variant="outline" size="sm" onClick={handleSkip}>
                 Skip {isMultiStep ? 'Scenario' : 'Challenge'} <ChevronsRight className="ml-2 h-4 w-4" />
             </Button>
         </CardFooter>

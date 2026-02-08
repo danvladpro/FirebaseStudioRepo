@@ -20,7 +20,7 @@ export function FindReplaceDialog({ state }: FindReplaceDialogProps) {
   }
 
   return (
-    <Card className="absolute top-20 left-1/2 -translate-x-1/2 w-[380px] bg-background shadow-2xl z-20 border">
+    <Card className="absolute top-8 left-1/2 -translate-x-1/2 w-[380px] bg-background shadow-2xl z-20 border">
       <CardHeader className="flex flex-row items-center justify-between p-2 pl-4 bg-muted/50 rounded-t-lg border-b cursor-move">
         <CardTitle className="text-sm font-medium">Find and Replace</CardTitle>
         <Button variant="ghost" size="icon" className={cn('h-6 w-6', state.highlightedButton === 'close' && 'bg-primary/20 ring-2 ring-primary')}>
