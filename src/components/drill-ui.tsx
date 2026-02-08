@@ -32,19 +32,21 @@ enum RepStatus {
 
 const isModifier = (key: string) => ['control', 'shift', 'alt', 'meta'].includes(key);
 
-const KeyDisplay = ({ value }: { value: string }) => {
+const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifierKey = isModifier(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
-    const displayValue: Record<string, string> = {
+    const displayMap: Record<string, string> = {
         'control': 'Ctrl',
         'meta': 'Cmd',
         'command': 'Cmd',
         'alt': 'Alt',
         'option': 'Opt',
         ' ': 'Space'
-    }
-    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
+    };
+
+    const displayValue = isMac ? (keyDisplayMap[value] || value.toUpperCase()) : (windowsKeyDisplayMap[value] || value.toUpperCase());
+
 
     return (
         <kbd className={cn(
@@ -52,9 +54,42 @@ const KeyDisplay = ({ value }: { value: string }) => {
             isModifierKey ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
-            {displayValue[value] || capitalizedValue}
+            {displayValue}
         </kbd>
     );
+};
+
+const keyDisplayMap: Record<string, string | JSX.Element> = {
+    'esc': 'Esc',
+    'backspace': 'Backspace',
+    'delete': 'Del',
+    'tab': 'Tab',
+    'capslock': 'Caps Lock',
+    'enter': 'Enter',
+    'return': 'Return',
+    'shift': 'Shift',
+    'control': '⌃',
+    'meta': '⌘',
+    'alt': '⌥',
+    ' ': 'Space',
+    'fn': 'fn',
+    'insert': 'Ins',
+    'home': 'Home',
+    'pageup': 'PgUp',
+    'end': 'End',
+    'pagedown': 'PgDn',
+    'arrowup': <ArrowUp size={14} />,
+    'arrowdown': <ArrowDown size={14} />,
+    'arrowleft': <ArrowLeft size={14} />,
+    'arrowright': <ArrowRight size={14} />,
+};
+
+const windowsKeyDisplayMap: Record<string, string | JSX.Element> = {
+    ...keyDisplayMap,
+    'control': 'Ctrl',
+    'meta': 'Win',
+    'alt': 'Alt',
+    'delete': 'Del'
 };
 
 
@@ -75,9 +110,17 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [sequence, setSequence] = useState<string[]>([]);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
   const incorrectLockRef = useRef(false);
+  const keyHandlersRef = useRef({
+    handleKeyDown: (e: KeyboardEvent) => {},
+    handleKeyUp: (e: KeyboardEvent) => {},
+  });
 
   const drillStepsForEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
-  const dialogState = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex);
+  
+  const dialogStateBefore = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex - 1);
+  const dialogStateAfter = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex);
+  const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : dialogStateBefore;
+
 
   const normalizeKey = (key: string) => {
     const lower = key.toLowerCase();
@@ -275,34 +318,30 @@ export function DrillUI({ drill }: DrillUIProps) {
     }
   };
 
-  const keyHandlersRef = useRef({
-    handleKeyDown: (e: KeyboardEvent) => {},
-    handleKeyUp: (e: KeyboardEvent) => {},
-  });
-
   useEffect(() => {
-    keyHandlersRef.current.handleKeyDown = (e: KeyboardEvent) => {
-      e.preventDefault();
-      if (e.repeat || stepFeedback !== null || incorrectLockRef.current) {
-        return;
-      }
-      const key = normalizeKey(e.key);
-      setPressedKeys(prev => new Set(prev).add(key));
-      if (activeStep?.isSequential) {
-        setSequence(prev => [...prev, key]);
-      }
-    };
-
-    keyHandlersRef.current.handleKeyUp = (e: KeyboardEvent) => {
-      e.preventDefault();
-      const key = normalizeKey(e.key);
-      setPressedKeys(prev => {
-        const newKeys = new Set(prev);
-        newKeys.delete(key);
-        return newKeys;
-      });
-    };
-  });
+    keyHandlersRef.current = {
+      handleKeyDown: (e: KeyboardEvent) => {
+        e.preventDefault();
+        if (e.repeat || stepFeedback !== null || incorrectLockRef.current) {
+          return;
+        }
+        const key = normalizeKey(e.key);
+        setPressedKeys(prev => new Set(prev).add(key));
+        if (activeStep?.isSequential) {
+          setSequence(prev => [...prev, key]);
+        }
+      },
+      handleKeyUp: (e: KeyboardEvent) => {
+        e.preventDefault();
+        const key = normalizeKey(e.key);
+        setPressedKeys(prev => {
+          const newKeys = new Set(prev);
+          newKeys.delete(key);
+          return newKeys;
+        });
+      },
+    }
+  }, [activeStep]);
   
   useEffect(() => {
     if (logicalStepIndex >= drill.steps.length) return;
@@ -315,13 +354,13 @@ export function DrillUI({ drill }: DrillUIProps) {
       setSequence([]);
     };
   
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('keydown', onKeyDown, { capture: true });
+    window.addEventListener('keyup', onKeyUp, { capture: true });
     window.addEventListener('blur', handleBlur);
   
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('keydown', onKeyDown, { capture: true });
+      window.removeEventListener('keyup', onKeyUp, { capture: true });
       window.removeEventListener('blur', handleBlur);
     };
   }, [logicalStepIndex, drill.steps.length]);
@@ -456,7 +495,7 @@ export function DrillUI({ drill }: DrillUIProps) {
         <div className="grid md:grid-cols-2 gap-12 items-start">
              {displayedGridState && (
                 <div className="max-w-md mx-auto relative">
-                    <FindReplaceDialog state={dialogState} />
+                    <FindReplaceDialog state={finalDialogState} />
                     <VisualGrid 
                         gridState={displayedGridState}
                         cellStyles={displayedCellStyles}
@@ -525,11 +564,11 @@ export function DrillUI({ drill }: DrillUIProps) {
                  <div className="flex items-center gap-2">
                     {activeStep.isSequential ? (
                     sequence.length > 0 ? (
-                        sequence.map((key, index) => <KeyDisplay key={index} value={key} />)
+                        sequence.map((key, index) => <KeyDisplay key={index} value={key} isMac={isMac} />)
                     ) : <span className="text-muted-foreground">Press the required keys in sequence...</span>
                     ) : (
                     pressedKeys.size > 0 ? (
-                        Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} />)
+                        Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} isMac={isMac} />)
                     ) : (
                         <div className="flex items-center gap-2 text-muted-foreground">
                             <Keyboard className="h-8 w-8" />

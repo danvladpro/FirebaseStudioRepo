@@ -68,11 +68,17 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
   
   const incorrectLockRef = useRef(false);
+  const keyHandlersRef = useRef({
+    handleKeyDown: (e: KeyboardEvent) => {},
+    handleKeyUp: (e: KeyboardEvent) => {},
+  });
 
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
 
-  const dialogState = currentChallenge ? calculateDialogStateForStep(currentChallenge.steps, currentStepIndex) : null;
+  const dialogStateBefore = currentChallenge ? calculateDialogStateForStep(currentChallenge.steps, currentStepIndex - 1) : null;
+  const dialogStateAfter = currentChallenge ? calculateDialogStateForStep(currentChallenge.steps, currentStepIndex) : null;
+  const finalDialogState = isAccentuating ? dialogStateAfter : dialogStateBefore;
 
   const initialGridState = currentChallenge?.initialGridState ?? null;
 
@@ -86,10 +92,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const keyHandlersRef = useRef({
-    handleKeyDown: (e: KeyboardEvent) => {},
-    handleKeyUp: (e: KeyboardEvent) => {},
-  });
   
   const normalizeKey = (key: string) => {
     const lower = key.toLowerCase();
@@ -285,24 +287,25 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentChallengeIndex, currentStepIndex, handleSkip, mode]);
 
   useEffect(() => {
-    keyHandlersRef.current.handleKeyDown = (e: KeyboardEvent) => {
-      e.preventDefault();
-      if (incorrectLockRef.current) return;
-      const key = normalizeKey(e.key);
-      setPressedKeys(prev => new Set(prev).add(key));
-      if (currentStep?.isSequential) {
-        processSequentialKeyPress(key);
-      }
-    };
-
-    keyHandlersRef.current.handleKeyUp = (e: KeyboardEvent) => {
-      e.preventDefault();
-      const key = normalizeKey(e.key);
-      setPressedKeys(prev => {
-        const newKeys = new Set(prev);
-        newKeys.delete(key);
-        return newKeys;
-      });
+    keyHandlersRef.current = {
+      handleKeyDown: (e: KeyboardEvent) => {
+        e.preventDefault();
+        if (incorrectLockRef.current) return;
+        const key = normalizeKey(e.key);
+        setPressedKeys(prev => new Set(prev).add(key));
+        if (currentStep?.isSequential) {
+          processSequentialKeyPress(key);
+        }
+      },
+      handleKeyUp: (e: KeyboardEvent) => {
+        e.preventDefault();
+        const key = normalizeKey(e.key);
+        setPressedKeys(prev => {
+          const newKeys = new Set(prev);
+          newKeys.delete(key);
+          return newKeys;
+        });
+      },
     };
   }, [currentStep, processSequentialKeyPress]);
 
@@ -315,13 +318,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       setSequence([]);
     };
 
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("keydown", onKeyDown, { capture: true });
+    window.addEventListener("keyup", onKeyUp, { capture: true });
     window.addEventListener('blur', handleBlur);
 
     return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("keydown", onKeyDown, { capture: true });
+      window.removeEventListener("keyup", onKeyUp, { capture: true });
       window.removeEventListener('blur', handleBlur);
     };
   }, []);
@@ -459,7 +462,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         <CardContent className="text-center py-8 relative">
             {displayedGridState && (
                 <div className="mb-6 relative">
-                    <FindReplaceDialog state={dialogState} />
+                    <FindReplaceDialog state={finalDialogState} />
                     <VisualGrid 
                         gridState={displayedGridState} 
                         cellStyles={displayedCellStyles}

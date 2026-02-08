@@ -123,7 +123,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   findNext: { description: 'Find next match', keys: ['Enter'], iconName: 'ArrowDownToLine', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
   confirmFind: { description: 'Confirm Find', keys: ['Enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
   findNextResult: { description: 'Find next result', keys: ['Return'], iconName: 'ArrowDown', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
-  closeDialog: { description: 'Close Find dialog', keys: ['Esc'], iconName: 'X', dialogEffect: { action: 'HIDE' } },
+  closeDialog: { description: 'Close Find dialog', keys: ['Esc'], iconName: 'X', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' } },
   openReplace: { description: 'Open Replace dialog', keys: ['Control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } } },
   confirmReplace: { description: 'Confirm replacement', keys: ['Enter'], iconName: 'Check', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
   replaceAll: { description: 'Replace All', keys: ['Alt','A'], isSequential: true, iconName: 'CheckCheck', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' } },
