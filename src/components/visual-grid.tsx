@@ -135,7 +135,7 @@ export function VisualGrid({
                                         <td
                                             key={colIndex}
                                             className={cn(
-                                                "border border-border/50 p-1.5 text-sm truncate transition-colors duration-200",
+                                                "border border-border p-1.5 text-sm truncate transition-colors duration-200",
                                                 ...getCellClasses()
                                             )}
                                             style={finalCellStyles[cellId] || {}}
