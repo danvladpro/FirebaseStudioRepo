@@ -72,7 +72,6 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [sequence, setSequence] = useState<string[]>([]);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const incorrectLockRef = useRef(false);
 
   const normalizeKey = (key: string) => {
@@ -143,12 +142,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     visualStepIndex
   ) : { gridState: null, cellStyles: {} };
 
-  const resetDrill = useCallback(() => {
-    toast({
-      title: "Mistake Limit Reached",
-      description: "Drill has been reset. Let's try again from the beginning!",
-      variant: "destructive"
-    });
+ const resetDrill = useCallback(() => {
     setReps(Array(drill.repetitions).fill(RepStatus.Pending));
     setCurrentRep(0);
     setLogicalStepIndex(0);
@@ -157,12 +151,15 @@ export function DrillUI({ drill }: DrillUIProps) {
     setPressedKeys(new Set());
     setSequence([]);
     setStepFeedback(null);
-    setIsProcessing(false);
+    toast({
+        title: "Mistake Limit Reached",
+        description: "Drill has been reset. Let's try again from the beginning!",
+        variant: "destructive"
+    });
     incorrectLockRef.current = false;
   }, [drill.repetitions]);
   
   const finishDrill = useCallback(async () => {
-    setIsProcessing(true);
     setLogicalStepIndex(drill.steps.length);
     if (user) {
       try {
@@ -190,30 +187,27 @@ export function DrillUI({ drill }: DrillUIProps) {
       const nextReps = [...prevReps];
       if (nextReps[currentRep] !== RepStatus.Incorrect) {
         nextReps[currentRep] = RepStatus.Incorrect;
-        
-        setMistakes(currentMistakes => {
-            const newMistakes = currentMistakes + 1;
-            if (newMistakes >= drill.mistakeLimit) {
-                setTimeout(() => {
-                    resetDrill();
-                }, 500);
-            }
-            return newMistakes;
-        });
       }
       return nextReps;
     });
 
-    setTimeout(() => {
-      setStepFeedback(null);
-      if (mistakes + 1 < drill.mistakeLimit) {
-          incorrectLockRef.current = false;
-      }
-    }, 500);
-  }, [currentRep, mistakes, drill.mistakeLimit, resetDrill]);
+    setMistakes(currentMistakes => {
+        const newMistakes = currentMistakes + 1;
+        if (newMistakes >= drill.mistakeLimit) {
+            setTimeout(() => {
+                resetDrill();
+            }, 500);
+        } else {
+             setTimeout(() => {
+                setStepFeedback(null);
+                incorrectLockRef.current = false;
+            }, 500);
+        }
+        return newMistakes;
+    });
+  }, [currentRep, drill.mistakeLimit, resetDrill]);
 
   const handleStepSuccess = useCallback(() => {
-    setIsProcessing(true);
     setStepFeedback('correct');
 
     setTimeout(() => {
@@ -252,13 +246,12 @@ export function DrillUI({ drill }: DrillUIProps) {
         });
         setSequence([]);
         setStepFeedback(null);
-        setIsProcessing(false);
     }, 400);
   }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
 
 
   const handleVirtualKeyClick = (key: string) => {
-    if (isProcessing || stepFeedback !== null || incorrectLockRef.current) return;
+    if (stepFeedback !== null || incorrectLockRef.current) return;
     
     const normalized = normalizeKey(key);
 
@@ -285,7 +278,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   useEffect(() => {
     keyHandlersRef.current.handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
-      if (isProcessing || e.repeat || stepFeedback !== null || incorrectLockRef.current) {
+      if (e.repeat || stepFeedback !== null || incorrectLockRef.current) {
         return;
       }
       const key = normalizeKey(e.key);
@@ -330,7 +323,7 @@ export function DrillUI({ drill }: DrillUIProps) {
   
 
   useEffect(() => {
-    if (incorrectLockRef.current || isProcessing) return;
+    if (incorrectLockRef.current) return;
     if (!activeStep || activeStep.isSequential) return;
 
     const requiredKeys = getRequiredKeys();
@@ -360,10 +353,10 @@ export function DrillUI({ drill }: DrillUIProps) {
             handleIncorrect();
         }
     }
-  }, [pressedKeys, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect, isProcessing]);
+  }, [pressedKeys, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect]);
 
   useEffect(() => {
-    if (incorrectLockRef.current || isProcessing) return;
+    if (incorrectLockRef.current) return;
     if (!activeStep || !activeStep.isSequential || sequence.length === 0) return;
     
     const requiredSequence = Array.from(getRequiredKeys());
@@ -378,7 +371,37 @@ export function DrillUI({ drill }: DrillUIProps) {
     if (sequence.length === requiredSequence.length) {
         handleStepSuccess();
     }
-  }, [sequence, activeStep, getRequiredKeys, handleIncorrect, handleStepSuccess, isProcessing]);
+  }, [sequence, activeStep, getRequiredKeys, handleIncorrect, handleStepSuccess]);
+  
+  const formatKeysForDisplay = (keys: string[], isMac: boolean): string => {
+    const displayKeys = keys.map(key => {
+        let k = key.toLowerCase();
+        if (isMac && k === 'control') k = 'meta';
+
+        switch(k) {
+            case 'meta': return isMac ? '⌘' : 'Win';
+            case 'control': return 'Ctrl';
+            case 'alt': return isMac ? '⌥' : 'Alt';
+            case 'shift': return 'Shift';
+            case 'arrowup': return '↑';
+            case 'arrowdown': return '↓';
+            case 'arrowleft': return '←';
+            case 'arrowright': return '→';
+            case 'enter': return 'Enter';
+            case 'return': return 'Return';
+            case 'escape': return 'Esc';
+            case 'backspace': return 'Backspace';
+            case 'delete': return 'Del';
+            case 'home': return 'Home';
+            case 'end': return 'End';
+            case 'pageup': return 'PgUp';
+            case 'pagedown': return 'PgDn';
+            case ' ': return 'Space';
+            default: return key.toUpperCase();
+        }
+    });
+    return `(${displayKeys.join(' + ')})`;
+}
 
 
   return (
@@ -448,6 +471,8 @@ export function DrillUI({ drill }: DrillUIProps) {
                         const isStepCompleted = index < visualStepIndex;
                         const feedbackClass = isStepActive && stepFeedback === 'incorrect' ? 'ring-2 ring-destructive' : '';
                         const successClass = isStepActive && stepFeedback === 'correct' ? 'ring-2 ring-green-500' : '';
+                        const shortcutHint = currentRep === 0 ? formatKeysForDisplay(step.keys, isMac) : '';
+
 
                         return (
                             <div key={index}>
@@ -467,6 +492,9 @@ export function DrillUI({ drill }: DrillUIProps) {
                                         {Icon && <Icon className={cn("w-5 h-5", isStepActive ? "text-primary" : "text-muted-foreground")} />}
                                         <p className={cn("flex-1 font-medium", isStepCompleted && "text-muted-foreground line-through")}>
                                             {step.description}
+                                            {shortcutHint && (
+                                                <span className="text-muted-foreground font-normal ml-2">{shortcutHint}</span>
+                                            )}
                                         </p>
                                     </div>
                                 </div>
@@ -527,3 +555,4 @@ export function DrillUI({ drill }: DrillUIProps) {
     
 
     
+
