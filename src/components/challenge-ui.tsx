@@ -93,6 +93,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     if (lower === ' ') return ' ';
     if (lower.startsWith('arrow')) return lower;
     if (lower === 'enter' || lower === 'return') return isMac ? 'return' : 'enter';
+    if (lower === 'backspace') return 'backspace';
+    if (lower === 'delete') return 'delete';
+    if (lower === 'pageup') return 'pageup';
+    if (lower === 'pagedown') return 'pagedown';
+    if (lower === 'home') return 'home';
+    if (lower === 'end') return 'end';
+    if (lower === 'insert') return 'insert';
     return lower;
   };
   
@@ -118,7 +125,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     
     const keys = currentStep.keys.map(k => {
       const lowerK = k.toLowerCase();
-       if (isMac && lowerK === 'control') {
+      if (isMac && lowerK === 'control') {
           return 'meta';
       }
       return lowerK;
@@ -159,6 +166,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const handleIncorrect = useCallback(() => {
+    if (incorrectLockRef.current) return;
     incorrectLockRef.current = true;
     
     setPressedKeys(new Set());
@@ -311,13 +319,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       setSequence([]);
     };
 
-    window.addEventListener("keydown", onKeyDown, true);
-    window.addEventListener("keyup", onKeyUp, true);
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
     window.addEventListener('blur', handleBlur);
 
     return () => {
-      window.removeEventListener("keydown", onKeyDown, true);
-      window.removeEventListener("keyup", onKeyUp, true);
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
       window.removeEventListener('blur', handleBlur);
     };
   }, []);

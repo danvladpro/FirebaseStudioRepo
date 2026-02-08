@@ -179,29 +179,31 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [drill.id, router, user, drill.steps.length]);
 
   const handleIncorrect = useCallback(() => {
+    if (incorrectLockRef.current) return;
     incorrectLockRef.current = true;
-    
+
     setPressedKeys(new Set());
     setSequence([]);
     setStepFeedback('incorrect');
 
     setReps(prevReps => {
-        const nextReps = [...prevReps];
-        if (nextReps[currentRep] !== RepStatus.Incorrect) {
-            nextReps[currentRep] = RepStatus.Incorrect;
-            
-            const newMistakes = mistakes + 1;
-            setMistakes(newMistakes);
-            
+      const nextReps = [...prevReps];
+      if (nextReps[currentRep] !== RepStatus.Incorrect) {
+        nextReps[currentRep] = RepStatus.Incorrect;
+        
+        setMistakes(currentMistakes => {
+            const newMistakes = currentMistakes + 1;
             if (newMistakes >= drill.mistakeLimit) {
                 setTimeout(() => {
                     resetDrill();
                 }, 500);
             }
-        }
-        return nextReps;
+            return newMistakes;
+        });
+      }
+      return nextReps;
     });
-    
+
     setTimeout(() => {
       setStepFeedback(null);
       if (mistakes + 1 < drill.mistakeLimit) {
@@ -315,13 +317,13 @@ export function DrillUI({ drill }: DrillUIProps) {
       setSequence([]);
     };
   
-    window.addEventListener('keydown', onKeyDown, true);
-    window.addEventListener('keyup', onKeyUp, true);
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
     window.addEventListener('blur', handleBlur);
   
     return () => {
-      window.removeEventListener('keydown', onKeyDown, true);
-      window.removeEventListener('keyup', onKeyUp, true);
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
       window.removeEventListener('blur', handleBlur);
     };
   }, [logicalStepIndex, drill.steps.length]);
