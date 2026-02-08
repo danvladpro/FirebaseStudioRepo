@@ -397,7 +397,7 @@ const drills: Drill[] = [
     description: 'Practice finding a term and cycling through the results.',
     repetitions: 12,mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['openFind', 'findNextResult', 'findNextResult', 'closeDialog']
+    steps: ['openFind', 'typeComma','findNextResult', 'findNextResult', 'closeDialog']
   },
   {
     id: 'replace-comma-with-dot',
