@@ -82,6 +82,7 @@ export function VisualGrid({
                                     const getCellClasses = () => {
                                         const classes: string[] = [];
                                         const isSelected = rowIndex >= minRow && rowIndex <= maxRow && colIndex >= minCol && colIndex <= maxCol;
+                                        const borderColor = isAccentuating ? 'border-emerald-600' : 'border-primary';
 
                                         if (isRangeSelection && isSelected) {
                                             // Apply background fill to all cells in the range first.
@@ -96,12 +97,14 @@ export function VisualGrid({
                                                 classes.push('bg-background');
                                             }
 
-                                            // Apply outer borders to the range
-                                            const borderColor = isAccentuating ? 'border-emerald-600' : 'border-primary';
-                                            if (rowIndex === minRow) classes.push('border-t-2', borderColor);
-                                            if (rowIndex === maxRow) classes.push('border-b-2', borderColor);
-                                            if (colIndex === minCol) classes.push('border-l-2', borderColor);
-                                            if (colIndex === maxCol) classes.push('border-r-2', borderColor);
+                                            // Apply colored borders to ALL selected cells. This handles inner borders.
+                                            classes.push(borderColor);
+
+                                            // Apply thicker outer borders to the range
+                                            if (rowIndex === minRow) classes.push('border-t-2');
+                                            if (rowIndex === maxRow) classes.push('border-b-2');
+                                            if (colIndex === minCol) classes.push('border-l-2');
+                                            if (colIndex === maxCol) classes.push('border-r-2');
 
                                         } else if (isActive) { // Single cell selection
                                             if (isAccentuating) {
