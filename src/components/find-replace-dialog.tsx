@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -10,20 +9,34 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FindReplaceDialogState } from '@/lib/types';
 
+type HighlightableButton = 'findNext' | 'replace' | 'replaceAll' | 'close';
+
 interface FindReplaceDialogProps {
   state: FindReplaceDialogState | null | undefined;
+  isSuccess?: boolean;
 }
 
-export function FindReplaceDialog({ state }: FindReplaceDialogProps) {
+export function FindReplaceDialog({ state, isSuccess = false }: FindReplaceDialogProps) {
   if (!state || !state.isVisible) {
     return null;
   }
+
+  const getButtonClass = (buttonName: HighlightableButton) => {
+    const isHighlighted = state.highlightedButton === buttonName;
+    if (!isHighlighted) return '';
+    
+    if (isSuccess) {
+      return 'bg-green-500/20 ring-2 ring-green-500';
+    }
+    
+    return 'bg-accent/20 ring-2 ring-accent';
+  };
 
   return (
     <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] bg-background shadow-2xl z-20 border">
       <CardHeader className="flex flex-row items-center justify-between p-2 pl-4 bg-muted/50 rounded-t-lg border-b cursor-move">
         <CardTitle className="text-sm font-medium">Find and Replace</CardTitle>
-        <Button variant="ghost" size="icon" className={cn('h-6 w-6', state.highlightedButton === 'close' && 'bg-accent/20 ring-2 ring-accent')}>
+        <Button variant="ghost" size="icon" className={cn('h-6 w-6', getButtonClass('close'))}>
           <X className="h-4 w-4" />
         </Button>
       </CardHeader>
@@ -54,15 +67,15 @@ export function FindReplaceDialog({ state }: FindReplaceDialogProps) {
       <CardFooter className="p-4 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
         {state.activeTab === 'find' ? (
           <>
-            <Button variant="outline" className={cn(state.highlightedButton === 'findNext' && 'bg-accent/20 ring-2 ring-accent')}>Find Next</Button>
-            <Button variant="outline" className={cn(state.highlightedButton === 'close' && 'bg-accent/20 ring-2 ring-accent')}>Close</Button>
+            <Button variant="outline" className={cn(getButtonClass('findNext'))}>Find Next</Button>
+            <Button variant="outline" className={cn(getButtonClass('close'))}>Close</Button>
           </>
         ) : (
           <>
-            <Button variant="outline" className={cn(state.highlightedButton === 'findNext' && 'bg-accent/20 ring-2 ring-accent')}>Find Next</Button>
-            <Button variant="outline" className={cn(state.highlightedButton === 'replace' && 'bg-accent/20 ring-2 ring-accent')}>Replace</Button>
-            <Button variant="outline" className={cn(state.highlightedButton === 'replaceAll' && 'bg-accent/20 ring-2 ring-accent')}>Replace All</Button>
-            <Button variant="outline" className={cn(state.highlightedButton === 'close' && 'bg-accent/20 ring-2 ring-accent')}>Close</Button>
+            <Button variant="outline" className={cn(getButtonClass('findNext'))}>Find Next</Button>
+            <Button variant="outline" className={cn(getButtonClass('replace'))}>Replace</Button>
+            <Button variant="outline" className={cn(getButtonClass('replaceAll'))}>Replace All</Button>
+            <Button variant="outline" className={cn(getButtonClass('close'))}>Close</Button>
           </>
         )}
       </CardFooter>

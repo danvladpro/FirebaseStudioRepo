@@ -76,9 +76,19 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
 
-  const dialogStateBefore = currentChallenge ? calculateDialogStateForStep(currentChallenge.steps, currentStepIndex - 1) : null;
   const dialogStateAfter = currentChallenge ? calculateDialogStateForStep(currentChallenge.steps, currentStepIndex) : null;
-  const finalDialogState = isAccentuating ? dialogStateAfter : dialogStateBefore;
+    
+  // New logic for preview state
+  const dialogStateForPreview = dialogStateAfter ? { ...dialogStateAfter } : null;
+  if (dialogStateForPreview) {
+      const currentStepEffect = currentChallenge.steps[currentStepIndex]?.dialogEffect;
+      if (currentStepEffect?.action === 'SHOW') {
+          // If the current step's purpose is to SHOW the dialog, don't show it in the preview state.
+          dialogStateForPreview.isVisible = false;
+      }
+  }
+
+  const finalDialogState = isAccentuating ? dialogStateAfter : dialogStateForPreview;
 
   const initialGridState = currentChallenge?.initialGridState ?? null;
 
@@ -462,7 +472,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         <CardContent className="text-center py-8 relative">
             {displayedGridState && (
                 <div className="mb-6 relative">
-                    <FindReplaceDialog state={finalDialogState} />
+                    <FindReplaceDialog state={finalDialogState} isSuccess={isAccentuating} />
                     <VisualGrid 
                         gridState={displayedGridState} 
                         cellStyles={displayedCellStyles}

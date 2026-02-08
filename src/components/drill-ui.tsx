@@ -116,10 +116,21 @@ export function DrillUI({ drill }: DrillUIProps) {
   });
 
   const drillStepsForEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
-  
-  const dialogStateBefore = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex - 1);
   const dialogStateAfter = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex);
-  const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : dialogStateBefore;
+
+  // New logic for preview state
+  const dialogStateForPreview = dialogStateAfter ? { ...dialogStateAfter } : null;
+  if (dialogStateForPreview) {
+      const currentStep = drill.steps[logicalStepIndex] ? ALL_DRILL_STEPS[drill.steps[logicalStepIndex]] : null;
+      const currentStepEffect = currentStep?.dialogEffect;
+
+      if (currentStepEffect?.action === 'SHOW') {
+          // If the current step's purpose is to SHOW the dialog, don't show it in the preview state.
+          dialogStateForPreview.isVisible = false;
+      }
+  }
+
+  const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : dialogStateForPreview;
 
 
   const normalizeKey = (key: string) => {
@@ -495,7 +506,7 @@ export function DrillUI({ drill }: DrillUIProps) {
         <div className="grid md:grid-cols-2 gap-12 items-start">
              {displayedGridState && (
                 <div className="max-w-md mx-auto relative">
-                    <FindReplaceDialog state={finalDialogState} />
+                    <FindReplaceDialog state={finalDialogState} isSuccess={stepFeedback === 'correct'} />
                     <VisualGrid 
                         gridState={displayedGridState}
                         cellStyles={displayedCellStyles}
