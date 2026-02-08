@@ -1,6 +1,6 @@
 
 import { MoveRight } from "lucide-react";
-import { ChallengeLevel, GridEffect, GridState } from "./types";
+import { ChallengeLevel, GridEffect, GridState, DialogEffect, FindReplaceDialogState } from "./types";
 
 export interface DrillStep {
   description: string;
@@ -8,6 +8,7 @@ export interface DrillStep {
   isSequential?: boolean;
   iconName: keyof typeof import("lucide-react");
   gridEffect?: GridEffect;
+  dialogEffect?: DialogEffect;
 }
 
 // This is the new centralized repository of all possible drill steps.
@@ -118,17 +119,17 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   hideRow: { description: 'Hide row', keys: ['Control', '9'], iconName: 'EyeOff' },
   unhideRows: { description: 'Unhide all rows', keys: ['Control', 'a'], iconName: 'Eye' },
   groupRows: { description: 'Group selected', keys: ['Shift', 'Alt', 'ArrowRight'], iconName: 'FolderPlus' },
-  openFind: { description: 'Open Find', keys: ['Control', 'f'], iconName: 'Search' },
-  findNext: { description: 'Find next match', keys: ['Enter'], iconName: 'ArrowDownToLine' },
-  confirmFind: { description: 'Confirm Find', keys: ['Enter'], iconName: 'CornerDownLeft' },
-  findNextResult: { description: 'Find next result', keys: ['Return'], iconName: 'ArrowDown' },
-  closeDialog: { description: 'Close Find dialog', keys: ['Esc'], iconName: 'X' },
-  openReplace: { description: 'Open Replace dialog', keys: ['Control', 'h'], iconName: 'Replace' },
-  confirmReplace: { description: 'Confirm replacement', keys: ['Enter'], iconName: 'Check' },
-  replaceAll: { description: 'Replace All', keys: ['Control','A'], iconName: 'Check' },
-  tabToNext: { description: 'Tab to next field', keys: ['Tab'], iconName: 'ArrowRight' },
-  typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type' },
-  typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type' },
+  openFind: { description: 'Open Find', keys: ['Control', 'f'], iconName: 'Search', dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } } },
+  findNext: { description: 'Find next match', keys: ['Enter'], iconName: 'ArrowDownToLine', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
+  confirmFind: { description: 'Confirm Find', keys: ['Enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
+  findNextResult: { description: 'Find next result', keys: ['Return'], iconName: 'ArrowDown', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
+  closeDialog: { description: 'Close Find dialog', keys: ['Esc'], iconName: 'X', dialogEffect: { action: 'HIDE' } },
+  openReplace: { description: 'Open Replace dialog', keys: ['Control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } } },
+  confirmReplace: { description: 'Confirm replacement', keys: ['Enter'], iconName: 'Check', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
+  replaceAll: { description: 'Replace All', keys: ['Alt','A'], isSequential: true, iconName: 'CheckCheck', dialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' } },
+  tabToNext: { description: 'Tab to next field', keys: ['Tab'], iconName: 'ArrowRight', dialogEffect: { action: 'SET_TAB', payload: 'replace' } },
+  typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' } },
+  typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' } },
   type9: { description: 'Type "9"', keys: ['9'], iconName: 'Type' },
   openSortDialog: { description: 'Sort menu', keys: ['s'], iconName: 'ArrowUpDown' },
   openAltMenu: { description: 'Alt menu', keys: ['Alt'], iconName: 'Menu' },
@@ -401,7 +402,7 @@ const drills: Drill[] = [
     name: 'Quick Replace',
     description: 'Learn the sequence to open Replace, enter values, and confirm.',
     repetitions: 12, mistakeLimit: 2,
-    steps: ['openReplace', 'typeComma', 'typePeriod', 'replaceAll']
+    steps: ['openReplace', 'typeComma', 'tabToNext', 'typePeriod', 'replaceAll', 'closeDialog']
   },
 
 
@@ -428,7 +429,7 @@ const drills: Drill[] = [
     description: 'Find repeated values quickly using the Find dialog.',
     repetitions: 15,
     mistakeLimit: 2,
-    steps: ['openFind', 'findNext', 'findNext']
+    steps: ['openFind', 'findNext', 'findNext', 'closeDialog']
   },
   {
     id: 'replace-decimal',
@@ -437,7 +438,7 @@ const drills: Drill[] = [
     description: 'Batch replace formatting characters.',
     repetitions: 12,
     mistakeLimit: 2,
-    steps: ['openReplace', 'confirmReplace']
+    steps: ['openReplace', 'confirmReplace', 'closeDialog']
   },
   {
     id: 'find-replace-sequence',
@@ -446,7 +447,7 @@ const drills: Drill[] = [
     description: 'Use tab navigation to replace values without the mouse.',
     repetitions: 10,
     mistakeLimit: 2,
-    steps: ['openReplace', 'typePeriod', 'tabToNext', 'typeComma']
+    steps: ['openReplace', 'typeComma', 'tabToNext', 'typePeriod', 'closeDialog']
   },
   {
     id: 'find-emphasize-cell',

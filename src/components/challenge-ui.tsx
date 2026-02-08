@@ -15,6 +15,8 @@ import { calculateGridStateForStep } from "@/lib/grid-engine";
 import { useAuth } from "./auth-provider";
 import { VisualKeyboard } from "./visual-keyboard";
 import Link from "next/link";
+import { FindReplaceDialog } from "./find-replace-dialog";
+import { calculateDialogStateForStep } from "@/lib/dialog-engine";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -70,6 +72,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
+
+  const dialogState = currentChallenge ? calculateDialogStateForStep(currentChallenge.steps, currentStepIndex) : null;
+
   const initialGridState = currentChallenge?.initialGridState ?? null;
 
   const { gridState: displayedGridState, cellStyles: displayedCellStyles } = initialGridState
@@ -166,9 +171,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const handleIncorrect = useCallback(() => {
-    if (incorrectLockRef.current) return;
     incorrectLockRef.current = true;
-    
     setPressedKeys(new Set());
     setSequence([]);
     setFeedback("incorrect");
@@ -289,7 +292,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   useEffect(() => {
     keyHandlersRef.current.handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
-      if (isProcessing || e.repeat || feedback !== null || incorrectLockRef.current) {
+      if (isProcessing || incorrectLockRef.current) {
         return;
       }
       const key = normalizeKey(e.key);
@@ -383,7 +386,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
 
   const handleVirtualKeyClick = (key: string) => {
-      if (isProcessing || feedback !== null || incorrectLockRef.current) return;
+      if (isProcessing || incorrectLockRef.current) return;
       const normalized = normalizeKey(key);
 
       setPressedKeys(prev => {
@@ -427,6 +430,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 Back to Dashboard
             </Link>
         </Button>
+        <FindReplaceDialog state={dialogState} />
 
         <Card className={cn(
             "w-full transform transition-all duration-500 mt-12",
@@ -579,7 +583,3 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </div>
   );
 }
-
-    
-
-    

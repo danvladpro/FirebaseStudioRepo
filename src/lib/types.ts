@@ -1,3 +1,4 @@
+
 import { type LucideIcon, type LucideProps } from "lucide-react";
 import { ElementType } from "react";
 
@@ -51,6 +52,20 @@ export interface GridEffect {
   payload?: any;
 }
 
+export interface FindReplaceDialogState {
+  isVisible: boolean;
+  activeTab: 'find' | 'replace';
+  findValue: string;
+  replaceValue: string;
+  highlightedButton?: 'findNext' | 'replace' | 'replaceAll' | 'close' | null;
+}
+
+export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT';
+
+export interface DialogEffect {
+    action: DialogEffectAction;
+    payload?: any;
+}
 
 export interface ChallengeStep {
   description: string;
@@ -58,6 +73,7 @@ export interface ChallengeStep {
   iconName: keyof typeof import("lucide-react");
   isSequential?: boolean;
   gridEffect?: GridEffect;
+  dialogEffect?: DialogEffect;
 }
 
 export interface Challenge {

@@ -1,8 +1,16 @@
-import { ChallengeSet, ChallengeLevel, Challenge, GridState } from "./types";
+
+import { ChallengeSet, ChallengeLevel, Challenge, GridState, DialogEffect } from "./types";
 
 const singleStep = (challenge: Omit<Challenge, 'steps'>): Challenge => ({
     ...challenge,
-    steps: [{ description: challenge.description, keys: challenge.keys!, iconName: challenge.iconName!, isSequential: challenge.isSequential, gridEffect: challenge.gridEffect }]
+    steps: [{ 
+      description: challenge.description, 
+      keys: challenge.keys!, 
+      iconName: challenge.iconName!, 
+      isSequential: challenge.isSequential, 
+      gridEffect: challenge.gridEffect,
+      dialogEffect: challenge.dialogEffect,
+    }]
 });
 
 const createDefaultGridState = (): GridState => ({
@@ -119,8 +127,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Italicize", keys: ["Control", "i"], iconName: "Italic", gridEffect: { action: 'APPLY_STYLE_ITALIC' }, initialGridState: createDefaultGridState() }),
       singleStep({ description: "Underline", keys: ["Control", "u"], iconName: "Underline", gridEffect: { action: 'APPLY_STYLE_UNDERLINE' }, initialGridState: createDefaultGridState() }),
       singleStep({ description: "Strikethrough", keys: ["Control", "5"], iconName: "Strikethrough", gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' }, initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Open Find", keys: ["Control", "f"], iconName: "Search", initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Open Replace", keys: ["Control", "h"], iconName: "Replace", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Open Find", keys: ["Control", "f"], iconName: "Search", initialGridState: createDefaultGridState(), dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } } }),
+      singleStep({ description: "Open Replace", keys: ["Control", "h"], iconName: "Replace", initialGridState: createDefaultGridState(), dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } } }),
     ],
   },
 

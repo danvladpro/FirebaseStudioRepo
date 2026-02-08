@@ -17,6 +17,8 @@ import * as icons from 'lucide-react';
 import { VisualKeyboard } from "./visual-keyboard";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import { FindReplaceDialog } from "./find-replace-dialog";
+import { calculateDialogStateForStep } from "@/lib/dialog-engine";
 
 interface DrillUIProps {
   drill: Drill;
@@ -73,6 +75,9 @@ export function DrillUI({ drill }: DrillUIProps) {
   const [sequence, setSequence] = useState<string[]>([]);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
   const incorrectLockRef = useRef(false);
+
+  const drillStepsForEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
+  const dialogState = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex);
 
   const normalizeKey = (key: string) => {
     const lower = key.toLowerCase();
@@ -142,7 +147,12 @@ export function DrillUI({ drill }: DrillUIProps) {
     visualStepIndex
   ) : { gridState: null, cellStyles: {} };
 
- const resetDrill = useCallback(() => {
+  const resetDrill = useCallback(() => {
+    toast({
+        title: "Mistake Limit Reached",
+        description: "Drill has been reset. Let's try again from the beginning!",
+        variant: "destructive"
+    });
     setReps(Array(drill.repetitions).fill(RepStatus.Pending));
     setCurrentRep(0);
     setLogicalStepIndex(0);
@@ -151,11 +161,6 @@ export function DrillUI({ drill }: DrillUIProps) {
     setPressedKeys(new Set());
     setSequence([]);
     setStepFeedback(null);
-    toast({
-        title: "Mistake Limit Reached",
-        description: "Drill has been reset. Let's try again from the beginning!",
-        variant: "destructive"
-    });
     incorrectLockRef.current = false;
   }, [drill.repetitions]);
   
@@ -447,7 +452,8 @@ export function DrillUI({ drill }: DrillUIProps) {
             </div>
         </div>
       </CardHeader>
-      <CardContent className="border-t pt-6">
+      <CardContent className="border-t pt-6 relative">
+        <FindReplaceDialog state={dialogState} />
         <div className="grid md:grid-cols-2 gap-12 items-start">
              {displayedGridState && (
                 <div className="max-w-md mx-auto">
@@ -551,8 +557,3 @@ export function DrillUI({ drill }: DrillUIProps) {
     </Card>
   );
 }
-
-    
-
-    
-
