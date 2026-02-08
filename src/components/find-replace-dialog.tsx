@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -79,15 +78,15 @@ export function FindReplaceDialog({ state, isSuccess = false }: FindReplaceDialo
       <CardFooter className="p-4 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
         {state.activeTab === 'find' ? (
           <>
-            <Button variant="outline" className={cn(getButtonClass('findNext'))}>Find Next</Button>
-            <Button variant="outline" className={cn(getButtonClass('close'))}>Close</Button>
+            <Button variant="outline" size="sm" className={cn(getButtonClass('findNext'))}>Find Next</Button>
+            <Button variant="outline" size="sm" className={cn(getButtonClass('close'))}>Close</Button>
           </>
         ) : (
           <>
-            <Button variant="outline" className={cn(getButtonClass('findNext'))}>Find Next</Button>
-            <Button variant="outline" className={cn(getButtonClass('replace'))}>Replace</Button>
-            <Button variant="outline" className={cn(getButtonClass('replaceAll'))}>Replace All</Button>
-            <Button variant="outline" className={cn(getButtonClass('close'))}>Close</Button>
+            <Button variant="outline" size="sm" className={cn(getButtonClass('findNext'))}>Find Next</Button>
+            <Button variant="outline" size="sm" className={cn(getButtonClass('replace'))}>Replace</Button>
+            <Button variant="outline" size="sm" className={cn(getButtonClass('replaceAll'))}>Replace All</Button>
+            <Button variant="outline" size="sm" className={cn(getButtonClass('close'))}>Close</Button>
           </>
         )}
       </CardFooter>
