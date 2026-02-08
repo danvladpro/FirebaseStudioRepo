@@ -453,10 +453,10 @@ export function DrillUI({ drill }: DrillUIProps) {
         </div>
       </CardHeader>
       <CardContent className="border-t pt-6 relative">
-        <FindReplaceDialog state={dialogState} />
         <div className="grid md:grid-cols-2 gap-12 items-start">
              {displayedGridState && (
-                <div className="max-w-md mx-auto">
+                <div className="max-w-md mx-auto relative">
+                    <FindReplaceDialog state={dialogState} />
                     <VisualGrid 
                         gridState={displayedGridState}
                         cellStyles={displayedCellStyles}

@@ -174,7 +174,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const handleIncorrect = useCallback(() => {
+    if (incorrectLockRef.current) return;
     incorrectLockRef.current = true;
+    
     setPressedKeys(new Set());
     setSequence([]);
     setFeedback("incorrect");
@@ -455,10 +457,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             <p className="text-sm text-muted-foreground text-center pt-2">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>
         </CardHeader>
         <CardContent className="text-center py-8 relative">
-            <FindReplaceDialog state={dialogState} />
-            
             {displayedGridState && (
-                <div className="mb-6">
+                <div className="mb-6 relative">
+                    <FindReplaceDialog state={dialogState} />
                     <VisualGrid 
                         gridState={displayedGridState} 
                         cellStyles={displayedCellStyles}
