@@ -179,38 +179,36 @@ export function DrillUI({ drill }: DrillUIProps) {
   }, [drill.id, router, user, drill.steps.length]);
 
   const handleIncorrect = useCallback(() => {
-    if (incorrectLockRef.current) return;
     incorrectLockRef.current = true;
     
     setPressedKeys(new Set());
     setSequence([]);
     setStepFeedback('incorrect');
 
-    const repAlreadyIncorrect = reps[currentRep] === RepStatus.Incorrect;
-
-    if (!repAlreadyIncorrect) {
-      setReps(prev => {
-        const next = [...prev];
-        next[currentRep] = RepStatus.Incorrect;
-        return next;
-      });
-      
-      const newMistakes = mistakes + 1;
-      setMistakes(newMistakes);
-      
-      if (newMistakes >= drill.mistakeLimit) {
-        setTimeout(() => {
-          resetDrill();
-        }, 500);
-        return;
-      }
-    }
+    setReps(prevReps => {
+        const nextReps = [...prevReps];
+        if (nextReps[currentRep] !== RepStatus.Incorrect) {
+            nextReps[currentRep] = RepStatus.Incorrect;
+            
+            const newMistakes = mistakes + 1;
+            setMistakes(newMistakes);
+            
+            if (newMistakes >= drill.mistakeLimit) {
+                setTimeout(() => {
+                    resetDrill();
+                }, 500);
+            }
+        }
+        return nextReps;
+    });
     
     setTimeout(() => {
       setStepFeedback(null);
-      incorrectLockRef.current = false;
+      if (mistakes + 1 < drill.mistakeLimit) {
+          incorrectLockRef.current = false;
+      }
     }, 500);
-  }, [reps, currentRep, mistakes, drill.mistakeLimit, resetDrill]);
+  }, [currentRep, mistakes, drill.mistakeLimit, resetDrill]);
 
   const handleStepSuccess = useCallback(() => {
     setIsProcessing(true);
@@ -317,13 +315,13 @@ export function DrillUI({ drill }: DrillUIProps) {
       setSequence([]);
     };
   
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('keydown', onKeyDown, true);
+    window.addEventListener('keyup', onKeyUp, true);
     window.addEventListener('blur', handleBlur);
   
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('keydown', onKeyDown, true);
+      window.removeEventListener('keyup', onKeyUp, true);
       window.removeEventListener('blur', handleBlur);
     };
   }, [logicalStepIndex, drill.steps.length]);
@@ -523,5 +521,7 @@ export function DrillUI({ drill }: DrillUIProps) {
     </Card>
   );
 }
+
+    
 
     
