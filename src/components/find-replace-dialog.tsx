@@ -23,7 +23,7 @@ export function FindReplaceDialog({ state }: FindReplaceDialogProps) {
     <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] bg-background shadow-2xl z-20 border">
       <CardHeader className="flex flex-row items-center justify-between p-2 pl-4 bg-muted/50 rounded-t-lg border-b cursor-move">
         <CardTitle className="text-sm font-medium">Find and Replace</CardTitle>
-        <Button variant="ghost" size="icon" className={cn('h-6 w-6', state.highlightedButton === 'close' && 'bg-primary/20 ring-2 ring-primary')}>
+        <Button variant="ghost" size="icon" className={cn('h-6 w-6', state.highlightedButton === 'close' && 'bg-accent/20 ring-2 ring-accent')}>
           <X className="h-4 w-4" />
         </Button>
       </CardHeader>
@@ -54,15 +54,15 @@ export function FindReplaceDialog({ state }: FindReplaceDialogProps) {
       <CardFooter className="p-4 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
         {state.activeTab === 'find' ? (
           <>
-            <Button variant="outline" className={cn(state.highlightedButton === 'findNext' && 'bg-primary/20 ring-2 ring-primary')}>Find Next</Button>
-            <Button variant="outline" className={cn(state.highlightedButton === 'close' && 'bg-primary/20 ring-2 ring-primary')}>Close</Button>
+            <Button variant="outline" className={cn(state.highlightedButton === 'findNext' && 'bg-accent/20 ring-2 ring-accent')}>Find Next</Button>
+            <Button variant="outline" className={cn(state.highlightedButton === 'close' && 'bg-accent/20 ring-2 ring-accent')}>Close</Button>
           </>
         ) : (
           <>
-            <Button variant="outline" className={cn(state.highlightedButton === 'findNext' && 'bg-primary/20 ring-2 ring-primary')}>Find Next</Button>
-            <Button variant="outline" className={cn(state.highlightedButton === 'replace' && 'bg-primary/20 ring-2 ring-primary')}>Replace</Button>
-            <Button variant="outline" className={cn(state.highlightedButton === 'replaceAll' && 'bg-primary/20 ring-2 ring-primary')}>Replace All</Button>
-            <Button variant="outline" className={cn(state.highlightedButton === 'close' && 'bg-primary/20 ring-2 ring-primary')}>Close</Button>
+            <Button variant="outline" className={cn(state.highlightedButton === 'findNext' && 'bg-accent/20 ring-2 ring-accent')}>Find Next</Button>
+            <Button variant="outline" className={cn(state.highlightedButton === 'replace' && 'bg-accent/20 ring-2 ring-accent')}>Replace</Button>
+            <Button variant="outline" className={cn(state.highlightedButton === 'replaceAll' && 'bg-accent/20 ring-2 ring-accent')}>Replace All</Button>
+            <Button variant="outline" className={cn(state.highlightedButton === 'close' && 'bg-accent/20 ring-2 ring-accent')}>Close</Button>
           </>
         )}
       </CardFooter>
