@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Drill, ALL_DRILL_STEPS } from "@/lib/drills";
+import { Drill, ALL_DRILL_STEPS, DrillStep } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle, MousePointerClick, ArrowLeft, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
@@ -92,6 +92,23 @@ const windowsKeyDisplayMap: Record<string, string | JSX.Element> = {
     'delete': 'Del'
 };
 
+const getOsSpecificKeys = (step: DrillStep, isMac: boolean): string[] => {
+    const isStrikethrough = step.description.toLowerCase().includes('strikethrough');
+
+    // Handle the specific 'Replace All' case for Mac
+    if (isMac && step.description === 'Replace All') {
+        return ['meta', 'a'];
+    }
+
+    // Handle the general Ctrl -> Cmd mapping, excluding the strikethrough exception
+    return step.keys.map(k => {
+        const lowerK = k.toLowerCase();
+        if (isMac && lowerK === 'control' && !isStrikethrough) {
+            return 'meta';
+        }
+        return lowerK;
+    });
+};
 
 
 export function DrillUI({ drill }: DrillUIProps) {
@@ -168,15 +185,7 @@ export function DrillUI({ drill }: DrillUIProps) {
 
   const getRequiredKeys = useCallback(() => {
     if (!activeStep) return new Set<string>();
-    
-    const keys = activeStep.keys.map(k => {
-      const lowerK = k.toLowerCase();
-      if (isMac && lowerK === 'control') {
-          return 'meta';
-      }
-      return lowerK;
-    });
-    return new Set(keys);
+    return new Set(getOsSpecificKeys(activeStep, isMac));
   }, [activeStep, isMac]);
 
   useEffect(() => {
@@ -433,10 +442,11 @@ export function DrillUI({ drill }: DrillUIProps) {
     }
   }, [sequence, activeStep, getRequiredKeys, handleIncorrect, handleStepSuccess]);
   
-  const formatKeysForDisplay = (keys: string[], isMac: boolean): string => {
-    const displayKeys = keys.map(key => {
-        let k = key.toLowerCase();
-        if (isMac && k === 'control') k = 'meta';
+  const formatKeysForDisplay = (step: DrillStep, isMac: boolean): string => {
+    const keysToDisplay = getOsSpecificKeys(step, isMac);
+
+    const displayKeys = keysToDisplay.map(key => {
+        const k = key.toLowerCase();
 
         switch(k) {
             case 'meta': return isMac ? '⌘' : 'Win';
@@ -449,7 +459,7 @@ export function DrillUI({ drill }: DrillUIProps) {
             case 'arrowright': return '→';
             case 'enter': return 'Enter';
             case 'return': return 'Return';
-            case 'escape': return 'Esc';
+            case 'esc': return 'Esc';
             case 'backspace': return 'Backspace';
             case 'delete': return 'Del';
             case 'home': return 'Home';
@@ -461,7 +471,8 @@ export function DrillUI({ drill }: DrillUIProps) {
         }
     });
     return `(${displayKeys.join(' + ')})`;
-}
+  };
+
 
 
   return (
@@ -532,7 +543,7 @@ export function DrillUI({ drill }: DrillUIProps) {
                         const isStepCompleted = index < visualStepIndex;
                         const feedbackClass = isStepActive && stepFeedback === 'incorrect' ? 'ring-2 ring-destructive' : '';
                         const successClass = isStepActive && stepFeedback === 'correct' ? 'ring-2 ring-green-500' : '';
-                        const shortcutHint = currentRep === 0 ? formatKeysForDisplay(step.keys, isMac) : '';
+                        const shortcutHint = currentRep === 0 ? formatKeysForDisplay(step, isMac) : '';
 
 
                         return (
