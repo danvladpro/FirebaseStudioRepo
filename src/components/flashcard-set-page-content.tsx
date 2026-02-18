@@ -6,7 +6,7 @@ import { FlashcardClientPage } from '@/components/flashcard-client-page';
 import { AppHeader } from '@/components/app-header';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, Layers, Filter, GalleryVerticalEnd, Award, Medal, Trophy, BrainCircuit, HelpCircle } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, Layers, Filter, GalleryVerticalEnd, Award, Medal, Trophy, BrainCircuit, HelpCircle, Zap, ClipboardPaste, Wand2, Palette, DollarSign, ShieldCheck } from 'lucide-react';
 import { useAuth } from './auth-provider';
 import { ElementType } from 'react';
 
@@ -24,6 +24,12 @@ const iconMap: Record<string, ElementType> = {
     Trophy,
     BrainCircuit,
     HelpCircle,
+    Zap,
+    ClipboardPaste,
+    Wand2,
+    Palette,
+    DollarSign,
+    ShieldCheck,
 };
 
 
