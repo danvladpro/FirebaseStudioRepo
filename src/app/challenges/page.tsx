@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Trophy, CheckSquare, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Award, Medal } from "lucide-react";
+import { Trophy, CheckSquare, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Award, Medal, Zap, ClipboardPaste, Wand2, Palette, DollarSign, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { ElementType } from "react";
 import { PremiumModal } from "@/components/premium-modal";
 
-const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
+const iconMap: Record<string, ElementType> = {
     ClipboardCopy,
     ArrowRightLeft,
     MousePointerSquareDashed,
@@ -28,7 +28,13 @@ const iconMap: Record<ChallengeSet["iconName"], ElementType> = {
     GalleryVerticalEnd,
     Award,
     Medal,
-    Trophy
+    Trophy,
+    Zap,
+    ClipboardPaste,
+    Wand2,
+    Palette,
+    DollarSign,
+    ShieldCheck,
 };
 
 export default function ChallengesPage() {

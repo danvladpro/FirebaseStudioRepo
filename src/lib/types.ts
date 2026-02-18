@@ -86,6 +86,7 @@ export interface Challenge {
   steps: ChallengeStep[];
   initialGridState?: GridState;
   gridEffect?: GridEffect; // For single-step challenges
+  dialogEffect?: DialogEffect; // For single-step challenges
 }
 
 export type ChallengeLevel = "Beginner" | "Intermediate" | "Advanced" | "Scenario" | "General";
