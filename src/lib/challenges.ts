@@ -148,7 +148,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Insert row/col", keys: ["Control", "Shift", "="], iconName: "Sheet", initialGridState: createDefaultGridState(), gridEffect: { action: 'INSERT_ROW' } }),
       singleStep({ description: "Delete row/col", keys: ["Control", "-"], iconName: "Trash2", initialGridState: createDefaultGridState(), gridEffect: { action: 'DELETE_ROW' } }),
       singleStep({ description: "Hide rows", keys: ["Control", "9"], iconName: "EyeOff", initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Unhide rows", keys: ["Control", "Shift", "("], iconName: "Eye", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Unhide rows", keys: ["Control", "Shift", "9"], iconName: "Eye", initialGridState: createDefaultGridState() }),
       singleStep({ description: "Hide columns", keys: ["Control", "0"], iconName: "EyeOff", initialGridState: createDefaultGridState() }),
       singleStep({ description: "Select visible only", keys: ["Alt", ";"], iconName: "Aperture", initialGridState: createDefaultGridState() }),
     ],
@@ -222,11 +222,11 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Formatting",
     iconName: "DollarSign",
     challenges: [
-      singleStep({ description: "Currency format", keys: ["Control", "Shift", "$"], iconName: "DollarSign", initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_CURRENCY' } }),
-      singleStep({ description: "Percentage format", keys: ["Control", "Shift", "%"], iconName: "Percent", initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } }),
-      singleStep({ description: "General format", keys: ["Control", "Shift", "~"], iconName: "Hash", initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Date format", keys: ["Control", "Shift", "#"], iconName: "Calendar", initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Time format", keys: ["Control", "Shift", "@"], iconName: "Clock", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Currency format", keys: ["Control", "Shift", "4"], iconName: "DollarSign", initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_CURRENCY' } }),
+      singleStep({ description: "Percentage format", keys: ["Control", "Shift", "5"], iconName: "Percent", initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } }),
+      singleStep({ description: "General format", keys: ["Control", "Shift", "`"], iconName: "Hash", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Date format", keys: ["Control", "Shift", "3"], iconName: "Calendar", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Time format", keys: ["Control", "Shift", "2"], iconName: "Clock", initialGridState: createDefaultGridState() }),
       singleStep({ description: "Increase decimal", keys: ["Alt", "h", "0"], iconName: "PlusCircle", isSequential: true, initialGridState: createDefaultGridState() }),
       singleStep({ description: "Decrease decimal", keys: ["Alt", "h", "9"], iconName: "MinusCircle", isSequential: true, initialGridState: createDefaultGridState() }),
       singleStep({ description: "Open Format Cells", keys: ["Control", "1"], iconName: "Settings2", initialGridState: createDefaultGridState() }),
@@ -280,7 +280,7 @@ export const SCENARIO_SETS: ChallengeSet[] = [
                 initialGridState: createDefaultGridState(),
                 steps: [
                     { description: "Select the entire column", keys: ["Control", " "], iconName: "Columns3", gridEffect: { action: 'SELECT_COLUMN' } },
-                    { description: "Apply the Currency format", keys: ["Control", "Shift", "$"], iconName: "DollarSign", gridEffect: { action: 'APPLY_STYLE_CURRENCY'} },
+                    { description: "Apply the Currency format", keys: ["Control", "Shift", "4"], iconName: "DollarSign", gridEffect: { action: 'APPLY_STYLE_CURRENCY'} },
                 ]
             },
              {

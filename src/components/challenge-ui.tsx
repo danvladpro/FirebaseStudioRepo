@@ -106,24 +106,53 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  const normalizeKey = (key: string) => {
-    const lower = key.toLowerCase();
-    if (["control", "ctrl", "controlleft", "controlright"].includes(lower)) return "control";
-    if (["shift", "shiftleft", "shiftright"].includes(lower)) return "shift";
-    if (["alt", "option", "altleft", "altright"].includes(lower)) return "alt";
-    if (["meta", "command", "cmd", "win", "metaleft", "metaright"].includes(lower)) return "meta";
-    if (lower === 'escape') return 'esc';
-    if (lower === ' ') return ' ';
+  const normalizeKey = (code: string) => {
+    const lower = code.toLowerCase();
+
+    // From event.code
+    if (lower.startsWith('key')) return lower.substring(3);
+    if (lower.startsWith('digit')) return lower.substring(5);
+    if (lower.startsWith('numpad')) return lower.substring(6);
     if (lower.startsWith('arrow')) return lower;
-    if (lower === 'enter' || lower === 'return') return isMac ? 'return' : 'enter';
-    if (lower === 'backspace') return 'backspace';
-    if (lower === 'delete') return 'delete';
-    if (lower === 'pageup') return 'pageup';
-    if (lower === 'pagedown') return 'pagedown';
-    if (lower === 'home') return 'home';
-    if (lower === 'end') return 'end';
-    if (lower === 'insert') return 'insert';
-    return lower;
+    if (lower.startsWith('control')) return 'control';
+    if (lower.startsWith('shift')) return 'shift';
+    if (lower.startsWith('alt')) return 'alt';
+    if (lower.startsWith('meta')) return 'meta';
+
+    switch (lower) {
+        case 'escape': return 'esc';
+        case 'space': return ' ';
+        case 'enter':
+        case 'numpadenter':
+          return isMac ? 'return' : 'enter';
+        case 'backspace': return 'backspace';
+        case 'delete': return 'delete';
+        case 'pageup': return 'pageup';
+        case 'pagedown': return 'pagedown';
+        case 'home': return 'home';
+        case 'end': return 'end';
+        case 'insert': return 'insert';
+        case 'tab': return 'tab';
+        case 'backquote': return '`';
+        case 'minus': return '-';
+        case 'equal': return '=';
+        case 'bracketleft': return '[';
+        case 'bracketright': return ']';
+        case 'backslash': return '\\';
+        case 'semicolon': return ';';
+        case 'quote': return "'";
+        case 'comma': return ',';
+        case 'period': return '.';
+        case 'slash': return '/';
+    }
+    
+    // For F-keys
+    if (lower.startsWith('f') && lower.length > 1 && !isNaN(parseInt(lower.substring(1)))) {
+        return lower;
+    }
+
+    // Fallback for any unmapped codes or if event.key was passed
+    return code.toLowerCase();
   };
   
   useEffect(() => {
@@ -299,7 +328,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         e.stopPropagation();
         if (e.repeat || incorrectLockRef.current || feedback !== null) return;
 
-        const key = normalizeKey(e.key);
+        const key = normalizeKey(e.code);
         setPressedKeys(prev => new Set(prev).add(key));
 
         if (currentStep?.isSequential) {
@@ -312,7 +341,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         
         setPressedKeys(prev => {
           const newKeys = new Set(prev);
-          newKeys.delete(normalizeKey(e.key));
+          newKeys.delete(normalizeKey(e.code));
           return newKeys;
         });
       },
