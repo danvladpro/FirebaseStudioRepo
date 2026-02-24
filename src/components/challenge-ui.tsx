@@ -90,7 +90,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }
   
   const dialogStateAfter = calculateDialogStateForStep(currentChallenge.steps, currentStepIndex);
-  const finalDialogState = feedback === 'correct' ? dialogStateAfter : dialogStateForPreview;
+  const finalDialogState = feedback === 'correct' ? dialogStateAfter : (previewEffect ? dialogStateForPreview : dialogStateBefore);
   // --- End Dialog State Calculation ---
 
   const initialGridState = currentChallenge?.initialGridState ?? null;
@@ -294,21 +294,43 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       handleKeyDown: (e: KeyboardEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (incorrectLockRef.current) return;
+        if (e.repeat || incorrectLockRef.current) return;
 
         const key = normalizeKey(e.key);
+        setPressedKeys(prev => new Set(prev).add(key));
+
         if (currentStep?.isSequential) {
           processSequentialKeyPress(key);
-        } else {
-          setPressedKeys(prev => new Set(prev).add(key));
         }
       },
       handleKeyUp: (e: KeyboardEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (currentStep?.isSequential) return;
+        if (incorrectLockRef.current) {
+          // Still remove key from set even if locked, to prevent sticky keys
+          setPressedKeys(prev => {
+            const newKeys = new Set(prev);
+            newKeys.delete(normalizeKey(e.key));
+            return newKeys;
+          });
+          return;
+        }
 
         const key = normalizeKey(e.key);
+
+        if (currentStep && !currentStep.isSequential && !isModifier(key)) {
+            // A non-modifier key was just released. This is the trigger to check the combination.
+            const requiredKeys = getRequiredKeys();
+            
+            // Check if the keys that were held down match the required keys exactly.
+            if (pressedKeys.size === requiredKeys.size && [...requiredKeys].every(k => pressedKeys.has(k))) {
+              advanceStepOrChallenge();
+            } else {
+              handleIncorrect();
+            }
+        }
+        
+        // Always remove the key from the set on keyup
         setPressedKeys(prev => {
           const newKeys = new Set(prev);
           newKeys.delete(key);
@@ -316,7 +338,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         });
       },
     };
-  }, [currentStep, processSequentialKeyPress]);
+  }, [currentStep, processSequentialKeyPress, pressedKeys, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => keyHandlersRef.current.handleKeyDown(e);
@@ -337,58 +359,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       window.removeEventListener('blur', handleBlur);
     };
   }, []);
-  
-  useEffect(() => {
-    if (incorrectLockRef.current) return;
-    if (!currentStep || currentStep.isSequential) return;
-
-    const requiredKeys = getRequiredKeys();
-    
-    const pressedNonModifiers = new Set([...pressedKeys].filter(k => !isModifier(k)));
-    if (pressedNonModifiers.size === 0) return;
-
-    const requiredNonModifiers = new Set([...requiredKeys].filter(k => !isModifier(k)));
-
-    const allRequiredNonModifiersPressed = [...requiredNonModifiers].every(k => pressedNonModifiers.has(k));
-    const extraNonModifiersPressed = [...pressedNonModifiers].some(k => !requiredNonModifiers.has(k));
-
-    if (extraNonModifiersPressed) {
-        handleIncorrect();
-        return;
-    }
-    
-    if (allRequiredNonModifiersPressed && pressedNonModifiers.size === requiredNonModifiers.size) {
-        const requiredModifiers = new Set([...requiredKeys].filter(isModifier));
-        const pressedModifiers = new Set([...pressedKeys].filter(isModifier));
-        const allRequiredModifiersPressed = [...requiredModifiers].every(k => pressedModifiers.has(k));
-        const extraModifiersPressed = [...pressedModifiers].some(k => !requiredModifiers.has(k));
-        
-        if (allRequiredModifiersPressed && !extraModifiersPressed) {
-            advanceStepOrChallenge();
-        } else if (allRequiredModifiersPressed && extraModifiersPressed) {
-            handleIncorrect();
-        }
-    }
-  }, [pressedKeys, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
-
-  useEffect(() => {
-    if (incorrectLockRef.current) return;
-    if (!currentStep || !currentStep.isSequential || sequence.length === 0) return;
-
-    const requiredSequence = Array.from(getRequiredKeys());
-
-    for (let i = 0; i < sequence.length; i++) {
-      if (sequence[i] !== requiredSequence[i]) {
-        handleIncorrect();
-        return;
-      }
-    }
-
-    if (sequence.length === requiredSequence.length) {
-      advanceStepOrChallenge();
-    }
-  }, [sequence, currentStep, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
-
 
   const handleVirtualKeyClick = (key: string) => {
       if (incorrectLockRef.current) return;
@@ -471,7 +441,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         <CardContent className="text-center py-8 relative">
             {displayedGridState && (
                 <div className="mb-6 relative">
-                    <FindReplaceDialog state={finalDialogState} isSuccess={isAccentuating} />
+                    <FindReplaceDialog state={finalDialogState} isSuccess={feedback === 'correct'} />
                     <VisualGrid 
                         gridState={displayedGridState} 
                         cellStyles={displayedCellStyles}

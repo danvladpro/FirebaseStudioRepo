@@ -137,7 +137,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   // The state *after* the step is completed.
   const dialogStateAfter = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex);
 
-  const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : dialogStateForPreview;
+  const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : (previewEffect ? dialogStateForPreview : dialogStateBefore);
 
 
   const normalizeKey = (key: string) => {
@@ -335,18 +335,35 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
           return;
         }
         const key = normalizeKey(e.key);
+        setPressedKeys(prev => new Set(prev).add(key));
+
         if (activeStep?.isSequential) {
           setSequence(prev => [...prev, key]);
-        } else {
-          setPressedKeys(prev => new Set(prev).add(key));
         }
       },
       handleKeyUp: (e: KeyboardEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (activeStep?.isSequential) return;
+        if (stepFeedback !== null || incorrectLockRef.current) {
+          setPressedKeys(prev => { // Still need to clear keys even if locked
+            const newKeys = new Set(prev);
+            newKeys.delete(normalizeKey(e.key));
+            return newKeys;
+          });
+          return;
+        }
 
         const key = normalizeKey(e.key);
+
+        if (activeStep && !activeStep.isSequential && !isModifier(key)) {
+            const requiredKeys = getRequiredKeys();
+            if (pressedKeys.size === requiredKeys.size && [...requiredKeys].every(k => pressedKeys.has(k))) {
+              handleStepSuccess();
+            } else {
+              handleIncorrect();
+            }
+        }
+        
         setPressedKeys(prev => {
           const newKeys = new Set(prev);
           newKeys.delete(key);
@@ -354,7 +371,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
         });
       },
     }
-  }, [activeStep]);
+  }, [activeStep, stepFeedback, pressedKeys, getRequiredKeys, handleStepSuccess, handleIncorrect, setSequence]);
   
   useEffect(() => {
     if (logicalStepIndex >= drill.steps.length) return;
@@ -378,40 +395,6 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
     };
   }, [logicalStepIndex, drill.steps.length]);
   
-
-  useEffect(() => {
-    if (incorrectLockRef.current) return;
-    if (!activeStep || activeStep.isSequential) return;
-
-    const requiredKeys = getRequiredKeys();
-    const pressedNonModifiers = new Set([...pressedKeys].filter(k => !isModifier(k)));
-
-    if (pressedNonModifiers.size === 0) return;
-    
-    const requiredNonModifiers = new Set([...requiredKeys].filter(k => !isModifier(k)));
-    const allRequiredNonModifiersPressed = [...requiredNonModifiers].every(k => pressedNonModifiers.has(k));
-    const extraNonModifiersPressed = [...pressedNonModifiers].some(k => !requiredNonModifiers.has(k));
-
-    if (extraNonModifiersPressed) {
-        handleIncorrect();
-        return;
-    }
-    
-    if (allRequiredNonModifiersPressed) {
-        const requiredModifiers = new Set([...requiredKeys].filter(isModifier));
-        const pressedModifiers = new Set([...pressedKeys].filter(isModifier));
-        
-        const allRequiredModifiersPressed = [...requiredModifiers].every(k => pressedModifiers.has(k));
-        const extraModifiersPressed = [...pressedModifiers].some(k => !requiredModifiers.has(k));
-        
-        if (allRequiredModifiersPressed && !extraModifiersPressed) {
-            handleStepSuccess();
-        } else if (pressedModifiers.size > requiredModifiers.size && requiredNonModifiers.size > 0) {
-            handleIncorrect();
-        }
-    }
-  }, [pressedKeys, activeStep, getRequiredKeys, handleStepSuccess, handleIncorrect]);
-
   useEffect(() => {
     if (incorrectLockRef.current) return;
     if (!activeStep || !activeStep.isSequential || sequence.length === 0) return;
