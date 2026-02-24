@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/app-header";
 import { DrillUI } from "@/components/drill-ui";
-import { DRILL_SET } from "@/lib/drills";
+import { DRILL_SET, ALL_DRILL_STEPS } from "@/lib/drills";
 import { notFound, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BrainCircuit, Repeat, Target, XCircle } from "lucide-react";
@@ -13,14 +13,28 @@ import { useAuth } from "@/components/auth-provider";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { VisualGrid } from "@/components/visual-grid";
+import { calculateGridStateForStep } from "@/lib/grid-engine";
 
 
 export default function DrillPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [isStarted, setIsStarted] = useState(false);
+  const [animationStep, setAnimationStep] = useState(-1);
   
   const drill = DRILL_SET.drills.find(d => d.id === params.id);
+  const drillIndex = DRILL_SET.drills.findIndex(d => d.id === params.id);
+
+  useEffect(() => {
+    if (isStarted || !drill?.initialGridState || drill.steps.length === 0) return;
+
+    const interval = setInterval(() => {
+        setAnimationStep(prev => (prev >= drill.steps.length - 1 ? -1 : prev + 1));
+    }, 1200);
+
+    return () => clearInterval(interval);
+  }, [isStarted, drill]);
 
   if (loading) {
     return (
@@ -40,6 +54,20 @@ export default function DrillPage({ params }: { params: { id: string } }) {
   }
   
   if (!isStarted) {
+    const drillStepsForGridEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
+
+    const { gridState: initialDisplayGridState, cellStyles: initialDisplayCellStyles } = drill.initialGridState ? calculateGridStateForStep(
+        drillStepsForGridEngine,
+        drill.initialGridState,
+        animationStep - 1
+    ) : { gridState: null, cellStyles: {} };
+
+    const { gridState: finalDisplayGridState, cellStyles: finalDisplayCellStyles } = drill.initialGridState ? calculateGridStateForStep(
+        drillStepsForGridEngine,
+        drill.initialGridState,
+        animationStep
+    ) : { gridState: null, cellStyles: {} };
+
     return (
         <>
             <AppHeader />
@@ -60,8 +88,21 @@ export default function DrillPage({ params }: { params: { id: string } }) {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="bg-muted/50 p-4 rounded-lg">
-                            <h3 className="font-semibold text-lg text-center mb-2">{drill.name}</h3>
+                            <h3 className="font-semibold text-lg text-center mb-2">{drillIndex >= 0 ? `${drillIndex + 1}. ` : ''}{drill.name}</h3>
                             <p className="text-sm text-muted-foreground text-center">{drill.description}</p>
+                             {drill.initialGridState && (
+                                <div className="mt-4 w-full max-w-md mx-auto">
+                                  <VisualGrid
+                                     gridState={initialDisplayGridState}
+                                     cellStyles={initialDisplayCellStyles}
+                                     previewState={finalDisplayGridState ? {
+                                         gridState: finalDisplayGridState,
+                                         cellStyles: finalDisplayCellStyles,
+                                     } : null}
+                                     isAccentuating={animationStep >= 0}
+                                  />
+                                </div>
+                            )}
                         </div>
                         <Separator />
                         <div className="grid grid-cols-2 gap-4 text-center">

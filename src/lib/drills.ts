@@ -226,6 +226,13 @@ const bigTable = [['ID', 'Name', 'Date', 'Amount'],
 
 ]
 
+const emptyTable = [['', '', '', ''],
+    ['', '', '', ''],
+    ['', '', '', ''],
+    ['', '', '', ''],
+    ['', '', '', '']
+]
+
 
 
 const drills: Drill[] = [
@@ -426,86 +433,8 @@ const drills: Drill[] = [
   // LEVEL 2: INTERMEDIATE (Grid Surgeon)
   // Focus: Data Tools, Selection, & Structure
   // ==========================================
-  {
-    id: 'search-cycle-results',
-    level: 'Intermediate',
-    name: 'Search and Cycle Results',
-    description: 'Find repeated values quickly using the Find dialog.',
-    repetitions: 15,
-    mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['openFind', 'findNext', 'findNext', 'closeDialog']
-  },
-  {
-    id: 'replace-decimal',
-    level: 'Intermediate',
-    name: 'Find and Replace Decimal',
-    description: 'Batch replace formatting characters.',
-    repetitions: 12,
-    mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['openReplace', 'confirmReplace', 'closeDialog']
-  },
-  {
-    id: 'find-replace-sequence',
-    level: 'Intermediate',
-    name: 'Tab Navigation in Dialogs',
-    description: 'Use tab navigation to replace values without the mouse.',
-    repetitions: 10,
-    mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['openReplace', 'typeComma', 'tabToNext', 'typePeriod', 'closeDialog']
-  },
-  {
-    id: 'find-emphasize-cell',
-    level: 'Intermediate',
-    name: 'Find and Emphasize',
-    description: 'Locate a value, exit search, and apply bolding.',
-    repetitions: 10,
-    mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['openFind', 'confirmFind', 'findNext', 'closeDialog', 'bold']
-  },
-  {
-    id: 'find-next-sheet',
-    level: 'Intermediate',
-    name: 'Cross-Sheet Search',
-    description: 'Switch sheets and immediately trigger a search.',
-    repetitions: 12,
-    mistakeLimit: 2,
-    initialGridState: createMultiSheetGridState(0),
-    steps: ['nextSheet', 'openFind', 'type9', 'confirmFind']
-  },
-  {
-    id: 'replace-rollback-sequence',
-    level: 'Intermediate',
-    name: 'Replace Then Roll Back',
-    description: 'Experiment with bulk changes and undo.',
-    repetitions: 10,
-    mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['openReplace', 'undoAction']
-  },
-  {
-    id: 'format-entire-column',
-    level: 'Intermediate',
-    name: 'Format Entire Column',
-    description: 'Apply formatting to a structural column.',
-    repetitions: 12,
-    mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['selectCol', 'bold', 'underline']
-  },
-  {
-    id: 'format-entire-row',
-    level: 'Intermediate',
-    name: 'Format Entire Row',
-    description: 'Apply emphasis to a complete row.',
-    repetitions: 12,
-    mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['selectRow', 'italic']
-  },
+  
+
   {
     id: 'convert-region-to-table',
     level: 'Intermediate',
@@ -513,8 +442,8 @@ const drills: Drill[] = [
     description: 'Turn a raw data block into a functional table.',
     repetitions: 14,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['selectCurrentRegion8', 'createTable', 'confirmTable']
+    initialGridState: createGridState(bigTable, 0, 2, 0),
+    steps: ['selectCurrentRegion', 'createTable', 'confirmTable']
   },
   {
     id: 'copy-visible-rows',
@@ -523,8 +452,8 @@ const drills: Drill[] = [
     description: 'Copy filtered data while ignoring hidden rows.',
     repetitions: 14,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['selectVisible', 'copySelection', 'nextSheet', 'pasteValuesOnly']
+    initialGridState: createMultiSheetGridState(0),
+    steps: [ 'hideRow','moveDown','selectCurrentRegion','selectVisible', 'copySelection', 'nextSheet', 'pasteValuesOnly']
   },
   {
     id: 'lock-formula-reference',
@@ -533,8 +462,8 @@ const drills: Drill[] = [
     description: 'Lock a cell reference while editing a formula.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['editFormula', 'toggleAbsRef', 'confirmFormula']
+    initialGridState: createGridState(bigTable, 0, 2, 0),
+    steps: ['jumpBottom','editFormula', 'toggleAbsRef', 'confirmFormula']
   },
   {
     id: 'toggle-formula-view',
@@ -543,7 +472,7 @@ const drills: Drill[] = [
     description: 'Audit back-end formulas and return to values.',
     repetitions: 8,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
+    initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['toggleFormulas', 'hideFormulas']
   },
   {
@@ -553,18 +482,18 @@ const drills: Drill[] = [
     description: 'Trigger a quick calculation total.',
     repetitions: 14,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['selectCol', 'autoSum', 'confirmFormula']
+    initialGridState: createGridState(bigTable, 0, 2, 0),
+    steps: ['jumpRight','selectDownToEdge', 'autoSum']
   },
   {
-    id: 'flash-fill-values',
+    id: 'kill-formulas',
     level: 'Intermediate',
-    name: 'Flash Fill Values',
-    description: 'Automatically fill detected patterns instantly.',
-    repetitions: 10,
+    name: 'Kill all Formulas in a range',
+    description: 'Copy a range and paste it as values to kill the formulas.',
+    repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['flashFill']
+    initialGridState: createGridState(bigTable,0,0,0),
+    steps: ['selectCurrentRegion', 'copySelection', 'pasteValuesOnly']
   },
   {
     id: 'repeat-formatting-f4',
@@ -574,18 +503,9 @@ const drills: Drill[] = [
     repetitions: 12,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['underline', 'moveDown', 'repeatFormatting']
+    steps: ['underline', 'moveDown', 'repeatFormatting','selectRightToEdge','repeatFormatting']
   },
-  {
-    id: 'insert-date-stamp',
-    level: 'Intermediate',
-    name: 'Today’s Date Stamp',
-    description: 'Stamp the current date and apply bold.',
-    repetitions: 10,
-    mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['insertDate', 'confirmEntry', 'bold']
-  },
+
   {
     id: 'fill-current-region',
     level: 'Intermediate',
@@ -593,8 +513,8 @@ const drills: Drill[] = [
     description: 'Select a block and fill every cell with a single value.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectCurrentRegion8', 'type9', 'fillAll']
+    initialGridState: createGridState(emptyTable,0,0,0),
+    steps: ['expandRight','extendDown', 'type9', 'fillAll']
   },
   {
     id: 'open-filter-dropdown',
@@ -613,8 +533,8 @@ const drills: Drill[] = [
     description: 'Stamp time and underline it.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['insertTime', 'confirm', 'underline']
+    initialGridState: createGridState(emptyTable,0,0,0),
+    steps: ['insertTime', 'MoveRight','insertDate','expandLeft','underline']
   },
   {
     id: 'navigate-to-cell-f5',
@@ -624,17 +544,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['openGoTo', 'confirm']
-  },
-  {
-    id: 'format-header-last-row',
-    level: 'Intermediate',
-    name: 'Table Boundary Styling',
-    description: 'Apply distinct styles to table boundaries.',
-    repetitions: 10,
-    mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectRightToEdge', 'bold', 'jumpBottom', 'selectLeftToEdge', 'italic']
+    steps: ['selectCol','openGoTo', 'confirm']
   },
   {
     id: 'insert-row-undo',
@@ -643,8 +553,8 @@ const drills: Drill[] = [
     description: 'Quickly recover from an accidental row insertion.',
     repetitions: 8,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['selectCol', 'insertRow', 'undoInsert']
+    initialGridState: createGridState(bigTable, 0, 3, 0),
+    steps: ['selectRow', 'insertRow', 'insertRow','autoSum']
   },
   {
     id: 'delete-full-row',
@@ -653,8 +563,8 @@ const drills: Drill[] = [
     description: 'Remove unnecessary data rows structurally.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['selectRow', 'deleteRow']
+    initialGridState: createMultiSheetGridState(0),
+    steps: [ 'nextSheet',	'selectCol',	'expandRight','expandRight']
   },
   {
     id: 'reset-general-format',
@@ -664,17 +574,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['selectCurrentRegion', 'applyGeneralFormat']
-  },
-  {
-    id: 'hide-unhide-rows',
-    level: 'Intermediate',
-    name: 'Hide and Unhide Rows',
-    description: 'Temporarily collapse detail rows without deleting them.',
-    repetitions: 8,
-    mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['selectRow', 'hideRow', 'unhideRows']
+    steps: ['selectDownToEdge','selectRightToEdge', 'applyGeneralFormat']
   },
   {
     id: 'format-date-time-cols',
@@ -684,7 +584,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectDownToEdge', 'applyDateFormat']
+    steps: ['selectDownToEdge', 'applyDateFormat','moveLeft','bold']
   },
 
   // ==========================================
@@ -699,7 +599,7 @@ const drills: Drill[] = [
     repetitions: 12,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['selectCol', 'centerAlign']
+    steps: ['jumpTop','selectRow', 'centerAlign']
   },
   {
     id: 'merge-center-header',
@@ -709,7 +609,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['selectRow', 'mergeCenter']
+    steps: ['selectRightToEdge', 'mergeCenter']
   },
   {
     id: 'apply-borders-sheet',
@@ -718,8 +618,8 @@ const drills: Drill[] = [
     description: 'Add structure to a full dataset using the Home border menu.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['selectCurrentRegion', 'applyAllBorders']
+    initialGridState: createMultiSheetGridState(1),
+    steps: ['prevSheet','selectCurrentRegion', 'applyAllBorders']
   },
   {
     id: 'thick-border-block',
@@ -739,7 +639,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['centerAlign', 'wrapText']
+    steps: ['selectCol','centerAlign', 'wrapText']
   },
   {
     id: 'clear-formatting-selection',
@@ -749,7 +649,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['jumpStart', 'clearFormatting']
+    steps: ['jumpTop','selectDownToEdge', 'clearFormatting']
   },
   {
     id: 'currency-decimal-cleanup',
@@ -759,28 +659,9 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['applyCurrency', 'decreaseDecimals', 'increaseDecimals']
+    steps: ['jumpRight','applyCurrency', 'decreaseDecimals', 'increaseDecimals']
   },
-  {
-    id: 'paste-values-only',
-    level: 'Advanced',
-    name: 'The Paste Values Master',
-    description: 'Convert formulas into static values safely.',
-    repetitions: 12,
-    mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['copySelection', 'pasteValuesOnly']
-  },
-  {
-    id: 'underline-centered-numbers',
-    level: 'Advanced',
-    name: 'Polished Presentation',
-    description: 'Polish numeric presentation with nested formatting.',
-    repetitions: 10,
-    mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
-    steps: ['centerAlign', 'underline']
-  },
+
   {
     id: 'cleanup-percentages',
     level: 'Advanced',
@@ -789,7 +670,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: defaultDrillGridState,
-    steps: ['clearFormatting', 'applyPercentage']
+    steps: ['clearFormatting', 'applyPercentage','moveDown','repeatFormatting']
   },
   {
     id: 'sort-dialog-full',
@@ -798,7 +679,7 @@ const drills: Drill[] = [
     description: 'Access deep sorting options via legacy Alt shortcuts.',
     repetitions: 8,
     mistakeLimit: 2,
-    steps: ['openAltMenu', 'openDataTab', 'openSortDialog']
+    steps: ['selectCurrentRegion','openAltMenu', 'openDataTab', 'openSortDialog']
   },
 
   {
@@ -809,7 +690,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectCurrentRegion', 'autofitColumns']
+    steps: ['selectCol','expandRight', 'autofitColumns']
   },
   {
     id: 'highlight-header-fill',
@@ -819,7 +700,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectRow', 'openFillColor']
+    steps: ['selectRow','extendDown','openFillColor']
   },
   {
     id: 'group-rows-data',
@@ -829,7 +710,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['extendDown', 'groupRows']
+    steps: ['selectRow','extendDown', 'groupRows']
   },
   {
     id: 'format-cells-dialog',
@@ -839,7 +720,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['openFormatCells', 'tabToTabs', 'confirm']
+    steps: ['clearFormatting','openFormatCells', 'tabToTabs', 'confirm']
   },
   {
     id: 'freeze-panes-view',
@@ -849,7 +730,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['freezePanes']
+    steps: ['jumpBottom','selectRow','freezePanes']
   },
   {
     id: 'jump-clean-view',
