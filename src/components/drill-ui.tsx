@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Drill, ALL_DRILL_STEPS, DrillStep } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, getPlatformKeys } from "@/lib/utils";
 import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle, MousePointerClick, ArrowLeft, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
 import { useAuth } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
@@ -93,24 +93,6 @@ const windowsKeyDisplayMap: Record<string, string | JSX.Element> = {
     'delete': 'Del'
 };
 
-const getOsSpecificKeys = (step: DrillStep, isMac: boolean): string[] => {
-    const isStrikethrough = step.description.toLowerCase().includes('strikethrough');
-
-    // Handle the specific 'Replace All' case for Mac
-    if (isMac && step.description === 'Replace All') {
-        return ['meta', 'a'];
-    }
-
-    // Handle the general Ctrl -> Cmd mapping, excluding the strikethrough exception
-    return step.keys.map(k => {
-        const lowerK = k.toLowerCase();
-        if (isMac && lowerK === 'control' && !isStrikethrough) {
-            return 'meta';
-        }
-        return lowerK;
-    });
-};
-
 
 export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   const router = useRouter();
@@ -186,7 +168,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
 
   const getRequiredKeys = useCallback(() => {
     if (!activeStep) return new Set<string>();
-    return new Set(getOsSpecificKeys(activeStep, isMac));
+    return new Set(getPlatformKeys(activeStep, isMac));
   }, [activeStep, isMac]);
 
   useEffect(() => {
@@ -248,8 +230,8 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
         });
       }
     }
-    router.push(`/drill-results?drillId=${drill.id}`);
-  }, [drill.id, router, user, drill.steps.length]);
+    router.push(`/drill-results?drillId=${drill.id}&drillNumber=${drillNumber}`);
+  }, [drill.id, router, user, drill.steps.length, drillNumber]);
 
   const handleIncorrect = useCallback(() => {
     incorrectLockRef.current = true;
@@ -348,17 +330,22 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
     keyHandlersRef.current = {
       handleKeyDown: (e: KeyboardEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         if (e.repeat || stepFeedback !== null || incorrectLockRef.current) {
           return;
         }
         const key = normalizeKey(e.key);
-        setPressedKeys(prev => new Set(prev).add(key));
         if (activeStep?.isSequential) {
           setSequence(prev => [...prev, key]);
+        } else {
+          setPressedKeys(prev => new Set(prev).add(key));
         }
       },
       handleKeyUp: (e: KeyboardEvent) => {
         e.preventDefault();
+        e.stopPropagation();
+        if (activeStep?.isSequential) return;
+
         const key = normalizeKey(e.key);
         setPressedKeys(prev => {
           const newKeys = new Set(prev);
@@ -444,7 +431,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   }, [sequence, activeStep, getRequiredKeys, handleIncorrect, handleStepSuccess]);
   
   const formatKeysForDisplay = (step: DrillStep, isMac: boolean): string => {
-    const keysToDisplay = getOsSpecificKeys(step, isMac);
+    const keysToDisplay = getPlatformKeys(step, isMac);
 
     const displayKeys = keysToDisplay.map(key => {
         const k = key.toLowerCase();

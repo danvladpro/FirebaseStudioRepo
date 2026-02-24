@@ -7,7 +7,7 @@ import { ChallengeSet, ChallengeStep } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, BookOpen, MousePointerClick, ArrowLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getPlatformKeys } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
 import { VisualGrid } from "./visual-grid";
@@ -145,15 +145,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const getRequiredKeys = useCallback(() => {
     if (!currentStep) return new Set<string>();
-    
-    const keys = currentStep.keys.map(k => {
-      const lowerK = k.toLowerCase();
-      if (isMac && lowerK === 'control') {
-          return 'meta';
-      }
-      return lowerK;
-    });
-    return new Set(keys);
+    return new Set(getPlatformKeys(currentStep, isMac));
   }, [currentStep, isMac]);
 
   useEffect(() => {
@@ -301,15 +293,21 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     keyHandlersRef.current = {
       handleKeyDown: (e: KeyboardEvent) => {
         e.preventDefault();
+        e.stopPropagation();
         if (incorrectLockRef.current) return;
+
         const key = normalizeKey(e.key);
-        setPressedKeys(prev => new Set(prev).add(key));
         if (currentStep?.isSequential) {
           processSequentialKeyPress(key);
+        } else {
+          setPressedKeys(prev => new Set(prev).add(key));
         }
       },
       handleKeyUp: (e: KeyboardEvent) => {
         e.preventDefault();
+        e.stopPropagation();
+        if (currentStep?.isSequential) return;
+
         const key = normalizeKey(e.key);
         setPressedKeys(prev => {
           const newKeys = new Set(prev);
