@@ -272,12 +272,12 @@ const drills: Drill[] = [
     description: 'Move values across a row using jump navigation.',
     repetitions: 12, mistakeLimit: 2,
     initialGridState: createGridState([
-      ['Copy Me', 'Text', 'Text', 'Paste Here'],
-      ['Number', 'Text', 'Text', 'Number'],
-      ['Number', 'Text', 'Text', 'Number'],
+      ['Copy Me', '', '', 'Paste Here'],
+      ['','','',''],
+      ['','','',''],
       ['','','','']
-     ],0,0,2),
-    steps: ['jumpLeft', 'copySelection', 'jumpRight', 'pasteData']
+     ],0,2,0),
+    steps: ['jumpTop', 'copySelection', 'jumpRight', 'pasteData']
   },  
   {
     id: 'expand-selection-horizontally',

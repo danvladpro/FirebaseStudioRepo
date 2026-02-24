@@ -22,6 +22,7 @@ import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-eng
 
 interface DrillUIProps {
   drill: Drill;
+  drillNumber: string | null;
 }
 
 enum RepStatus {
@@ -111,7 +112,7 @@ const getOsSpecificKeys = (step: DrillStep, isMac: boolean): string[] => {
 };
 
 
-export function DrillUI({ drill }: DrillUIProps) {
+export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   const router = useRouter();
   const { user, userProfile } = useAuth();
   const [reps, setReps] = useState<RepStatus[]>(() => Array(drill.repetitions).fill(RepStatus.Pending));
@@ -480,7 +481,7 @@ export function DrillUI({ drill }: DrillUIProps) {
       <CardHeader>
         <div className="flex justify-between items-start mb-4">
             <div>
-                <CardTitle>{drill.name}</CardTitle>
+                <CardTitle>{drillNumber ? `${drillNumber}. ` : ''}{drill.name}</CardTitle>
                 <CardDescription>{drill.description}</CardDescription>
             </div>
             <Button asChild variant="outline" size="sm">

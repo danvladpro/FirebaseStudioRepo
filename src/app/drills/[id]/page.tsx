@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/app-header";
 import { DrillUI } from "@/components/drill-ui";
 import { DRILL_SET, ALL_DRILL_STEPS } from "@/lib/drills";
-import { notFound, useRouter } from "next/navigation";
+import { notFound, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BrainCircuit, Repeat, Target, XCircle } from "lucide-react";
 import Link from "next/link";
@@ -19,12 +19,13 @@ import { calculateGridStateForStep } from "@/lib/grid-engine";
 
 export default function DrillPage({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading } = useAuth();
   const [isStarted, setIsStarted] = useState(false);
   const [animationStep, setAnimationStep] = useState(-1);
   
   const drill = DRILL_SET.drills.find(d => d.id === params.id);
-  const drillIndex = DRILL_SET.drills.findIndex(d => d.id === params.id);
+  const drillNumber = searchParams.get('drillNumber');
 
   useEffect(() => {
     if (isStarted || !drill?.initialGridState || drill.steps.length === 0) return;
@@ -88,7 +89,7 @@ export default function DrillPage({ params }: { params: { id: string } }) {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="bg-muted/50 p-4 rounded-lg">
-                            <h3 className="font-semibold text-lg text-center mb-2">{drillIndex >= 0 ? `${drillIndex + 1}. ` : ''}{drill.name}</h3>
+                            <h3 className="font-semibold text-lg text-center mb-2">{drillNumber ? `${drillNumber}. ` : ''}{drill.name}</h3>
                             <p className="text-sm text-muted-foreground text-center">{drill.description}</p>
                              {drill.initialGridState && (
                                 <div className="mt-4 w-full max-w-md mx-auto">
@@ -132,7 +133,7 @@ export default function DrillPage({ params }: { params: { id: string } }) {
     <>
         <AppHeader />
         <main className="min-h-screen w-full flex flex-col items-center justify-center bg-muted/40 p-4 pt-20">
-            <DrillUI drill={drill} />
+            <DrillUI drill={drill} drillNumber={drillNumber} />
         </main>
     </>
   );

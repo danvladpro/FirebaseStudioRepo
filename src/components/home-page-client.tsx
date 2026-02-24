@@ -712,7 +712,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                                             </Button>
                                                         ) : (
                                                             <Button asChild className={buttonClasses}>
-                                                                <Link href={`/drills/${drill.id}`}>
+                                                                <Link href={`/drills/${drill.id}?drillNumber=${index + 1}`}>
                                                                     {buttonContent}
                                                                 </Link>
                                                             </Button>
