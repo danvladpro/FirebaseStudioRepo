@@ -195,6 +195,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const advanceStepOrChallenge = useCallback(() => {
     setFeedback("correct");
     setIsAccentuating(true);
+    setPressedKeys(new Set());
+    setSequence([]);
 
     setTimeout(() => {
         const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
@@ -204,16 +206,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             setCurrentStepIndex(prev => prev + 1);
         }
         
-        setPressedKeys(prev => {
-            const newKeys = new Set<string>();
-            for (const key of prev) {
-                if (isModifier(key)) {
-                    newKeys.add(key);
-                }
-            }
-            return newKeys;
-        });
-        setSequence([]);
         setFeedback(null);
         setIsAccentuating(false);
     }, 400);
@@ -290,11 +282,22 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentChallengeIndex, currentStepIndex, handleSkip, mode]);
 
   useEffect(() => {
+    if (incorrectLockRef.current || feedback !== null || !currentStep || currentStep.isSequential || pressedKeys.size === 0) {
+        return;
+    }
+
+    const requiredKeys = getRequiredKeys();
+    if (pressedKeys.size >= requiredKeys.size && [...requiredKeys].every(k => pressedKeys.has(k))) {
+        advanceStepOrChallenge();
+    }
+  }, [pressedKeys, currentStep, getRequiredKeys, advanceStepOrChallenge, feedback]);
+
+  useEffect(() => {
     keyHandlersRef.current = {
       handleKeyDown: (e: KeyboardEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (e.repeat || incorrectLockRef.current) return;
+        if (e.repeat || incorrectLockRef.current || feedback !== null) return;
 
         const key = normalizeKey(e.key);
         setPressedKeys(prev => new Set(prev).add(key));
@@ -306,39 +309,15 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       handleKeyUp: (e: KeyboardEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (incorrectLockRef.current) {
-          // Still remove key from set even if locked, to prevent sticky keys
-          setPressedKeys(prev => {
-            const newKeys = new Set(prev);
-            newKeys.delete(normalizeKey(e.key));
-            return newKeys;
-          });
-          return;
-        }
-
-        const key = normalizeKey(e.key);
-
-        if (currentStep && !currentStep.isSequential && !isModifier(key)) {
-            // A non-modifier key was just released. This is the trigger to check the combination.
-            const requiredKeys = getRequiredKeys();
-            
-            // Check if the keys that were held down match the required keys exactly.
-            if (pressedKeys.size === requiredKeys.size && [...requiredKeys].every(k => pressedKeys.has(k))) {
-              advanceStepOrChallenge();
-            } else {
-              handleIncorrect();
-            }
-        }
         
-        // Always remove the key from the set on keyup
         setPressedKeys(prev => {
           const newKeys = new Set(prev);
-          newKeys.delete(key);
+          newKeys.delete(normalizeKey(e.key));
           return newKeys;
         });
       },
     };
-  }, [currentStep, processSequentialKeyPress, pressedKeys, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
+  }, [currentStep, processSequentialKeyPress, feedback]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => keyHandlersRef.current.handleKeyDown(e);

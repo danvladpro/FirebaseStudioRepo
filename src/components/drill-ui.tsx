@@ -265,6 +265,8 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
 
   const handleStepSuccess = useCallback(() => {
     setStepFeedback('correct');
+    setPressedKeys(new Set());
+    setSequence([]);
 
     setTimeout(() => {
         const isLastVisualStep = visualStepIndex === drill.steps.length - 1;
@@ -290,17 +292,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
             setLogicalStepIndex(prev => prev + 1);
             setVisualStepIndex(prev => prev + 1);
         }
-
-        setPressedKeys(prev => {
-            const newKeys = new Set<string>();
-            for (const key of prev) {
-                if (isModifier(key)) {
-                    newKeys.add(key);
-                }
-            }
-            return newKeys;
-        });
-        setSequence([]);
+        
         setStepFeedback(null);
     }, 400);
   }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
@@ -327,6 +319,35 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   };
 
   useEffect(() => {
+    if (incorrectLockRef.current || stepFeedback !== null) return;
+    if (!activeStep) return;
+
+    if(activeStep.isSequential) {
+        if (sequence.length === 0) return;
+        const requiredSequence = Array.from(getRequiredKeys());
+
+        for (let i = 0; i < sequence.length; i++) {
+            if (sequence[i] !== requiredSequence[i]) {
+                handleIncorrect();
+                return;
+            }
+        }
+
+        if (sequence.length === requiredSequence.length) {
+            handleStepSuccess();
+        }
+    } else {
+        if (pressedKeys.size === 0) return;
+
+        const requiredKeys = getRequiredKeys();
+        
+        if (pressedKeys.size >= requiredKeys.size && [...requiredKeys].every(k => pressedKeys.has(k))) {
+            handleStepSuccess();
+        }
+    }
+  }, [pressedKeys, sequence, activeStep, getRequiredKeys, handleIncorrect, handleStepSuccess, stepFeedback]);
+
+  useEffect(() => {
     keyHandlersRef.current = {
       handleKeyDown: (e: KeyboardEvent) => {
         e.preventDefault();
@@ -344,34 +365,15 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
       handleKeyUp: (e: KeyboardEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (stepFeedback !== null || incorrectLockRef.current) {
-          setPressedKeys(prev => { // Still need to clear keys even if locked
-            const newKeys = new Set(prev);
-            newKeys.delete(normalizeKey(e.key));
-            return newKeys;
-          });
-          return;
-        }
-
-        const key = normalizeKey(e.key);
-
-        if (activeStep && !activeStep.isSequential && !isModifier(key)) {
-            const requiredKeys = getRequiredKeys();
-            if (pressedKeys.size === requiredKeys.size && [...requiredKeys].every(k => pressedKeys.has(k))) {
-              handleStepSuccess();
-            } else {
-              handleIncorrect();
-            }
-        }
         
         setPressedKeys(prev => {
           const newKeys = new Set(prev);
-          newKeys.delete(key);
+          newKeys.delete(normalizeKey(e.key));
           return newKeys;
         });
       },
     }
-  }, [activeStep, stepFeedback, pressedKeys, getRequiredKeys, handleStepSuccess, handleIncorrect, setSequence]);
+  }, [activeStep, stepFeedback]);
   
   useEffect(() => {
     if (logicalStepIndex >= drill.steps.length) return;
@@ -394,24 +396,6 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
       window.removeEventListener('blur', handleBlur);
     };
   }, [logicalStepIndex, drill.steps.length]);
-  
-  useEffect(() => {
-    if (incorrectLockRef.current) return;
-    if (!activeStep || !activeStep.isSequential || sequence.length === 0) return;
-    
-    const requiredSequence = Array.from(getRequiredKeys());
-
-    for (let i = 0; i < sequence.length; i++) {
-        if (sequence[i] !== requiredSequence[i]) {
-            handleIncorrect();
-            return;
-        }
-    }
-
-    if (sequence.length === requiredSequence.length) {
-        handleStepSuccess();
-    }
-  }, [sequence, activeStep, getRequiredKeys, handleIncorrect, handleStepSuccess]);
   
   const formatKeysForDisplay = (step: DrillStep, isMac: boolean): string => {
     const keysToDisplay = getPlatformKeys(step, isMac);
