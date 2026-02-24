@@ -42,12 +42,18 @@ export const getPlatformKeys = (step: ChallengeStep | DrillStep, isMac: boolean)
   const description = step.description.toLowerCase();
 
   if (!isMac) {
+    // For "Replace All", Windows uses Alt+A. The base keys are likely ['Alt', 'a'].
+    // The base definition for "Replace All" in drills.ts is ['Alt','a'], isSequential: false
+    // It's not sequential so this is fine.
+    if (description.includes("replace all")) {
+        return ['alt', 'a'];
+    }
     return keys.map(k => k.toLowerCase());
   }
 
   // Mac specific full overrides
   if (description.includes("autosum")) {
-    return ["shift", "meta", "t"];
+    return ["alt", "meta", "="];
   }
   if (description.includes("replace all")) {
     return ['meta', 'a'];
