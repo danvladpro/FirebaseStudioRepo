@@ -336,7 +336,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 if (cellContent.includes('$')) {
                     newGridData[row][col] = cellContent.replace(/\$/g, '');
                 } else {
-                    newGridData[row][col] = cellContent.replace(/([A-Z]+)(\d+)/g, (_match, p1, p2) => `=$${p1}$${p2}`);
+                    newGridData[row][col] = cellContent.replace(/([A-Z]+)(\d+)/g, (_match, p1, p2) => `$${p1}$${p2}`);
                 }
             }
             break;
