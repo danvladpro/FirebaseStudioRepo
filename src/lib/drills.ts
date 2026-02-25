@@ -78,10 +78,10 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   underline:     { description: 'Underline', keys: ['Control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
   strikethrough: { description: 'Strikethrough', keys: ['Control', '5'], iconName: 'Strikethrough', gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } },
   
-  applyCurrency: { description: 'Apply currency', keys: ['Control', 'Shift', '$'], iconName: 'DollarSign', gridEffect: { action: 'APPLY_STYLE_CURRENCY' } },
-  applyPercentage: { description: 'Apply percentage', keys: ['Control', 'Shift', '%'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
-  applyGeneralFormat: { description: 'Apply General format', keys: ['Control', 'Shift', '~'], iconName: 'Hash' },
-  applyDateFormat: { description: 'Apply Date format', keys: ['Control', 'Shift', '#'], iconName: 'Calendar' },
+  applyCurrency: { description: 'Apply currency', keys: ['Control', 'Shift', '4'], iconName: 'DollarSign', gridEffect: { action: 'APPLY_STYLE_CURRENCY' } },
+  applyPercentage: { description: 'Apply percentage', keys: ['Control', 'Shift', '5'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
+  applyGeneralFormat: { description: 'Apply General format', keys: ['Control', 'Shift', '`'], iconName: 'Hash' },
+  applyDateFormat: { description: 'Apply Date format', keys: ['Control', 'Shift', '3'], iconName: 'Calendar' },
   decreaseDecimals: { description: 'Decrease decimals', keys: ['Alt', 'h', '9'], iconName: 'MinusCircle' },
   increaseDecimals: { description: 'Increase decimals', keys: ['Alt', 'h', '0'], iconName: 'PlusCircle' },
   centerAlign: { description: 'Center align', keys: ['Alt', 'h', 'a', 'c'], iconName: 'AlignCenter' },
@@ -95,8 +95,8 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   openFormatCells: { description: 'Open Format Cells', keys: ['Control', '1'], iconName: 'Settings2' },
   
   // Data & Formulas
-  editFormula: { description: 'Edit formula', keys: ['F2'], iconName: 'Edit3' },
-  toggleAbsRef: { description: 'Toggle absolute reference', keys: ['F4'], iconName: 'Lock' },
+  editFormula: { description: 'Edit formula', keys: ['F2'], iconName: 'Edit3', gridEffect: { action: 'START_EDITING', payload: { formula: '=Z4' } } },
+  toggleAbsRef: { description: 'Toggle absolute reference', keys: ['F4'], iconName: 'Lock', gridEffect: { action: 'TOGGLE_ABS_REF' } },
   confirmFormula: { description: 'Confirm formula', keys: ['Enter'], iconName: 'CornerDownLeft' },
   autoSum: { description: 'Insert AutoSum', keys: ['Alt', '='], iconName: 'Sigma' },
   toggleFormulas: { description: 'Show formulas', keys: ['Control', '`'], iconName: 'Code' },
@@ -110,7 +110,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   confirmEntry: { description: 'Enter', keys: ['Enter'], iconName: 'CornerDownLeft' },
   confirm: { description: 'Confirm', keys: ['Enter'], iconName: 'CornerDownLeft' },
   fillAll: { description: 'Fill all', keys: ['Control', 'Enter'], iconName: 'CheckCheck', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '9' } } },
-  openFilterDropdown: { description: 'Open dropdown', keys: ['Alt', 'ArrowDown'], iconName: 'Filter' },
+  openFilterDropdown: { description: 'Open dropdown', keys: ['Alt', 'ArrowDown'], iconName: 'Filter', gridEffect: { action: 'SHOW_FILTER_DROPDOWN' } },
   moveToFilterItem: { description: 'Move to item', keys: ['ArrowDown'], iconName: 'ArrowDown' },
   applyFilterSelection: { description: 'Apply selection', keys: ['Enter'], iconName: 'CornerDownLeft' },
   

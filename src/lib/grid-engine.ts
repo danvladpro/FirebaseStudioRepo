@@ -185,7 +185,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 newGridData.splice(rowIndex, 0, newRow);
              });
              break;
-        case 'DELETE_ROW':
+        case 'DELETE_ROW': {
             const rowsToDelete = new Set<number>();
             getCellsToApply(newSelection).forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
             const sortedRowsToDelete = Array.from(rowsToDelete).sort((a, b) => b - a);
@@ -197,6 +197,25 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             newSelection.activeCell.row = Math.max(0, Math.min(newSelection.activeCell.row, newGridData.length - 1));
             newSelection.anchorCell = { ...newSelection.activeCell };
             break;
+        }
+        case 'DELETE_COLUMN': {
+            const colsToDelete = new Set<number>();
+            getCellsToApply(newSelection).forEach(cell => colsToDelete.add(parseInt(cell.split('-')[1])));
+            const sortedColsToDelete = Array.from(colsToDelete).sort((a, b) => b - a);
+            
+            newGridData.forEach(row => {
+                sortedColsToDelete.forEach(colIndex => {
+                    if (colIndex >= 0 && colIndex < row.length) {
+                        row.splice(colIndex, 1);
+                    }
+                });
+            });
+
+            const newColCount = newGridData[0]?.length || 0;
+            newSelection.activeCell.col = Math.max(0, Math.min(newSelection.activeCell.col, newColCount - 1));
+            newSelection.anchorCell = { ...newSelection.activeCell };
+            break;
+        }
         case 'DELETE_CONTENT':
             getCellsToApply(newSelection).forEach(cellId => {
                 const [r, c] = cellId.split('-').map(Number);
@@ -294,11 +313,42 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         }
         case 'PASTE_STATIC_VALUE':
             if (payload?.value) {
-                const {row, col} = newSelection.activeCell;
-                if (newGridData[row]?.[col] !== undefined) newGridData[row][col] = payload.value;
+                getCellsToApply(newSelection).forEach(cellId => {
+                    const [r, c] = cellId.split('-').map(Number);
+                    if (newGridData[r]?.[c] !== undefined) {
+                        newGridData[r][c] = payload.value;
+                    }
+                });
             }
             newCellStyles = {}; 
             break;
+        case 'START_EDITING':
+            if (payload?.formula) {
+                const {row, col} = newSelection.activeCell;
+                if (newGridData[row]?.[col] !== undefined) newGridData[row][col] = payload.formula;
+            }
+            break;
+        case 'TOGGLE_ABS_REF': {
+            const {row, col} = newSelection.activeCell;
+            const cellContent = newGridData[row]?.[col];
+            if (cellContent && cellContent.startsWith('=')) {
+                // Super simplified cycle for demo purposes: A1 -> $A$1 -> A1
+                if (cellContent.includes('$')) {
+                    newGridData[row][col] = cellContent.replace(/\$/g, '');
+                } else {
+                    newGridData[row][col] = cellContent.replace(/([A-Z]+)(\d+)/g, (_match, p1, p2) => `=$${p1}$${p2}`);
+                }
+            }
+            break;
+        }
+        case 'SHOW_FILTER_DROPDOWN': {
+            const {row, col} = newSelection.activeCell;
+            const cellContent = newGridData[row]?.[col];
+            if (cellContent && !cellContent.includes('▾')) {
+                newGridData[row][col] = `${cellContent} ▾`;
+            }
+            break;
+        }
         case 'APPLY_STYLE_BOLD':
             getCellsToApply(newSelection).forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], fontWeight: 'bold' };

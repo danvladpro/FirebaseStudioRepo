@@ -45,7 +45,10 @@ export type GridEffectAction =
   | 'APPLY_STYLE_STRIKETHROUGH'
   | 'APPLY_STYLE_CURRENCY'
   | 'APPLY_STYLE_PERCENTAGE'
-  | 'SWITCH_SHEET';
+  | 'SWITCH_SHEET'
+  | 'START_EDITING'
+  | 'TOGGLE_ABS_REF'
+  | 'SHOW_FILTER_DROPDOWN';
 
 export interface GridEffect {
   action: GridEffectAction;
