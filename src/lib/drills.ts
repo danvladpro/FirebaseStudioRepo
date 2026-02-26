@@ -223,8 +223,16 @@ const bigTable = [['ID', 'Name', 'Date', 'Amount'],
     ['2', 'Project B', '2026-01-05', '1200'],
     ['3', 'Project C', '2026-01-10', '750'],
     ['4', 'Project D', '2026-01-15', '2000'],
-
 ]
+
+const bigTableEmptyRow = [['ID', 'Name', 'Date', 'Amount'],
+    ['1', 'Project A', '2026-01-01', '500'],
+    ['2', 'Project B', '2026-01-05', '1200'],
+    ['3', 'Project C', '2026-01-10', '750'],
+    ['4', 'Project D', '2026-01-15', '2000'],
+    ['', '', '', '']
+]
+
 
 const emptyTable = [['', '', '', ''],
     ['', '', '', ''],
@@ -482,7 +490,7 @@ const drills: Drill[] = [
     description: 'Trigger a quick calculation total.',
     repetitions: 14,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 2, 0),
+    initialGridState: createGridState(bigTableEmptyRow, 0, 2, 0),
     steps: ['jumpRight','selectDownToEdge', 'autoSum']
   },
   {
@@ -573,7 +581,7 @@ const drills: Drill[] = [
     description: 'Normalize numeric formatting across a whole sheet.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
+    initialGridState: createGridState(bigTable, 0, 0, 0),
     steps: ['selectDownToEdge','selectRightToEdge', 'applyGeneralFormat']
   },
   {
@@ -583,8 +591,8 @@ const drills: Drill[] = [
     description: 'Format adjacent columns with distinct data types.',
     repetitions: 8,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectDownToEdge', 'applyDateFormat','moveLeft','bold']
+    initialGridState: createGridState(bigTable,0,1,2),
+    steps: ['selectDownToEdge', 'applyDateFormat','jumpLeft','bold']
   },
 
   // ==========================================
