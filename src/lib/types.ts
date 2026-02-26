@@ -9,6 +9,12 @@ export interface Sheet {
     activeCell: { row: number; col: number };
     anchorCell: { row: number; col: number };
   };
+  hiddenRows?: Set<number>;
+  hiddenColumns?: Set<number>;
+  viewport?: {
+    startRow: number;
+    rowCount: number;
+  };
 }
 
 export interface GridState {
@@ -48,7 +54,13 @@ export type GridEffectAction =
   | 'SWITCH_SHEET'
   | 'START_EDITING'
   | 'TOGGLE_ABS_REF'
-  | 'SHOW_FILTER_DROPDOWN';
+  | 'SHOW_FILTER_DROPDOWN'
+  | 'HIDE_ROW'
+  | 'HIDE_COLUMN'
+  | 'UNHIDE_ROWS'
+  | 'SCROLL_PAGE_DOWN'
+  | 'SCROLL_PAGE_UP'
+  | 'AUTOSUM';
 
 export interface GridEffect {
   action: GridEffectAction;

@@ -47,6 +47,18 @@ export function VisualGrid({
     const finalActiveSheetIndex = (isAccentuating && isSheetSwitch && previewState)
         ? previewState.gridState.activeSheetIndex
         : gridState.activeSheetIndex;
+
+    const { hiddenRows = new Set<number>(), hiddenColumns = new Set<number>() } = finalSheet;
+    const viewport = finalSheet.viewport || { startRow: 0, rowCount: gridDataToRender.length };
+
+    const visibleColumns: number[] = [];
+    if (gridDataToRender.length > 0 && gridDataToRender[0]) {
+        for (let i = 0; i < gridDataToRender[0].length; i++) {
+            if (!hiddenColumns.has(i)) {
+                visibleColumns.push(i);
+            }
+        }
+    }
     
     return (
         <div className="p-2 bg-muted/50 rounded-lg border">
@@ -55,100 +67,70 @@ export function VisualGrid({
                     <thead>
                         <tr>
                             <th className="p-1 w-10"></th>
-                            {gridDataToRender.length > 0 &&
-                                gridDataToRender[0].map((_, colIndex) => (
-                                    <th
-                                        key={colIndex}
-                                        className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-t-sm"
-                                    >
-                                        {String.fromCharCode(65 + colIndex)}
-                                    </th>
-                                ))}
+                            {visibleColumns.map((colIndex) => (
+                                <th
+                                    key={colIndex}
+                                    className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-t-sm"
+                                >
+                                    {String.fromCharCode(65 + colIndex)}
+                                </th>
+                            ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {gridDataToRender.map((row, rowIndex) => (
-                            <tr key={rowIndex}>
-                                <td className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-l-sm">
-                                    {rowIndex + 1}
-                                </td>
+                        {Array.from({ length: Math.min(viewport.rowCount, gridDataToRender.length - viewport.startRow) }).map((_, i) => {
+                            const rowIndex = viewport.startRow + i;
+                            if (hiddenRows.has(rowIndex) || !gridDataToRender[rowIndex]) return null;
 
-                                {row.map((cell, colIndex) => {
-                                    const cellId = `${rowIndex}-${colIndex}`;
-                                    const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
+                            return (
+                                <tr key={rowIndex}>
+                                    <td className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-l-sm">
+                                        {rowIndex + 1}
+                                    </td>
+                                    {visibleColumns.map((colIndex) => {
+                                        const cell = gridDataToRender[rowIndex][colIndex];
+                                        const cellId = `${rowIndex}-${colIndex}`;
+                                        const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
 
-                                    const isPreviewing = !isAccentuating && previewSheet;
-                                    
-                                    const getCellClasses = () => {
-                                        const classes: string[] = [];
-                                        const isSelected = rowIndex >= minRow && rowIndex <= maxRow && colIndex >= minCol && colIndex <= maxCol;
-                                        const borderColor = isAccentuating ? 'border-emerald-600' : 'border-primary';
+                                        const getCellClasses = () => {
+                                            const classes: string[] = [];
+                                            const isSelected = rowIndex >= minRow && rowIndex <= maxRow && colIndex >= minCol && colIndex <= maxCol;
+                                            const borderColor = isAccentuating ? 'border-emerald-600' : 'border-primary';
 
-                                        if (isRangeSelection && isSelected) {
-                                            // Apply background fill to all cells in the range first.
-                                            if (isAccentuating) {
-                                                classes.push('bg-emerald-500/20');
-                                            } else {
-                                                classes.push('bg-blue-500/15');
+                                            if (isRangeSelection && isSelected) {
+                                                if (isAccentuating) classes.push('bg-emerald-500/20');
+                                                else classes.push('bg-blue-500/15');
+                                                
+                                                if (isActive) classes.push('bg-background');
+
+                                                classes.push(borderColor);
+                                                if (rowIndex === minRow) classes.push('border-t-2');
+                                                if (rowIndex === maxRow) classes.push('border-b-2');
+                                                if (colIndex === minCol) classes.push('border-l-2');
+                                                if (colIndex === maxCol) classes.push('border-r-2');
+                                            } else if (isActive) {
+                                                if (isAccentuating) classes.push('ring-2', 'ring-emerald-600', 'ring-inset', 'bg-emerald-500/20');
+                                                else classes.push('ring-2', 'ring-primary', 'ring-inset');
                                             }
-                                            
-                                            // The active cell within a range has a transparent background.
-                                            if (isActive) {
-                                                classes.push('bg-background');
-                                            }
+                                            return classes;
+                                        };
 
-                                            // Apply colored borders to ALL selected cells. This handles inner borders.
-                                            classes.push(borderColor);
-
-                                            // Apply thicker outer borders to the range
-                                            if (rowIndex === minRow) classes.push('border-t-2');
-                                            if (rowIndex === maxRow) classes.push('border-b-2');
-                                            if (colIndex === minCol) classes.push('border-l-2');
-                                            if (colIndex === maxCol) classes.push('border-r-2');
-
-                                        } else if (isActive) { // Single cell selection
-                                            if (isAccentuating) {
-                                                classes.push('ring-2', 'ring-emerald-600', 'ring-inset', 'bg-emerald-500/20');
-                                            } else {
-                                                classes.push('ring-2', 'ring-primary', 'ring-inset');
-                                            }
-                                        }
-
-                                        // Preview logic
-                                        if(isPreviewing && previewSheet) {
-                                            const { activeCell: pActive, anchorCell: pAnchor } = previewSheet.selection;
-                                            const pMinRow = Math.min(pAnchor.row, pActive.row);
-                                            const pMaxRow = Math.max(pAnchor.row, pActive.row);
-                                            const pMinCol = Math.min(pAnchor.col, pActive.col);
-                                            const pMaxCol = Math.max(pAnchor.col, pActive.col);
-                                            const isPreviewSelected = rowIndex >= pMinRow && rowIndex <= pMaxRow && colIndex >= pMinCol && colIndex <= pMaxCol;
-                                            const isPreviewRange = pMinRow !== pMaxRow || pMinCol !== pMaxCol;
-
-                                            if (isPreviewRange && isPreviewSelected) {
-                                                classes.push('bg-blue-500/15');
-                                            } else if (!isPreviewRange && rowIndex === pActive.row && colIndex === pActive.col) {
-                                                classes.push('bg-emerald-500/20');
-                                            }
-                                        }
-
-                                        return classes;
-                                    };
-
-                                    return (
-                                        <td
-                                            key={colIndex}
-                                            className={cn(
-                                                "border border-border p-1.5 text-sm truncate transition-colors duration-200",
-                                                ...getCellClasses()
-                                            )}
-                                            style={finalCellStyles[cellId] || {}}
-                                        >
-                                            {cell}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        ))}
+                                        return (
+                                            <td
+                                                key={colIndex}
+                                                className={cn(
+                                                    "border border-border p-1.5 text-sm truncate transition-colors duration-200",
+                                                    ...getCellClasses()
+                                                )}
+                                                style={finalCellStyles[cellId] || {}}
+                                            >
+                                                {cell}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>

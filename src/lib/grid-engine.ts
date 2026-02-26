@@ -12,6 +12,9 @@ export const deepCloneGridState = (state: GridState): GridState => {
       name: sheet.name,
       data: sheet.data.map(row => [...row]),
       selection: deepCloneSelection(sheet.selection),
+      hiddenRows: sheet.hiddenRows ? new Set(sheet.hiddenRows) : undefined,
+      hiddenColumns: sheet.hiddenColumns ? new Set(sheet.hiddenColumns) : undefined,
+      viewport: sheet.viewport ? { ...sheet.viewport } : undefined,
     })),
     activeSheetIndex: state.activeSheetIndex,
     clipboard: state.clipboard ? {
@@ -62,7 +65,7 @@ function findEdgeCell(
         case 'down':
             if (isStartCellEmpty) {
                 while (r < numRows - 1 && isCellEmpty(r + 1, c)) r++;
-                if (r < numRows - 1) r++; // Land on the non-empty cell
+                if (r < numRows - 1 && !isCellEmpty(r,c)) r++; // Land on the non-empty cell if we moved
             } else {
                 while (r < numRows - 1 && !isCellEmpty(r + 1, c)) r++;
             }
@@ -71,7 +74,7 @@ function findEdgeCell(
         case 'up':
             if (isStartCellEmpty) {
                 while (r > 0 && isCellEmpty(r - 1, c)) r--;
-                if (r > 0) r--;
+                if (r > 0 && !isCellEmpty(r,c)) r--;
             } else {
                 while (r > 0 && !isCellEmpty(r - 1, c)) r--;
             }
@@ -80,7 +83,7 @@ function findEdgeCell(
         case 'right':
             if (isStartCellEmpty) {
                 while (c < numCols - 1 && isCellEmpty(r, c + 1)) c++;
-                if (c < numCols - 1) c++;
+                if (c < numCols - 1 && !isCellEmpty(r,c)) c++;
             } else {
                 while (c < numCols - 1 && !isCellEmpty(r, c + 1)) c++;
             }
@@ -89,7 +92,7 @@ function findEdgeCell(
         case 'left':
             if (isStartCellEmpty) {
                 while (c > 0 && isCellEmpty(r, c - 1)) c--;
-                if (c > 0) c--;
+                if (c > 0 && !isCellEmpty(r,c)) c--;
             } else {
                 while (c > 0 && !isCellEmpty(r, c - 1)) c--;
             }
@@ -171,7 +174,6 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             if (payload?.to) {
                 const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
                 
-                // For range selections, jumps should originate from the anchor cell to be intuitive.
                 let { row, col } = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
                 
                 const directions: { [key: string]: 'up' | 'down' | 'left' | 'right' | undefined } = {
@@ -446,6 +448,68 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             const cellContent = newGridData[row]?.[col];
             if (cellContent && !cellContent.includes('▾')) {
                 newGridData[row][col] = `${cellContent} ▾`;
+            }
+            break;
+        }
+        case 'HIDE_ROW': {
+            if (!activeSheet.hiddenRows) {
+                activeSheet.hiddenRows = new Set();
+            }
+            getCellsToApply(newSelection).forEach(cellId => {
+                const [r] = cellId.split('-').map(Number);
+                activeSheet.hiddenRows!.add(r);
+            });
+            break;
+        }
+        case 'HIDE_COLUMN': {
+            if (!activeSheet.hiddenColumns) {
+                activeSheet.hiddenColumns = new Set();
+            }
+            getCellsToApply(newSelection).forEach(cellId => {
+                const [, c] = cellId.split('-').map(Number);
+                activeSheet.hiddenColumns!.add(c);
+            });
+            break;
+        }
+        case 'UNHIDE_ROWS': {
+            if (activeSheet.hiddenRows) {
+                activeSheet.hiddenRows.clear();
+            }
+            break;
+        }
+        case 'SCROLL_PAGE_DOWN': {
+            if (!activeSheet.viewport) {
+                activeSheet.viewport = { startRow: 0, rowCount: 15 };
+            }
+            const { startRow, rowCount } = activeSheet.viewport;
+            const newStartRow = Math.min(newGridData.length - rowCount, startRow + rowCount);
+            activeSheet.viewport.startRow = newStartRow;
+            break;
+        }
+        case 'SCROLL_PAGE_UP': {
+            if (!activeSheet.viewport) {
+                activeSheet.viewport = { startRow: 0, rowCount: 15 };
+            }
+            const { startRow, rowCount } = activeSheet.viewport;
+            const newStartRow = Math.max(0, startRow - rowCount);
+            activeSheet.viewport.startRow = newStartRow;
+            break;
+        }
+        case 'AUTOSUM': {
+            const { row, col } = newSelection.activeCell;
+            
+            let endRangeRow = row - 1;
+            while(endRangeRow >= 0 && newGridData[endRangeRow][col] && !isNaN(parseFloat(newGridData[endRangeRow][col]))) {
+                endRangeRow--;
+            }
+            endRangeRow++; // Move back to the first valid number row
+
+            if (endRangeRow < row) {
+                 const startRangeColChar = String.fromCharCode(65 + col);
+                 const formula = `=SUM(${startRangeColChar}${endRangeRow + 1}:${startRangeColChar}${row})`;
+                 if (newGridData[row] && newGridData[row][col] !== undefined) {
+                    newGridData[row][col] = formula;
+                 }
             }
             break;
         }
