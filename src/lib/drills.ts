@@ -117,6 +117,9 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   // Structure & Dialogs
   insertRow: { description: 'Insert row', keys: ['Control', 'Shift', '='], iconName: 'Sheet', gridEffect: { action: 'INSERT_ROW' } },
   deleteRow: { description: 'Delete row', keys: ['Control', '-'], iconName: 'Trash2', gridEffect: { action: 'DELETE_ROW' } },
+  deleteCol: { description: 'Delete Column', keys: ['Control', '-'], iconName: 'Trash2', gridEffect: { action: 'DELETE_COLUMN' } },
+
+  
   hideRow: { description: 'Hide row', keys: ['Control', '9'], iconName: 'EyeOff' },
   unhideRows: { description: 'Unhide all rows', keys: ['Control', 'a'], iconName: 'Eye' },
   groupRows: { description: 'Group selected', keys: ['Shift', 'Alt', 'ArrowRight'], iconName: 'FolderPlus' },
@@ -225,12 +228,12 @@ const bigTable = [['ID', 'Name', 'Date', 'Amount'],
     ['4', 'Project D', '2026-01-15', '2000'],
 ]
 
-const bigTableEmptyRow = [['ID', 'Name', 'Date', 'Amount'],
-    ['1', 'Project A', '2026-01-01', '500'],
-    ['2', 'Project B', '2026-01-05', '1200'],
-    ['3', 'Project C', '2026-01-10', '750'],
-    ['4', 'Project D', '2026-01-15', '2000'],
-    ['', '', '', '']
+const bigTableEmptyRow = [['ID', 'Name', 'Date', 'Amount',''],
+    ['1', 'Project A', '2026-01-01', '500',''],
+    ['2', 'Project B', '2026-01-05', '1200',''],
+    ['3', 'Project C', '2026-01-10', '750',''],
+    ['4', 'Project D', '2026-01-15', '2000',''],
+    ['', '', '', '','']
 ]
 
 
@@ -572,7 +575,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
-    steps: [ 'nextSheet',	'selectCol',	'expandRight','expandRight']
+    steps: [ 'nextSheet',	'selectCol','deleteCol','deleteRow']
   },
   {
     id: 'reset-general-format',

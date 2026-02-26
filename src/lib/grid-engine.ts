@@ -149,11 +149,9 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         case 'MOVE_SELECTION':
             if (payload?.direction) {
                 const { direction, amount = 1 } = payload;
-
-                // If a range is selected, a non-Shift key move should originate from the anchor cell,
-                // which mimics Excel's behavior where the initial cell of a selection remains the active one for such moves.
-                const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
-                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+                
+                // A move action originates from the active cell.
+                const startCell = newSelection.activeCell;
 
                 let { row, col } = startCell;
                 
@@ -250,32 +248,67 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         case 'DELETE_ROW': {
             const rowsToDelete = new Set<number>();
             getCellsToApply(newSelection).forEach(cell => rowsToDelete.add(parseInt(cell.split('-')[0])));
-            const sortedRowsToDelete = Array.from(rowsToDelete).sort((a, b) => b - a);
-            sortedRowsToDelete.forEach(rowIndex => {
-                if (rowIndex >= 0 && rowIndex < newGridData.length) {
-                    newGridData.splice(rowIndex, 1);
+            const sortedRowsToDelete = Array.from(rowsToDelete).sort((a, b) => a - b);
+            
+            if (sortedRowsToDelete.length > 0) {
+                const numCols = newGridData[0]?.length || 0;
+        
+                // Count how many deleted rows were above each selection corner
+                const rowsDeletedAboveActive = sortedRowsToDelete.filter(r => r < newSelection.activeCell.row).length;
+                const rowsDeletedAboveAnchor = sortedRowsToDelete.filter(r => r < newSelection.anchorCell.row).length;
+        
+                // Delete from bottom-up to preserve indices during loop
+                for (let i = sortedRowsToDelete.length - 1; i >= 0; i--) {
+                    const rowIndex = sortedRowsToDelete[i];
+                    if (rowIndex >= 0 && rowIndex < newGridData.length) {
+                        newGridData.splice(rowIndex, 1);
+                    }
                 }
-            });
-            newSelection.activeCell.row = Math.max(0, Math.min(newSelection.activeCell.row, newGridData.length - 1));
-            newSelection.anchorCell = { ...newSelection.activeCell };
+        
+                // Add new empty rows at the bottom to maintain grid size
+                const numDeleted = sortedRowsToDelete.length;
+                for (let i = 0; i < numDeleted; i++) {
+                    newGridData.push(new Array(numCols).fill(''));
+                }
+        
+                // Update selection position by shifting it up
+                newSelection.activeCell.row = Math.max(0, newSelection.activeCell.row - rowsDeletedAboveActive);
+                newSelection.anchorCell.row = Math.max(0, newSelection.anchorCell.row - rowsDeletedAboveAnchor);
+            }
             break;
         }
         case 'DELETE_COLUMN': {
             const colsToDelete = new Set<number>();
             getCellsToApply(newSelection).forEach(cell => colsToDelete.add(parseInt(cell.split('-')[1])));
-            const sortedColsToDelete = Array.from(colsToDelete).sort((a, b) => b - a);
+            const sortedColsToDelete = Array.from(colsToDelete).sort((a, b) => a - b);
             
-            newGridData.forEach(row => {
-                sortedColsToDelete.forEach(colIndex => {
-                    if (colIndex >= 0 && colIndex < row.length) {
-                        row.splice(colIndex, 1);
+            if (sortedColsToDelete.length > 0) {
+                // Count how many deleted cols were to the left of each selection corner
+                const colsDeletedBeforeActive = sortedColsToDelete.filter(c => c < newSelection.activeCell.col).length;
+                const colsDeletedBeforeAnchor = sortedColsToDelete.filter(c => c < newSelection.anchorCell.col).length;
+        
+                // Delete from each row from right-to-left
+                newGridData.forEach(row => {
+                    for (let i = sortedColsToDelete.length - 1; i >= 0; i--) {
+                        const colIndex = sortedColsToDelete[i];
+                        if (colIndex >= 0 && colIndex < row.length) {
+                            row.splice(colIndex, 1);
+                        }
                     }
                 });
-            });
-
-            const newColCount = newGridData[0]?.length || 0;
-            newSelection.activeCell.col = Math.max(0, Math.min(newSelection.activeCell.col, newColCount - 1));
-            newSelection.anchorCell = { ...newSelection.activeCell };
+        
+                // Add new empty cells at the end of each row to maintain grid size
+                const numDeleted = sortedColsToDelete.length;
+                newGridData.forEach(row => {
+                    for (let i = 0; i < numDeleted; i++) {
+                        row.push('');
+                    }
+                });
+        
+                // Update selection position by shifting it left
+                newSelection.activeCell.col = Math.max(0, newSelection.activeCell.col - colsDeletedBeforeActive);
+                newSelection.anchorCell.col = Math.max(0, newSelection.anchorCell.col - colsDeletedBeforeAnchor);
+            }
             break;
         }
         case 'DELETE_CONTENT':
@@ -375,10 +408,11 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         }
         case 'PASTE_STATIC_VALUE':
             if (payload?.value) {
+                const valueToFill = newGridData[newSelection.activeCell.row][newSelection.activeCell.col] || payload.value;
                 getCellsToApply(newSelection).forEach(cellId => {
                     const [r, c] = cellId.split('-').map(Number);
                     if (newGridData[r]?.[c] !== undefined) {
-                        newGridData[r][c] = payload.value;
+                        newGridData[r][c] = valueToFill;
                     }
                 });
             }
@@ -398,7 +432,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 if (cellContent.includes('$')) {
                     newGridData[row][col] = cellContent.replace(/\$/g, '');
                 } else {
-                    newGridData[row][col] = cellContent.replace(/([A-Z]+)(\d+)/g, '$' + '$1' + '$' + '$2');
+                    newGridData[row][col] = cellContent.replace(/([A-Z]+)(\d+)/g, '$$$1$$$2');
                 }
             }
             break;
@@ -480,3 +514,6 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
     return { gridState: runningGridState, cellStyles: runningCellStyles };
 };
 
+
+
+    
