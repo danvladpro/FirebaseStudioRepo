@@ -575,7 +575,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
-    steps: [ 'nextSheet',	'selectCol','deleteCol','deleteRow']
+    steps: [ 'nextSheet',	'selectCol','deleteCol']
   },
   {
     id: 'reset-general-format',

@@ -169,7 +169,11 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
-                let { row, col } = newSelection.activeCell;
+                const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
+                
+                // For range selections, jumps should originate from the anchor cell to be intuitive.
+                let { row, col } = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+                
                 const directions: { [key: string]: 'up' | 'down' | 'left' | 'right' | undefined } = {
                     edgeUp: 'up',
                     edgeDown: 'down',
