@@ -60,62 +60,51 @@ function findEdgeCell(
     let r = startRow;
     let c = startCol;
     const isStartCellEmpty = isCellEmpty(r, c);
+    const isAtEdgeOfData = 
+        (direction === 'up' && (r === 0 || isCellEmpty(r-1, c) !== isStartCellEmpty)) ||
+        (direction === 'down' && (r === numRows - 1 || isCellEmpty(r+1, c) !== isStartCellEmpty)) ||
+        (direction === 'left' && (c === 0 || isCellEmpty(r, c-1) !== isStartCellEmpty)) ||
+        (direction === 'right' && (c === numCols - 1 || isCellEmpty(r, c+1) !== isStartCellEmpty));
 
-    if (isStartCellEmpty) {
-        // If starting from an empty cell, jump over empty space to the next data block.
+
+    if (isStartCellEmpty || isAtEdgeOfData) {
+        // If starting from an empty cell OR at the edge of a data block, jump over empty space to the next data block.
         switch (direction) {
             case 'down':
                 while (r < numRows - 1 && isCellEmpty(r + 1, c)) r++;
-                if (r < numRows - 1) r++;
+                if (r < numRows - 1 && isStartCellEmpty) r++; // if we started empty, land on the data cell
+                else if (r < numRows - 1 && !isStartCellEmpty) r++; // if we started on data edge, land on next data cell
                 break;
             case 'up':
                 while (r > 0 && isCellEmpty(r - 1, c)) r--;
-                if (r > 0) r--;
+                if (r > 0 && isStartCellEmpty) r--;
+                else if (r > 0 && !isStartCellEmpty) r--;
                 break;
             case 'right':
                 while (c < numCols - 1 && isCellEmpty(r, c + 1)) c++;
-                if (c < numCols - 1) c++;
+                if (c < numCols - 1 && isStartCellEmpty) c++;
+                else if (c < numCols - 1 && !isStartCellEmpty) c++;
                 break;
             case 'left':
                 while (c > 0 && isCellEmpty(r, c - 1)) c--;
-                if (c > 0) c--;
+                if (c > 0 && isStartCellEmpty) c--;
+                else if (c > 0 && !isStartCellEmpty) c--;
                 break;
         }
     } else {
-        // If starting from a filled cell.
+        // If starting from within a filled cell block, jump to the edge of that block.
         switch (direction) {
             case 'down':
-                 // If the next cell is also not empty, we are inside a block. Jump to the edge.
-                if (r < numRows - 1 && !isCellEmpty(r + 1, c)) {
-                    while (r < numRows - 1 && !isCellEmpty(r + 1, c)) r++;
-                } else { // We are at an edge, jump over empty space to next block.
-                     while (r < numRows - 1 && isCellEmpty(r + 1, c)) r++;
-                     if (r < numRows - 1) r++;
-                }
+                while (r < numRows - 1 && !isCellEmpty(r + 1, c)) r++;
                 break;
             case 'up':
-                 if (r > 0 && !isCellEmpty(r - 1, c)) {
-                    while (r > 0 && !isCellEmpty(r - 1, c)) r--;
-                } else {
-                     while (r > 0 && isCellEmpty(r - 1, c)) r--;
-                     if (r > 0) r--;
-                }
+                while (r > 0 && !isCellEmpty(r - 1, c)) r--;
                 break;
             case 'right':
-                if (c < numCols - 1 && !isCellEmpty(r, c + 1)) {
-                    while (c < numCols - 1 && !isCellEmpty(r, c + 1)) c++;
-                } else {
-                    while (c < numCols - 1 && isCellEmpty(r, c + 1)) c++;
-                    if (c < numCols - 1) c++;
-                }
+                while (c < numCols - 1 && !isCellEmpty(r, c + 1)) c++;
                 break;
             case 'left':
-                if (c > 0 && !isCellEmpty(r, c - 1)) {
-                    while (c > 0 && !isCellEmpty(r, c - 1)) c--;
-                } else {
-                     while (c > 0 && isCellEmpty(r, c - 1)) c--;
-                     if (c > 0) c--;
-                }
+                while (c > 0 && !isCellEmpty(r, c - 1)) c--;
                 break;
         }
     }
@@ -173,7 +162,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'MOVE_SELECTION':
             if (payload?.direction) {
-                const startCell = newSelection.anchorCell;
+                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
 
                 const { direction, amount = 1 } = payload;
                 
@@ -193,7 +182,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
-                const startCell = newSelection.anchorCell;
+                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
                 
                 let { row, col } = startCell;
                 
@@ -213,7 +202,23 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                     switch(payload.to) {
                         case 'home': col = 0; break;
                         case 'topLeft': row = 0; col = 0; break;
-                        case 'end': if (newGridData.length > 0 && newGridData[0]) { row = newGridData.length - 1; col = newGridData[0].length - 1; } break;
+                        case 'end': {
+                            let lastUsedRow = -1;
+                            let lastUsedCol = -1;
+                            newGridData.forEach((rowData, r) => {
+                                let rowHasData = false;
+                                rowData.forEach((cell, c) => {
+                                    if (cell && cell.trim() !== '') {
+                                        rowHasData = true;
+                                        if (c > lastUsedCol) lastUsedCol = c;
+                                    }
+                                });
+                                if (rowHasData) lastUsedRow = r;
+                            });
+                            if (lastUsedRow !== -1) row = lastUsedRow;
+                            if (lastUsedCol !== -1) col = lastUsedCol;
+                            break;
+                        }
                     }
                 }
                 // A jump collapses the selection to the new cell.
@@ -286,11 +291,30 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         }
 
-        case 'SELECT_TO_END':
-             if (newGridData.length > 0 && newGridData[0]) {
-                newSelection.activeCell = { row: newGridData.length - 1, col: newGridData[0].length - 1 };
+        case 'SELECT_TO_END': {
+            let lastUsedRow = -1;
+            let lastUsedCol = -1;
+
+            newGridData.forEach((row, r) => {
+                let rowHasData = false;
+                row.forEach((cell, c) => {
+                    if (cell && cell.trim() !== '') {
+                        rowHasData = true;
+                        if (c > lastUsedCol) {
+                            lastUsedCol = c;
+                        }
+                    }
+                });
+                if (rowHasData) {
+                    lastUsedRow = r;
+                }
+            });
+
+            if (lastUsedRow !== -1 && lastUsedCol !== -1) {
+                newSelection.activeCell = { row: lastUsedRow, col: lastUsedCol };
             }
             break;
+        }
 
         // ---Destructive/Formatting Actions---
         case 'INSERT_ROW':
@@ -654,3 +678,4 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
     
 
     
+

@@ -405,7 +405,7 @@ const drills: Drill[] = [
     name: 'One-Shot Workspace Selection',
     description: 'Select everything from current cell to the end of data.',
     repetitions: 12, mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
+    initialGridState: createGridState(bigTableEmptyRow,0,2,0),
     steps: ['selectToEnd', 'underline']
   },
   {
