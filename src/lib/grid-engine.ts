@@ -62,66 +62,78 @@ function findEdgeCell(
     const isStartCellEmpty = isCellEmpty(r, c);
 
     switch (direction) {
-        case 'down':
-            if (isStartCellEmpty) {
-                // If starting from empty, find the next non-empty cell downwards, or the edge.
+        case 'down': {
+            const isAtBottomEdge = r === numRows - 1 || isCellEmpty(r + 1, c);
+            if (!isStartCellEmpty && !isAtBottomEdge) {
+                // Inside a data block, find the bottom edge
+                while (r < numRows - 1 && !isCellEmpty(r + 1, c)) {
+                    r++;
+                }
+            } else {
+                // In an empty cell OR at the bottom edge, find next non-empty cell
                 let currentRow = r + 1;
                 while (currentRow < numRows && isCellEmpty(currentRow, c)) {
                     currentRow++;
                 }
-                // If we went past the end, clamp to the last row.
-                r = Math.min(currentRow, numRows - 1);
-            } else {
-                // If starting from non-empty, find the last non-empty cell in the current block.
-                while (r < numRows - 1 && !isCellEmpty(r + 1, c)) {
-                    r++;
-                }
+                r = (currentRow < numRows) ? currentRow : numRows - 1;
             }
             return { row: r, col: c };
+        }
 
-        case 'up':
-            if (isStartCellEmpty) {
+        case 'up': {
+            const isAtTopEdge = r === 0 || isCellEmpty(r - 1, c);
+            if (!isStartCellEmpty && !isAtTopEdge) {
+                // Inside a data block, find the top edge
+                while (r > 0 && !isCellEmpty(r - 1, c)) {
+                    r--;
+                }
+            } else {
+                // In an empty cell OR at the top edge, find next non-empty cell
                 let currentRow = r - 1;
                 while (currentRow >= 0 && isCellEmpty(currentRow, c)) {
                     currentRow--;
                 }
-                r = Math.max(currentRow, 0);
-            } else {
-                while (r > 0 && !isCellEmpty(r - 1, c)) {
-                    r--;
-                }
+                r = (currentRow >= 0) ? currentRow : 0;
             }
             return { row: r, col: c };
+        }
 
-        case 'right':
-            if (isStartCellEmpty) {
+        case 'right': {
+            const isAtRightEdge = c === numCols - 1 || isCellEmpty(r, c + 1);
+            if (!isStartCellEmpty && !isAtRightEdge) {
+                // Inside a data block, find the right edge
+                while (c < numCols - 1 && !isCellEmpty(r, c + 1)) {
+                    c++;
+                }
+            } else {
+                // In an empty cell OR at the right edge, find next non-empty cell
                 let currentCol = c + 1;
                 while (currentCol < numCols && isCellEmpty(r, currentCol)) {
                     currentCol++;
                 }
-                c = Math.min(currentCol, numCols - 1);
-            } else {
-                while (c < numCols - 1 && !isCellEmpty(r, c + 1)) {
-                    c++;
-                }
+                c = (currentCol < numCols) ? currentCol : numCols - 1;
             }
             return { row: r, col: c };
+        }
 
-        case 'left':
-            if (isStartCellEmpty) {
+        case 'left': {
+            const isAtLeftEdge = c === 0 || isCellEmpty(r, c - 1);
+            if (!isStartCellEmpty && !isAtLeftEdge) {
+                // Inside a data block, find the left edge
+                while (c > 0 && !isCellEmpty(r, c - 1)) {
+                    c--;
+                }
+            } else {
+                // In an empty cell OR at the left edge, find next non-empty cell
                 let currentCol = c - 1;
                 while (currentCol >= 0 && isCellEmpty(r, currentCol)) {
                     currentCol--;
                 }
-                c = Math.max(currentCol, 0);
-            } else {
-                while (c > 0 && !isCellEmpty(r, c - 1)) {
-                    c--;
-                }
+                c = (currentCol >= 0) ? currentCol : 0;
             }
             return { row: r, col: c };
+        }
     }
-    return { row: r, col: c }; // Should not be reached
 }
 
 
@@ -195,9 +207,8 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
-                // A jump from a range originates from the anchor cell
-                const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
-                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+                // For a jump, we always start from the active cell.
+                const startCell = newSelection.activeCell;
                 
                 let { row, col } = startCell;
                 
@@ -220,6 +231,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                         case 'end': if (newGridData.length > 0 && newGridData[0]) { row = newGridData.length - 1; col = newGridData[0].length - 1; } break;
                     }
                 }
+                // A jump collapses the selection to the new cell.
                 newSelection.activeCell = { row, col };
                 newSelection.anchorCell = { row, col };
             }
@@ -241,22 +253,8 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         case 'SELECT_TO_EDGE':
             if (payload?.direction) {
                 let { row, col } = newSelection.activeCell;
-                const { anchorCell } = newSelection;
-
-                const isFullRowSelected = newGridData[0] && anchorCell.col === 0 && newSelection.activeCell.col === newGridData[0].length - 1;
-                const isFullColSelected = anchorCell.row === 0 && newSelection.activeCell.row === newGridData.length - 1;
-
-                if (isFullRowSelected && (payload.direction === 'down' || payload.direction === 'up')) {
-                    row = payload.direction === 'down' ? newGridData.length - 1 : 0;
-                    newSelection.activeCell = { row, col: newSelection.activeCell.col };
-                } else if (isFullColSelected && (payload.direction === 'left' || payload.direction === 'right')) {
-                    col = payload.direction === 'right' ? (newGridData[0]?.length - 1 || 0) : 0;
-                    newSelection.activeCell = { row: newSelection.activeCell.row, col };
-                }
-                else {
-                    const newPos = findEdgeCell(newGridData, row, col, payload.direction);
-                    newSelection.activeCell = newPos;
-                }
+                const newPos = findEdgeCell(newGridData, row, col, payload.direction);
+                newSelection.activeCell = newPos;
             }
             break;
 
@@ -608,5 +606,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 };
 
 
+
+    
 
     
