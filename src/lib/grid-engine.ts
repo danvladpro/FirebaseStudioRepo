@@ -570,7 +570,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         }
         case 'SCROLL_PAGE_DOWN': {
             if (!activeSheet.viewport) {
-                activeSheet.viewport = { startRow: 0, rowCount: 15 };
+                activeSheet.viewport = { startRow: 0, rowCount: 6 };
             }
             const { startRow, rowCount } = activeSheet.viewport;
             const newStartRow = Math.min(Math.max(0, newGridData.length - rowCount), startRow + rowCount);
@@ -579,7 +579,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         }
         case 'SCROLL_PAGE_UP': {
             if (!activeSheet.viewport) {
-                activeSheet.viewport = { startRow: 0, rowCount: 15 };
+                activeSheet.viewport = { startRow: 0, rowCount: 6 };
             }
             const { startRow, rowCount } = activeSheet.viewport;
             const newStartRow = Math.max(0, startRow - rowCount);

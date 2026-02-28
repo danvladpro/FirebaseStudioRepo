@@ -177,7 +177,7 @@ const createGridState = (data: string[][], activeSheetIndex: number = 0, Row: nu
             name: 'Sheet1',
             data: finalData,
             selection: { activeCell: { row: Row, col: Col }, anchorCell: { row: Row, col: Col } },
-            viewport: { startRow: 0, rowCount: 15 }
+            viewport: { startRow: 0, rowCount: 6 }
         }],
         activeSheetIndex: activeSheetIndex,
         clipboard: null,
@@ -374,8 +374,8 @@ const drills: Drill[] = [
     description: 'Review big tables quickly using Page keys.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 2, 0, 30),
-    steps: ['pageDown', 'pageDown', 'pageUp']
+    initialGridState: createGridState(bigTable, 0, 2, 0, 12),
+    steps: ['pageDown', 'pageUp']
   },
   {
     id: 'emphasize-and-save',

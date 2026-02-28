@@ -201,19 +201,37 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   }, [activeStep, isMac]);
 
   useEffect(() => {
-    if (!activeStep || !userProfile?.missingKeys) {
+    if (!activeStep) {
         setIsVirtualKeyboardMode(false);
         return;
     }
 
-    const requiredKeysForStep = Array.from(getRequiredKeys());
+    const requiredKeysForStepSet = getRequiredKeys();
+
+    // Check for browser-conflicting shortcuts
+    const hasT = requiredKeysForStepSet.has('t');
+    const hasR = requiredKeysForStepSet.has('r');
+    const hasModifier = requiredKeysForStepSet.has('control') || requiredKeysForStepSet.has('meta');
+    
+    if (requiredKeysForStepSet.size === 2 && hasModifier && (hasT || hasR)) {
+        setIsVirtualKeyboardMode(true);
+        return;
+    }
+
+    // Original logic for user's missing keys
+    if (!userProfile?.missingKeys) {
+        setIsVirtualKeyboardMode(false);
+        return;
+    }
+
+    const requiredKeysForStep = Array.from(requiredKeysForStepSet);
     const userMissingKeys = userProfile.missingKeys.map(k => k.toLowerCase());
     
     const normalizedRequired = requiredKeysForStep.map(k => k.startsWith('f') && k.length > 1 && !isNaN(Number(k.substring(1))) ? 'f-keys (f1-f12)' : k);
     
     const needsVirtual = normalizedRequired.some(key => userMissingKeys.includes(key));
     setIsVirtualKeyboardMode(needsVirtual);
-  }, [activeStep, userProfile?.missingKeys, getRequiredKeys]);
+  }, [activeStep, userProfile?.missingKeys, getRequiredKeys, isMac]);
 
   const drillStepsForGridEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
 
