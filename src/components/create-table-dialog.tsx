@@ -30,13 +30,13 @@ export function CreateTableDialog({ isVisible, range, isHighlighted }: CreateTab
           <Input type="text" id="table-range" value={range} readOnly className="bg-muted/30" />
         </div>
         <div className="flex items-center space-x-2">
-            <Checkbox id="has-headers" defaultChecked disabled />
+            <Checkbox id="has-headers" defaultChecked />
             <Label htmlFor="has-headers" className='font-normal'>My table has headers</Label>
         </div>
       </CardContent>
       <CardFooter className="p-4 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
-        <Button variant="outline" size="sm" disabled>Cancel</Button>
-        <Button variant="default" size="sm" className={cn(isHighlighted && 'ring-2 ring-accent')} disabled>
+        <Button variant="outline" size="sm">Cancel</Button>
+        <Button variant="default" size="sm" className={cn(isHighlighted && 'ring-2 ring-accent')}>
             OK
         </Button>
       </CardFooter>
