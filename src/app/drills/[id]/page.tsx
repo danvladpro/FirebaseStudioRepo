@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { VisualGrid } from "@/components/visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
 import { FindReplaceDialog } from "@/components/find-replace-dialog";
-import { calculateDialogStateForStep } from "@/lib/dialog-engine";
+import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-engine";
 
 
 export default function DrillPage({ params }: { params: { id: string } }) {
@@ -71,9 +71,23 @@ export default function DrillPage({ params }: { params: { id: string } }) {
         animationStep
     ) : { gridState: null, cellStyles: {} };
 
-    const initialDialogState = calculateDialogStateForStep(drillStepsForEngine, animationStep - 1);
-    const finalDialogState = calculateDialogStateForStep(drillStepsForEngine, animationStep);
-    const displayDialogState = animationStep >= 0 ? finalDialogState : initialDialogState;
+    const dialogStateBeforeStep = calculateDialogStateForStep(drillStepsForEngine, animationStep - 1);
+    const currentAnimatedStep = drillStepsForEngine[animationStep];
+    
+    let displayDialogState = dialogStateBeforeStep;
+
+    if (animationStep >= 0 && currentAnimatedStep) {
+        // Apply the main effect (e.g., SET_FIND_VALUE), but only if it's not a 'HIDE' action,
+        // so we can see the highlight before the dialog disappears.
+        if (currentAnimatedStep.dialogEffect && currentAnimatedStep.dialogEffect.action !== 'HIDE') {
+            displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.dialogEffect);
+        }
+
+        // Now, apply the preview effect to get the highlights.
+        if (currentAnimatedStep.previewDialogEffect) {
+            displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.previewDialogEffect);
+        }
+    }
 
     return (
         <>
