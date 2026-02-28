@@ -65,7 +65,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   deleteContent: { description: 'Delete content', keys: ['delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
 
   undo: { description: 'Undo deletion', keys: ['control', 'z'], iconName: 'Undo2', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Delete' } } },
-  undoAction: { description: 'Undo action', keys: ['control', 'z'], iconName: 'Undo2' },
+  undoStrikethrough: { description: 'Undo action', keys: ['control', 'z'], iconName: 'Undo2',gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Strikethrough' } }},
   undoInsert: { description: 'Undo insert', keys: ['control', 'z'], iconName: 'Undo2' },
 
   redo: { description: 'Redo deletion', keys: ['control', 'y'], iconName: 'Redo2', gridEffect: { action: 'DELETE_CONTENT' } },
@@ -161,15 +161,28 @@ export interface DrillSet {
     drills: Drill[];
 }
 
-const createGridState = (data: string[][] , activeSheetIndex: number = 0,Row: number=0, Col: number=0): GridState => ({
-  sheets: [{
-    name: 'Sheet1',
-    data,
-    selection: { activeCell: { row: Row, col: Col }, anchorCell: { row: Row, col: Col } }
-  }],
-  activeSheetIndex: activeSheetIndex,
-  clipboard: null,
-});
+const createGridState = (data: string[][], activeSheetIndex: number = 0, Row: number = 0, Col: number = 0, totalRows: number = 0): GridState => {
+    const finalData = data.map(r => [...r]); // deep copy
+    const numCols = data.length > 0 ? data[0].length : 1;
+
+    if (totalRows > data.length) {
+        const emptyRowsToAdd = totalRows - data.length;
+        for (let i = 0; i < emptyRowsToAdd; i++) {
+            finalData.push(Array(numCols).fill(''));
+        }
+    }
+
+    return {
+        sheets: [{
+            name: 'Sheet1',
+            data: finalData,
+            selection: { activeCell: { row: Row, col: Col }, anchorCell: { row: Row, col: Col } },
+            viewport: { startRow: 0, rowCount: 15 }
+        }],
+        activeSheetIndex: activeSheetIndex,
+        clipboard: null,
+    };
+};
 
 const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => ({
   sheets: [
@@ -263,7 +276,7 @@ const drills: Drill[] = [
       ['ABC', '', ''],
       ['', '', ''],
     ]),
-    steps: ['strikethrough', 'undoAction', 'redoStrike']
+    steps: ['strikethrough', 'undoStrikethrough', 'redoStrike']
   },
 
   {
@@ -323,7 +336,7 @@ const drills: Drill[] = [
     name: 'Select and Italicize Table',
     description: 'Quickly select a whole data table and apply italic formatting.',
     repetitions: 10, mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 0, 0),
+    initialGridState: createGridState(bigTableEmptyRow, 0, 0, 0),
     steps: ['selectDownToEdge', 'selectRightToEdge', 'italic']
   },
   {
@@ -359,8 +372,9 @@ const drills: Drill[] = [
     level: 'Beginner',
     name: 'Scan Large Dataset',
     description: 'Review big tables quickly using Page keys.',
-    repetitions: 10, mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 2, 0),
+    repetitions: 10,
+    mistakeLimit: 2,
+    initialGridState: createGridState(bigTable, 0, 2, 0, 30),
     steps: ['pageDown', 'pageDown', 'pageUp']
   },
   {

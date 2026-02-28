@@ -573,7 +573,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 activeSheet.viewport = { startRow: 0, rowCount: 15 };
             }
             const { startRow, rowCount } = activeSheet.viewport;
-            const newStartRow = Math.min(newGridData.length - rowCount, startRow + rowCount);
+            const newStartRow = Math.min(Math.max(0, newGridData.length - rowCount), startRow + rowCount);
             activeSheet.viewport.startRow = newStartRow;
             break;
         }
@@ -678,4 +678,5 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
     
 
     
+
 
