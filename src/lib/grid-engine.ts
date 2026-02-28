@@ -63,72 +63,41 @@ function findEdgeCell(
 
     switch (direction) {
         case 'down': {
-            const isAtBottomEdge = r === numRows - 1 || isCellEmpty(r + 1, c);
-            if (!isStartCellEmpty && !isAtBottomEdge) {
-                // Inside a data block, find the bottom edge
-                while (r < numRows - 1 && !isCellEmpty(r + 1, c)) {
-                    r++;
-                }
-            } else {
-                // In an empty cell OR at the bottom edge, find next non-empty cell
+            if (!isStartCellEmpty && r < numRows - 1 && !isCellEmpty(r + 1, c)) { // Inside a block, going down
+                while (r < numRows - 1 && !isCellEmpty(r + 1, c)) r++;
+            } else { // At edge of block or in an empty area
                 let currentRow = r + 1;
-                while (currentRow < numRows && isCellEmpty(currentRow, c)) {
-                    currentRow++;
-                }
+                while (currentRow < numRows && isCellEmpty(currentRow, c)) currentRow++;
                 r = (currentRow < numRows) ? currentRow : numRows - 1;
             }
             return { row: r, col: c };
         }
-
         case 'up': {
-            const isAtTopEdge = r === 0 || isCellEmpty(r - 1, c);
-            if (!isStartCellEmpty && !isAtTopEdge) {
-                // Inside a data block, find the top edge
-                while (r > 0 && !isCellEmpty(r - 1, c)) {
-                    r--;
-                }
-            } else {
-                // In an empty cell OR at the top edge, find next non-empty cell
+            if (!isStartCellEmpty && r > 0 && !isCellEmpty(r - 1, c)) { // Inside a block, going up
+                while (r > 0 && !isCellEmpty(r - 1, c)) r--;
+            } else { // At edge of block or in an empty area
                 let currentRow = r - 1;
-                while (currentRow >= 0 && isCellEmpty(currentRow, c)) {
-                    currentRow--;
-                }
+                while (currentRow >= 0 && isCellEmpty(currentRow, c)) currentRow--;
                 r = (currentRow >= 0) ? currentRow : 0;
             }
             return { row: r, col: c };
         }
-
         case 'right': {
-            const isAtRightEdge = c === numCols - 1 || isCellEmpty(r, c + 1);
-            if (!isStartCellEmpty && !isAtRightEdge) {
-                // Inside a data block, find the right edge
-                while (c < numCols - 1 && !isCellEmpty(r, c + 1)) {
-                    c++;
-                }
-            } else {
-                // In an empty cell OR at the right edge, find next non-empty cell
+             if (!isStartCellEmpty && c < numCols - 1 && !isCellEmpty(r, c + 1)) { // Inside a block, going right
+                while (c < numCols - 1 && !isCellEmpty(r, c + 1)) c++;
+            } else { // At edge of block or in an empty area
                 let currentCol = c + 1;
-                while (currentCol < numCols && isCellEmpty(r, currentCol)) {
-                    currentCol++;
-                }
+                while (currentCol < numCols && isCellEmpty(r, currentCol)) currentCol++;
                 c = (currentCol < numCols) ? currentCol : numCols - 1;
             }
             return { row: r, col: c };
         }
-
         case 'left': {
-            const isAtLeftEdge = c === 0 || isCellEmpty(r, c - 1);
-            if (!isStartCellEmpty && !isAtLeftEdge) {
-                // Inside a data block, find the left edge
-                while (c > 0 && !isCellEmpty(r, c - 1)) {
-                    c--;
-                }
-            } else {
-                // In an empty cell OR at the left edge, find next non-empty cell
+            if (!isStartCellEmpty && c > 0 && !isCellEmpty(r, c - 1)) { // Inside a block, going left
+                while (c > 0 && !isCellEmpty(r, c - 1)) c--;
+            } else { // At edge of block or in an empty area
                 let currentCol = c - 1;
-                while (currentCol >= 0 && isCellEmpty(r, currentCol)) {
-                    currentCol--;
-                }
+                while (currentCol >= 0 && isCellEmpty(r, currentCol)) currentCol--;
                 c = (currentCol >= 0) ? currentCol : 0;
             }
             return { row: r, col: c };
@@ -186,11 +155,11 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'MOVE_SELECTION':
             if (payload?.direction) {
+                const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
+                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+
                 const { direction, amount = 1 } = payload;
                 
-                // A move action originates from the active cell.
-                const startCell = newSelection.activeCell;
-
                 let { row, col } = startCell;
                 
                 switch (direction) {
@@ -207,8 +176,8 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
-                // For a jump, we always start from the active cell.
-                const startCell = newSelection.activeCell;
+                const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
+                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
                 
                 let { row, col } = startCell;
                 
