@@ -17,6 +17,8 @@ import { VisualGrid } from "@/components/visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
 import { FindReplaceDialog } from "@/components/find-replace-dialog";
 import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-engine";
+import { CreateTableDialog } from "@/components/create-table-dialog";
+import { getSelectionRangeString } from "@/lib/utils";
 
 
 export default function DrillPage({ params }: { params: { id: string } }) {
@@ -114,6 +116,11 @@ export default function DrillPage({ params }: { params: { id: string } }) {
                              {drill.initialGridState && (
                                 <div className="mt-4 w-full max-w-md mx-auto relative">
                                   <FindReplaceDialog state={displayDialogState} isSuccess={animationStep >= 0} />
+                                  <CreateTableDialog
+                                    isVisible={!!displayDialogState.createTableDialogVisible}
+                                    isHighlighted={displayDialogState.createTableDialogHighlightedButton === 'ok'}
+                                    range={getSelectionRangeString(initialDisplayGridState?.sheets[initialDisplayGridState.activeSheetIndex]?.selection)}
+                                  />
                                   <VisualGrid
                                      gridState={initialDisplayGridState}
                                      cellStyles={initialDisplayCellStyles}
