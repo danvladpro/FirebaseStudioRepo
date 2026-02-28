@@ -15,6 +15,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from "@/components/ui/separator";
 import { VisualGrid } from "@/components/visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
+import { FindReplaceDialog } from "@/components/find-replace-dialog";
+import { calculateDialogStateForStep } from "@/lib/dialog-engine";
 
 
 export default function DrillPage({ params }: { params: { id: string } }) {
@@ -55,19 +57,23 @@ export default function DrillPage({ params }: { params: { id: string } }) {
   }
   
   if (!isStarted) {
-    const drillStepsForGridEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
+    const drillStepsForEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
 
     const { gridState: initialDisplayGridState, cellStyles: initialDisplayCellStyles } = drill.initialGridState ? calculateGridStateForStep(
-        drillStepsForGridEngine,
+        drillStepsForEngine,
         drill.initialGridState,
         animationStep - 1
     ) : { gridState: null, cellStyles: {} };
 
     const { gridState: finalDisplayGridState, cellStyles: finalDisplayCellStyles } = drill.initialGridState ? calculateGridStateForStep(
-        drillStepsForGridEngine,
+        drillStepsForEngine,
         drill.initialGridState,
         animationStep
     ) : { gridState: null, cellStyles: {} };
+
+    const initialDialogState = calculateDialogStateForStep(drillStepsForEngine, animationStep - 1);
+    const finalDialogState = calculateDialogStateForStep(drillStepsForEngine, animationStep);
+    const displayDialogState = animationStep >= 0 ? finalDialogState : initialDialogState;
 
     return (
         <>
@@ -92,7 +98,8 @@ export default function DrillPage({ params }: { params: { id: string } }) {
                             <h3 className="font-semibold text-lg text-center mb-2">{drillNumber ? `${drillNumber}. ` : ''}{drill.name}</h3>
                             <p className="text-sm text-muted-foreground text-center">{drill.description}</p>
                              {drill.initialGridState && (
-                                <div className="mt-4 w-full max-w-md mx-auto">
+                                <div className="mt-4 w-full max-w-md mx-auto relative">
+                                  <FindReplaceDialog state={displayDialogState} isSuccess={animationStep >= 0} />
                                   <VisualGrid
                                      gridState={initialDisplayGridState}
                                      cellStyles={initialDisplayCellStyles}
