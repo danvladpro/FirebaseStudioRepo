@@ -61,48 +61,61 @@ function findEdgeCell(
     let c = startCol;
     const isStartCellEmpty = isCellEmpty(r, c);
 
-    switch (direction) {
-        case 'down': {
-            if (!isStartCellEmpty && r < numRows - 1 && !isCellEmpty(r + 1, c)) { // Inside a block, going down
-                while (r < numRows - 1 && !isCellEmpty(r + 1, c)) r++;
-            } else { // At edge of block or in an empty area
-                let currentRow = r + 1;
-                while (currentRow < numRows && isCellEmpty(currentRow, c)) currentRow++;
-                r = (currentRow < numRows) ? currentRow : numRows - 1;
-            }
-            return { row: r, col: c };
+    if (isStartCellEmpty) {
+        // If starting from an empty cell, jump over empty space to the next data block.
+        switch (direction) {
+            case 'down':
+                while (r < numRows - 1 && isCellEmpty(r + 1, c)) r++;
+                return { row: r + 1 < numRows ? r + 1 : numRows - 1, col: c };
+            case 'up':
+                while (r > 0 && isCellEmpty(r - 1, c)) r--;
+                return { row: r - 1 >= 0 ? r - 1 : 0, col: c };
+            case 'right':
+                while (c < numCols - 1 && isCellEmpty(r, c + 1)) c++;
+                return { row: r, col: c + 1 < numCols ? c + 1 : numCols - 1 };
+            case 'left':
+                while (c > 0 && isCellEmpty(r, c - 1)) c--;
+                return { row: r, col: c - 1 >= 0 ? c - 1 : 0 };
         }
-        case 'up': {
-            if (!isStartCellEmpty && r > 0 && !isCellEmpty(r - 1, c)) { // Inside a block, going up
-                while (r > 0 && !isCellEmpty(r - 1, c)) r--;
-            } else { // At edge of block or in an empty area
-                let currentRow = r - 1;
-                while (currentRow >= 0 && isCellEmpty(currentRow, c)) currentRow--;
-                r = (currentRow >= 0) ? currentRow : 0;
-            }
-            return { row: r, col: c };
-        }
-        case 'right': {
-             if (!isStartCellEmpty && c < numCols - 1 && !isCellEmpty(r, c + 1)) { // Inside a block, going right
-                while (c < numCols - 1 && !isCellEmpty(r, c + 1)) c++;
-            } else { // At edge of block or in an empty area
-                let currentCol = c + 1;
-                while (currentCol < numCols && isCellEmpty(r, currentCol)) currentCol++;
-                c = (currentCol < numCols) ? currentCol : numCols - 1;
-            }
-            return { row: r, col: c };
-        }
-        case 'left': {
-            if (!isStartCellEmpty && c > 0 && !isCellEmpty(r, c - 1)) { // Inside a block, going left
-                while (c > 0 && !isCellEmpty(r, c - 1)) c--;
-            } else { // At edge of block or in an empty area
-                let currentCol = c - 1;
-                while (currentCol >= 0 && isCellEmpty(r, currentCol)) currentCol--;
-                c = (currentCol >= 0) ? currentCol : 0;
-            }
-            return { row: r, col: c };
+    } else {
+        // If starting from a filled cell.
+        switch (direction) {
+            case 'down':
+                 // If the next cell is also not empty, we are inside a block. Jump to the edge.
+                if (r < numRows - 1 && !isCellEmpty(r + 1, c)) {
+                    while (r < numRows - 1 && !isCellEmpty(r + 1, c)) r++;
+                } else { // We are at an edge, jump over empty space to next block.
+                     while (r < numRows - 1 && isCellEmpty(r + 1, c)) r++;
+                     if (r < numRows - 1) r++;
+                }
+                break;
+            case 'up':
+                 if (r > 0 && !isCellEmpty(r - 1, c)) {
+                    while (r > 0 && !isCellEmpty(r - 1, c)) r--;
+                } else {
+                     while (r > 0 && isCellEmpty(r - 1, c)) r--;
+                     if (r > 0) r--;
+                }
+                break;
+            case 'right':
+                if (c < numCols - 1 && !isCellEmpty(r, c + 1)) {
+                    while (c < numCols - 1 && !isCellEmpty(r, c + 1)) c++;
+                } else {
+                    while (c < numCols - 1 && isCellEmpty(r, c + 1)) c++;
+                    if (c < numCols - 1) c++;
+                }
+                break;
+            case 'left':
+                if (c > 0 && !isCellEmpty(r, c - 1)) {
+                    while (c > 0 && !isCellEmpty(r, c - 1)) c--;
+                } else {
+                     while (c > 0 && isCellEmpty(r, c - 1)) c--;
+                     if (c > 0) c--;
+                }
+                break;
         }
     }
+    return { row: r, col: c };
 }
 
 
@@ -371,6 +384,9 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             const { data: clipboardData, isCut, sourceSheetIndex, sourceSelection } = newGridState.clipboard;
             const { row: startRow, col: startCol } = newSelection.activeCell;
 
+            const numPastedRows = clipboardData.length;
+            const numPastedCols = clipboardData[0]?.length || 0;
+
             // Paste data
             clipboardData.forEach((row, rowIndex) => {
                 row.forEach((cellValue, colIndex) => {
@@ -385,20 +401,34 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             // If it was a CUT operation, clear the source
             if (isCut) {
                 const sourceSheet = newGridState.sheets[sourceSheetIndex];
-                const minRow = Math.min(sourceSelection.anchorCell.row, sourceSelection.activeCell.row);
-                const maxRow = Math.max(sourceSelection.anchorCell.row, sourceSelection.activeCell.row);
-                const minCol = Math.min(sourceSelection.anchorCell.col, sourceSelection.activeCell.col);
-                const maxCol = Math.max(sourceSelection.anchorCell.col, sourceSelection.activeCell.col);
+                if (sourceSheet) {
+                    const minRow = Math.min(sourceSelection.anchorCell.row, sourceSelection.activeCell.row);
+                    const maxRow = Math.max(sourceSelection.anchorCell.row, sourceSelection.activeCell.row);
+                    const minCol = Math.min(sourceSelection.anchorCell.col, sourceSelection.activeCell.col);
+                    const maxCol = Math.max(sourceSelection.anchorCell.col, sourceSelection.activeCell.col);
 
-                for (let r = minRow; r <= maxRow; r++) {
-                    for (let c = minCol; c <= maxCol; c++) {
-                        if (sourceSheet.data[r]?.[c] !== undefined) {
-                            sourceSheet.data[r][c] = '';
+                    for (let r = minRow; r <= maxRow; r++) {
+                        for (let c = minCol; c <= maxCol; c++) {
+                            if (sourceSheet.data[r]?.[c] !== undefined) {
+                                sourceSheet.data[r][c] = '';
+                            }
                         }
                     }
                 }
             }
             
+            // Update the selection to cover the pasted area
+            const endRow = startRow + numPastedRows - 1;
+            const endCol = startCol + numPastedCols - 1;
+
+            if (newGridData[0]) {
+              newSelection.anchorCell = { row: startRow, col: startCol };
+              newSelection.activeCell = { 
+                  row: Math.min(newGridData.length - 1, endRow), 
+                  col: Math.min(newGridData[0].length - 1, endCol) 
+              };
+            }
+
             // Clear clipboard and styles
             newGridState.clipboard = null;
             newCellStyles = {};
@@ -426,7 +456,6 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             const {row, col} = newSelection.activeCell;
             const cellContent = newGridData[row]?.[col];
             if (cellContent && cellContent.startsWith('=')) {
-                // Super simplified cycle for demo purposes: A1 -> $A$1 -> A1
                 if (cellContent.includes('$')) {
                     newGridData[row][col] = cellContent.replace(/\$/g, '');
                 } else {
@@ -579,3 +608,4 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
     
 
     
+
