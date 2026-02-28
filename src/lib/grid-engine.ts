@@ -64,37 +64,60 @@ function findEdgeCell(
     switch (direction) {
         case 'down':
             if (isStartCellEmpty) {
-                while (r < numRows - 1 && isCellEmpty(r + 1, c)) r++;
-                if (r < numRows - 1 && !isCellEmpty(r,c)) r++; // Land on the non-empty cell if we moved
+                // If starting from empty, find the next non-empty cell downwards, or the edge.
+                let currentRow = r + 1;
+                while (currentRow < numRows && isCellEmpty(currentRow, c)) {
+                    currentRow++;
+                }
+                // If we went past the end, clamp to the last row.
+                r = Math.min(currentRow, numRows - 1);
             } else {
-                while (r < numRows - 1 && !isCellEmpty(r + 1, c)) r++;
+                // If starting from non-empty, find the last non-empty cell in the current block.
+                while (r < numRows - 1 && !isCellEmpty(r + 1, c)) {
+                    r++;
+                }
             }
             return { row: r, col: c };
 
         case 'up':
             if (isStartCellEmpty) {
-                while (r > 0 && isCellEmpty(r - 1, c)) r--;
-                if (r > 0 && !isCellEmpty(r,c)) r--;
+                let currentRow = r - 1;
+                while (currentRow >= 0 && isCellEmpty(currentRow, c)) {
+                    currentRow--;
+                }
+                r = Math.max(currentRow, 0);
             } else {
-                while (r > 0 && !isCellEmpty(r - 1, c)) r--;
+                while (r > 0 && !isCellEmpty(r - 1, c)) {
+                    r--;
+                }
             }
             return { row: r, col: c };
 
         case 'right':
             if (isStartCellEmpty) {
-                while (c < numCols - 1 && isCellEmpty(r, c + 1)) c++;
-                if (c < numCols - 1 && !isCellEmpty(r,c)) c++;
+                let currentCol = c + 1;
+                while (currentCol < numCols && isCellEmpty(r, currentCol)) {
+                    currentCol++;
+                }
+                c = Math.min(currentCol, numCols - 1);
             } else {
-                while (c < numCols - 1 && !isCellEmpty(r, c + 1)) c++;
+                while (c < numCols - 1 && !isCellEmpty(r, c + 1)) {
+                    c++;
+                }
             }
             return { row: r, col: c };
 
         case 'left':
             if (isStartCellEmpty) {
-                while (c > 0 && isCellEmpty(r, c - 1)) c--;
-                if (c > 0 && !isCellEmpty(r,c)) c--;
+                let currentCol = c - 1;
+                while (currentCol >= 0 && isCellEmpty(r, currentCol)) {
+                    currentCol--;
+                }
+                c = Math.max(currentCol, 0);
             } else {
-                while (c > 0 && !isCellEmpty(r, c - 1)) c--;
+                while (c > 0 && !isCellEmpty(r, c - 1)) {
+                    c--;
+                }
             }
             return { row: r, col: c };
     }
@@ -172,9 +195,11 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
+                // A jump from a range originates from the anchor cell
                 const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
+                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
                 
-                let { row, col } = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+                let { row, col } = startCell;
                 
                 const directions: { [key: string]: 'up' | 'down' | 'left' | 'right' | undefined } = {
                     edgeUp: 'up',
