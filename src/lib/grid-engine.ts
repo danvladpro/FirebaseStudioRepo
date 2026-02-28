@@ -642,6 +642,48 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 }
             });
             break;
+        case 'APPLY_TABLE_FORMATTING': {
+            const { anchorCell, activeCell } = newSelection;
+            const minRow = Math.min(anchorCell.row, activeCell.row);
+            const maxRow = Math.max(anchorCell.row, activeCell.row);
+            const minCol = Math.min(anchorCell.col, activeCell.col);
+            const maxCol = Math.max(anchorCell.col, activeCell.col);
+            
+            for (let r = minRow; r <= maxRow; r++) {
+                for (let c = minCol; c <= maxCol; c++) {
+                    const cellId = `${r}-${c}`;
+                    let style: React.CSSProperties = { ...newCellStyles[cellId] };
+
+                    // Header row
+                    if (r === minRow) {
+                        style.fontWeight = 'bold';
+                        style.color = 'hsl(var(--primary-foreground))';
+                        style.backgroundColor = 'hsl(var(--primary))';
+                        style.borderTop = '2px solid hsl(var(--primary))';
+                        style.borderBottom = '1.5px solid hsl(var(--primary))';
+                    } else {
+                        // Alternating row colors (banding)
+                        if ((r - minRow) % 2 === 1) {
+                            style.backgroundColor = 'hsl(var(--secondary))';
+                        } else {
+                             style.backgroundColor = 'hsl(var(--card))';
+                        }
+                    }
+                    
+                    // Side borders
+                    if (c === minCol) style.borderLeft = '2px solid hsl(var(--primary))';
+                    if (c === maxCol) style.borderRight = '2px solid hsl(var(--primary))';
+
+                    // Bottom border for the whole table
+                    if (r === maxRow) {
+                         style.borderBottom = '2px solid hsl(var(--primary))';
+                    }
+                    
+                    newCellStyles[cellId] = style;
+                }
+            }
+            break;
+        }
     }
 
     newGridState.sheets[newGridState.activeSheetIndex] = activeSheet;
@@ -678,5 +720,6 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
     
 
     
+
 
 

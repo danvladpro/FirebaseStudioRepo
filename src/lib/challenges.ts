@@ -189,7 +189,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createDefaultGridState() }),
       singleStep({ description: "Name Manager", keys: ["control", "f3"], iconName: "BookUser", initialGridState: createDefaultGridState() }),
       singleStep({ description: "Create from selection", keys: ["control", "shift", "f3"], iconName: "CaseUpper", initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Create Table", keys: ["control", "t"], iconName: "Table", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Create Table", keys: ["control", "t"], iconName: "Table", initialGridState: createDefaultGridState(), dialogEffect: { action: 'SHOW_CREATE_TABLE' } }),
       singleStep({ description: "Apply Filter", keys: ["control", "shift", "l"], iconName: "Filter", initialGridState: createDefaultGridState() }),
       singleStep({ description: "Filter dropdown", keys: ["alt", "arrowdown"], iconName: "ChevronDownSquare", initialGridState: createDefaultGridState() }),
     ],

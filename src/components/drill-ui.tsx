@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Drill, ALL_DRILL_STEPS, DrillStep } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { cn, getPlatformKeys } from "@/lib/utils";
+import { cn, getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
 import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle, MousePointerClick, ArrowLeft, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
 import { useAuth } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
@@ -19,6 +19,7 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import { FindReplaceDialog } from "./find-replace-dialog";
 import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-engine";
+import { CreateTableDialog } from "./create-table-dialog";
 
 interface DrillUIProps {
   drill: Drill;
@@ -126,12 +127,13 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   // Apply the preview effect (if any) to the 'before' state.
   let dialogStateForPreview = dialogStateBefore;
   if (previewEffect) {
-      dialogStateForPreview = applyDialogEffect(dialogStateBefore, previewEffect);
+      dialogStateForPreview = applyDialogEffect(dialogStateForPreview, previewEffect);
   }
   
   // Patch for 'SHOW' steps, to prevent dialog from showing in preview
-  if (activeDrillStep?.dialogEffect?.action === 'SHOW') {
+  if (activeDrillStep?.dialogEffect?.action === 'SHOW' || activeDrillStep?.dialogEffect?.action === 'SHOW_CREATE_TABLE') {
       dialogStateForPreview.isVisible = false;
+      dialogStateForPreview.createTableDialogVisible = false;
   }
   
   // The state *after* the step is completed.
@@ -211,9 +213,10 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
     // Check for browser-conflicting shortcuts
     const hasT = requiredKeysForStepSet.has('t');
     const hasR = requiredKeysForStepSet.has('r');
+    const hasW = requiredKeysForStepSet.has('w');
     const hasModifier = requiredKeysForStepSet.has('control') || requiredKeysForStepSet.has('meta');
     
-    if (requiredKeysForStepSet.size === 2 && hasModifier && (hasT || hasR)) {
+    if (requiredKeysForStepSet.size === 2 && hasModifier && (hasT || hasR || hasW)) {
         setIsVirtualKeyboardMode(true);
         return;
     }
@@ -523,6 +526,11 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
              {displayedGridState && (
                 <div className="max-w-md mx-auto relative">
                     <FindReplaceDialog state={finalDialogState} isSuccess={stepFeedback === 'correct'} />
+                    <CreateTableDialog
+                        isVisible={!!finalDialogState.createTableDialogVisible}
+                        isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
+                        range={getSelectionRangeString(displayedGridState?.sheets[displayedGridState.activeSheetIndex].selection!)}
+                    />
                     <VisualGrid 
                         gridState={displayedGridState}
                         cellStyles={displayedCellStyles}

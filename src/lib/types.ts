@@ -60,7 +60,8 @@ export type GridEffectAction =
   | 'UNHIDE_ROWS'
   | 'SCROLL_PAGE_DOWN'
   | 'SCROLL_PAGE_UP'
-  | 'AUTOSUM';
+  | 'AUTOSUM'
+  | 'APPLY_TABLE_FORMATTING';
 
 export interface GridEffect {
   action: GridEffectAction;
@@ -74,9 +75,11 @@ export interface FindReplaceDialogState {
   replaceValue: string;
   highlightedButton?: 'findNext' | 'replace' | 'replaceAll' | 'close' | null;
   highlightedInput?: 'find' | 'replace' | null;
+  createTableDialogVisible?: boolean;
+  createTableDialogHighlightedButton?: 'ok' | null;
 }
 
-export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT' | 'HIGHLIGHT_INPUT';
+export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT' | 'HIGHLIGHT_INPUT' | 'SHOW_CREATE_TABLE' | 'HIDE_CREATE_TABLE' | 'HIGHLIGHT_CREATE_TABLE_OK';
 
 export interface DialogEffect {
     action: DialogEffectAction;

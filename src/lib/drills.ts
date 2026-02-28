@@ -101,8 +101,8 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   autoSum: { description: 'Insert AutoSum', keys: ['alt', '='], iconName: 'Sigma', gridEffect: { action: 'AUTOSUM' } },
   toggleFormulas: { description: 'Show formulas', keys: ['control', '`'], iconName: 'Code' },
   hideFormulas: { description: 'Hide formulas', keys: ['control', '`'], iconName: 'EyeOff' },
-  createTable: { description: 'Create table', keys: ['control', 't'], iconName: 'Table' },
-  confirmTable: { description: 'Confirm table', keys: ['enter'], iconName: 'CornerDownLeft' },
+  createTable: { description: 'Create table', keys: ['control', 't'], iconName: 'Table', dialogEffect: { action: 'SHOW_CREATE_TABLE' } },
+  confirmTable: { description: 'Confirm table', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_CREATE_TABLE' }, gridEffect: { action: 'APPLY_TABLE_FORMATTING' }, previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' } },
   flashFill: { description: 'Apply Flash Fill', keys: ['control', 'e'], iconName: 'Zap', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Flash Filled' } } },
   repeatFormatting: { description: 'Repeat formatting', keys: ['f4'], iconName: 'RotateCw', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
   insertDate: { description: 'Insert date', keys: ['control', ';'], iconName: 'Calendar', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '2026-01-24' } } },
@@ -374,7 +374,7 @@ const drills: Drill[] = [
     description: 'Review big tables quickly using Page keys.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 2, 0, 12),
+    initialGridState: createGridState(bigTable, 0, 2, 0, 30),
     steps: ['pageDown', 'pageUp']
   },
   {

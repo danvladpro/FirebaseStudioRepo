@@ -3,11 +3,11 @@
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
 import { useRouter } from "next/navigation";
-import { ChallengeSet, ChallengeStep } from "@/lib/types";
+import { ChallengeSet, ChallengeStep, Sheet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, BookOpen, MousePointerClick, ArrowLeft } from "lucide-react";
-import { cn, getPlatformKeys } from "@/lib/utils";
+import { cn, getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
 import { VisualGrid } from "./visual-grid";
@@ -17,6 +17,7 @@ import { VisualKeyboard } from "./visual-keyboard";
 import Link from "next/link";
 import { FindReplaceDialog } from "./find-replace-dialog";
 import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-engine";
+import { CreateTableDialog } from "./create-table-dialog";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -85,8 +86,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     dialogStateForPreview = applyDialogEffect(dialogStateBefore, previewEffect);
   }
   
-  if (currentStep?.dialogEffect?.action === 'SHOW') {
+  if (currentStep?.dialogEffect?.action === 'SHOW' || currentStep?.dialogEffect?.action === 'SHOW_CREATE_TABLE') {
     dialogStateForPreview.isVisible = false;
+    dialogStateForPreview.createTableDialogVisible = false;
   }
   
   const dialogStateAfter = calculateDialogStateForStep(currentChallenge.steps, currentStepIndex);
@@ -188,9 +190,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     // Check for browser-conflicting shortcuts
     const hasT = requiredKeysForStepSet.has('t');
     const hasR = requiredKeysForStepSet.has('r');
+    const hasW = requiredKeysForStepSet.has('w');
     const hasModifier = requiredKeysForStepSet.has('control') || requiredKeysForStepSet.has('meta');
     
-    if (requiredKeysForStepSet.size === 2 && hasModifier && (hasT || hasR)) {
+    if (requiredKeysForStepSet.size === 2 && hasModifier && (hasT || hasR || hasW)) {
         setIsVirtualKeyboardMode(true);
         return;
     }
@@ -468,6 +471,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             {displayedGridState && (
                 <div className="mb-6 relative">
                     <FindReplaceDialog state={finalDialogState} isSuccess={feedback === 'correct'} />
+                    <CreateTableDialog
+                        isVisible={!!finalDialogState.createTableDialogVisible}
+                        isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
+                        range={getSelectionRangeString(displayedGridState?.sheets[displayedGridState.activeSheetIndex].selection!)}
+                    />
                     <VisualGrid 
                         gridState={displayedGridState} 
                         cellStyles={displayedCellStyles}

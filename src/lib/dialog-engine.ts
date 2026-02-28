@@ -1,5 +1,5 @@
 
-import { FindReplaceDialogState, DialogEffect } from './types';
+import { FindReplaceDialogState, DialogEffect, Sheet } from './types';
 import { DrillStep } from './drills';
 import type { ChallengeStep } from './types';
 
@@ -10,6 +10,8 @@ export const initialDialogState: FindReplaceDialogState = {
     replaceValue: '',
     highlightedButton: null,
     highlightedInput: null,
+    createTableDialogVisible: false,
+    createTableDialogHighlightedButton: null,
 };
 
 export const applyDialogEffect = (
@@ -24,6 +26,10 @@ export const applyDialogEffect = (
     if (effect.action !== 'HIGHLIGHT_INPUT') {
         newState.highlightedInput = null;
     }
+    if (effect.action !== 'HIGHLIGHT_CREATE_TABLE_OK') {
+        newState.createTableDialogHighlightedButton = null;
+    }
+
 
     switch (effect.action) {
         case 'SHOW':
@@ -56,6 +62,16 @@ export const applyDialogEffect = (
         case 'CLEAR_HIGHLIGHT':
             newState.highlightedButton = null;
             newState.highlightedInput = null;
+            newState.createTableDialogHighlightedButton = null;
+            break;
+        case 'SHOW_CREATE_TABLE':
+            newState.createTableDialogVisible = true;
+            break;
+        case 'HIDE_CREATE_TABLE':
+            newState.createTableDialogVisible = false;
+            break;
+        case 'HIGHLIGHT_CREATE_TABLE_OK':
+            newState.createTableDialogHighlightedButton = 'ok';
             break;
     }
     return newState;

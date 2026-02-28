@@ -2,7 +2,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { User } from "firebase/auth";
-import type { ChallengeStep } from "./types";
+import type { ChallengeStep, Sheet } from "./types";
 import type { DrillStep } from "./drills";
 
 export function cn(...inputs: ClassValue[]) {
@@ -77,3 +77,20 @@ export const getPlatformKeys = (step: ChallengeStep | DrillStep, isMac: boolean)
     return lowerK;
   });
 };
+
+export function getSelectionRangeString(selection: Sheet['selection']): string {
+  if (!selection) return '';
+  const { activeCell, anchorCell } = selection;
+  const minRow = Math.min(anchorCell.row, activeCell.row) + 1;
+  const maxRow = Math.max(anchorCell.row, activeCell.row) + 1;
+  const minCol = Math.min(anchorCell.col, activeCell.col);
+  const maxCol = Math.max(anchorCell.col, activeCell.col);
+
+  const minColChar = String.fromCharCode(65 + minCol);
+  const maxColChar = String.fromCharCode(65 + maxCol);
+
+  if (minRow === maxRow && minCol === maxCol) {
+    return `=$${minColChar}$${minRow}`;
+  }
+  return `=$${minColChar}$${minRow}:$${maxColChar}$${maxRow}`;
+}
