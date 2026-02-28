@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -37,7 +36,7 @@ export function CreateTableDialog({ isVisible, range, isHighlighted }: CreateTab
       </CardContent>
       <CardFooter className="p-4 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
         <Button variant="outline" size="sm" disabled>Cancel</Button>
-        <Button variant="default" size="sm" className={cn(isHighlighted && 'ring-2 ring-primary')} disabled>
+        <Button variant="default" size="sm" className={cn(isHighlighted && 'ring-2 ring-accent')} disabled>
             OK
         </Button>
       </CardFooter>
