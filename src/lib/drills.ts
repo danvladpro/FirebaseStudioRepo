@@ -187,7 +187,7 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
     {
       name: 'Sheet2',
       data: [
-        ['Sheet #', '2','','',''],
+        ['2', 'Sheet','','',''],
         ['', '','','',''],
         ['', '','','',''],
         ['', '','','',''],
@@ -198,7 +198,7 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
      {
       name: 'Sheet3',
       data: [
-        ['Sheet #', '3','','',''],
+        ['3', 'Sheet','','',''],
         ['', '','','',''],
         ['', '','','',''],
         ['', '','','',''],
@@ -350,7 +350,7 @@ const drills: Drill[] = [
     name: 'Quick Multiple Row Selection',
     description: 'Highlight multiple full rows instantly.',
     repetitions: 12, mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,0,2),
+    initialGridState: createGridState(bigTableEmptyRow,0,0,2),
     steps: ['selectRow', 'selectDownToEdge', 'bold']
   },
 

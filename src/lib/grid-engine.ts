@@ -66,16 +66,20 @@ function findEdgeCell(
         switch (direction) {
             case 'down':
                 while (r < numRows - 1 && isCellEmpty(r + 1, c)) r++;
-                return { row: r + 1 < numRows ? r + 1 : numRows - 1, col: c };
+                if (r < numRows - 1) r++;
+                break;
             case 'up':
                 while (r > 0 && isCellEmpty(r - 1, c)) r--;
-                return { row: r - 1 >= 0 ? r - 1 : 0, col: c };
+                if (r > 0) r--;
+                break;
             case 'right':
                 while (c < numCols - 1 && isCellEmpty(r, c + 1)) c++;
-                return { row: r, col: c + 1 < numCols ? c + 1 : numCols - 1 };
+                if (c < numCols - 1) c++;
+                break;
             case 'left':
                 while (c > 0 && isCellEmpty(r, c - 1)) c--;
-                return { row: r, col: c - 1 >= 0 ? c - 1 : 0 };
+                if (c > 0) c--;
+                break;
         }
     } else {
         // If starting from a filled cell.
@@ -144,6 +148,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
     }
 
     let { data: newGridData, selection: newSelection } = activeSheet;
+    const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
 
     switch (action) {
         case 'SELECT_ROW':
@@ -168,8 +173,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'MOVE_SELECTION':
             if (payload?.direction) {
-                const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
-                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+                const startCell = newSelection.anchorCell;
 
                 const { direction, amount = 1 } = payload;
                 
@@ -189,8 +193,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
-                const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
-                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+                const startCell = newSelection.anchorCell;
                 
                 let { row, col } = startCell;
                 
@@ -232,13 +235,56 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             }
             break;
             
-        case 'SELECT_TO_EDGE':
+        case 'SELECT_TO_EDGE': {
             if (payload?.direction) {
-                let { row, col } = newSelection.activeCell;
-                const newPos = findEdgeCell(newGridData, row, col, payload.direction);
-                newSelection.activeCell = newPos;
+                const { anchorCell, activeCell } = newSelection;
+                const direction = payload.direction;
+        
+                if (direction === 'down' || direction === 'up') {
+                    const minCol = Math.min(anchorCell.col, activeCell.col);
+                    const maxCol = Math.max(anchorCell.col, activeCell.col);
+                    let finalRow = activeCell.row;
+
+                    for (let c = minCol; c <= maxCol; c++) {
+                        const startRow = activeCell.row;
+                        // Only consider columns that have data in the starting row of the selection for determining the boundary
+                        if (newGridData[startRow]?.[c]?.trim()) {
+                            const edgePos = findEdgeCell(newGridData, startRow, c, direction);
+                            if (direction === 'down') {
+                                finalRow = Math.max(finalRow, edgePos.row);
+                            } else {
+                                finalRow = Math.min(finalRow, edgePos.row);
+                            }
+                        }
+                    }
+                    newSelection.activeCell.row = finalRow;
+
+                } else if (direction === 'right' || direction === 'left') {
+                    const minRow = Math.min(anchorCell.row, activeCell.row);
+                    const maxRow = Math.max(anchorCell.row, activeCell.row);
+                    let finalCol = activeCell.col;
+
+                    for (let r = minRow; r <= maxRow; r++) {
+                         if (newGridData[r]?.[activeCell.col]?.trim()) {
+                            const edgePos = findEdgeCell(newGridData, r, activeCell.col, direction);
+                            if (direction === 'right') {
+                                finalCol = Math.max(finalCol, edgePos.col);
+                            } else {
+                                finalCol = Math.min(finalCol, edgePos.col);
+                            }
+                         }
+                    }
+                    newSelection.activeCell.col = finalCol;
+
+                } else {
+                    // Fallback to simple logic if direction is unexpected
+                    const { row, col } = newSelection.activeCell;
+                    const newPos = findEdgeCell(newGridData, row, col, direction);
+                    newSelection.activeCell = newPos;
+                }
             }
             break;
+        }
 
         case 'SELECT_TO_END':
              if (newGridData.length > 0 && newGridData[0]) {
@@ -608,4 +654,3 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
     
 
     
-
