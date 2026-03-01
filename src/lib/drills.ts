@@ -34,7 +34,8 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   pageDown: { description: 'Page down', keys: ['pagedown'], iconName: 'ArrowDownToLine', gridEffect: { action: 'SCROLL_PAGE_DOWN' } },
   pageUp: { description: 'Page up', keys: ['pageup'], iconName: 'ArrowUpToLine', gridEffect: { action: 'SCROLL_PAGE_UP' } },
   // other
-  openGoTo: { description: 'Open Go To', keys: ['f5'], iconName: 'Navigation' },
+  openGoTo: { description: 'Open Go To', keys: ['f5'], iconName: 'Navigation', dialogEffect: { action: 'SHOW_GO_TO' } },
+  confirmGoTo: { description: 'Confirm Go To', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_GO_TO' }, previewDialogEffect: { action: 'HIGHLIGHT_GO_TO_OK' } },
   
 
   // ------ Selection
@@ -569,17 +570,17 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['selectCol','openGoTo', 'confirm']
+    steps: ['openGoTo', 'confirmGoTo']
   },
   {
     id: 'insert-row-undo',
     level: 'Intermediate',
-    name: 'Structural Recovery',
-    description: 'Quickly recover from an accidental row insertion.',
+    name: 'Create Space ',
+    description: 'Create some space between rows.',
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 3, 0),
-    steps: ['selectRow', 'insertRow', 'insertRow','autoSum']
+    steps: ['selectRow', 'insertRow', 'insertRow']
   },
   {
     id: 'delete-full-row',

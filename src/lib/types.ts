@@ -77,9 +77,13 @@ export interface FindReplaceDialogState {
   highlightedInput?: 'find' | 'replace' | null;
   createTableDialogVisible?: boolean;
   createTableDialogHighlightedButton?: 'ok' | null;
+  goToDialogVisible?: boolean;
+  goToDialogReference?: string;
+  goToDialogHighlightedButton?: 'ok' | null;
+  goToDialogHighlightedInput?: boolean;
 }
 
-export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT' | 'HIGHLIGHT_INPUT' | 'SHOW_CREATE_TABLE' | 'HIDE_CREATE_TABLE' | 'HIGHLIGHT_CREATE_TABLE_OK';
+export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT' | 'HIGHLIGHT_INPUT' | 'SHOW_CREATE_TABLE' | 'HIDE_CREATE_TABLE' | 'HIGHLIGHT_CREATE_TABLE_OK' | 'SHOW_GO_TO' | 'HIDE_GO_TO' | 'SET_GO_TO_REF' | 'HIGHLIGHT_GO_TO_OK' | 'HIGHLIGHT_GO_TO_INPUT';
 
 export interface DialogEffect {
     action: DialogEffectAction;

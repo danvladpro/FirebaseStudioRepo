@@ -20,6 +20,7 @@ import Link from "next/link";
 import { FindReplaceDialog } from "./find-replace-dialog";
 import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-engine";
 import { CreateTableDialog } from "./create-table-dialog";
+import { GoToDialog } from "./go-to-dialog";
 
 interface DrillUIProps {
   drill: Drill;
@@ -131,9 +132,10 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   }
   
   // Patch for 'SHOW' steps, to prevent dialog from showing in preview
-  if (activeDrillStep?.dialogEffect?.action === 'SHOW' || activeDrillStep?.dialogEffect?.action === 'SHOW_CREATE_TABLE') {
+  if (activeDrillStep?.dialogEffect?.action === 'SHOW' || activeDrillStep?.dialogEffect?.action === 'SHOW_CREATE_TABLE' || activeDrillStep?.dialogEffect?.action === 'SHOW_GO_TO') {
       dialogStateForPreview.isVisible = false;
       dialogStateForPreview.createTableDialogVisible = false;
+      dialogStateForPreview.goToDialogVisible = false;
   }
   
   // The state *after* the step is completed.
@@ -530,6 +532,12 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                         isVisible={!!finalDialogState.createTableDialogVisible}
                         isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
                         range={getSelectionRangeString(displayedGridState?.sheets[displayedGridState.activeSheetIndex].selection!)}
+                    />
+                    <GoToDialog
+                        isVisible={!!finalDialogState.goToDialogVisible}
+                        reference={finalDialogState.goToDialogReference || ''}
+                        isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
+                        isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
                     />
                     <VisualGrid 
                         gridState={displayedGridState}

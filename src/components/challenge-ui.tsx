@@ -18,6 +18,7 @@ import Link from "next/link";
 import { FindReplaceDialog } from "./find-replace-dialog";
 import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-engine";
 import { CreateTableDialog } from "./create-table-dialog";
+import { GoToDialog } from "./go-to-dialog";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -86,9 +87,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     dialogStateForPreview = applyDialogEffect(dialogStateBefore, previewEffect);
   }
   
-  if (currentStep?.dialogEffect?.action === 'SHOW' || currentStep?.dialogEffect?.action === 'SHOW_CREATE_TABLE') {
+  if (currentStep?.dialogEffect?.action === 'SHOW' || currentStep?.dialogEffect?.action === 'SHOW_CREATE_TABLE' || currentStep?.dialogEffect?.action === 'SHOW_GO_TO') {
     dialogStateForPreview.isVisible = false;
     dialogStateForPreview.createTableDialogVisible = false;
+    dialogStateForPreview.goToDialogVisible = false;
   }
   
   const dialogStateAfter = calculateDialogStateForStep(currentChallenge.steps, currentStepIndex);
@@ -475,6 +477,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                         isVisible={!!finalDialogState.createTableDialogVisible}
                         isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
                         range={getSelectionRangeString(displayedGridState?.sheets[displayedGridState.activeSheetIndex].selection!)}
+                    />
+                    <GoToDialog
+                        isVisible={!!finalDialogState.goToDialogVisible}
+                        reference={finalDialogState.goToDialogReference || ''}
+                        isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
+                        isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
                     />
                     <VisualGrid 
                         gridState={displayedGridState} 

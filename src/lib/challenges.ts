@@ -111,7 +111,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Scroll: one Page Up", keys: ["pageup"], iconName: "ArrowUpToLine", initialGridState: createDefaultGridState(), gridEffect: { action: 'SCROLL_PAGE_UP' } }),
       singleStep({ description: "Go to: Next WorkSheet", keys: ["control", "pagedown"], iconName: "ArrowRightToLine", initialGridState: createMultiSheetGridState(0), gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } }),
       singleStep({ description: "Go to: Previous sheet", keys: ["control", "pageup"], iconName: "ArrowLeftToLine", initialGridState: createMultiSheetGridState(1), gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } }),
-      singleStep({ description: "Open 'Go To' dialog", keys: ["f5"], iconName: "Locate" }),
+      singleStep({ description: "Open 'Go To' dialog", keys: ["f5"], iconName: "Locate", dialogEffect: { action: 'SHOW_GO_TO' } }),
     ],
   },
   {

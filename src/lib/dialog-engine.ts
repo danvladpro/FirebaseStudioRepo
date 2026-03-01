@@ -12,6 +12,10 @@ export const initialDialogState: FindReplaceDialogState = {
     highlightedInput: null,
     createTableDialogVisible: false,
     createTableDialogHighlightedButton: null,
+    goToDialogVisible: false,
+    goToDialogReference: '',
+    goToDialogHighlightedButton: null,
+    goToDialogHighlightedInput: false,
 };
 
 export const applyDialogEffect = (
@@ -28,6 +32,12 @@ export const applyDialogEffect = (
     }
     if (effect.action !== 'HIGHLIGHT_CREATE_TABLE_OK') {
         newState.createTableDialogHighlightedButton = null;
+    }
+    if (effect.action !== 'HIGHLIGHT_GO_TO_OK') {
+        newState.goToDialogHighlightedButton = null;
+    }
+    if (effect.action !== 'HIGHLIGHT_GO_TO_INPUT') {
+        newState.goToDialogHighlightedInput = false;
     }
 
 
@@ -63,6 +73,8 @@ export const applyDialogEffect = (
             newState.highlightedButton = null;
             newState.highlightedInput = null;
             newState.createTableDialogHighlightedButton = null;
+            newState.goToDialogHighlightedButton = null;
+            newState.goToDialogHighlightedInput = false;
             break;
         case 'SHOW_CREATE_TABLE':
             newState.createTableDialogVisible = true;
@@ -72,6 +84,22 @@ export const applyDialogEffect = (
             break;
         case 'HIGHLIGHT_CREATE_TABLE_OK':
             newState.createTableDialogHighlightedButton = 'ok';
+            break;
+        case 'SHOW_GO_TO':
+            newState.goToDialogVisible = true;
+            break;
+        case 'HIDE_GO_TO':
+            newState.goToDialogVisible = false;
+            newState.goToDialogReference = '';
+            break;
+        case 'SET_GO_TO_REF':
+            newState.goToDialogReference = effect.payload;
+            break;
+        case 'HIGHLIGHT_GO_TO_OK':
+            newState.goToDialogHighlightedButton = 'ok';
+            break;
+        case 'HIGHLIGHT_GO_TO_INPUT':
+            newState.goToDialogHighlightedInput = true;
             break;
     }
     return newState;
