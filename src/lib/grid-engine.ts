@@ -1,4 +1,5 @@
 
+
 import { GridState, ChallengeStep, Sheet } from './types';
 
 const deepCloneSelection = (selection: Sheet['selection']): Sheet['selection'] => ({
@@ -60,11 +61,13 @@ function findEdgeCell(
     let r = startRow;
     let c = startCol;
     const isStartCellEmpty = isCellEmpty(r, c);
+    
+    // Check if the starting cell is at a "data boundary" relative to other cells in its row/column
     const isAtEdgeOfData = 
-        (direction === 'up' && (r === 0 || isCellEmpty(r-1, c) !== isStartCellEmpty)) ||
-        (direction === 'down' && (r === numRows - 1 || isCellEmpty(r+1, c) !== isStartCellEmpty)) ||
-        (direction === 'left' && (c === 0 || isCellEmpty(r, c-1) !== isStartCellEmpty)) ||
-        (direction === 'right' && (c === numCols - 1 || isCellEmpty(r, c+1) !== isStartCellEmpty));
+        (direction === 'up' && (r === 0 || isCellEmpty(r - 1, c) !== isStartCellEmpty)) ||
+        (direction === 'down' && (r === numRows - 1 || isCellEmpty(r + 1, c) !== isStartCellEmpty)) ||
+        (direction === 'left' && (c === 0 || isCellEmpty(r, c - 1) !== isStartCellEmpty)) ||
+        (direction === 'right' && (c === numCols - 1 || isCellEmpty(r, c + 1) !== isStartCellEmpty));
 
 
     if (isStartCellEmpty || isAtEdgeOfData) {
@@ -72,23 +75,19 @@ function findEdgeCell(
         switch (direction) {
             case 'down':
                 while (r < numRows - 1 && isCellEmpty(r + 1, c)) r++;
-                if (r < numRows - 1 && isStartCellEmpty) r++; // if we started empty, land on the data cell
-                else if (r < numRows - 1 && !isStartCellEmpty) r++; // if we started on data edge, land on next data cell
+                if (r < numRows - 1 && (isStartCellEmpty || isAtEdgeOfData)) r++; 
                 break;
             case 'up':
                 while (r > 0 && isCellEmpty(r - 1, c)) r--;
-                if (r > 0 && isStartCellEmpty) r--;
-                else if (r > 0 && !isStartCellEmpty) r--;
+                 if (r > 0 && (isStartCellEmpty || isAtEdgeOfData)) r--;
                 break;
             case 'right':
                 while (c < numCols - 1 && isCellEmpty(r, c + 1)) c++;
-                if (c < numCols - 1 && isStartCellEmpty) c++;
-                else if (c < numCols - 1 && !isStartCellEmpty) c++;
+                if (c < numCols - 1 && (isStartCellEmpty || isAtEdgeOfData)) c++;
                 break;
             case 'left':
                 while (c > 0 && isCellEmpty(r, c - 1)) c--;
-                if (c > 0 && isStartCellEmpty) c--;
-                else if (c > 0 && !isStartCellEmpty) c--;
+                if (c > 0 && (isStartCellEmpty || isAtEdgeOfData)) c--;
                 break;
         }
     } else {
@@ -137,7 +136,6 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
     }
 
     let { data: newGridData, selection: newSelection } = activeSheet;
-    const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
 
     switch (action) {
         case 'SELECT_ROW':
@@ -162,6 +160,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'MOVE_SELECTION':
             if (payload?.direction) {
+                 const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
                 const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
 
                 const { direction, amount = 1 } = payload;
@@ -182,6 +181,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
+                const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
                 const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
                 
                 let { row, col } = startCell;
@@ -587,20 +587,104 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         }
         case 'AUTOSUM': {
-            const { row, col } = newSelection.activeCell;
+            const { anchorCell, activeCell } = newSelection;
+            const minRow = Math.min(anchorCell.row, activeCell.row);
+            const maxRow = Math.max(anchorCell.row, activeCell.row);
+            const minCol = Math.min(anchorCell.col, activeCell.col);
+            const maxCol = Math.max(anchorCell.col, activeCell.col);
+    
+            const isColumnSelection = minCol === maxCol && minRow < maxRow;
+            const isRowSelection = minRow === maxRow && minCol < maxCol;
             
-            let endRangeRow = row - 1;
-            while(endRangeRow >= 0 && newGridData[endRangeRow][col] && !isNaN(parseFloat(newGridData[endRangeRow][col]))) {
-                endRangeRow--;
-            }
-            endRangeRow++; // Move back to the first valid number row
-
-            if (endRangeRow < row) {
-                 const startRangeColChar = String.fromCharCode(65 + col);
-                 const formula = `=SUM(${startRangeColChar}${endRangeRow + 1}:${startRangeColChar}${row})`;
-                 if (newGridData[row] && newGridData[row][col] !== undefined) {
-                    newGridData[row][col] = formula;
-                 }
+            if (isColumnSelection) {
+                const targetRow = maxRow + 1;
+                const targetCol = minCol;
+    
+                if (targetRow < newGridData.length && (newGridData[targetRow]?.[targetCol] === '' || newGridData[targetRow]?.[targetCol] === undefined)) {
+                    const colChar = String.fromCharCode(65 + targetCol);
+                    const formula = `=SUM(${colChar}${minRow + 1}:${colChar}${maxRow + 1})`;
+                    newGridData[targetRow][targetCol] = formula;
+    
+                    // Highlight the summed range
+                    for (let r = minRow; r <= maxRow; r++) {
+                        const cellId = `${r}-${targetCol}`;
+                        newCellStyles[cellId] = { ...newCellStyles[cellId], border: '1.5px solid hsl(var(--primary))' };
+                    }
+                    
+                    // Move selection to the cell with the formula
+                    newSelection.activeCell = { row: targetRow, col: targetCol };
+                    newSelection.anchorCell = { row: targetRow, col: targetCol };
+                }
+            } else if (isRowSelection) {
+                const targetRow = minRow;
+                const targetCol = maxCol + 1;
+    
+                if (targetCol < (newGridData[0]?.length || 0) && (newGridData[targetRow]?.[targetCol] === '' || newGridData[targetRow]?.[targetCol] === undefined)) {
+                    const startColChar = String.fromCharCode(65 + minCol);
+                    const endColChar = String.fromCharCode(65 + maxCol);
+                    const formula = `=SUM(${startColChar}${targetRow + 1}:${endColChar}${targetRow + 1})`;
+                    newGridData[targetRow][targetCol] = formula;
+    
+                    // Highlight the summed range
+                    for (let c = minCol; c <= maxCol; c++) {
+                        const cellId = `${targetRow}-${c}`;
+                        newCellStyles[cellId] = { ...newCellStyles[cellId], border: '1.5px solid hsl(var(--primary))' };
+                    }
+    
+                    // Move selection to the cell with the formula
+                    newSelection.activeCell = { row: targetRow, col: targetCol };
+                    newSelection.anchorCell = { row: targetRow, col: targetCol };
+                }
+            } else { // Fallback for single cell or other selections - default to summing above
+                const { row: activeRow, col: activeCol } = activeCell;
+    
+                let startRangeRow = activeRow - 1;
+                let rangeFound = false;
+                if(startRangeRow >= 0) {
+                    while (startRangeRow >= 0 && newGridData[startRangeRow]?.[activeCol]?.trim() && !isNaN(parseFloat(newGridData[startRangeRow][activeCol]))) {
+                        startRangeRow--;
+                    }
+                    startRangeRow++; // move back to first number
+    
+                    if (startRangeRow < activeRow) {
+                        const colChar = String.fromCharCode(65 + activeCol);
+                        const formula = `=SUM(${colChar}${startRangeRow + 1}:${colChar}${activeRow})`;
+                        
+                        if (newGridData[activeRow]?.[activeCol] !== undefined) {
+                            newGridData[activeRow][activeCol] = formula;
+    
+                            for (let r = startRangeRow; r < activeRow; r++) {
+                                const cellId = `${r}-${activeCol}`;
+                                newCellStyles[cellId] = { ...newCellStyles[cellId], border: '1.5px solid hsl(var(--primary))' };
+                            }
+                        }
+                        rangeFound = true;
+                    }
+                }
+    
+                // If no range above, try summing to the left
+                if (!rangeFound) {
+                    let startRangeCol = activeCol - 1;
+                    if(startRangeCol >= 0) {
+                        while (startRangeCol >= 0 && newGridData[activeRow]?.[startRangeCol]?.trim() && !isNaN(parseFloat(newGridData[activeRow][startRangeCol]))) {
+                            startRangeCol--;
+                        }
+                        startRangeCol++; // move back to first number
+                        
+                        if (startRangeCol < activeCol) {
+                            const startColChar = String.fromCharCode(65 + startRangeCol);
+                            const endColChar = String.fromCharCode(65 + activeCol - 1);
+                            const formula = `=SUM(${startColChar}${row + 1}:${endColChar}${row + 1})`;
+                            if (newGridData[activeRow]?.[activeCol] !== undefined) {
+                                newGridData[activeRow][activeCol] = formula;
+                                for (let c = startRangeCol; c < activeCol; c++) {
+                                    const cellId = `${activeRow}-${c}`;
+                                    newCellStyles[cellId] = { ...newCellStyles[cellId], border: '1.5px solid hsl(var(--primary))' };
+                                }
+                            }
+                        }
+                    }
+                }
             }
             break;
         }
@@ -720,6 +804,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
     
 
     
+
 
 
 

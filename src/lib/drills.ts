@@ -527,7 +527,7 @@ const drills: Drill[] = [
     description: 'Use F4 to quickly apply the same style elsewhere.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
+    initialGridState: createGridState(bigTableEmptyRow,0,2,0),
     steps: ['underline', 'moveDown', 'repeatFormatting','selectRightToEdge','repeatFormatting']
   },
 
