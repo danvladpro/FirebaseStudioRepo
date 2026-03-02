@@ -170,7 +170,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Hide rows", keys: ["control", "9"], iconName: "EyeOff", initialGridState: createDefaultGridState(), gridEffect: { action: 'HIDE_ROW' } }),
       singleStep({ description: "Unhide rows", keys: ["control", "shift", "9"], iconName: "Eye", initialGridState: createDefaultGridState(), gridEffect: { action: 'UNHIDE_ROWS' } }),
       singleStep({ description: "Hide columns", keys: ["control", "0"], iconName: "EyeOff", initialGridState: createDefaultGridState(), gridEffect: { action: 'HIDE_COLUMN' } }),
-      singleStep({ description: "Select visible only", keys: ["alt", ";"], iconName: "Aperture", initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Select visible only", keys: ["alt", ";"], iconName: "Aperture", initialGridState: createDefaultGridState(), gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' } }),
     ],
   },
   {
@@ -355,7 +355,7 @@ export const ADVANCED_EXAM: ChallengeSet = {
       ...getChallengesByLevel("Advanced"),
       // Also include some tricky ones from other levels
       singleStep({ description: "Use Flash Fill to automatically fill a column", keys: ["control", "e"], iconName: "Wand2", initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Select only the visible cells in a selection", keys: ["alt", ";"], iconName: "Aperture", initialGridState: createDefaultGridState() })
+      singleStep({ description: "Select only the visible cells in a selection", keys: ["alt", ";"], iconName: "Aperture", initialGridState: createDefaultGridState(), gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' } })
   ]
 };
 

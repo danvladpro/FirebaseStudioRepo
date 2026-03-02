@@ -5,6 +5,7 @@ import { GridState, ChallengeStep, Sheet } from './types';
 const deepCloneSelection = (selection: Sheet['selection']): Sheet['selection'] => ({
     activeCell: { ...selection.activeCell },
     anchorCell: { ...selection.anchorCell },
+    visibleOnly: selection.visibleOnly,
 });
 
 export const deepCloneGridState = (state: GridState): GridState => {
@@ -143,6 +144,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 const row = newSelection.activeCell.row;
                 newSelection.anchorCell = { row, col: 0 };
                 newSelection.activeCell = { row, col: newGridData[0].length - 1 };
+                newSelection.visibleOnly = false;
             }
             break;
         case 'SELECT_COLUMN':
@@ -150,12 +152,14 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 const col = newSelection.activeCell.col;
                 newSelection.anchorCell = { row: 0, col };
                 newSelection.activeCell = { row: newGridData.length - 1, col };
+                newSelection.visibleOnly = false;
             }
             break;
         case 'SELECT_ALL':
             if (newGridData.length > 0 && newGridData[0]) {
                 newSelection.anchorCell = { row: 0, col: 0 };
                 newSelection.activeCell = { row: newGridData.length - 1, col: newGridData[0].length - 1 };
+                newSelection.visibleOnly = false;
             }
             break;
         case 'MOVE_SELECTION':
@@ -176,6 +180,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 // A move without Shift collapses the selection to the new cell.
                 newSelection.activeCell = { row, col };
                 newSelection.anchorCell = { row, col };
+                newSelection.visibleOnly = false;
             }
             break;
             
@@ -224,6 +229,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 // A jump collapses the selection to the new cell.
                 newSelection.activeCell = { row, col };
                 newSelection.anchorCell = { row, col };
+                newSelection.visibleOnly = false;
             }
             break;
         
@@ -237,6 +243,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                     case 'up':    row = Math.max(0, row - 1); break;
                 }
                 newSelection.activeCell = { row, col };
+                newSelection.visibleOnly = false;
             }
             break;
             
@@ -287,6 +294,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                     const newPos = findEdgeCell(newGridData, row, col, direction);
                     newSelection.activeCell = newPos;
                 }
+                newSelection.visibleOnly = false;
             }
             break;
         }
@@ -313,8 +321,15 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             if (lastUsedRow !== -1 && lastUsedCol !== -1) {
                 newSelection.activeCell = { row: lastUsedRow, col: lastUsedCol };
             }
+            newSelection.visibleOnly = false;
             break;
         }
+        
+        case 'SET_SELECTION_MODE':
+            if (payload === 'visibleOnly') {
+                newSelection.visibleOnly = true;
+            }
+            break;
 
         // ---Destructive/Formatting Actions---
         case 'INSERT_ROW':
@@ -399,14 +414,18 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             });
             break;
         case 'COPY': {
-            const { anchorCell, activeCell } = newSelection;
+            const { anchorCell, activeCell, visibleOnly } = newSelection;
             const minRow = Math.min(anchorCell.row, activeCell.row);
             const maxRow = Math.max(anchorCell.row, activeCell.row);
             const minCol = Math.min(anchorCell.col, activeCell.col);
             const maxCol = Math.max(anchorCell.col, activeCell.col);
+            const { hiddenRows = new Set<number>() } = activeSheet;
 
             const copiedData: string[][] = [];
             for (let r = minRow; r <= maxRow; r++) {
+                if (visibleOnly && hiddenRows.has(r)) {
+                    continue;
+                }
                 const rowData = newGridData[r].slice(minCol, maxCol + 1);
                 copiedData.push(rowData);
             }
@@ -424,14 +443,18 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         }
         case 'CUT': {
-            const { anchorCell, activeCell } = newSelection;
+            const { anchorCell, activeCell, visibleOnly } = newSelection;
             const minRow = Math.min(anchorCell.row, activeCell.row);
             const maxRow = Math.max(anchorCell.row, activeCell.row);
             const minCol = Math.min(anchorCell.col, activeCell.col);
             const maxCol = Math.max(anchorCell.col, activeCell.col);
+            const { hiddenRows = new Set<number>() } = activeSheet;
 
             const copiedData: string[][] = [];
             for (let r = minRow; r <= maxRow; r++) {
+                if (visibleOnly && hiddenRows.has(r)) {
+                    continue;
+                }
                 const rowData = newGridData[r].slice(minCol, maxCol + 1);
                 copiedData.push(rowData);
             }
@@ -472,12 +495,18 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             if (isCut) {
                 const sourceSheet = newGridState.sheets[sourceSheetIndex];
                 if (sourceSheet) {
+                    const { visibleOnly } = sourceSelection;
+                    const { hiddenRows = new Set<number>() } = sourceSheet;
+                    
                     const minRow = Math.min(sourceSelection.anchorCell.row, sourceSelection.activeCell.row);
                     const maxRow = Math.max(sourceSelection.anchorCell.row, sourceSelection.activeCell.row);
                     const minCol = Math.min(sourceSelection.anchorCell.col, sourceSelection.activeCell.col);
                     const maxCol = Math.max(sourceSelection.anchorCell.col, sourceSelection.activeCell.col);
 
                     for (let r = minRow; r <= maxRow; r++) {
+                        if (visibleOnly && hiddenRows.has(r)) {
+                            continue;
+                        }
                         for (let c = minCol; c <= maxCol; c++) {
                             if (sourceSheet.data[r]?.[c] !== undefined) {
                                 sourceSheet.data[r][c] = '';
@@ -806,6 +835,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
     
 
     
+
 
 
 

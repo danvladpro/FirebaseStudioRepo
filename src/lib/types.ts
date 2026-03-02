@@ -8,6 +8,7 @@ export interface Sheet {
   selection: {
     activeCell: { row: number; col: number };
     anchorCell: { row: number; col: number };
+    visibleOnly?: boolean;
   };
   hiddenRows?: Set<number>;
   hiddenColumns?: Set<number>;
@@ -61,7 +62,8 @@ export type GridEffectAction =
   | 'SCROLL_PAGE_DOWN'
   | 'SCROLL_PAGE_UP'
   | 'AUTOSUM'
-  | 'APPLY_TABLE_FORMATTING';
+  | 'APPLY_TABLE_FORMATTING'
+  | 'SET_SELECTION_MODE';
 
 export interface GridEffect {
   action: GridEffectAction;

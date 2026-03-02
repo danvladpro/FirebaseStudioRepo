@@ -55,13 +55,13 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   selectLeftToEdge:  { description:  'Select all to the left', keys: ['control', 'shift', 'arrowleft'], iconName: 'ArrowLeft', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'left' } } },
   selectUpToEdge:    { description:  'Select all to the top', keys: ['control', 'shift', 'arrowup'], iconName: 'ArrowUp', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'up' } } },
   selectToEnd:       { description: 'Extend to end', keys: ['control', 'shift', 'end'], iconName: 'ArrowDownRight', gridEffect: { action: 'SELECT_TO_END' } },
-  selectVisible:     { description: 'Select visible cells', keys: ['alt', ';'], iconName: 'Eye' },
+  selectVisible:     { description: 'Select visible cells', keys: ['alt', ';'], iconName: 'Eye', gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' } },
 
   // Actions (Copy, Paste, Undo, etc.)
   copySelection: { description: 'Copy selection', keys: ['control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
   pasteData: { description: 'Paste', keys: ['control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
   
-  pasteValuesOnly: { description: 'Paste values', keys: ['control', 'alt', 'v'], iconName: 'ClipboardSignature' },
+  pasteValuesOnly: { description: 'Paste values', keys: ['control', 'alt', 'v'], iconName: 'ClipboardSignature' , gridEffect: { action: 'PASTE' } },
   cut: { description: 'Cut value', keys: ['control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },
   deleteContent: { description: 'Delete content', keys: ['delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
 
@@ -578,7 +578,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['openGoTo', 'confirmGoTo']
+    steps: ['jumpStart','selectDownToEdge','openGoTo', 'confirmGoTo']
   },
   {
     id: 'insert-row-undo',
