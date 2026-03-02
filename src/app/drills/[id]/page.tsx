@@ -75,22 +75,17 @@ export default function DrillPage({ params }: { params: { id: string } }) {
         animationStep
     ) : { gridState: null, cellStyles: {} };
 
-    const dialogStateBeforeStep = calculateDialogStateForStep(drillStepsForEngine, animationStep - 1);
     const currentAnimatedStep = drillStepsForEngine[animationStep];
-    
-    let displayDialogState = dialogStateBeforeStep;
+    const isHideAction = !!currentAnimatedStep?.dialogEffect?.action.startsWith('HIDE');
 
-    if (animationStep >= 0 && currentAnimatedStep) {
-        // Apply the main effect (e.g., SET_FIND_VALUE), but only if it's not a 'HIDE' action,
-        // so we can see the highlight before the dialog disappears.
-        if (currentAnimatedStep.dialogEffect && currentAnimatedStep.dialogEffect.action !== 'HIDE' && currentAnimatedStep.dialogEffect.action !== 'HIDE_CREATE_TABLE' && currentAnimatedStep.dialogEffect.action !== 'HIDE_GO_TO') {
-            displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.dialogEffect);
-        }
+    // For HIDE actions, we show the state *before* it hides to see the highlight.
+    // For all other actions, we show the state *after* the action completes.
+    const targetStepForDialog = isHideAction ? animationStep - 1 : animationStep;
+    let displayDialogState = calculateDialogStateForStep(drillStepsForEngine, targetStepForDialog);
 
-        // Now, apply the preview effect to get the highlights.
-        if (currentAnimatedStep.previewDialogEffect) {
-            displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.previewDialogEffect);
-        }
+    // Apply the highlight effect for the current step to the calculated state.
+    if (animationStep >= 0 && currentAnimatedStep?.previewDialogEffect) {
+        displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.previewDialogEffect);
     }
 
     return (
