@@ -18,6 +18,7 @@ export const initialDialogState: FindReplaceDialogState = {
     goToDialogHighlightedInput: false,
     filterDropdownVisible: false,
     filterDropdownHighlightedIndex: -1,
+    filterDropdownCheckedState: [true, true, true, true, true],
 };
 
 export const applyDialogEffect = (
@@ -114,11 +115,40 @@ export const applyDialogEffect = (
         case 'HIDE_FILTER_DROPDOWN':
             newState.filterDropdownVisible = false;
             newState.filterDropdownHighlightedIndex = -1;
+            newState.filterDropdownCheckedState = [true, true, true, true, true]; // Reset on hide
             break;
         case 'HIGHLIGHT_NEXT_FILTER_ITEM': {
             const current = newState.filterDropdownHighlightedIndex ?? -1;
             // Assuming 5 hardcoded options in the dropdown
             newState.filterDropdownHighlightedIndex = (current + 1) % 5; 
+            break;
+        }
+        case 'TOGGLE_FILTER_ITEM': {
+            const newCheckedState = [...(newState.filterDropdownCheckedState || [true, true, true, true, true])];
+            const indexToToggle = newState.filterDropdownHighlightedIndex ?? 0;
+
+            if (indexToToggle < 0 || indexToToggle >= newCheckedState.length) break;
+
+            if (indexToToggle === 0) { // Toggling "(Select All)"
+                const shouldCheckAll = !newCheckedState[0];
+                for (let i = 0; i < newCheckedState.length; i++) {
+                    newCheckedState[i] = shouldCheckAll;
+                }
+            } else { // Toggling a regular item
+                newCheckedState[indexToToggle] = !newCheckedState[indexToToggle];
+                
+                // If an item is unchecked, uncheck "(Select All)"
+                if (!newCheckedState[indexToToggle]) {
+                    newCheckedState[0] = false;
+                } else {
+                    // If all other items are checked, check "(Select All)"
+                    const allOthersChecked = newCheckedState.slice(1).every(Boolean);
+                    if (allOthersChecked) {
+                        newCheckedState[0] = true;
+                    }
+                }
+            }
+            newState.filterDropdownCheckedState = newCheckedState;
             break;
         }
     }

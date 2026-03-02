@@ -121,6 +121,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   openFilterDropdown: { description: 'Open filter dropdown', keys: ['alt', 'arrowdown'], iconName: 'Filter', dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' } },
   moveToFilterItem: { description: 'Move to next item', keys: ['arrowdown'], iconName: 'ArrowDown', dialogEffect: { action: 'HIGHLIGHT_NEXT_FILTER_ITEM' } },
   applyFilterSelection: { description: 'Confirm selection', keys: ['enter'], iconName: 'Check', dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' } },
+  toggleFilterItem: { description: 'Toggle item selection', keys: [' '], iconName: 'CheckSquare', dialogEffect: { action: 'TOGGLE_FILTER_ITEM' } },
   
   // Structure & Dialogs
   insertRow: { description: 'Insert row', keys: ['control', 'shift', '='], iconName: 'Sheet', gridEffect: { action: 'INSERT_ROW' } },
@@ -558,7 +559,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,0,1),
-    steps: ['openFilterDropdown', 'moveToFilterItem', 'applyFilterSelection']
+    steps: ['openFilterDropdown', 'toggleFilterItem', 'moveToFilterItem', 'moveToFilterItem', 'toggleFilterItem', 'applyFilterSelection']
   },
   {
     id: 'insert-current-time',

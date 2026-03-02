@@ -85,9 +85,10 @@ export interface FindReplaceDialogState {
   goToDialogHighlightedInput?: boolean;
   filterDropdownVisible?: boolean;
   filterDropdownHighlightedIndex?: number;
+  filterDropdownCheckedState?: boolean[];
 }
 
-export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT' | 'HIGHLIGHT_INPUT' | 'SHOW_CREATE_TABLE' | 'HIDE_CREATE_TABLE' | 'HIGHLIGHT_CREATE_TABLE_OK' | 'SHOW_GO_TO' | 'HIDE_GO_TO' | 'SET_GO_TO_REF' | 'HIGHLIGHT_GO_TO_OK' | 'HIGHLIGHT_GO_TO_INPUT' | 'SHOW_FILTER_DROPDOWN' | 'HIDE_FILTER_DROPDOWN' | 'HIGHLIGHT_NEXT_FILTER_ITEM';
+export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT' | 'HIGHLIGHT_INPUT' | 'SHOW_CREATE_TABLE' | 'HIDE_CREATE_TABLE' | 'HIGHLIGHT_CREATE_TABLE_OK' | 'SHOW_GO_TO' | 'HIDE_GO_TO' | 'SET_GO_TO_REF' | 'HIGHLIGHT_GO_TO_OK' | 'HIGHLIGHT_GO_TO_INPUT' | 'SHOW_FILTER_DROPDOWN' | 'HIDE_FILTER_DROPDOWN' | 'HIGHLIGHT_NEXT_FILTER_ITEM' | 'TOGGLE_FILTER_ITEM';
 
 export interface DialogEffect {
     action: DialogEffectAction;

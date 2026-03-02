@@ -28,6 +28,8 @@ export function FilterDropdown({ state }: FilterDropdownProps) {
     return null;
   }
 
+  const checkedState = state.filterDropdownCheckedState || [true, true, true, true, true];
+
   return (
     <Card className="absolute top-[60px] left-[100px] w-[250px] bg-background shadow-2xl z-20 border">
       <CardContent className="p-1">
@@ -47,7 +49,7 @@ export function FilterDropdown({ state }: FilterDropdownProps) {
                 state.filterDropdownHighlightedIndex === index && "bg-accent"
               )}
             >
-              <Checkbox id={`filter-${index}`} defaultChecked />
+              <Checkbox id={`filter-${index}`} checked={checkedState[index]} />
               <Label htmlFor={`filter-${index}`} className="font-normal w-full cursor-pointer">
                 {option}
               </Label>
