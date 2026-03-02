@@ -21,8 +21,11 @@ export function GoToDialog({ isVisible, reference, isOkHighlighted, isInputHighl
 
   return (
     <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] bg-background shadow-2xl z-20 border">
-      <CardHeader className="p-4 border-b">
+      <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
         <CardTitle className="text-base font-semibold">Go To</CardTitle>
+        <Button variant="ghost" size="icon" className="h-6 w-6">
+            <X className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent className="p-4 space-y-4">
         <div className="grid w-full items-center gap-1.5">
@@ -36,11 +39,14 @@ export function GoToDialog({ isVisible, reference, isOkHighlighted, isInputHighl
           />
         </div>
       </CardContent>
-      <CardFooter className="p-4 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
-        <Button variant="default" size="sm" className={cn(isOkHighlighted && 'ring-2 ring-accent')}>
-            OK
-        </Button>
-        <Button variant="outline" size="sm">Cancel</Button>
+      <CardFooter className="p-4 flex justify-between items-center border-t bg-muted/50 rounded-b-lg">
+        <Button variant="outline" size="sm">Special...</Button>
+        <div className="flex gap-2">
+            <Button variant="default" size="sm" className={cn(isOkHighlighted && 'ring-2 ring-accent')}>
+                OK
+            </Button>
+            <Button variant="outline" size="sm">Cancel</Button>
+        </div>
       </CardFooter>
     </Card>
   );
