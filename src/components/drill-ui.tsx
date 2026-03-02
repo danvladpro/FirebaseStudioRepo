@@ -120,29 +120,13 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
 
   const drillStepsForEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
   
-  // Calculate state up to the step *before* the current one.
+  // Calculate state up to the step *before* the current one. This is what the user sees.
   const dialogStateBefore = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex - 1);
   
-  const activeDrillStep = ALL_DRILL_STEPS[drill.steps[logicalStepIndex]];
-  const previewEffect = activeDrillStep?.previewDialogEffect;
-  
-  // Apply the preview effect (if any) to the 'before' state.
-  let dialogStateForPreview = dialogStateBefore;
-  if (previewEffect) {
-      dialogStateForPreview = applyDialogEffect(dialogStateForPreview, previewEffect);
-  }
-  
-  // Patch for 'SHOW' steps, to prevent dialog from showing in preview
-  if (activeDrillStep?.dialogEffect?.action === 'SHOW' || activeDrillStep?.dialogEffect?.action === 'SHOW_CREATE_TABLE' || activeDrillStep?.dialogEffect?.action === 'SHOW_GO_TO') {
-      dialogStateForPreview.isVisible = false;
-      dialogStateForPreview.createTableDialogVisible = false;
-      dialogStateForPreview.goToDialogVisible = false;
-  }
-  
-  // The state *after* the step is completed.
+  // The state *after* the step is completed. This is shown on success.
   const dialogStateAfter = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex);
 
-  const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : (previewEffect ? dialogStateForPreview : dialogStateBefore);
+  const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : dialogStateBefore;
 
 
   const normalizeKey = (code: string) => {
