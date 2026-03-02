@@ -13,6 +13,20 @@ export interface DrillStep {
   previewDialogEffect?: DialogEffect;
 }
 
+const formulaDrillValues = [
+    ['Header A', 'Header B', 'Header C'],
+    ['100', '250', '350'],
+    ['150', '300', '450'],
+    ['200', '350', '550']
+];
+
+const formulaDrillFormulas = [
+    ['Header A', 'Header B', 'Header C'],
+    ['=Z4', '=Z5', '=SUM(B2:C2)'],
+    ['=A2+50', '=B2+50', '=SUM(B3:C3)'],
+    ['=A3+50', '=B3+50', '=SUM(B4:C4)']
+];
+
 // This is the new centralized repository of all possible drill steps.
 export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   // ----- Navigation
@@ -108,8 +122,24 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   toggleAbsRef: { description: 'Toggle absolute reference', keys: ['f4'], iconName: 'Lock', gridEffect: { action: 'TOGGLE_ABS_REF' } },
   confirmFormula: { description: 'Confirm formula', keys: ['enter'], iconName: 'CornerDownLeft' },
   autoSum: { description: 'Insert AutoSum', keys: ['alt', '='], iconName: 'Sigma', gridEffect: { action: 'AUTOSUM' } },
-  toggleFormulas: { description: 'Show formulas', keys: ['control', '`'], iconName: 'Code' },
-  hideFormulas: { description: 'Hide formulas', keys: ['control', '`'], iconName: 'EyeOff' },
+  toggleFormulas: {
+    description: 'Show formulas',
+    keys: ['control', '`'],
+    iconName: 'Code',
+    gridEffect: {
+      action: 'PASTE_MULTIPLE_VALUES',
+      payload: { values: formulaDrillFormulas },
+    },
+  },
+  hideFormulas: {
+    description: 'Hide formulas',
+    keys: ['control', '`'],
+    iconName: 'EyeOff',
+    gridEffect: {
+      action: 'PASTE_MULTIPLE_VALUES',
+      payload: { values: formulaDrillValues },
+    },
+  },
   createTable: { description: 'Create table', keys: ['control', 't'], iconName: 'Table', dialogEffect: { action: 'SHOW_CREATE_TABLE' } },
   confirmTable: { description: 'Confirm table', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_CREATE_TABLE' }, gridEffect: { action: 'APPLY_TABLE_FORMATTING' }, previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' } },
   flashFill: { description: 'Apply Flash Fill', keys: ['control', 'e'], iconName: 'Zap', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Flash Filled' } } },
@@ -118,11 +148,12 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   insertTime: { description: 'Insert time', keys: ['control', 'shift', ';'], iconName: 'Clock', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '14:00' } } },
   confirmEntry: { description: 'Enter', keys: ['enter'], iconName: 'CornerDownLeft' },
   confirm: { description: 'Confirm', keys: ['enter'], iconName: 'CornerDownLeft' },
+  type9: { description: 'Type "9"', keys: ['9'], iconName: 'Type', gridEffect: { action: 'UPDATE_ACTIVE_CELL_CONTENT', payload: { value: '9' } } },
   fillAll: { description: 'Fill all', keys: ['control', 'enter'], iconName: 'CheckCheck', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '9' } } },
   openFilterDropdown: { description: 'Open filter dropdown', keys: ['alt', 'arrowdown'], iconName: 'Filter', dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' } },
   moveToFilterItem: { description: 'Move to next item', keys: ['arrowdown'], iconName: 'ArrowDown', dialogEffect: { action: 'HIGHLIGHT_NEXT_FILTER_ITEM' } },
   applyFilterSelection: { description: 'Confirm selection', keys: ['enter'], iconName: 'Check', dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' } },
-  toggleFilterItem: { description: 'Toggle item selection', keys: [' '], iconName: 'CheckSquare', dialogEffect: { action: 'TOGGLE_FILTER_ITEM' } },
+  toggleFilterItem: { description: 'Toggle item selection', keys: [' '], iconName: 'CheckSquare', dialogEffect: { action: 'TOGGLE_FILTER_ITEM' }, previewDialogEffect: { action: 'TOGGLE_FILTER_ITEM'} },
   
   // Structure & Dialogs
   insertRow: { description: 'Insert row', keys: ['control', 'shift', '='], iconName: 'Sheet', gridEffect: { action: 'INSERT_ROW' } },
@@ -137,14 +168,13 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   findNext: { description: 'Find next match', keys: ['enter'], iconName: 'ArrowDownToLine', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
   confirmFind: { description: 'Confirm Find', keys: ['enter'], iconName: 'CornerDownLeft', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
   findNextResult: { description: 'Find next result', keys: ['enter'], iconName: 'ArrowDown', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
-  closeDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' } },
+  closeDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: {action: 'HIDE'}, previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' } },
   openReplace: { description: 'Open Replace dialog', keys: ['control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } } },
   confirmReplace: { description: 'Confirm replacement', keys: ['enter'], iconName: 'Check', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
   replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: false, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' } },
-  tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
+  tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
-  type9: { description: 'Type "9"', keys: ['9'], iconName: 'Type', gridEffect: { action: 'UPDATE_ACTIVE_CELL_CONTENT', payload: { value: '9' } } },
   openSortDialog: { description: 'Sort menu', keys: ['s'], iconName: 'ArrowUpDown' },
   openAltMenu: { description: 'Alt menu', keys: ['alt'], iconName: 'Menu' },
   openDataTab: { description: 'Data tab', keys: ['d'], iconName: 'Database' },
@@ -508,7 +538,7 @@ const drills: Drill[] = [
     description: 'Audit back-end formulas and return to values.',
     repetitions: 8,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 2, 0),
+    initialGridState: createGridState(formulaDrillValues, 0, 0, 0),
     steps: ['toggleFormulas', 'hideFormulas']
   },
   {
@@ -609,11 +639,11 @@ const drills: Drill[] = [
     description: 'Normalize numeric formatting across a whole sheet.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 0, 0),
-    steps: ['selectDownToEdge','selectRightToEdge', 'applyGeneralFormat']
+    initialGridState: createGridState(
+      [['ID', 'DateNum','Date', 'Amount'],['1.0', '02-Mar-26', '46083','500'],['', '','', '']],0,1,1
+    ),
+    steps: ['applyGeneralFormatOnDate','MoveRight','applyDateFormatFromGeneral','MoveRight', 'applyCurrency','selectCol','bold']
   },
-
-  
   {
     id: 'format-date-time-cols',
     level: 'Intermediate',
@@ -793,4 +823,3 @@ export const DRILL_SET: DrillSet = {
     
 
     
-

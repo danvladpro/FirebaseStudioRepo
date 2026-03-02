@@ -40,6 +40,7 @@ export type GridEffectAction =
   | 'CUT'
   | 'COPY'
   | 'PASTE'
+  | 'PASTE_MULTIPLE_VALUES'
   | 'MOVE_SELECTION'
   | 'MOVE_SELECTION_ADVANCED'
   | 'EXTEND_SELECTION'

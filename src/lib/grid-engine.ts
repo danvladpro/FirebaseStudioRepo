@@ -533,6 +533,25 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             newCellStyles = {};
             break;
         }
+        case 'PASTE_MULTIPLE_VALUES': {
+            if (!payload?.values) break;
+
+            const valuesToPaste = payload.values as string[][];
+            const { row: startRow, col: startCol } = newSelection.activeCell;
+
+            valuesToPaste.forEach((row, rowIndex) => {
+                row.forEach((cellValue, colIndex) => {
+                    const targetRow = startRow + rowIndex;
+                    const targetCol = startCol + colIndex;
+                    if (newGridData[targetRow]?.[targetCol] !== undefined) {
+                        newGridData[targetRow][targetCol] = cellValue;
+                    }
+                });
+            });
+
+            newCellStyles = {};
+            break;
+        }
         case 'PASTE_STATIC_VALUE':
             if (payload?.value !== undefined) {
                 const valueToFill = payload.value;
@@ -846,4 +865,5 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
