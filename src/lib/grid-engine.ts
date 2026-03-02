@@ -505,8 +505,8 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         }
         case 'PASTE_STATIC_VALUE':
-            if (payload?.value) {
-                const valueToFill = newGridData[newSelection.activeCell.row][newSelection.activeCell.col] || payload.value;
+            if (payload?.value !== undefined) {
+                const valueToFill = payload.value;
                 getCellsToApply(newSelection).forEach(cellId => {
                     const [r, c] = cellId.split('-').map(Number);
                     if (newGridData[r]?.[c] !== undefined) {
@@ -722,7 +722,9 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 const [r, c] = cellId.split('-').map(Number);
                 if (newGridData[r]?.[c] !== undefined) {
                     const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
-                    if (!isNaN(numericValue)) newGridData[r][c] = `${numericValue}%`;
+                    if (!isNaN(numericValue)) {
+                        newGridData[r][c] = `${(numericValue * 100).toFixed(0)}%`;
+                    }
                 }
             });
             break;
@@ -804,6 +806,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
     
 
     
+
 
 
 

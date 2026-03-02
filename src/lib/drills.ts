@@ -81,8 +81,9 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   
   applyCurrency: { description: 'Apply currency', keys: ['control', 'shift', '4'], iconName: 'DollarSign', gridEffect: { action: 'APPLY_STYLE_CURRENCY' } },
   applyPercentage: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
+
   applyGeneralFormat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash' },
-  applyDateFormat: { description: 'Apply Date format', keys: ['control', 'shift', '3'], iconName: 'Calendar' },
+  
   decreaseDecimals: { description: 'Decrease decimals', keys: ['alt', 'h', '9'], iconName: 'MinusCircle' },
   increaseDecimals: { description: 'Increase decimals', keys: ['alt', 'h', '0'], iconName: 'PlusCircle' },
   centerAlign: { description: 'Center align', keys: ['alt', 'h', 'a', 'c'], iconName: 'AlignCenter' },
@@ -95,7 +96,13 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   openFillColor: { description: 'Open Fill Color', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket' },
   openFormatCells: { description: 'Open Format Cells', keys: ['control', '1'], iconName: 'Settings2' },
   
-  // Data & Formulas
+  // Formatting - Workarounds
+  applyGeneralFormatFloat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'1' } } },
+  applyGeneralFormatOnDate: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '46083' } } },
+  applyDateFormatFromGeneral: { description: 'Apply Date format', keys: ['control', 'shift', '3'], iconName: 'Calendar' , gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'02-Mar-26' } } },
+  applyPercentageFromGeneral: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'20%' } } },
+
+  // Data & Formulas 
   editFormula: { description: 'Edit formula', keys: ['f2'], iconName: 'Edit3', gridEffect: { action: 'START_EDITING', payload: { formula: '=Z4' } } },
   toggleAbsRef: { description: 'Toggle absolute reference', keys: ['f4'], iconName: 'Lock', gridEffect: { action: 'TOGGLE_ABS_REF' } },
   confirmFormula: { description: 'Confirm formula', keys: ['enter'], iconName: 'CornerDownLeft' },
@@ -233,6 +240,7 @@ const defaultDrillGridState = createGridState([
   ['', ''],
   ['', ''],
 ]);
+
 
 
 const bigTable = [['ID', 'Name', 'Date', 'Amount'],
@@ -609,8 +617,10 @@ const drills: Drill[] = [
     description: 'Format adjacent columns with distinct data types.',
     repetitions: 8,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,1,2),
-    steps: ['selectDownToEdge', 'applyDateFormat','jumpLeft','bold']
+    initialGridState: createGridState(
+      [['ID', 'Date', 'Amount','Share'],['1.0', '02-Mar-26', '500','0.2'],],0,0,0
+    ),
+    steps: ['jumpRight','moveDown', 'applyPercentageFromGeneral','jumpLeft','applyGeneralFormatFloat']
   },
 
   // ==========================================
