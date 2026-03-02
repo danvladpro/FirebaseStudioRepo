@@ -16,6 +16,8 @@ export const initialDialogState: FindReplaceDialogState = {
     goToDialogReference: '',
     goToDialogHighlightedButton: null,
     goToDialogHighlightedInput: false,
+    filterDropdownVisible: false,
+    filterDropdownHighlightedIndex: -1,
 };
 
 export const applyDialogEffect = (
@@ -38,6 +40,9 @@ export const applyDialogEffect = (
     }
     if (effect.action !== 'HIGHLIGHT_GO_TO_INPUT') {
         newState.goToDialogHighlightedInput = false;
+    }
+    if (effect.action !== 'HIGHLIGHT_NEXT_FILTER_ITEM' && effect.action !== 'SHOW_FILTER_DROPDOWN') {
+        newState.filterDropdownHighlightedIndex = -1;
     }
 
 
@@ -75,6 +80,7 @@ export const applyDialogEffect = (
             newState.createTableDialogHighlightedButton = null;
             newState.goToDialogHighlightedButton = null;
             newState.goToDialogHighlightedInput = false;
+            newState.filterDropdownHighlightedIndex = -1;
             break;
         case 'SHOW_CREATE_TABLE':
             newState.createTableDialogVisible = true;
@@ -101,6 +107,20 @@ export const applyDialogEffect = (
         case 'HIGHLIGHT_GO_TO_INPUT':
             newState.goToDialogHighlightedInput = true;
             break;
+        case 'SHOW_FILTER_DROPDOWN':
+            newState.filterDropdownVisible = true;
+            newState.filterDropdownHighlightedIndex = 0;
+            break;
+        case 'HIDE_FILTER_DROPDOWN':
+            newState.filterDropdownVisible = false;
+            newState.filterDropdownHighlightedIndex = -1;
+            break;
+        case 'HIGHLIGHT_NEXT_FILTER_ITEM': {
+            const current = newState.filterDropdownHighlightedIndex ?? -1;
+            // Assuming 5 hardcoded options in the dropdown
+            newState.filterDropdownHighlightedIndex = (current + 1) % 5; 
+            break;
+        }
     }
     return newState;
 };

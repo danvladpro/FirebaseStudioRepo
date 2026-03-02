@@ -572,14 +572,6 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             }
             break;
         }
-        case 'SHOW_FILTER_DROPDOWN': {
-            const {row, col} = newSelection.activeCell;
-            const cellContent = newGridData[row]?.[col];
-            if (cellContent && !cellContent.includes('▾')) {
-                newGridData[row][col] = `${cellContent} ▾`;
-            }
-            break;
-        }
         case 'HIDE_ROW': {
             if (!activeSheet.hiddenRows) {
                 activeSheet.hiddenRows = new Set();
@@ -854,3 +846,4 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+

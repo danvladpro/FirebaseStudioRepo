@@ -21,6 +21,7 @@ import { FindReplaceDialog } from "./find-replace-dialog";
 import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-engine";
 import { CreateTableDialog } from "./create-table-dialog";
 import { GoToDialog } from "./go-to-dialog";
+import { FilterDropdown } from "./filter-dropdown";
 
 interface DrillUIProps {
   drill: Drill;
@@ -539,6 +540,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                         isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
                         isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
                     />
+                    <FilterDropdown state={finalDialogState} />
                     <VisualGrid 
                         gridState={displayedGridState}
                         cellStyles={displayedCellStyles}

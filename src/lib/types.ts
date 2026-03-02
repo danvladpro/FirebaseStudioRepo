@@ -55,7 +55,6 @@ export type GridEffectAction =
   | 'SWITCH_SHEET'
   | 'START_EDITING'
   | 'TOGGLE_ABS_REF'
-  | 'SHOW_FILTER_DROPDOWN'
   | 'HIDE_ROW'
   | 'HIDE_COLUMN'
   | 'UNHIDE_ROWS'
@@ -84,9 +83,11 @@ export interface FindReplaceDialogState {
   goToDialogReference?: string;
   goToDialogHighlightedButton?: 'ok' | null;
   goToDialogHighlightedInput?: boolean;
+  filterDropdownVisible?: boolean;
+  filterDropdownHighlightedIndex?: number;
 }
 
-export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT' | 'HIGHLIGHT_INPUT' | 'SHOW_CREATE_TABLE' | 'HIDE_CREATE_TABLE' | 'HIGHLIGHT_CREATE_TABLE_OK' | 'SHOW_GO_TO' | 'HIDE_GO_TO' | 'SET_GO_TO_REF' | 'HIGHLIGHT_GO_TO_OK' | 'HIGHLIGHT_GO_TO_INPUT';
+export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT' | 'HIGHLIGHT_INPUT' | 'SHOW_CREATE_TABLE' | 'HIDE_CREATE_TABLE' | 'HIGHLIGHT_CREATE_TABLE_OK' | 'SHOW_GO_TO' | 'HIDE_GO_TO' | 'SET_GO_TO_REF' | 'HIGHLIGHT_GO_TO_OK' | 'HIGHLIGHT_GO_TO_INPUT' | 'SHOW_FILTER_DROPDOWN' | 'HIDE_FILTER_DROPDOWN' | 'HIGHLIGHT_NEXT_FILTER_ITEM';
 
 export interface DialogEffect {
     action: DialogEffectAction;
