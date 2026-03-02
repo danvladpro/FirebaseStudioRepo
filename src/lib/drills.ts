@@ -122,24 +122,10 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   toggleAbsRef: { description: 'Toggle absolute reference', keys: ['f4'], iconName: 'Lock', gridEffect: { action: 'TOGGLE_ABS_REF' } },
   confirmFormula: { description: 'Confirm formula', keys: ['enter'], iconName: 'CornerDownLeft' },
   autoSum: { description: 'Insert AutoSum', keys: ['alt', '='], iconName: 'Sigma', gridEffect: { action: 'AUTOSUM' } },
-  toggleFormulas: {
-    description: 'Show formulas',
-    keys: ['control', '`'],
-    iconName: 'Code',
-    gridEffect: {
-      action: 'PASTE_MULTIPLE_VALUES',
-      payload: { values: formulaDrillFormulas },
-    },
-  },
-  hideFormulas: {
-    description: 'Hide formulas',
-    keys: ['control', '`'],
-    iconName: 'EyeOff',
-    gridEffect: {
-      action: 'PASTE_MULTIPLE_VALUES',
-      payload: { values: formulaDrillValues },
-    },
-  },
+  
+  toggleFormulas: {description: 'Show formulas',keys: ['control', '`'],iconName: 'Code',gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: formulaDrillFormulas },},},
+  hideFormulas: {description: 'Hide formulas',keys: ['control', '`'],iconName: 'EyeOff',gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: formulaDrillValues },},},
+
   createTable: { description: 'Create table', keys: ['control', 't'], iconName: 'Table', dialogEffect: { action: 'SHOW_CREATE_TABLE' } },
   confirmTable: { description: 'Confirm table', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_CREATE_TABLE' }, gridEffect: { action: 'APPLY_TABLE_FORMATTING' }, previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' } },
   flashFill: { description: 'Apply Flash Fill', keys: ['control', 'e'], iconName: 'Zap', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Flash Filled' } } },
@@ -539,7 +525,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(formulaDrillValues, 0, 0, 0),
-    steps: ['toggleFormulas', 'hideFormulas']
+    steps: ['toggleFormulas', 'hideFormulas','selectRightToEdge','selectDownToEdge','copySelection','pasteValuesOnly']
   },
   {
     id: 'autosum-column',

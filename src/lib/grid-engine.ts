@@ -164,8 +164,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'MOVE_SELECTION':
             if (payload?.direction) {
-                 const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
-                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+                const startCell = newSelection.activeCell;
 
                 const { direction, amount = 1 } = payload;
                 
@@ -186,8 +185,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
-                const isRangeSelection = newSelection.activeCell.row !== newSelection.anchorCell.row || newSelection.activeCell.col !== newSelection.anchorCell.col;
-                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+                const startCell = newSelection.activeCell;
                 
                 let { row, col } = startCell;
                 
@@ -475,7 +473,11 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             if (!newGridState.clipboard) break;
 
             const { data: clipboardData, isCut, sourceSheetIndex, sourceSelection } = newGridState.clipboard;
-            const { row: startRow, col: startCol } = newSelection.activeCell;
+            
+            const { activeCell, anchorCell } = newSelection;
+            const startRow = Math.min(anchorCell.row, activeCell.row);
+            const startCol = Math.min(anchorCell.col, activeCell.col);
+
 
             const numPastedRows = clipboardData.length;
             const numPastedCols = clipboardData[0]?.length || 0;
@@ -558,7 +560,10 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 getCellsToApply(newSelection).forEach(cellId => {
                     const [r, c] = cellId.split('-').map(Number);
                     if (newGridData[r]?.[c] !== undefined) {
-                        newGridData[r][c] = valueToFill;
+                        const numericValue = parseFloat(valueToFill);
+                         if (!isNaN(numericValue)) {
+                             newGridData[r][c] = valueToFill;
+                         }
                     }
                 });
             }
@@ -770,10 +775,10 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             getCellsToApply(newSelection).forEach(cellId => {
                 const [r, c] = cellId.split('-').map(Number);
                 if (newGridData[r]?.[c] !== undefined) {
-                    const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
+                    const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.%]+/g, ""));
                     if (!isNaN(numericValue)) {
                          const displayValue = newGridData[r][c].includes('%') ? numericValue : numericValue * 100;
-                         newGridData[r][c] = `${displayValue.toFixed(2)}%`;
+                         newGridData[r][c] = `${displayValue.toFixed(0)}%`;
                     }
                 }
             });
@@ -865,5 +870,6 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
