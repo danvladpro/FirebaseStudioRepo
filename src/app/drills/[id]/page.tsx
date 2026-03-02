@@ -19,6 +19,7 @@ import { FindReplaceDialog } from "@/components/find-replace-dialog";
 import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-engine";
 import { CreateTableDialog } from "@/components/create-table-dialog";
 import { getSelectionRangeString } from "@/lib/utils";
+import { GoToDialog } from "@/components/go-to-dialog";
 
 
 export default function DrillPage({ params }: { params: { id: string } }) {
@@ -81,7 +82,7 @@ export default function DrillPage({ params }: { params: { id: string } }) {
     if (animationStep >= 0 && currentAnimatedStep) {
         // Apply the main effect (e.g., SET_FIND_VALUE), but only if it's not a 'HIDE' action,
         // so we can see the highlight before the dialog disappears.
-        if (currentAnimatedStep.dialogEffect && currentAnimatedStep.dialogEffect.action !== 'HIDE') {
+        if (currentAnimatedStep.dialogEffect && currentAnimatedStep.dialogEffect.action !== 'HIDE' && currentAnimatedStep.dialogEffect.action !== 'HIDE_CREATE_TABLE' && currentAnimatedStep.dialogEffect.action !== 'HIDE_GO_TO') {
             displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.dialogEffect);
         }
 
@@ -120,6 +121,12 @@ export default function DrillPage({ params }: { params: { id: string } }) {
                                     isVisible={!!displayDialogState.createTableDialogVisible}
                                     isHighlighted={displayDialogState.createTableDialogHighlightedButton === 'ok'}
                                     range={getSelectionRangeString(initialDisplayGridState?.sheets[initialDisplayGridState.activeSheetIndex]?.selection)}
+                                  />
+                                  <GoToDialog
+                                    isVisible={!!displayDialogState.goToDialogVisible}
+                                    reference={displayDialogState.goToDialogReference || ''}
+                                    isOkHighlighted={displayDialogState.goToDialogHighlightedButton === 'ok'}
+                                    isInputHighlighted={!!displayDialogState.goToDialogHighlightedInput}
                                   />
                                   <VisualGrid
                                      gridState={initialDisplayGridState}
