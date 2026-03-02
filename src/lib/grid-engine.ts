@@ -545,6 +545,15 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             }
             newCellStyles = {}; 
             break;
+        case 'UPDATE_ACTIVE_CELL_CONTENT': {
+            if (payload?.value !== undefined) {
+                const { row, col } = newSelection.activeCell;
+                if (newGridData[row]?.[col] !== undefined) {
+                    newGridData[row][col] = payload.value;
+                }
+            }
+            break;
+        }
         case 'START_EDITING':
             if (payload?.formula) {
                 const {row, col} = newSelection.activeCell;
@@ -752,7 +761,8 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 if (newGridData[r]?.[c] !== undefined) {
                     const numericValue = parseFloat(newGridData[r][c].replace(/[^0-9.-]+/g, ""));
                     if (!isNaN(numericValue)) {
-                        newGridData[r][c] = `${(numericValue * 100).toFixed(0)}%`;
+                         const displayValue = newGridData[r][c].includes('%') ? numericValue : numericValue * 100;
+                         newGridData[r][c] = `${displayValue.toFixed(2)}%`;
                     }
                 }
             });
@@ -841,3 +851,6 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
 
+
+
+    

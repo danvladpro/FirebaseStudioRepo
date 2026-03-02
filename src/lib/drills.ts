@@ -100,7 +100,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   applyGeneralFormatFloat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'1' } } },
   applyGeneralFormatOnDate: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '46083' } } },
   applyDateFormatFromGeneral: { description: 'Apply Date format', keys: ['control', 'shift', '3'], iconName: 'Calendar' , gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'02-Mar-26' } } },
-  applyPercentageFromGeneral: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'20%' } } },
+  applyPercentageFromGeneral: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'20.00%' } } },
 
   // Data & Formulas 
   editFormula: { description: 'Edit formula', keys: ['f2'], iconName: 'Edit3', gridEffect: { action: 'START_EDITING', payload: { formula: '=Z4' } } },
@@ -142,7 +142,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
-  type9: { description: 'Type "9"', keys: ['9'], iconName: 'Type' },
+  type9: { description: 'Type "9"', keys: ['9'], iconName: 'Type', gridEffect: { action: 'UPDATE_ACTIVE_CELL_CONTENT', payload: { value: '9' } } },
   openSortDialog: { description: 'Sort menu', keys: ['s'], iconName: 'ArrowUpDown' },
   openAltMenu: { description: 'Alt menu', keys: ['alt'], iconName: 'Menu' },
   openDataTab: { description: 'Data tab', keys: ['d'], iconName: 'Database' },
@@ -785,3 +785,5 @@ export const DRILL_SET: DrillSet = {
   name: "Muscle Memory Drills",
   drills: drills,
 };
+
+    

@@ -63,6 +63,7 @@ export type GridEffectAction =
   | 'SCROLL_PAGE_UP'
   | 'AUTOSUM'
   | 'APPLY_TABLE_FORMATTING'
+  | 'UPDATE_ACTIVE_CELL_CONTENT'
   | 'SET_SELECTION_MODE';
 
 export interface GridEffect {
@@ -154,3 +155,5 @@ export interface UserProfile {
   missingKeys?: string[];
   preview?: boolean;
 }
+
+    
