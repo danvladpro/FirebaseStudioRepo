@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -78,14 +79,20 @@ export default function DrillPage({ params }: { params: { id: string } }) {
     const currentAnimatedStep = drillStepsForEngine[animationStep];
     const isHideAction = !!currentAnimatedStep?.dialogEffect?.action.startsWith('HIDE');
 
-    // For HIDE actions, we show the state *before* it hides to see the highlight.
-    // For all other actions, we show the state *after* the action completes.
-    const targetStepForDialog = isHideAction ? animationStep - 1 : animationStep;
-    let displayDialogState = calculateDialogStateForStep(drillStepsForEngine, targetStepForDialog);
+    let displayDialogState;
 
-    // Apply the highlight effect for the current step to the calculated state.
-    if (animationStep >= 0 && currentAnimatedStep?.previewDialogEffect) {
-        displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.previewDialogEffect);
+    if (animationStep >= 0 && currentAnimatedStep && isHideAction) {
+        // For HIDE actions, we want to show the state *before* hiding, but add the preview highlight.
+        const stateBeforeHide = calculateDialogStateForStep(drillStepsForEngine, animationStep - 1);
+        if (currentAnimatedStep.previewDialogEffect) {
+            displayDialogState = applyDialogEffect(stateBeforeHide, currentAnimatedStep.previewDialogEffect);
+        } else {
+            // Fallback to just the state before, if no specific preview highlight.
+            displayDialogState = stateBeforeHide;
+        }
+    } else {
+        // For all other actions, show the final state after the action has completed.
+        displayDialogState = calculateDialogStateForStep(drillStepsForEngine, animationStep);
     }
 
     return (
