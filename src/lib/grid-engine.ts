@@ -547,7 +547,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             break;
         case 'UPDATE_ACTIVE_CELL_CONTENT': {
             if (payload?.value !== undefined) {
-                const { row, col } = newSelection.activeCell;
+                const { row, col } = newSelection.anchorCell;
                 if (newGridData[row]?.[col] !== undefined) {
                     newGridData[row][col] = payload.value;
                 }
