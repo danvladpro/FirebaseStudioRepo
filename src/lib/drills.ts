@@ -1,4 +1,5 @@
 
+
 import { MoveRight } from "lucide-react";
 import { ChallengeLevel, GridEffect, GridState, DialogEffect, FindReplaceDialogState } from "./types";
 
@@ -118,7 +119,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   confirmEntry: { description: 'Enter', keys: ['enter'], iconName: 'CornerDownLeft' },
   confirm: { description: 'Confirm', keys: ['enter'], iconName: 'CornerDownLeft' },
   fillAll: { description: 'Fill all', keys: ['control', 'enter'], iconName: 'CheckCheck', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '9' } } },
-  openFilterDropdown: { description: 'Open filter dropdown', keys: ['alt', 'arrowdown'], iconName: 'Filter', dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' }, previewDialogEffect: { action: 'SHOW_FILTER_DROPDOWN' } },
+  openFilterDropdown: { description: 'Open filter dropdown', keys: ['alt', 'arrowdown'], iconName: 'Filter', dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' } },
   moveToFilterItem: { description: 'Move to next item', keys: ['arrowdown'], iconName: 'ArrowDown', dialogEffect: { action: 'HIGHLIGHT_NEXT_FILTER_ITEM' }, previewDialogEffect: { action: 'HIGHLIGHT_NEXT_FILTER_ITEM' } },
   applyFilterSelection: { description: 'Confirm selection', keys: ['enter'], iconName: 'Check', dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' } },
   toggleFilterItem: { description: 'Toggle item selection', keys: [' '], iconName: 'CheckSquare', dialogEffect: { action: 'TOGGLE_FILTER_ITEM' }, previewDialogEffect: { action: 'TOGGLE_FILTER_ITEM' } },

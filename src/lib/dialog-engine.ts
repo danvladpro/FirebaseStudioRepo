@@ -1,4 +1,5 @@
 
+
 import { FindReplaceDialogState, DialogEffect, Sheet } from './types';
 import { DrillStep } from './drills';
 import type { ChallengeStep } from './types';
@@ -42,7 +43,7 @@ export const applyDialogEffect = (
     if (effect.action !== 'HIGHLIGHT_GO_TO_INPUT') {
         newState.goToDialogHighlightedInput = false;
     }
-    if (effect.action !== 'HIGHLIGHT_NEXT_FILTER_ITEM' && effect.action !== 'SHOW_FILTER_DROPDOWN') {
+    if (effect.action !== 'HIGHLIGHT_NEXT_FILTER_ITEM' && effect.action !== 'SHOW_FILTER_DROPDOWN' && effect.action !== 'TOGGLE_FILTER_ITEM') {
         newState.filterDropdownHighlightedIndex = -1;
     }
 
