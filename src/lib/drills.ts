@@ -99,23 +99,23 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
 
   applyGeneralFormat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash' },
   
-  decreaseDecimals: { description: 'Decrease decimals', keys: ['alt', 'h', '9'], iconName: 'MinusCircle' },
-  increaseDecimals: { description: 'Increase decimals', keys: ['alt', 'h', '0'], iconName: 'PlusCircle' },
-  centerAlign: { description: 'Center align', keys: ['alt', 'h', 'a', 'c'], iconName: 'AlignCenter' },
-  mergeCenter: { description: 'Merge & center', keys: ['alt', 'h', 'm', 'c'], iconName: 'Merge' },
-  wrapText: { description: 'Wrap text', keys: ['alt', 'h', 'w'], iconName: 'WrapText' },
-  applyAllBorders: { description: 'Apply all borders', keys: ['alt', 'h', 'b', 'a'], iconName: 'Grid' },
-  applyThickBorder: { description: 'Apply thick border', keys: ['alt', 'h', 'b', 't'], iconName: 'RectangleHorizontal' },
-  clearFormatting: { description: 'Clear formatting', keys: ['alt', 'h', 'e', 'f'], iconName: 'RemoveFormatting' },
-  autofitColumns: { description: 'Auto-fit width', keys: ['alt', 'h', 'o', 'i'], iconName: 'Frame' },
-  openFillColor: { description: 'Open Fill Color', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket' },
+  decreaseDecimals: { description: 'Decrease decimals', keys: ['alt', 'h', '9'], iconName: 'MinusCircle', isSequential: true },
+  increaseDecimals: { description: 'Increase decimals', keys: ['alt', 'h', '0'], iconName: 'PlusCircle', isSequential: true },
+  centerAlign: { description: 'Center align', keys: ['alt', 'h', 'a', 'c'], iconName: 'AlignCenter', isSequential: true },
+  mergeCenter: { description: 'Merge & center', keys: ['alt', 'h', 'm', 'c'], iconName: 'Merge', isSequential: true },
+  wrapText: { description: 'Wrap text', keys: ['alt', 'h', 'w'], iconName: 'WrapText', isSequential: true },
+  applyAllBorders: { description: 'Apply all borders', keys: ['alt', 'h', 'b', 'a'], iconName: 'Grid', isSequential: true },
+  applyThickBorder: { description: 'Apply thick border', keys: ['alt', 'h', 'b', 't'], iconName: 'RectangleHorizontal', isSequential: true },
+  clearFormatting: { description: 'Clear formatting', keys: ['alt', 'h', 'e', 'f'], iconName: 'RemoveFormatting', isSequential: true },
+  autofitColumns: { description: 'Auto-fit width', keys: ['alt', 'h', 'o', 'i'], iconName: 'Frame', isSequential: true },
+  openFillColor: { description: 'Open Fill Color', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true },
   openFormatCells: { description: 'Open Format Cells', keys: ['control', '1'], iconName: 'Settings2' },
   
   // Formatting - Workarounds
   applyGeneralFormatFloat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'1' } } },
   applyGeneralFormatOnDate: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '46083' } } },
   applyDateFormatFromGeneral: { description: 'Apply Date format', keys: ['control', 'shift', '3'], iconName: 'Calendar' , gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'02-Mar-26' } } },
-  applyPercentageFromGeneral: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'20.00%' } } },
+  applyPercentageFromGeneral: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
 
   // Data & Formulas 
   editFormula: { description: 'Edit formula', keys: ['f2'], iconName: 'Edit3', gridEffect: { action: 'START_EDITING', payload: { formula: '=Z4' } } },
@@ -157,15 +157,13 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   closeDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: {action: 'HIDE'}, previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' } },
   openReplace: { description: 'Open Replace dialog', keys: ['control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } } },
   confirmReplace: { description: 'Confirm replacement', keys: ['enter'], iconName: 'Check', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
-  replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: false, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' } },
+  replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: true, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' } },
   tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
-  openSortDialog: { description: 'Sort menu', keys: ['s'], iconName: 'ArrowUpDown' },
-  openAltMenu: { description: 'Alt menu', keys: ['alt'], iconName: 'Menu' },
-  openDataTab: { description: 'Data tab', keys: ['d'], iconName: 'Database' },
-  freezePanes: { description: 'Freeze Panes', keys: ['alt', 'w', 'f', 'f'], iconName: 'Lock' },
-  removeGridlines: { description: 'Remove gridlines', keys: ['alt', 'w', 'v', 'g'], iconName: 'Grid3X3' },
+  openSortDialog: { description: 'Sort menu', keys: ['alt', 'd', 's'], iconName: 'ArrowUpDown', isSequential: true },
+  freezePanes: { description: 'Freeze Panes', keys: ['alt', 'w', 'f', 'f'], iconName: 'Lock', isSequential: true },
+  removeGridlines: { description: 'Remove gridlines', keys: ['alt', 'w', 'v', 'g'], iconName: 'Grid3X3', isSequential: true },
   tabToTabs: { description: 'Tab to tabs', keys: ['control', 'tab'], iconName: 'ArrowRightLeft' },
 };
 
@@ -241,7 +239,7 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
         ['', '','','',''],
         ['', '','','',''],
         ['', '','','',''],
-        ['', '','','',''],
+        ['', '','','','']
       ],
       selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
     }
@@ -735,7 +733,8 @@ const drills: Drill[] = [
     description: 'Access deep sorting options via legacy Alt shortcuts.',
     repetitions: 8,
     mistakeLimit: 2,
-    steps: ['selectCurrentRegion','openAltMenu', 'openDataTab', 'openSortDialog']
+    initialGridState: createGridState(bigTable, 0, 0, 0),
+    steps: ['selectCurrentRegion', 'openSortDialog']
   },
 
   {
