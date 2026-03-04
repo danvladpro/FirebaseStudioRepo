@@ -22,6 +22,7 @@ import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-eng
 import { CreateTableDialog } from "./create-table-dialog";
 import { GoToDialog } from "./go-to-dialog";
 import { FilterDropdown } from "./filter-dropdown";
+import { Badge } from "./ui/badge";
 
 interface DrillUIProps {
   drill: Drill;
@@ -570,6 +571,11 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                                                 <span className="text-muted-foreground font-normal ml-2">{shortcutHint}</span>
                                             )}
                                         </p>
+                                        {isStepActive && (
+                                            <Badge variant={step.isSequential ? 'outline' : 'secondary'} className="ml-auto">
+                                                {step.isSequential ? 'Sequential' : 'Combo'}
+                                            </Badge>
+                                        )}
                                     </div>
                                 </div>
                             </div>

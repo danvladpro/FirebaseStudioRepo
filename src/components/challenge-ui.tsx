@@ -19,6 +19,7 @@ import { FindReplaceDialog } from "./find-replace-dialog";
 import { calculateDialogStateForStep, applyDialogEffect } from "@/lib/dialog-engine";
 import { CreateTableDialog } from "./create-table-dialog";
 import { GoToDialog } from "./go-to-dialog";
+import { Badge } from "./ui/badge";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -538,6 +539,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                         )}>
                         {step.description}
                         </p>
+                        {isActive && (
+                            <Badge variant={step.isSequential ? 'outline' : 'secondary'} className="ml-auto">
+                                {step.isSequential ? 'Sequential' : 'Combo'}
+                            </Badge>
+                        )}
                     </div>
 
                     {isActive && (

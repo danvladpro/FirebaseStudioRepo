@@ -652,7 +652,7 @@ const drills: Drill[] = [
     description: 'Align values cleanly using Alt-sequences.',
     repetitions: 12,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
+    initialGridState: createGridState(bigTable, 0, 3, 0),
     steps: ['jumpTop','selectRow', 'centerAlign']
   },
   {
@@ -662,7 +662,7 @@ const drills: Drill[] = [
     description: 'Create a professional centered header across a range.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
+    initialGridState: createGridState(bigTable, 0, 3, 0),
     steps: ['selectRightToEdge', 'mergeCenter']
   },
   {
@@ -682,7 +682,7 @@ const drills: Drill[] = [
     description: 'Emphasize a horizontal data block with thick borders.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
+    initialGridState: createGridState(bigTable, 0, 3, 0),
     steps: ['selectRightToEdge', 'selectRightToEdge', 'applyThickBorder']
   },
   {
@@ -692,7 +692,7 @@ const drills: Drill[] = [
     description: 'Improve header readability with Wrap Text and Alignment.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
+    initialGridState: createGridState(bigTable, 0, 3, 0),
     steps: ['selectCol','centerAlign', 'wrapText']
   },
   {
@@ -702,7 +702,7 @@ const drills: Drill[] = [
     description: 'Remove messy imported styles completely.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
+    initialGridState: createGridState(bigTable, 0, 3, 0),
     steps: ['jumpTop','selectDownToEdge', 'clearFormatting']
   },
   {
@@ -712,7 +712,7 @@ const drills: Drill[] = [
     description: 'Adjust decimal precision for financial presentation.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
+    initialGridState: createGridState(bigTable, 0, 3, 0),
     steps: ['jumpRight','applyCurrency', 'decreaseDecimals', 'increaseDecimals']
   },
 
@@ -723,7 +723,7 @@ const drills: Drill[] = [
     description: 'Fix broken percentage formatting using Clear and Re-apply.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: defaultDrillGridState,
+    initialGridState: createGridState(bigTable, 0, 3, 0),
     steps: ['clearFormatting', 'applyPercentage','moveDown','repeatFormatting']
   },
   {
