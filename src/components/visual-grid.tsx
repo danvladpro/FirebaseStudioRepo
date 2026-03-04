@@ -48,7 +48,7 @@ export function VisualGrid({
         ? previewState.gridState.activeSheetIndex
         : gridState.activeSheetIndex;
 
-    const { hiddenRows = new Set<number>(), hiddenColumns = new Set<number>() } = finalSheet;
+    const { hiddenRows = new Set<number>(), hiddenColumns = new Set<number>(), frozenAt, showGridlines } = finalSheet;
     const viewport = finalSheet.viewport || { startRow: 0, rowCount: gridDataToRender.length };
 
     const visibleColumns: number[] = [];
@@ -115,14 +115,21 @@ export function VisualGrid({
                                             return classes;
                                         };
 
+                                        const style = { ...finalCellStyles[cellId] };
+                                        if (frozenAt) {
+                                            if (rowIndex === frozenAt.row) style.borderBottom = '2px solid hsl(var(--foreground))';
+                                            if (colIndex === frozenAt.col) style.borderRight = '2px solid hsl(var(--foreground))';
+                                        }
+
                                         return (
                                             <td
                                                 key={colIndex}
                                                 className={cn(
-                                                    "border border-border p-1.5 text-sm truncate transition-colors duration-200",
+                                                    "p-1.5 text-sm truncate transition-colors duration-200",
+                                                    showGridlines !== false && "border border-border",
                                                     ...getCellClasses()
                                                 )}
-                                                style={finalCellStyles[cellId] || {}}
+                                                style={style}
                                             >
                                                 {cell}
                                             </td>

@@ -16,6 +16,8 @@ export interface Sheet {
     startRow: number;
     rowCount: number;
   };
+  frozenAt?: { row: number; col: number } | null;
+  showGridlines?: boolean;
 }
 
 export interface GridState {
@@ -64,7 +66,14 @@ export type GridEffectAction =
   | 'AUTOSUM'
   | 'APPLY_TABLE_FORMATTING'
   | 'UPDATE_ACTIVE_CELL_CONTENT'
-  | 'SET_SELECTION_MODE';
+  | 'SET_SELECTION_MODE'
+  | 'APPLY_STYLE_CENTER_ALIGN'
+  | 'APPLY_STYLE_MERGE_CENTER'
+  | 'APPLY_STYLE_ALL_BORDERS'
+  | 'APPLY_STYLE_THICK_BORDER'
+  | 'APPLY_STYLE_WRAP_TEXT'
+  | 'FREEZE_PANES'
+  | 'TOGGLE_GRIDLINES';
 
 export interface GridEffect {
   action: GridEffectAction;

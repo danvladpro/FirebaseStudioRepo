@@ -101,11 +101,11 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   
   decreaseDecimals: { description: 'Decrease decimals', keys: ['alt', 'h', '9'], iconName: 'MinusCircle', isSequential: true },
   increaseDecimals: { description: 'Increase decimals', keys: ['alt', 'h', '0'], iconName: 'PlusCircle', isSequential: true },
-  centerAlign: { description: 'Center align', keys: ['alt', 'h', 'a', 'c'], iconName: 'AlignCenter', isSequential: true },
-  mergeCenter: { description: 'Merge & center', keys: ['alt', 'h', 'm', 'c'], iconName: 'Merge', isSequential: true },
-  wrapText: { description: 'Wrap text', keys: ['alt', 'h', 'w'], iconName: 'WrapText', isSequential: true },
-  applyAllBorders: { description: 'Apply all borders', keys: ['alt', 'h', 'b', 'a'], iconName: 'Grid', isSequential: true },
-  applyThickBorder: { description: 'Apply thick border', keys: ['alt', 'h', 'b', 't'], iconName: 'RectangleHorizontal', isSequential: true },
+  centerAlign: { description: 'Center align', keys: ['alt', 'h', 'a', 'c'], iconName: 'AlignCenter', isSequential: true, gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } },
+  mergeCenter: { description: 'Merge & center', keys: ['alt', 'h', 'm', 'c'], iconName: 'Merge', isSequential: true, gridEffect: { action: 'APPLY_STYLE_MERGE_CENTER' } },
+  wrapText: { description: 'Wrap text', keys: ['alt', 'h', 'w'], iconName: 'WrapText', isSequential: true, gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } },
+  applyAllBorders: { description: 'Apply all borders', keys: ['alt', 'h', 'b', 'a'], iconName: 'Grid', isSequential: true, gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } },
+  applyThickBorder: { description: 'Apply thick border', keys: ['alt', 'h', 'b', 't'], iconName: 'RectangleHorizontal', isSequential: true, gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } },
   clearFormatting: { description: 'Clear formatting', keys: ['alt', 'h', 'e', 'f'], iconName: 'RemoveFormatting', isSequential: true },
   autofitColumns: { description: 'Auto-fit width', keys: ['alt', 'h', 'o', 'i'], iconName: 'Frame', isSequential: true },
   openFillColor: { description: 'Open Fill Color', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true },
@@ -162,8 +162,8 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   openSortDialog: { description: 'Sort menu', keys: ['alt', 'd', 's'], iconName: 'ArrowUpDown', isSequential: true },
-  freezePanes: { description: 'Freeze Panes', keys: ['alt', 'w', 'f', 'f'], iconName: 'Lock', isSequential: true },
-  removeGridlines: { description: 'Remove gridlines', keys: ['alt', 'w', 'v', 'g'], iconName: 'Grid3X3', isSequential: true },
+  freezePanes: { description: 'Freeze Panes', keys: ['alt', 'w', 'f', 'f'], iconName: 'Lock', isSequential: true, gridEffect: { action: 'FREEZE_PANES' } },
+  removeGridlines: { description: 'Remove gridlines', keys: ['alt', 'w', 'v', 'g'], iconName: 'Grid3X3', isSequential: true, gridEffect: { action: 'TOGGLE_GRIDLINES' } },
   tabToTabs: { description: 'Tab to tabs', keys: ['control', 'tab'], iconName: 'ArrowRightLeft' },
 };
 
@@ -663,12 +663,9 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(
-      [
-	['Share','', '','Amount', ''],
-	['2025', '2026','','2025', '2026'],
-	['10%','20%','', '100','200'],
-
-],0,0,0
+      [['Share','', '','Amount', ''],
+      ['2025', '2026','','2025', '2026'],
+      ['10%','20%','', '100','200'],],0,0,0
     ),
     steps: ['expandRight', 'mergeCenter','jumpRight','expandRight','mergeCenter']
   },
@@ -689,8 +686,8 @@ const drills: Drill[] = [
     description: 'Emphasize a horizontal data block with thick borders.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 3, 0),
-    steps: ['selectRightToEdge', 'selectRightToEdge', 'applyThickBorder']
+    initialGridState: createMultiSheetGridState(0),
+    steps: ['jumpEnd','selectLeftToEdge', 'applyThickBorder']
   },
   {
     id: 'wrap-and-center-header',
@@ -699,7 +696,12 @@ const drills: Drill[] = [
     description: 'Improve header readability with Wrap Text and Alignment.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 3, 0),
+    initialGridState: createGridState(
+      [['Long Text','', '','', ''],
+      ['Long Text', '','','', ''],
+      ['','','', '',''],
+      ['','','', '',''],],0,0,0
+    ),
     steps: ['selectCol','centerAlign', 'wrapText']
   },
   {
@@ -761,8 +763,8 @@ const drills: Drill[] = [
     description: 'Open the fill color menu to highlight a selection.',
     repetitions: 8,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectRow','extendDown','openFillColor']
+    initialGridState: createGridState(bigTable,0,0,0),
+    steps: ['selectRow','extendDown','bold','openFillColor']
   },
   {
     id: 'group-rows-data',
@@ -792,7 +794,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['jumpBottom','selectRow','freezePanes']
+    steps: ['MoveRight','selectCol','freezePanes']
   },
   {
     id: 'jump-clean-view',

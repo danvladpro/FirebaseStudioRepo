@@ -223,14 +223,14 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Ribbon",
     iconName: "Palette",
     challenges: [
-      singleStep({ description: "Center align", keys: ["alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true, initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Merge & Center", keys: ["alt", "h", "m", "c"], iconName: "Merge", isSequential: true, initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Wrap Text", keys: ["alt", "h", "w"], iconName: "WrapText", isSequential: true, initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Apply all borders", keys: ["alt", "h", "b", "a"], iconName: "Grid", isSequential: true, initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Thick box border", keys: ["alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true, initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Fill Color", keys: ["alt", "h", "h"], iconName: "PaintBucket", isSequential: true, initialGridState: createDefaultGridState() }), // NEW
+      singleStep({ description: "Center align", keys: ["alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } }),
+      singleStep({ description: "Merge & Center", keys: ["alt", "h", "m", "c"], iconName: "Merge", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_MERGE_CENTER' } }),
+      singleStep({ description: "Wrap Text", keys: ["alt", "h", "w"], iconName: "WrapText", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } }),
+      singleStep({ description: "Apply all borders", keys: ["alt", "h", "b", "a"], iconName: "Grid", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } }),
+      singleStep({ description: "Thick box border", keys: ["alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } }),
+      singleStep({ description: "Fill Color", keys: ["alt", "h", "h"], iconName: "PaintBucket", isSequential: true, initialGridState: createDefaultGridState() }),
       singleStep({ description: "Clear formatting", keys: ["alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Auto-fit width", keys: ["alt", "h", "o", "i"], iconName: "ArrowUpNarrowWide", isSequential: true, initialGridState: createDefaultGridState() }), // NEW
+      singleStep({ description: "Auto-fit width", keys: ["alt", "h", "o", "i"], iconName: "ArrowUpNarrowWide", isSequential: true, initialGridState: createDefaultGridState() }),
       singleStep({ description: "Set column width", keys: ["alt", "h", "o", "w"], iconName: "Columns", isSequential: true, initialGridState: createDefaultGridState() }),
     ],
   },
@@ -264,8 +264,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Paste Special", keys: ["control", "alt", "v"], iconName: "ClipboardSignature", initialGridState: createDefaultGridState() }),
       singleStep({ description: "Group rows/cols", keys: ["alt", "shift", "arrowright"], iconName: "Group", initialGridState: createDefaultGridState() }),
       singleStep({ description: "Ungroup rows/cols", keys: ["alt", "shift", "arrowleft"], iconName: "Ungroup", initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Toggle Gridlines", keys: ["alt", "w", "v", "g"], iconName: "Grid3X3", isSequential: true, initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Freeze Panes", keys: ["alt", "w", "f", "f"], iconName: "Lock", isSequential: true, initialGridState: createDefaultGridState() }),
+      singleStep({ description: "Toggle Gridlines", keys: ["alt", "w", "v", "g"], iconName: "Grid3X3", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'TOGGLE_GRIDLINES' } }),
+      singleStep({ description: "Freeze Panes", keys: ["alt", "w", "f", "f"], iconName: "Lock", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'FREEZE_PANES' } }),
     ],
   },
 ];

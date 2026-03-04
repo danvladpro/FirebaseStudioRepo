@@ -1,5 +1,4 @@
 
-
 import { GridState, ChallengeStep, Sheet } from './types';
 
 const deepCloneSelection = (selection: Sheet['selection']): Sheet['selection'] => ({
@@ -17,6 +16,8 @@ export const deepCloneGridState = (state: GridState): GridState => {
       hiddenRows: sheet.hiddenRows ? new Set(sheet.hiddenRows) : undefined,
       hiddenColumns: sheet.hiddenColumns ? new Set(sheet.hiddenColumns) : undefined,
       viewport: sheet.viewport ? { ...sheet.viewport } : undefined,
+      frozenAt: sheet.frozenAt ? { ...sheet.frozenAt } : null,
+      showGridlines: sheet.showGridlines,
     })),
     activeSheetIndex: state.activeSheetIndex,
     clipboard: state.clipboard ? {
@@ -119,6 +120,16 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
     let newGridState = deepCloneGridState(gridState);
     let newCellStyles = { ...cellStyles };
 
+    const getFullSelectionInfo = (selection: Sheet['selection']) => {
+        const { activeCell, anchorCell } = selection;
+        const minRow = Math.min(anchorCell.row, activeCell.row);
+        const maxRow = Math.max(anchorCell.row, activeCell.row);
+        const minCol = Math.min(anchorCell.col, activeCell.col);
+        const maxCol = Math.max(anchorCell.col, activeCell.col);
+        const isRangeSelection = activeCell.row !== anchorCell.row || activeCell.col !== anchorCell.col;
+        return { minRow, maxRow, minCol, maxCol, isRangeSelection };
+    };
+
     // Handle sheet-level actions first
     if (action === 'SWITCH_SHEET') {
         if (payload?.direction === 'next') {
@@ -207,7 +218,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         }
         case 'MOVE_SELECTION':
             if (payload?.direction) {
-                const { isRangeSelection } = getSelectionInfo(newSelection);
+                const { isRangeSelection } = getFullSelectionInfo(newSelection);
                 const { direction, amount = 1 } = payload;
                 
                 let { row, col } = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
@@ -227,7 +238,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
-                const { isRangeSelection } = getSelectionInfo(newSelection);
+                const { isRangeSelection } = getFullSelectionInfo(newSelection);
                 const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
                 
                 let { row, col } = startCell;
@@ -603,10 +614,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 getCellsToApply(newSelection).forEach(cellId => {
                     const [r, c] = cellId.split('-').map(Number);
                     if (newGridData[r]?.[c] !== undefined) {
-                        const numericValue = parseFloat(valueToFill);
-                         if (!isNaN(numericValue)) {
-                             newGridData[r][c] = valueToFill;
-                         }
+                        newGridData[r][c] = valueToFill;
                     }
                 });
             }
@@ -826,6 +834,48 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 }
             });
             break;
+        case 'APPLY_STYLE_CENTER_ALIGN':
+            getCellsToApply(newSelection).forEach(cellId => {
+                newCellStyles[cellId] = { ...newCellStyles[cellId], textAlign: 'center' };
+            });
+            break;
+        case 'APPLY_STYLE_MERGE_CENTER': // Using center align as a proxy
+            getCellsToApply(newSelection).forEach(cellId => {
+                newCellStyles[cellId] = { ...newCellStyles[cellId], textAlign: 'center' };
+            });
+            break;
+        case 'APPLY_STYLE_WRAP_TEXT':
+            getCellsToApply(newSelection).forEach(cellId => {
+                newCellStyles[cellId] = { ...newCellStyles[cellId], whiteSpace: 'pre-wrap' };
+            });
+            break;
+        case 'APPLY_STYLE_ALL_BORDERS':
+            getCellsToApply(newSelection).forEach(cellId => {
+                newCellStyles[cellId] = { ...newCellStyles[cellId], border: '1px solid hsl(var(--muted-foreground))' };
+            });
+            break;
+        case 'APPLY_STYLE_THICK_BORDER': {
+            const { minRow, maxRow, minCol, maxCol } = getFullSelectionInfo(newSelection);
+            for (let r = minRow; r <= maxRow; r++) {
+                for (let c = minCol; c <= maxCol; c++) {
+                    const cellId = `${r}-${c}`;
+                    const style = { ...newCellStyles[cellId] };
+                    const thickBorder = '2px solid hsl(var(--foreground))';
+                    if (r === minRow) style.borderTop = thickBorder;
+                    if (r === maxRow) style.borderBottom = thickBorder;
+                    if (c === minCol) style.borderLeft = thickBorder;
+                    if (c === maxCol) style.borderRight = thickBorder;
+                    newCellStyles[cellId] = style;
+                }
+            }
+            break;
+        }
+        case 'FREEZE_PANES':
+            activeSheet.frozenAt = newSelection.activeCell;
+            break;
+        case 'TOGGLE_GRIDLINES':
+            activeSheet.showGridlines = !(activeSheet.showGridlines ?? true);
+            break;
         case 'APPLY_TABLE_FORMATTING': {
             const { anchorCell, activeCell } = newSelection;
             const minRow = Math.min(anchorCell.row, activeCell.row);
@@ -919,6 +969,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 
