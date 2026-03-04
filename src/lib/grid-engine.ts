@@ -155,20 +155,62 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 newSelection.visibleOnly = false;
             }
             break;
-        case 'SELECT_ALL':
-            if (newGridData.length > 0 && newGridData[0]) {
-                newSelection.anchorCell = { row: 0, col: 0 };
-                newSelection.activeCell = { row: newGridData.length - 1, col: newGridData[0].length - 1 };
-                newSelection.visibleOnly = false;
+        case 'SELECT_ALL': {
+            const { activeCell } = newSelection;
+            const { data } = activeSheet;
+            const numRows = data.length;
+            if (numRows === 0) break;
+            const numCols = data[0]?.length || 0;
+            if (numCols === 0) break;
+
+            // Helper functions
+            const isRowEmpty = (r: number) => {
+                if (r < 0 || r >= numRows) return true;
+                return data[r].every(cell => !cell || cell.trim() === '');
+            };
+            const isColEmpty = (c: number) => {
+                if (c < 0 || c >= numCols) return true;
+                for (let r = 0; r < numRows; r++) {
+                    if (data[r][c] && data[r][c].trim() !== '') return false;
+                }
+                return true;
+            };
+
+            // Find top boundary
+            let minRow = activeCell.row;
+            while(minRow > 0 && !isRowEmpty(minRow - 1)) {
+                minRow--;
             }
+            
+            // find bottom boundary
+            let maxRow = activeCell.row;
+            while(maxRow < numRows - 1 && !isRowEmpty(maxRow + 1)) {
+                maxRow++;
+            }
+
+            // find left boundary
+            let minCol = activeCell.col;
+            while(minCol > 0 && !isColEmpty(minCol - 1)) {
+                minCol--;
+            }
+
+            // find right boundary
+            let maxCol = activeCell.col;
+            while(maxCol < numCols - 1 && !isColEmpty(maxCol + 1)) {
+                maxCol++;
+            }
+
+            newSelection.anchorCell = { row: minRow, col: minCol };
+            newSelection.activeCell = { row: maxRow, col: maxCol };
+            newSelection.visibleOnly = false;
             break;
+        }
         case 'MOVE_SELECTION':
             if (payload?.direction) {
-                const startCell = newSelection.activeCell;
-
+                const { isRangeSelection } = getSelectionInfo(newSelection);
                 const { direction, amount = 1 } = payload;
                 
-                let { row, col } = startCell;
+                let { row, col } = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
                 
                 switch (direction) {
                     case 'down': row = Math.min(newGridData.length - 1, row + amount); break;
@@ -185,7 +227,8 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
-                const startCell = newSelection.activeCell;
+                const { isRangeSelection } = getSelectionInfo(newSelection);
+                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
                 
                 let { row, col } = startCell;
                 
@@ -474,9 +517,9 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
 
             const { data: clipboardData, isCut, sourceSheetIndex, sourceSelection } = newGridState.clipboard;
             
-            const { activeCell, anchorCell } = newSelection;
-            const startRow = Math.min(anchorCell.row, activeCell.row);
-            const startCol = Math.min(anchorCell.col, activeCell.col);
+            const { anchorCell } = newSelection;
+            const startRow = anchorCell.row;
+            const startCol = anchorCell.col;
 
 
             const numPastedRows = clipboardData.length;
@@ -835,6 +878,12 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
     };
 };
 
+const getSelectionInfo = (selection: Sheet['selection']) => {
+    const { activeCell, anchorCell } = selection;
+    const isRangeSelection = activeCell.row !== anchorCell.row || activeCell.col !== anchorCell.col;
+    return { isRangeSelection };
+};
+
 export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridState: GridState, targetStepIndex: number): { gridState: GridState | null, cellStyles: Record<string, React.CSSProperties> } => {
     if (!initialGridState) return { gridState: null, cellStyles: {} };
 
@@ -870,6 +919,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 

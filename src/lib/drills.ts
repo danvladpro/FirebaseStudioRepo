@@ -213,11 +213,11 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
     {
       name: 'Sheet1',
       data: [
-        ['ID', 'Product', 'Region', 'Sales', 'Commission'],
-        ['#101', 'Gadget', 'North', '1200', '5%'],
-        ['#102', 'Widget', 'South', '850', '6%'],
-        ['#103', 'Doohickey', 'East', '2100', '4%'],
-        ['#104', 'Thingamajig', 'West', '500', '7%'],
+        ['ID', 'Product', 'Region', 'Sales', ''],
+        ['#101', 'Gadget', 'North', '1200', ''],
+        ['#102', 'Widget', 'South', '850', ''],
+        ['#103', 'Doohickey', 'East', '2100', ''],
+        ['', '', '', '', ''],
       ],
       selection: { activeCell: { row: 1, col: 1 }, anchorCell: { row: 1, col: 1 } },
     },
@@ -662,8 +662,15 @@ const drills: Drill[] = [
     description: 'Create a professional centered header across a range.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 3, 0),
-    steps: ['selectRightToEdge', 'mergeCenter']
+    initialGridState: createGridState(
+      [
+	['Share','', '','Amount', ''],
+	['2025', '2026','','2025', '2026'],
+	['10%','20%','', '100','200'],
+
+],0,0,0
+    ),
+    steps: ['expandRight', 'mergeCenter','jumpRight','expandRight','mergeCenter']
   },
   {
     id: 'apply-borders-sheet',
