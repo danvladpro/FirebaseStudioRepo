@@ -18,6 +18,7 @@ export const deepCloneGridState = (state: GridState): GridState => {
       viewport: sheet.viewport ? { ...sheet.viewport } : undefined,
       frozenAt: sheet.frozenAt ? { ...sheet.frozenAt } : null,
       showGridlines: sheet.showGridlines,
+      groupedRowRanges: sheet.groupedRowRanges ? [...sheet.groupedRowRanges] : undefined,
     })),
     activeSheetIndex: state.activeSheetIndex,
     clipboard: state.clipboard ? {
@@ -793,6 +794,14 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             }
             break;
         }
+        case 'GROUP_ROWS': {
+            const { minRow, maxRow } = getFullSelectionInfo(newSelection);
+            if (!activeSheet.groupedRowRanges) {
+                activeSheet.groupedRowRanges = [];
+            }
+            activeSheet.groupedRowRanges.push({ start: minRow, end: maxRow });
+            break;
+        }
         case 'APPLY_STYLE_BOLD':
             getCellsToApply(newSelection).forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], fontWeight: 'bold' };
@@ -969,6 +978,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 

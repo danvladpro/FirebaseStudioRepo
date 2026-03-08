@@ -48,7 +48,7 @@ export function VisualGrid({
         ? previewState.gridState.activeSheetIndex
         : gridState.activeSheetIndex;
 
-    const { hiddenRows = new Set<number>(), hiddenColumns = new Set<number>(), frozenAt, showGridlines } = finalSheet;
+    const { hiddenRows = new Set<number>(), hiddenColumns = new Set<number>(), frozenAt, showGridlines, groupedRowRanges } = finalSheet;
     const viewport = finalSheet.viewport || { startRow: 0, rowCount: gridDataToRender.length };
 
     const visibleColumns: number[] = [];
@@ -81,10 +81,15 @@ export function VisualGrid({
                         {Array.from({ length: Math.min(viewport.rowCount, gridDataToRender.length - viewport.startRow) }).map((_, i) => {
                             const rowIndex = viewport.startRow + i;
                             if (hiddenRows.has(rowIndex) || !gridDataToRender[rowIndex]) return null;
+                            const isGrouped = groupedRowRanges?.some(range => rowIndex >= range.start && rowIndex <= range.end);
+
 
                             return (
                                 <tr key={rowIndex}>
-                                    <td className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-l-sm">
+                                    <td className={cn(
+                                        "p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-l-sm",
+                                        isGrouped && "border-l-4 border-muted-foreground/50"
+                                    )}>
                                         {rowIndex + 1}
                                     </td>
                                     {visibleColumns.map((colIndex) => {

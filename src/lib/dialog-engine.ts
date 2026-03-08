@@ -20,6 +20,8 @@ export const initialDialogState: FindReplaceDialogState = {
     filterDropdownVisible: false,
     filterDropdownHighlightedIndex: -1,
     filterDropdownCheckedState: [true, true, true, true, true],
+    sortDialogVisible: false,
+    formatCellsDialogVisible: false,
 };
 
 export const applyDialogEffect = (
@@ -152,6 +154,18 @@ export const applyDialogEffect = (
             newState.filterDropdownCheckedState = newCheckedState;
             break;
         }
+        case 'SHOW_SORT_DIALOG':
+            newState.sortDialogVisible = true;
+            break;
+        case 'HIDE_SORT_DIALOG':
+            newState.sortDialogVisible = false;
+            break;
+        case 'SHOW_FORMAT_CELLS_DIALOG':
+            newState.formatCellsDialogVisible = true;
+            break;
+        case 'HIDE_FORMAT_CELLS_DIALOG':
+            newState.formatCellsDialogVisible = false;
+            break;
     }
     return newState;
 };

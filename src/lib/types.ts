@@ -18,6 +18,7 @@ export interface Sheet {
   };
   frozenAt?: { row: number; col: number } | null;
   showGridlines?: boolean;
+  groupedRowRanges?: { start: number; end: number }[];
 }
 
 export interface GridState {
@@ -73,7 +74,8 @@ export type GridEffectAction =
   | 'APPLY_STYLE_THICK_BORDER'
   | 'APPLY_STYLE_WRAP_TEXT'
   | 'FREEZE_PANES'
-  | 'TOGGLE_GRIDLINES';
+  | 'TOGGLE_GRIDLINES'
+  | 'GROUP_ROWS';
 
 export interface GridEffect {
   action: GridEffectAction;
@@ -96,9 +98,11 @@ export interface FindReplaceDialogState {
   filterDropdownVisible?: boolean;
   filterDropdownHighlightedIndex?: number;
   filterDropdownCheckedState?: boolean[];
+  sortDialogVisible?: boolean;
+  formatCellsDialogVisible?: boolean;
 }
 
-export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT' | 'HIGHLIGHT_INPUT' | 'SHOW_CREATE_TABLE' | 'HIDE_CREATE_TABLE' | 'HIGHLIGHT_CREATE_TABLE_OK' | 'SHOW_GO_TO' | 'HIDE_GO_TO' | 'SET_GO_TO_REF' | 'HIGHLIGHT_GO_TO_OK' | 'HIGHLIGHT_GO_TO_INPUT' | 'SHOW_FILTER_DROPDOWN' | 'HIDE_FILTER_DROPDOWN' | 'HIGHLIGHT_NEXT_FILTER_ITEM' | 'TOGGLE_FILTER_ITEM';
+export type DialogEffectAction = 'SHOW' | 'HIDE' | 'SET_TAB' | 'SET_FIND_VALUE' | 'SET_REPLACE_VALUE' | 'HIGHLIGHT_BUTTON' | 'CLEAR_HIGHLIGHT' | 'HIGHLIGHT_INPUT' | 'SHOW_CREATE_TABLE' | 'HIDE_CREATE_TABLE' | 'HIGHLIGHT_CREATE_TABLE_OK' | 'SHOW_GO_TO' | 'HIDE_GO_TO' | 'SET_GO_TO_REF' | 'HIGHLIGHT_GO_TO_OK' | 'HIGHLIGHT_GO_TO_INPUT' | 'SHOW_FILTER_DROPDOWN' | 'HIDE_FILTER_DROPDOWN' | 'HIGHLIGHT_NEXT_FILTER_ITEM' | 'TOGGLE_FILTER_ITEM' | 'SHOW_SORT_DIALOG' | 'HIDE_SORT_DIALOG' | 'SHOW_FORMAT_CELLS_DIALOG' | 'HIDE_FORMAT_CELLS_DIALOG';
 
 export interface DialogEffect {
     action: DialogEffectAction;

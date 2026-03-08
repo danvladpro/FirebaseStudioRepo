@@ -22,6 +22,8 @@ import { CreateTableDialog } from "@/components/create-table-dialog";
 import { getSelectionRangeString } from "@/lib/utils";
 import { GoToDialog } from "@/components/go-to-dialog";
 import { FilterDropdown } from "@/components/filter-dropdown";
+import { SortDialog } from "@/components/sort-dialog";
+import { FormatCellsDialog } from "@/components/format-cells-dialog";
 
 
 export default function DrillPage({ params }: { params: { id: string } }) {
@@ -131,6 +133,8 @@ export default function DrillPage({ params }: { params: { id: string } }) {
                                     isOkHighlighted={displayDialogState.goToDialogHighlightedButton === 'ok'}
                                     isInputHighlighted={!!displayDialogState.goToDialogHighlightedInput}
                                   />
+                                  <SortDialog isVisible={!!displayDialogState.sortDialogVisible} />
+                                  <FormatCellsDialog isVisible={!!displayDialogState.formatCellsDialogVisible} />
                                   <FilterDropdown state={displayDialogState} />
                                   <VisualGrid
                                      gridState={initialDisplayGridState}

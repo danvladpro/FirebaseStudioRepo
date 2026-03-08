@@ -75,6 +75,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   // Actions (Copy, Paste, Undo, etc.)
   copySelection: { description: 'Copy selection', keys: ['control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
   pasteData: { description: 'Paste', keys: ['control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
+  pasteWelcome: { description: 'Paste', keys: ['control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Welcome' } } },
   
   pasteValuesOnly: { description: 'Paste values', keys: ['control', 'alt', 'v'], iconName: 'ClipboardSignature' , gridEffect: { action: 'PASTE' } },
   cut: { description: 'Cut value', keys: ['control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },
@@ -109,7 +110,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   clearFormatting: { description: 'Clear formatting', keys: ['alt', 'h', 'e', 'f'], iconName: 'RemoveFormatting', isSequential: true },
   autofitColumns: { description: 'Auto-fit width', keys: ['alt', 'h', 'o', 'i'], iconName: 'Frame', isSequential: true },
   openFillColor: { description: 'Open Fill Color', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true },
-  openFormatCells: { description: 'Open Format Cells', keys: ['control', '1'], iconName: 'Settings2' },
+  openFormatCells: { description: 'Open Format Cells', keys: ['control', '1'], iconName: 'Settings2', dialogEffect: { action: 'SHOW_FORMAT_CELLS_DIALOG' } },
   
   // Formatting - Workarounds
   applyGeneralFormatFloat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'1' } } },
@@ -133,7 +134,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   insertDate: { description: 'Insert date', keys: ['control', ';'], iconName: 'Calendar', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '2026-01-24' } } },
   insertTime: { description: 'Insert time', keys: ['control', 'shift', ';'], iconName: 'Clock', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '14:00' } } },
   confirmEntry: { description: 'Enter', keys: ['enter'], iconName: 'CornerDownLeft' },
-  confirm: { description: 'Confirm', keys: ['enter'], iconName: 'CornerDownLeft' },
+  confirm: { description: 'Confirm', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_FORMAT_CELLS_DIALOG' } },
   type9: { description: 'Type "9"', keys: ['9'], iconName: 'Type', gridEffect: { action: 'UPDATE_ACTIVE_CELL_CONTENT', payload: { value: '9' } } },
   fillAll: { description: 'Fill all', keys: ['control', 'enter'], iconName: 'CheckCheck', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '9' } } },
   openFilterDropdown: { description: 'Open filter dropdown', keys: ['alt', 'arrowdown'], iconName: 'Filter', dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' } },
@@ -149,7 +150,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   
   hideRow: { description: 'Hide row', keys: ['control', '9'], iconName: 'EyeOff', gridEffect: { action: 'HIDE_ROW' } },
   unhideRows: { description: 'Unhide all rows', keys: ['control', 'shift', '9'], iconName: 'Eye', gridEffect: { action: 'UNHIDE_ROWS' } },
-  groupRows: { description: 'Group selected', keys: ['shift', 'alt', 'arrowright'], iconName: 'FolderPlus' },
+  groupRows: { description: 'Group selected', keys: ['shift', 'alt', 'arrowright'], iconName: 'Group', gridEffect: { action: 'GROUP_ROWS' } },
   openFind: { description: 'Open Find', keys: ['control', 'f'], iconName: 'Search', dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } } },
   findNext: { description: 'Find next match', keys: ['enter'], iconName: 'ArrowDownToLine', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
   confirmFind: { description: 'Confirm Find', keys: ['enter'], iconName: 'CornerDownLeft', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
@@ -161,7 +162,8 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
-  openSortDialog: { description: 'Sort menu', keys: ['alt', 'd', 's'], iconName: 'ArrowUpDown', isSequential: true },
+  openSortDialog: { description: 'Sort menu', keys: ['alt', 'd', 's'], iconName: 'ArrowUpDown', isSequential: true, dialogEffect: { action: 'SHOW_SORT_DIALOG' } },
+  closeSortDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: { action: 'HIDE_SORT_DIALOG' } },
   freezePanes: { description: 'Freeze Panes', keys: ['alt', 'w', 'f', 'f'], iconName: 'Lock', isSequential: true, gridEffect: { action: 'FREEZE_PANES' } },
   removeGridlines: { description: 'Remove gridlines', keys: ['alt', 'w', 'v', 'g'], iconName: 'Grid3X3', isSequential: true, gridEffect: { action: 'TOGGLE_GRIDLINES' } },
   tabToTabs: { description: 'Tab to tabs', keys: ['control', 'tab'], iconName: 'ArrowRightLeft' },
@@ -697,8 +699,8 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(
-      [['Long Text','', '','', ''],
-      ['Long Text', '','','', ''],
+      [['Long Text Here','', '','', ''],
+      ['Long Text Here', '','','', ''],
       ['','','', '',''],
       ['','','', '',''],],0,0,0
     ),
@@ -743,7 +745,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 0, 0),
-    steps: ['selectCurrentRegion', 'openSortDialog']
+    steps: ['selectCurrentRegion', 'openSortDialog', 'closeSortDialog']
   },
 
   {
@@ -794,7 +796,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['MoveRight','selectCol','freezePanes']
+    steps: ['jumpTop','selectRow','freezePanes']
   },
   {
     id: 'jump-clean-view',
@@ -803,8 +805,8 @@ const drills: Drill[] = [
     description: 'Jump to a new worksheet and immediately toggle off gridlines for a clean look.',
     repetitions: 8,
     mistakeLimit: 2,
-    initialGridState: createMultiSheetGridState(0),
-    steps: ['nextSheet', 'removeGridlines']
+    initialGridState: createMultiSheetGridState(1),
+    steps: ['prevSheet','selectCurrentRegion','deleteContent','removeGridlines']
   }
 ];
 

@@ -23,6 +23,8 @@ import { CreateTableDialog } from "./create-table-dialog";
 import { GoToDialog } from "./go-to-dialog";
 import { FilterDropdown } from "./filter-dropdown";
 import { Badge } from "./ui/badge";
+import { SortDialog } from "./sort-dialog";
+import { FormatCellsDialog } from "./format-cells-dialog";
 
 interface DrillUIProps {
   drill: Drill;
@@ -525,6 +527,8 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                         isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
                         isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
                     />
+                    <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
+                    <FormatCellsDialog isVisible={!!finalDialogState.formatCellsDialogVisible} />
                     <FilterDropdown state={finalDialogState} />
                     <VisualGrid 
                         gridState={displayedGridState}
