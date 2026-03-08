@@ -111,6 +111,8 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   autofitColumns: { description: 'Auto-fit width', keys: ['alt', 'h', 'o', 'i'], iconName: 'Frame', isSequential: true },
   openFillColor: { description: 'Open Fill Color', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true },
   openFormatCells: { description: 'Open Format Cells', keys: ['control', '1'], iconName: 'Settings2', dialogEffect: { action: 'SHOW_FORMAT_CELLS_DIALOG' } },
+  moveDownFormatCategory: { description: 'Move to next category', keys: ['arrowdown'], iconName: 'ArrowDown', dialogEffect: { action: 'MOVE_FORMAT_CELLS_HIGHLIGHT', payload: 'down' } },
+  moveUpFormatCategory: { description: 'Move to previous category', keys: ['arrowup'], iconName: 'ArrowUp', dialogEffect: { action: 'MOVE_FORMAT_CELLS_HIGHLIGHT', payload: 'up' } },
   
   // Formatting - Workarounds
   applyGeneralFormatFloat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'1' } } },
@@ -786,7 +788,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['clearFormatting','openFormatCells', 'tabToTabs', 'confirm']
+    steps: ['clearFormatting', 'openFormatCells', 'moveDownFormatCategory', 'moveDownFormatCategory', 'confirm']
   },
   {
     id: 'freeze-panes-view',
@@ -819,3 +821,4 @@ export const DRILL_SET: DrillSet = {
     
 
     
+

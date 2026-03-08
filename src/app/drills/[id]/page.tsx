@@ -134,7 +134,7 @@ export default function DrillPage({ params }: { params: { id: string } }) {
                                     isInputHighlighted={!!displayDialogState.goToDialogHighlightedInput}
                                   />
                                   <SortDialog isVisible={!!displayDialogState.sortDialogVisible} />
-                                  <FormatCellsDialog isVisible={!!displayDialogState.formatCellsDialogVisible} />
+                                  <FormatCellsDialog state={displayDialogState} />
                                   <FilterDropdown state={displayDialogState} />
                                   <VisualGrid
                                      gridState={initialDisplayGridState}

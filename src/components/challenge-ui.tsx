@@ -488,7 +488,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                         isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
                     />
                     <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
-                    <FormatCellsDialog isVisible={!!finalDialogState.formatCellsDialogVisible} />
+                    <FormatCellsDialog state={finalDialogState} />
                     <VisualGrid 
                         gridState={displayedGridState} 
                         cellStyles={displayedCellStyles}

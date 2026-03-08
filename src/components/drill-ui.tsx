@@ -528,7 +528,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                         isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
                     />
                     <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
-                    <FormatCellsDialog isVisible={!!finalDialogState.formatCellsDialogVisible} />
+                    <FormatCellsDialog state={finalDialogState} />
                     <FilterDropdown state={finalDialogState} />
                     <VisualGrid 
                         gridState={displayedGridState}

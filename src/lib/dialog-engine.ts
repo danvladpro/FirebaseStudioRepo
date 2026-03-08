@@ -22,6 +22,8 @@ export const initialDialogState: FindReplaceDialogState = {
     filterDropdownCheckedState: [true, true, true, true, true],
     sortDialogVisible: false,
     formatCellsDialogVisible: false,
+    formatCellsDialogActiveCategory: 'General',
+    formatCellsDialogHighlightedCategoryIndex: 0,
 };
 
 export const applyDialogEffect = (
@@ -47,6 +49,10 @@ export const applyDialogEffect = (
     }
     if (effect.action !== 'HIGHLIGHT_NEXT_FILTER_ITEM' && effect.action !== 'SHOW_FILTER_DROPDOWN' && effect.action !== 'TOGGLE_FILTER_ITEM') {
         newState.filterDropdownHighlightedIndex = -1;
+    }
+    if (effect.action !== 'MOVE_FORMAT_CELLS_HIGHLIGHT' && effect.action !== 'SHOW_FORMAT_CELLS_DIALOG') {
+        newState.formatCellsDialogHighlightedCategoryIndex = 0;
+        newState.formatCellsDialogActiveCategory = 'General';
     }
 
 
@@ -162,10 +168,25 @@ export const applyDialogEffect = (
             break;
         case 'SHOW_FORMAT_CELLS_DIALOG':
             newState.formatCellsDialogVisible = true;
+            newState.formatCellsDialogHighlightedCategoryIndex = 0;
+            newState.formatCellsDialogActiveCategory = 'General';
             break;
         case 'HIDE_FORMAT_CELLS_DIALOG':
             newState.formatCellsDialogVisible = false;
             break;
+        case 'MOVE_FORMAT_CELLS_HIGHLIGHT': {
+            const categories = ["General", "Number", "Currency", "Accounting", "Date"];
+            const current = newState.formatCellsDialogHighlightedCategoryIndex ?? 0;
+            let newIndex = current;
+            if (effect.payload === 'down') {
+                newIndex = (current + 1) % categories.length;
+            } else if (effect.payload === 'up') {
+                newIndex = (current - 1 + categories.length) % categories.length;
+            }
+            newState.formatCellsDialogHighlightedCategoryIndex = newIndex;
+            newState.formatCellsDialogActiveCategory = categories[newIndex];
+            break;
+        }
     }
     return newState;
 };
