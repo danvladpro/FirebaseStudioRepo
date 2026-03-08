@@ -1041,8 +1041,8 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                         maxWidth = contentLength;
                     }
                 }
-                // Approximate width: 8 pixels per character + padding
-                activeSheet.colWidths![c] = maxWidth * 8 + 24; 
+                // Approximate width: 9 pixels per character + padding
+                activeSheet.colWidths![c] = maxWidth * 9 + 24; 
             }
             break;
         }
@@ -1151,6 +1151,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 

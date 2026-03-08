@@ -50,6 +50,23 @@ const createSummableGridState = (): GridState => ({
   clipboard: null,
 });
 
+const createAutofitGridState = (): GridState => ({
+  sheets: [
+    {
+      name: 'Sheet1',
+      data: [
+        ['This is a very long header for column A', 'Short Header B'],
+        ['Short content', 'This content is much longer and should make the column wider'],
+        ['12345', '123'],
+        ['Another row', 'Another value']
+      ],
+      selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
+    },
+  ],
+  activeSheetIndex: 0,
+  clipboard: null,
+});
+
 
 const createMultiSheetGridState = (activeSheet: number = 0): GridState => ({
   sheets: [
@@ -238,7 +255,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         ]
       },
       singleStep({ description: "Clear formatting", keys: ["alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createDefaultGridState() }),
-      singleStep({ description: "Auto-fit width", keys: ["alt", "h", "o", "i"], iconName: "ArrowUpNarrowWide", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'AUTOFIT_COLUMNS' } }),
+      singleStep({ description: "Auto-fit width", keys: ["alt", "h", "o", "i"], iconName: "ArrowUpNarrowWide", isSequential: true, initialGridState: createAutofitGridState(), gridEffect: { action: 'AUTOFIT_COLUMNS' } }),
       singleStep({ description: "Set column width", keys: ["alt", "h", "o", "w"], iconName: "Columns", isSequential: true, initialGridState: createDefaultGridState() }),
     ],
   },

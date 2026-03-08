@@ -289,6 +289,11 @@ const emptyTable = [['', '', '', ''],
     ['', '', '', '']
 ]
 
+const autofitGrid = [
+    ['This is a very long header for column A', 'Short Header B'],
+    ['Short content', 'This content is much longer and should make the column wider'],
+    ['12345', '123'],
+];
 
 
 const drills: Drill[] = [
@@ -728,8 +733,8 @@ const drills: Drill[] = [
     description: 'Adjust decimal precision for financial presentation.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 3, 0),
-    steps: ['jumpRight','applyCurrency', 'decreaseDecimals', 'increaseDecimals']
+    initialGridState: createGridState(bigTable, 0, 1, 0),
+    steps: ['jumpRight','selectDownToEdge','applyCurrency', 'decreaseDecimals', 'decreaseDecimals']
   },
 
   {
@@ -760,7 +765,7 @@ const drills: Drill[] = [
     description: 'Instantly fix column widths so no data is cut off.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
+    initialGridState: createGridState(autofitGrid,0,0,0),
     steps: ['selectCol','expandRight', 'autofitColumns']
   },
   {
@@ -824,3 +829,4 @@ export const DRILL_SET: DrillSet = {
     
 
     
+
