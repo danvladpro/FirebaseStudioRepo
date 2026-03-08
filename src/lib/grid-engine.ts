@@ -86,7 +86,7 @@ function findEdgeCell(
     );
 
     if (startingMerge) {
-        switch (direction) {
+         switch (direction) {
             case 'down': r = startingMerge.end.row; break;
             case 'up': r = startingMerge.start.row; break;
             case 'right': c = startingMerge.end.col; break;
@@ -263,82 +263,88 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             newSelection.visibleOnly = false;
             break;
         }
-        case 'MOVE_SELECTION':
-            if (payload?.direction) {
-                const { isRangeSelection } = getFullSelectionInfo(newSelection);
-                const { direction, amount = 1 } = payload;
-                
-                let { row, col } = newSelection.activeCell;
-                
-                if (isRangeSelection) {
-                    newSelection.activeCell = { row: newSelection.anchorCell.row, col: newSelection.anchorCell.col };
-                    newSelection.anchorCell = { row: newSelection.anchorCell.row, col: newSelection.anchorCell.col };
-                } else {
-                    switch (direction) {
-                        case 'down': row = Math.min(newGridData.length - 1, row + amount); break;
-                        case 'up': row = Math.max(0, row - amount); break;
-                        case 'right': if (newGridData[0]) col = Math.min(newGridData[0].length - 1, col + amount); break;
-                        case 'left': col = Math.max(0, col - amount); break;
-                    }
-                    newSelection.activeCell = { row, col };
-                    newSelection.anchorCell = { row, col };
-                }
-                newSelection.visibleOnly = false;
-            }
-            break;
+        case 'MOVE_SELECTION': {
+            const { isRangeSelection } = getFullSelectionInfo(newSelection);
+            const { direction, amount = 1 } = payload;
             
-        case 'MOVE_SELECTION_ADVANCED':
-            if (payload?.to) {
-                const { isRangeSelection } = getFullSelectionInfo(newSelection);
-                const startCell = newSelection.activeCell;
-                
-                let { row, col } = startCell;
-                
-                const directions: { [key: string]: 'up' | 'down' | 'left' | 'right' | undefined } = {
-                    edgeUp: 'up',
-                    edgeDown: 'down',
-                    edgeLeft: 'left',
-                    edgeRight: 'right',
-                };
-                const direction = directions[payload.to];
+            let { row, col } = newSelection.activeCell;
+            
+            if (isRangeSelection) {
+                // In Excel, pressing an arrow key on a selection moves the active cell to a corner
+                switch (direction) {
+                    case 'down': row = Math.max(newSelection.activeCell.row, newSelection.anchorCell.row); break;
+                    case 'up': row = Math.min(newSelection.activeCell.row, newSelection.anchorCell.row); break;
+                    case 'right': col = Math.max(newSelection.activeCell.col, newSelection.anchorCell.col); break;
+                    case 'left': col = Math.min(newSelection.activeCell.col, newSelection.anchorCell.col); break;
+                }
+                newSelection.activeCell = { row, col };
+                newSelection.anchorCell = { row, col };
 
-                if (direction) {
-                    const newPos = findEdgeCell(newGridData, row, col, direction, activeSheet.mergedRanges);
-                    row = newPos.row;
-                    col = newPos.col;
-                } else {
-                    switch(payload.to) {
-                        case 'home': col = 0; break;
-                        case 'topLeft': row = 0; col = 0; break;
-                        case 'end': {
-                            let lastUsedRow = -1;
-                            let lastUsedCol = -1;
-                            newGridData.forEach((rowData, r) => {
-                                let rowHasData = false;
-                                rowData.forEach((cell, c) => {
-                                    if (cell && cell.trim() !== '') {
-                                        rowHasData = true;
-                                        if (c > lastUsedCol) lastUsedCol = c;
-                                    }
-                                });
-                                if (rowHasData) lastUsedRow = r;
+            } else {
+                switch (direction) {
+                    case 'down': row = Math.min(newGridData.length - 1, row + amount); break;
+                    case 'up': row = Math.max(0, row - amount); break;
+                    case 'right': if (newGridData[0]) col = Math.min(newGridData[0].length - 1, col + amount); break;
+                    case 'left': col = Math.max(0, col - amount); break;
+                }
+                newSelection.activeCell = { row, col };
+                newSelection.anchorCell = { row, col };
+            }
+            newSelection.visibleOnly = false;
+            break;
+        }
+            
+        case 'MOVE_SELECTION_ADVANCED': {
+            const { isRangeSelection } = getFullSelectionInfo(newSelection);
+            const startCell = newSelection.activeCell;
+            
+            let { row, col } = startCell;
+            
+            const directions: { [key: string]: 'up' | 'down' | 'left' | 'right' | undefined } = {
+                edgeUp: 'up',
+                edgeDown: 'down',
+                edgeLeft: 'left',
+                edgeRight: 'right',
+            };
+            const direction = directions[payload.to];
+
+            if (direction) {
+                const newPos = findEdgeCell(newGridData, row, col, direction, activeSheet.mergedRanges);
+                row = newPos.row;
+                col = newPos.col;
+            } else {
+                switch(payload.to) {
+                    case 'home': col = 0; break;
+                    case 'topLeft': row = 0; col = 0; break;
+                    case 'end': {
+                        let lastUsedRow = -1;
+                        let lastUsedCol = -1;
+                        newGridData.forEach((rowData, r) => {
+                            let rowHasData = false;
+                            rowData.forEach((cell, c) => {
+                                if (cell && cell.trim() !== '') {
+                                    rowHasData = true;
+                                    if (c > lastUsedCol) lastUsedCol = c;
+                                }
                             });
-                            if (lastUsedRow !== -1) row = lastUsedRow;
-                            if (lastUsedCol !== -1) col = lastUsedCol;
-                            break;
-                        }
+                            if (rowHasData) lastUsedRow = r;
+                        });
+                        if (lastUsedRow !== -1) row = lastUsedRow;
+                        if (lastUsedCol !== -1) col = lastUsedCol;
+                        break;
                     }
                 }
-                
-                if (isRangeSelection) {
-                    newSelection.activeCell = { row: newSelection.anchorCell.row, col: newSelection.anchorCell.col };
-                } else {
-                    newSelection.activeCell = { row, col };
-                    newSelection.anchorCell = { row, col };
-                }
-                newSelection.visibleOnly = false;
             }
+            
+             if (isRangeSelection) {
+                newSelection.activeCell = { row: newSelection.anchorCell.row, col: newSelection.anchorCell.col };
+            } else {
+                newSelection.activeCell = { row, col };
+                newSelection.anchorCell = { row, col };
+            }
+            newSelection.visibleOnly = false;
             break;
+        }
         
         case 'EXTEND_SELECTION':
             if (payload?.direction) {
@@ -906,16 +912,13 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                 activeSheet.mergedRanges = [];
             }
             
-            // Add the new merge range
             activeSheet.mergedRanges.push({
                 start: { row: minRow, col: minCol },
                 end: { row: maxRow, col: maxCol }
             });
 
-            // Get content from top-left cell
             const content = newGridData[minRow]?.[minCol] || '';
 
-            // Clear content of all cells in range except the top-left one
             for (let r = minRow; r <= maxRow; r++) {
                 for (let c = minCol; c <= maxCol; c++) {
                     if (r !== minRow || c !== minCol) {
@@ -923,8 +926,11 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                     }
                 }
             }
-            // Ensure content is in top-left
             newGridData[minRow][minCol] = content;
+
+            // Collapse selection to the top-left of the merge
+            newSelection.activeCell = { row: minRow, col: minCol };
+            newSelection.anchorCell = { row: minRow, col: minCol };
             break;
         }
         case 'APPLY_STYLE_ALL_BORDERS':
@@ -1105,6 +1111,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 
