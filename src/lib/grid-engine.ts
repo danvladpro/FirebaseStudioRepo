@@ -19,6 +19,7 @@ export const deepCloneGridState = (state: GridState): GridState => {
       frozenAt: sheet.frozenAt ? { ...sheet.frozenAt } : null,
       showGridlines: sheet.showGridlines,
       groupedRowRanges: sheet.groupedRowRanges ? [...sheet.groupedRowRanges] : undefined,
+      colWidths: sheet.colWidths ? [...sheet.colWidths] : undefined,
     })),
     activeSheetIndex: state.activeSheetIndex,
     clipboard: state.clipboard ? {
@@ -222,7 +223,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                 const { isRangeSelection } = getFullSelectionInfo(newSelection);
                 const { direction, amount = 1 } = payload;
                 
-                let { row, col } = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+                let { row, col } = newSelection.activeCell;
                 
                 switch (direction) {
                     case 'down': row = Math.min(newGridData.length - 1, row + amount); break;
@@ -240,7 +241,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
         case 'MOVE_SELECTION_ADVANCED':
             if (payload?.to) {
                 const { isRangeSelection } = getFullSelectionInfo(newSelection);
-                const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+                const startCell = newSelection.activeCell;
                 
                 let { row, col } = startCell;
                 
@@ -879,9 +880,28 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             }
             break;
         }
-        case 'FREEZE_PANES':
-            activeSheet.frozenAt = newSelection.activeCell;
+        case 'FREEZE_PANES': {
+            const { anchorCell, activeCell } = newSelection;
+            const isSingleRowSelection = anchorCell.row === activeCell.row;
+            const isSingleColSelection = anchorCell.col === activeCell.col;
+            const isFullWidth = Math.min(anchorCell.col, activeCell.col) === 0 && Math.max(anchorCell.col, activeCell.col) === (newGridData[0]?.length || 1) - 1;
+            const isFullHeight = Math.min(anchorCell.row, activeCell.row) === 0 && Math.max(anchorCell.row, activeCell.row) === newGridData.length - 1;
+
+            const rowToFreeze = Math.min(anchorCell.row, activeCell.row);
+            const colToFreeze = Math.min(anchorCell.col, activeCell.col);
+
+            if (isSingleRowSelection && isFullWidth) {
+                // Freeze above the selected row
+                activeSheet.frozenAt = { row: rowToFreeze, col: -1 }; 
+            } else if (isSingleColSelection && isFullHeight) {
+                // Freeze left of the selected column
+                activeSheet.frozenAt = { row: -1, col: colToFreeze }; 
+            } else {
+                // Single cell or rectangular range selection, freeze above and to the left
+                activeSheet.frozenAt = { row: rowToFreeze, col: colToFreeze };
+            }
             break;
+        }
         case 'TOGGLE_GRIDLINES':
             activeSheet.showGridlines = !(activeSheet.showGridlines ?? true);
             break;
@@ -924,6 +944,33 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                     
                     newCellStyles[cellId] = style;
                 }
+            }
+            break;
+        }
+        case 'AUTOFIT_COLUMNS': {
+            const { minCol, maxCol } = getFullSelectionInfo(newSelection);
+            if (!activeSheet.colWidths) {
+                activeSheet.colWidths = new Array(newGridData[0]?.length || 0).fill(undefined);
+            }
+            
+            for (let c = minCol; c <= maxCol; c++) {
+                let maxWidth = 0;
+                
+                // Also consider header width
+                const headerContent = String.fromCharCode(65 + c);
+                if (headerContent.length > maxWidth) {
+                    maxWidth = headerContent.length;
+                }
+        
+                for (let r = 0; r < newGridData.length; r++) {
+                    const cellContent = newGridData[r]?.[c] || '';
+                    const contentLength = cellContent.length; // Simple character length approximation
+                    if (contentLength > maxWidth) {
+                        maxWidth = contentLength;
+                    }
+                }
+                // Approximate width: 8 pixels per character + padding
+                activeSheet.colWidths![c] = maxWidth * 8 + 24; 
             }
             break;
         }
@@ -978,6 +1025,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 

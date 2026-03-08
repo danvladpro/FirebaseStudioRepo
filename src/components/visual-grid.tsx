@@ -48,7 +48,7 @@ export function VisualGrid({
         ? previewState.gridState.activeSheetIndex
         : gridState.activeSheetIndex;
 
-    const { hiddenRows = new Set<number>(), hiddenColumns = new Set<number>(), frozenAt, showGridlines, groupedRowRanges } = finalSheet;
+    const { hiddenRows = new Set<number>(), hiddenColumns = new Set<number>(), frozenAt, showGridlines, groupedRowRanges, colWidths } = finalSheet;
     const viewport = finalSheet.viewport || { startRow: 0, rowCount: gridDataToRender.length };
 
     const visibleColumns: number[] = [];
@@ -71,6 +71,7 @@ export function VisualGrid({
                                 <th
                                     key={colIndex}
                                     className="p-1.5 text-xs font-bold text-center text-muted-foreground bg-muted rounded-t-sm"
+                                    style={colWidths?.[colIndex] ? { width: `${colWidths[colIndex]}px` } : {}}
                                 >
                                     {String.fromCharCode(65 + colIndex)}
                                 </th>
@@ -122,8 +123,8 @@ export function VisualGrid({
 
                                         const style = { ...finalCellStyles[cellId] };
                                         if (frozenAt) {
-                                            if (rowIndex === frozenAt.row) style.borderBottom = '2px solid hsl(var(--foreground))';
-                                            if (colIndex === frozenAt.col) style.borderRight = '2px solid hsl(var(--foreground))';
+                                            if (frozenAt.row !== -1 && rowIndex === frozenAt.row) style.borderBottom = '2px solid hsl(var(--foreground))';
+                                            if (frozenAt.col !== -1 && colIndex === frozenAt.col) style.borderRight = '2px solid hsl(var(--foreground))';
                                         }
 
                                         return (

@@ -19,6 +19,7 @@ export interface Sheet {
   frozenAt?: { row: number; col: number } | null;
   showGridlines?: boolean;
   groupedRowRanges?: { start: number; end: number }[];
+  colWidths?: (number | undefined)[];
 }
 
 export interface GridState {
@@ -75,7 +76,8 @@ export type GridEffectAction =
   | 'APPLY_STYLE_WRAP_TEXT'
   | 'FREEZE_PANES'
   | 'TOGGLE_GRIDLINES'
-  | 'GROUP_ROWS';
+  | 'GROUP_ROWS'
+  | 'AUTOFIT_COLUMNS';
 
 export interface GridEffect {
   action: GridEffectAction;
