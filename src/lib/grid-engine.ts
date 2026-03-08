@@ -21,6 +21,7 @@ export const deepCloneGridState = (state: GridState): GridState => {
       showGridlines: sheet.showGridlines,
       groupedRowRanges: sheet.groupedRowRanges ? [...sheet.groupedRowRanges] : undefined,
       colWidths: sheet.colWidths ? [...sheet.colWidths] : undefined,
+      mergedRanges: sheet.mergedRanges ? sheet.mergedRanges.map(r => ({ start: { ...r.start }, end: { ...r.end } })) : undefined,
     })),
     activeSheetIndex: state.activeSheetIndex,
     clipboard: state.clipboard ? {
@@ -856,16 +857,34 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                 newCellStyles[cellId] = { ...newCellStyles[cellId], textAlign: 'center' };
             });
             break;
-        case 'APPLY_STYLE_MERGE_CENTER': // Using center align as a proxy
-            getCellsToApply(newSelection).forEach(cellId => {
-                newCellStyles[cellId] = { ...newCellStyles[cellId], textAlign: 'center' };
+        case 'APPLY_STYLE_MERGE_CENTER': {
+            const { minRow, maxRow, minCol, maxCol } = getFullSelectionInfo(newSelection);
+            
+            if (!activeSheet.mergedRanges) {
+                activeSheet.mergedRanges = [];
+            }
+            
+            // Add the new merge range
+            activeSheet.mergedRanges.push({
+                start: { row: minRow, col: minCol },
+                end: { row: maxRow, col: maxCol }
             });
+
+            // Get content from top-left cell
+            const content = newGridData[minRow]?.[minCol] || '';
+
+            // Clear content of all cells in range except the top-left one
+            for (let r = minRow; r <= maxRow; r++) {
+                for (let c = minCol; c <= maxCol; c++) {
+                    if (r !== minRow || c !== minCol) {
+                        newGridData[r][c] = '';
+                    }
+                }
+            }
+            // Ensure content is in top-left
+            newGridData[minRow][minCol] = content;
             break;
-        case 'APPLY_STYLE_WRAP_TEXT':
-            getCellsToApply(newSelection).forEach(cellId => {
-                newCellStyles[cellId] = { ...newCellStyles[cellId], whiteSpace: 'pre-wrap' };
-            });
-            break;
+        }
         case 'APPLY_STYLE_ALL_BORDERS':
             getCellsToApply(newSelection).forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], border: '1px solid hsl(var(--muted-foreground))' };
@@ -887,25 +906,27 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             }
             break;
         }
+        case 'APPLY_STYLE_WRAP_TEXT':
+            getCellsToApply(newSelection).forEach(cellId => {
+                newCellStyles[cellId] = { ...newCellStyles[cellId], whiteSpace: 'pre-wrap' };
+            });
+            break;
         case 'FREEZE_PANES': {
             const { anchorCell, activeCell } = newSelection;
-            const isSingleRowSelection = anchorCell.row === activeCell.row;
-            const isSingleColSelection = anchorCell.col === activeCell.col;
-            const isFullWidth = Math.min(anchorCell.col, activeCell.col) === 0 && Math.max(anchorCell.col, activeCell.col) === (newGridData[0]?.length || 1) - 1;
-            const isFullHeight = Math.min(anchorCell.row, activeCell.row) === 0 && Math.max(anchorCell.row, activeCell.row) === newGridData.length - 1;
+            const minRow = Math.min(anchorCell.row, activeCell.row);
+            const maxRow = Math.max(anchorCell.row, activeCell.row);
+            const minCol = Math.min(anchorCell.col, activeCell.col);
+            const maxCol = Math.max(anchorCell.col, activeCell.col);
+            
+            const isFullRowSelection = minCol === 0 && maxCol === (newGridData[0]?.length || 1) - 1;
+            const isFullColSelection = minRow === 0 && maxRow === newGridData.length - 1;
 
-            const rowToFreeze = Math.min(anchorCell.row, activeCell.row);
-            const colToFreeze = Math.min(anchorCell.col, activeCell.col);
-
-            if (isSingleRowSelection && isFullWidth) {
-                // Freeze above the selected row
-                activeSheet.frozenAt = { row: rowToFreeze, col: -1 }; 
-            } else if (isSingleColSelection && isFullHeight) {
-                // Freeze left of the selected column
-                activeSheet.frozenAt = { row: -1, col: colToFreeze }; 
+            if (isFullRowSelection) {
+                activeSheet.frozenAt = { row: minRow, col: -1 }; 
+            } else if (isFullColSelection) {
+                activeSheet.frozenAt = { row: -1, col: minCol }; 
             } else {
-                // Single cell or rectangular range selection, freeze above and to the left
-                activeSheet.frozenAt = { row: rowToFreeze, col: colToFreeze };
+                activeSheet.frozenAt = { row: minRow, col: minCol };
             }
             break;
         }
@@ -1042,6 +1063,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 

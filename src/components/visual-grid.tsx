@@ -34,7 +34,18 @@ export function VisualGrid({
     const finalSelection = isAccentuating ? (previewSheet?.selection || initialSheet.selection) : initialSheet.selection;
     const gridDataToRender = finalSheet.data;
 
-    const finalCellStyles = isAccentuating ? (previewState ? previewState.cellStyles : cellStyles) : cellStyles;
+    const finalCellStyles = isAccentuating ? (previewState ? {...previewState.cellStyles} : {...cellStyles}) : {...cellStyles};
+
+    const mergedCellsToSkip = new Set<string>();
+    finalSheet.mergedRanges?.forEach(range => {
+        for (let r = range.start.row; r <= range.end.row; r++) {
+            for (let c = range.start.col; c <= range.end.col; c++) {
+                if (r > range.start.row || c > range.start.col) {
+                    mergedCellsToSkip.add(`${r}-${c}`);
+                }
+            }
+        }
+    });
 
     const { activeCell, anchorCell } = finalSelection;
     const minRow = Math.min(anchorCell.row, activeCell.row);
@@ -94,8 +105,20 @@ export function VisualGrid({
                                         {rowIndex + 1}
                                     </td>
                                     {visibleColumns.map((colIndex) => {
-                                        const cell = gridDataToRender[rowIndex][colIndex];
                                         const cellId = `${rowIndex}-${colIndex}`;
+
+                                        if (mergedCellsToSkip.has(cellId)) {
+                                            return null;
+                                        }
+
+                                        let colSpan = 1;
+                                        let rowSpan = 1;
+
+                                        const mergeInfo = finalSheet.mergedRanges?.find(
+                                            range => range.start.row === rowIndex && range.start.col === colIndex
+                                        );
+
+                                        const cell = gridDataToRender[rowIndex][colIndex];
                                         const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
 
                                         const getCellClasses = () => {
@@ -122,6 +145,14 @@ export function VisualGrid({
                                         };
 
                                         const style = { ...finalCellStyles[cellId] };
+                                        
+                                        if (mergeInfo) {
+                                            colSpan = mergeInfo.end.col - mergeInfo.start.col + 1;
+                                            rowSpan = mergeInfo.end.row - mergeInfo.start.row + 1;
+                                            style.textAlign = 'center';
+                                            style.verticalAlign = 'middle';
+                                        }
+
                                         if (frozenAt) {
                                             if (frozenAt.row !== -1 && rowIndex === frozenAt.row) style.borderBottom = '2px solid hsl(var(--foreground))';
                                             if (frozenAt.col !== -1 && colIndex === frozenAt.col) style.borderRight = '2px solid hsl(var(--foreground))';
@@ -130,6 +161,8 @@ export function VisualGrid({
                                         return (
                                             <td
                                                 key={colIndex}
+                                                colSpan={colSpan}
+                                                rowSpan={rowSpan}
                                                 className={cn(
                                                     "p-1.5 text-sm truncate transition-colors duration-200",
                                                     showGridlines !== false && "border border-border",

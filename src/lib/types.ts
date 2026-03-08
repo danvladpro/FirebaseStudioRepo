@@ -20,6 +20,10 @@ export interface Sheet {
   showGridlines?: boolean;
   groupedRowRanges?: { start: number; end: number }[];
   colWidths?: (number | undefined)[];
+  mergedRanges?: {
+    start: { row: number; col: number };
+    end: { row: number; col: number };
+  }[];
 }
 
 export interface GridState {
