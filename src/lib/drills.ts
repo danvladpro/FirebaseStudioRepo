@@ -108,8 +108,11 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   applyAllBorders: { description: 'Apply all borders', keys: ['alt', 'h', 'b', 'a'], iconName: 'Grid', isSequential: true, gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } },
   applyThickBorder: { description: 'Apply thick border', keys: ['alt', 'h', 'b', 't'], iconName: 'RectangleHorizontal', isSequential: true, gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } },
   clearFormatting: { description: 'Clear formatting', keys: ['alt', 'h', 'e', 'f'], iconName: 'RemoveFormatting', isSequential: true },
-  autofitColumns: { description: 'Auto-fit width', keys: ['alt', 'h', 'o', 'i'], iconName: 'Frame', isSequential: true },
-  openFillColor: { description: 'Open Fill Color', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true },
+  autofitColumns: { description: 'Auto-fit width', keys: ['alt', 'h', 'o', 'i'], iconName: 'Frame', isSequential: true, gridEffect: { action: 'AUTOFIT_COLUMNS' } },
+  openFillColor: { description: 'Open Fill Color', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true, dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' } },
+  moveColorHighlightRight: { description: 'Move highlight right', keys: ['arrowright'], iconName: 'ArrowRight', dialogEffect: { action: 'MOVE_FILL_COLOR_HIGHLIGHT', payload: 'right' } },
+  moveColorHighlightLeft: { description: 'Move highlight left', keys: ['arrowleft'], iconName: 'ArrowLeft', dialogEffect: { action: 'MOVE_FILL_COLOR_HIGHLIGHT', payload: 'left' } },
+  confirmFillColor: { description: 'Apply fill color', keys: ['enter'], iconName: 'Check', dialogEffect: { action: 'HIDE_FILL_COLOR_DROPDOWN' }, gridEffect: { action: 'APPLY_FILL_COLOR' } },
   openFormatCells: { description: 'Open Format Cells', keys: ['control', '1'], iconName: 'Settings2', dialogEffect: { action: 'SHOW_FORMAT_CELLS_DIALOG' } },
   moveDownFormatCategory: { description: 'Move to next category', keys: ['arrowdown'], iconName: 'ArrowDown', dialogEffect: { action: 'MOVE_FORMAT_CELLS_HIGHLIGHT', payload: 'down' } },
   moveUpFormatCategory: { description: 'Move to previous category', keys: ['arrowup'], iconName: 'ArrowUp', dialogEffect: { action: 'MOVE_FORMAT_CELLS_HIGHLIGHT', payload: 'up' } },
@@ -768,7 +771,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,0,0),
-    steps: ['selectRow','extendDown','bold','openFillColor']
+    steps: ['selectRow','extendDown','bold','openFillColor', 'moveColorHighlightRight', 'moveColorHighlightRight', 'confirmFillColor']
   },
   {
     id: 'group-rows-data',
@@ -821,4 +824,3 @@ export const DRILL_SET: DrillSet = {
     
 
     
-

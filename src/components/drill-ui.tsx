@@ -25,6 +25,7 @@ import { FilterDropdown } from "./filter-dropdown";
 import { Badge } from "./ui/badge";
 import { SortDialog } from "./sort-dialog";
 import { FormatCellsDialog } from "./format-cells-dialog";
+import { FillColorDropdown } from "./fill-color-dropdown";
 
 interface DrillUIProps {
   drill: Drill;
@@ -530,6 +531,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                     <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
                     <FormatCellsDialog state={finalDialogState} />
                     <FilterDropdown state={finalDialogState} />
+                    <FillColorDropdown state={finalDialogState} />
                     <VisualGrid 
                         gridState={displayedGridState}
                         cellStyles={displayedCellStyles}

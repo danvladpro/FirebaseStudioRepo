@@ -22,6 +22,7 @@ import { GoToDialog } from "./go-to-dialog";
 import { Badge } from "./ui/badge";
 import { SortDialog } from "./sort-dialog";
 import { FormatCellsDialog } from "./format-cells-dialog";
+import { FillColorDropdown } from "./fill-color-dropdown";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -489,6 +490,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                     />
                     <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
                     <FormatCellsDialog state={finalDialogState} />
+                    <FillColorDropdown state={finalDialogState} />
                     <VisualGrid 
                         gridState={displayedGridState} 
                         cellStyles={displayedCellStyles}

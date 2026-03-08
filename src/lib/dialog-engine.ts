@@ -24,6 +24,8 @@ export const initialDialogState: FindReplaceDialogState = {
     formatCellsDialogVisible: false,
     formatCellsDialogActiveCategory: 'General',
     formatCellsDialogHighlightedCategoryIndex: 0,
+    fillColorDropdownVisible: false,
+    fillColorDropdownHighlightedColor: null,
 };
 
 export const applyDialogEffect = (
@@ -91,6 +93,8 @@ export const applyDialogEffect = (
             newState.goToDialogHighlightedButton = null;
             newState.goToDialogHighlightedInput = false;
             newState.filterDropdownHighlightedIndex = -1;
+            newState.fillColorDropdownVisible = false;
+            newState.fillColorDropdownHighlightedColor = null;
             break;
         case 'SHOW_CREATE_TABLE':
             newState.createTableDialogVisible = true;
@@ -185,6 +189,31 @@ export const applyDialogEffect = (
             }
             newState.formatCellsDialogHighlightedCategoryIndex = newIndex;
             newState.formatCellsDialogActiveCategory = categories[newIndex];
+            break;
+        }
+        case 'SHOW_FILL_COLOR_DROPDOWN':
+            newState.fillColorDropdownVisible = true;
+            newState.fillColorDropdownHighlightedColor = '#ffff00'; // Default to yellow
+            break;
+        case 'HIDE_FILL_COLOR_DROPDOWN':
+            newState.fillColorDropdownVisible = false;
+            newState.fillColorDropdownHighlightedColor = null;
+            break;
+        case 'MOVE_FILL_COLOR_HIGHLIGHT': {
+            if (!newState.fillColorDropdownVisible) break;
+            const allColors = [
+                '#c00000', '#ff0000', '#ffc000', '#ffff00', '#92d050',
+                '#00b050', '#00b0f0', '#0070c0', '#002060', '#7030a0',
+                'transparent'
+            ];
+            const currentIndex = allColors.indexOf(newState.fillColorDropdownHighlightedColor || '');
+            let newIndex = currentIndex;
+            if (effect.payload === 'right') {
+                newIndex = (currentIndex + 1) % allColors.length;
+            } else if (effect.payload === 'left') {
+                newIndex = (currentIndex - 1 + allColors.length) % allColors.length;
+            }
+            newState.fillColorDropdownHighlightedColor = allColors[newIndex];
             break;
         }
     }

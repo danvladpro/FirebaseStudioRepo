@@ -228,7 +228,15 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Wrap Text", keys: ["alt", "h", "w"], iconName: "WrapText", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } }),
       singleStep({ description: "Apply all borders", keys: ["alt", "h", "b", "a"], iconName: "Grid", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } }),
       singleStep({ description: "Thick box border", keys: ["alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } }),
-      singleStep({ description: "Fill Color", keys: ["alt", "h", "h"], iconName: "PaintBucket", isSequential: true, initialGridState: createDefaultGridState() }),
+      {
+        description: "Fill Color",
+        initialGridState: createDefaultGridState(),
+        steps: [
+          { description: 'Open Fill Color Menu', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true, dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' } },
+          { description: 'Select a color', keys: ['arrowright'], iconName: 'ArrowRight', dialogEffect: { action: 'MOVE_FILL_COLOR_HIGHLIGHT', payload: 'right' } },
+          { description: 'Apply the color', keys: ['enter'], iconName: 'Check', dialogEffect: { action: 'HIDE_FILL_COLOR_DROPDOWN' }, gridEffect: { action: 'APPLY_FILL_COLOR' } }
+        ]
+      },
       singleStep({ description: "Clear formatting", keys: ["alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createDefaultGridState() }),
       singleStep({ description: "Auto-fit width", keys: ["alt", "h", "o", "i"], iconName: "ArrowUpNarrowWide", isSequential: true, initialGridState: createDefaultGridState(), gridEffect: { action: 'AUTOFIT_COLUMNS' } }),
       singleStep({ description: "Set column width", keys: ["alt", "h", "o", "w"], iconName: "Columns", isSequential: true, initialGridState: createDefaultGridState() }),

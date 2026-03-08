@@ -1,5 +1,6 @@
 
-import { GridState, ChallengeStep, Sheet } from './types';
+import { FindReplaceDialogState, GridState, ChallengeStep, Sheet } from './types';
+import { calculateDialogStateForStep } from './dialog-engine';
 
 const deepCloneSelection = (selection: Sheet['selection']): Sheet['selection'] => ({
     activeCell: { ...selection.activeCell },
@@ -115,7 +116,7 @@ function findEdgeCell(
 }
 
 
-export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellStyles: Record<string, React.CSSProperties>): { newGridState: GridState, newCellStyles: Record<string, React.CSSProperties> } => {
+export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDialogState, step: ChallengeStep, cellStyles: Record<string, React.CSSProperties>): { newGridState: GridState, newCellStyles: Record<string, React.CSSProperties> } => {
     if (!step.gridEffect) return { newGridState: gridState, newCellStyles: cellStyles };
 
     const { action, payload } = step.gridEffect;
@@ -184,7 +185,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             const isColEmpty = (c: number) => {
                 if (c < 0 || c >= numCols) return true;
                 for (let r = 0; r < numRows; r++) {
-                    if (data[r][c] && data[r][c].trim() !== '') return false;
+                    if (data[r]?.[c] && data[r][c].trim() !== '') return false;
                 }
                 return true;
             };
@@ -231,9 +232,14 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                     case 'right': if (newGridData[0]) col = Math.min(newGridData[0].length - 1, col + amount); break;
                     case 'left': col = Math.max(0, col - amount); break;
                 }
-                // A move without Shift collapses the selection to the new cell.
-                newSelection.activeCell = { row, col };
-                newSelection.anchorCell = { row, col };
+
+                if (isRangeSelection) {
+                    newSelection.activeCell = { row: newSelection.anchorCell.row, col: newSelection.anchorCell.col };
+                } else {
+                    newSelection.activeCell = { row, col };
+                    newSelection.anchorCell = { row, col };
+                }
+
                 newSelection.visibleOnly = false;
             }
             break;
@@ -280,9 +286,13 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
                         }
                     }
                 }
-                // A jump collapses the selection to the new cell.
-                newSelection.activeCell = { row, col };
-                newSelection.anchorCell = { row, col };
+                
+                if (isRangeSelection) {
+                    newSelection.activeCell = { row: newSelection.anchorCell.row, col: newSelection.anchorCell.col };
+                } else {
+                    newSelection.activeCell = { row, col };
+                    newSelection.anchorCell = { row, col };
+                }
                 newSelection.visibleOnly = false;
             }
             break;
@@ -530,10 +540,7 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
 
             const { data: clipboardData, isCut, sourceSheetIndex, sourceSelection } = newGridState.clipboard;
             
-            const { anchorCell } = newSelection;
-            const startRow = anchorCell.row;
-            const startCol = anchorCell.col;
-
+            const { minRow: startRow, minCol: startCol } = getFullSelectionInfo(newSelection);
 
             const numPastedRows = clipboardData.length;
             const numPastedCols = clipboardData[0]?.length || 0;
@@ -974,6 +981,15 @@ export const applyGridEffect = (gridState: GridState, step: ChallengeStep, cellS
             }
             break;
         }
+        case 'APPLY_FILL_COLOR': {
+            const colorToApply = dialogState.fillColorDropdownHighlightedColor;
+            if (colorToApply) {
+                getCellsToApply(newSelection).forEach(cellId => {
+                    newCellStyles[cellId] = { ...newCellStyles[cellId], backgroundColor: colorToApply === 'transparent' ? undefined : colorToApply };
+                });
+            }
+            break;
+        }
     }
 
     newGridState.sheets[newGridState.activeSheetIndex] = activeSheet;
@@ -1003,7 +1019,8 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
     for (let i = 0; i <= targetStepIndex; i++) {
         const step = steps[i];
         if (step) {
-            const { newGridState, newCellStyles } = applyGridEffect(runningGridState, step, runningCellStyles);
+            const dialogStateForThisStep = calculateDialogStateForStep(steps, i - 1);
+            const { newGridState, newCellStyles } = applyGridEffect(runningGridState, dialogStateForThisStep, step, runningCellStyles);
             runningGridState = newGridState;
             runningCellStyles = newCellStyles;
         }
@@ -1025,6 +1042,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 
