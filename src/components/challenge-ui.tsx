@@ -181,8 +181,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [router, set.id, startTime, mode, skippedIndices]);
 
   const getRequiredKeys = useCallback(() => {
-    if (!currentStep) return new Set<string>();
-    return new Set(getPlatformKeys(currentStep, isMac));
+    if (!currentStep) return [];
+    const keys = getPlatformKeys(currentStep, isMac);
+    // For combo shortcuts, de-duplicate keys. For sequential, keep them as is.
+    if (currentStep.isSequential) {
+      return keys;
+    }
+    return Array.from(new Set(keys));
   }, [currentStep, isMac]);
 
   useEffect(() => {
@@ -191,7 +196,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         return;
     }
 
-    const requiredKeysForStepSet = getRequiredKeys();
+    const requiredKeysForStepSet = new Set(getRequiredKeys());
 
     // Check for browser-conflicting shortcuts
     const hasT = requiredKeysForStepSet.has('t');
@@ -287,7 +292,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     const newSequence = [...sequence, key]; 
     setSequence(newSequence);
     
-    const requiredSequence = Array.from(getRequiredKeys()); 
+    const requiredSequence = getRequiredKeys(); 
     
     for (let i = 0; i < newSequence.length; i++) {
       if (newSequence[i] !== requiredSequence[i]) {
@@ -342,7 +347,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         return;
     }
 
-    const requiredKeys = getRequiredKeys();
+    const requiredKeys = new Set(getRequiredKeys());
     if (pressedKeys.size >= requiredKeys.size && [...requiredKeys].every(k => pressedKeys.has(k))) {
         advanceStepOrChallenge();
     }

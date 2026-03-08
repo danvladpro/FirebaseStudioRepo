@@ -189,8 +189,12 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   const activeStep = drill.steps[logicalStepIndex] ? ALL_DRILL_STEPS[drill.steps[logicalStepIndex]] : null;
 
   const getRequiredKeys = useCallback(() => {
-    if (!activeStep) return new Set<string>();
-    return new Set(getPlatformKeys(activeStep, isMac));
+    if (!activeStep) return [];
+    const keys = getPlatformKeys(activeStep, isMac);
+    if (activeStep.isSequential) {
+      return keys;
+    }
+    return Array.from(new Set(keys));
   }, [activeStep, isMac]);
 
   useEffect(() => {
@@ -199,7 +203,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
         return;
     }
 
-    const requiredKeysForStepSet = getRequiredKeys();
+    const requiredKeysForStepSet = new Set(getRequiredKeys());
 
     // Check for browser-conflicting shortcuts
     const hasT = requiredKeysForStepSet.has('t');
@@ -362,25 +366,26 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   useEffect(() => {
     if (incorrectLockRef.current || stepFeedback !== null || !activeStep) return;
     
+    const requiredKeysArray = getRequiredKeys();
+
     if (activeStep.isSequential) {
       if (sequence.length === 0) return;
-      const requiredSequence = Array.from(getRequiredKeys());
 
       for (let i = 0; i < sequence.length; i++) {
-        if (sequence[i] !== requiredSequence[i]) {
+        if (sequence[i] !== requiredKeysArray[i]) {
           handleIncorrect();
           return;
         }
       }
 
-      if (sequence.length === requiredSequence.length) {
+      if (sequence.length === requiredKeysArray.length) {
         handleStepSuccess();
       }
     } else {
       if (pressedKeys.size === 0) return;
-      const requiredKeys = getRequiredKeys();
       
-      if (pressedKeys.size >= requiredKeys.size && [...requiredKeys].every(k => pressedKeys.has(k))) {
+      const requiredKeysSet = new Set(requiredKeysArray);
+      if (pressedKeys.size >= requiredKeysSet.size && [...requiredKeysSet].every(k => pressedKeys.has(k))) {
         handleStepSuccess();
       }
     }

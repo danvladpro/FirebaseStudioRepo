@@ -24,6 +24,7 @@ import { GoToDialog } from "@/components/go-to-dialog";
 import { FilterDropdown } from "@/components/filter-dropdown";
 import { SortDialog } from "@/components/sort-dialog";
 import { FormatCellsDialog } from "@/components/format-cells-dialog";
+import { FillColorDropdown } from "@/components/fill-color-dropdown";
 
 
 export default function DrillPage({ params }: { params: { id: string } }) {
@@ -136,6 +137,7 @@ export default function DrillPage({ params }: { params: { id: string } }) {
                                   <SortDialog isVisible={!!displayDialogState.sortDialogVisible} />
                                   <FormatCellsDialog state={displayDialogState} />
                                   <FilterDropdown state={displayDialogState} />
+                                  <FillColorDropdown state={displayDialogState} />
                                   <VisualGrid
                                      gridState={initialDisplayGridState}
                                      cellStyles={initialDisplayCellStyles}
