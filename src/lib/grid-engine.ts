@@ -960,11 +960,7 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             });
             break;
         case 'FREEZE_PANES': {
-            const { anchorCell, activeCell } = newSelection;
-            const minRow = Math.min(anchorCell.row, activeCell.row);
-            const maxRow = Math.max(anchorCell.row, activeCell.row);
-            const minCol = Math.min(anchorCell.col, activeCell.col);
-            const maxCol = Math.max(anchorCell.col, activeCell.col);
+            const { minRow, maxRow, minCol, maxCol } = getFullSelectionInfo(newSelection);
             
             const isFullRowSelection = minCol === 0 && maxCol === (newGridData[0]?.length || 1) - 1;
             const isFullColSelection = minRow === 0 && maxRow === newGridData.length - 1;
@@ -1059,6 +1055,50 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             }
             break;
         }
+        case 'INCREASE_DECIMAL': {
+            getCellsToApply(newSelection).forEach(cellId => {
+                const [r, c] = cellId.split('-').map(Number);
+                const cell = newGridData[r]?.[c];
+                if (cell !== undefined) {
+                    const prefix = cell.match(/^[^0-9-.]*/)?.[0] || '';
+                    const suffix = cell.match(/[^0-9.-]*$/)?.[0] || '';
+                    const numberString = cell.substring(prefix.length, cell.length - suffix.length);
+                    const numericValue = parseFloat(numberString);
+                    
+                    if (!isNaN(numericValue)) {
+                        const parts = numberString.split('.');
+                        const decimalCount = parts[1]?.length || 0;
+                        
+                        newGridData[r][c] = `${prefix}${numericValue.toFixed(decimalCount + 1)}${suffix}`;
+                    }
+                }
+            });
+            break;
+        }
+        case 'DECREASE_DECIMAL': {
+            getCellsToApply(newSelection).forEach(cellId => {
+                const [r, c] = cellId.split('-').map(Number);
+                const cell = newGridData[r]?.[c];
+                if (cell !== undefined) {
+                    const prefix = cell.match(/^[^0-9-.]*/)?.[0] || '';
+                    const suffix = cell.match(/[^0-9.-]*$/)?.[0] || '';
+                    const numberString = cell.substring(prefix.length, cell.length - suffix.length);
+                    const numericValue = parseFloat(numberString);
+                    
+                    if (!isNaN(numericValue)) {
+                        const parts = numberString.split('.');
+                        const decimalCount = parts[1]?.length || 0;
+                        
+                        if (decimalCount > 0) {
+                             newGridData[r][c] = `${prefix}${numericValue.toFixed(decimalCount - 1)}${suffix}`;
+                        } else {
+                            newGridData[r][c] = `${prefix}${Math.round(numericValue)}${suffix}`;
+                        }
+                    }
+                }
+            });
+            break;
+        }
     }
 
     newGridState.sheets[newGridState.activeSheetIndex] = activeSheet;
@@ -1111,6 +1151,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 

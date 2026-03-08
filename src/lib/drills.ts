@@ -100,8 +100,8 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
 
   applyGeneralFormat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash' },
   
-  decreaseDecimals: { description: 'Decrease decimals', keys: ['alt', 'h', '9'], iconName: 'MinusCircle', isSequential: true },
-  increaseDecimals: { description: 'Increase decimals', keys: ['alt', 'h', '0'], iconName: 'PlusCircle', isSequential: true },
+  decreaseDecimals: { description: 'Decrease decimals', keys: ['alt', 'h', '9'], iconName: 'MinusCircle', isSequential: true, gridEffect: { action: 'DECREASE_DECIMAL' } },
+  increaseDecimals: { description: 'Increase decimals', keys: ['alt', 'h', '0'], iconName: 'PlusCircle', isSequential: true, gridEffect: { action: 'INCREASE_DECIMAL' } },
   centerAlign: { description: 'Center align', keys: ['alt', 'h', 'a', 'c'], iconName: 'AlignCenter', isSequential: true, gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } },
   mergeCenter: { description: 'Merge & center', keys: ['alt', 'h', 'm', 'c'], iconName: 'Merge', isSequential: true, gridEffect: { action: 'APPLY_STYLE_MERGE_CENTER' } },
   wrapText: { description: 'Wrap text', keys: ['alt', 'h', 'w'], iconName: 'WrapText', isSequential: true, gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } },
@@ -267,11 +267,11 @@ const defaultDrillGridState = createGridState([
 
 
 const bigTable = [['ID', 'Name', 'Date', 'Amount'],
-    ['1', 'Project A', '2026-01-01', '500'],
-    ['2', 'Project B', '2026-01-05', '1200'],
-    ['3', 'Project C', '2026-01-10', '750'],
-    ['4', 'Project D', '2026-01-15', '2000'],
-]
+    ['1', 'Project A', '2026-01-01', '500.75'],
+    ['2', 'Project B', '2026-01-05', '1200.50'],
+    ['3', 'Project C', '2026-01-10', '750.00'],
+    ['4', 'Project D', '2026-01-15', '2000.25'],
+];
 
 const bigTableEmptyRow = [['ID', 'Name', 'Date', 'Amount',''],
     ['1', 'Project A', '2026-01-01', '500',''],
