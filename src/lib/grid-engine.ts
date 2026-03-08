@@ -55,64 +55,107 @@ function findEdgeCell(
     gridData: string[][],
     startRow: number,
     startCol: number,
-    direction: 'up' | 'down' | 'left' | 'right'
+    direction: 'up' | 'down' | 'left' | 'right',
+    mergedRanges: Sheet['mergedRanges'] = []
 ): { row: number; col: number } {
     const numRows = gridData.length;
     if (numRows === 0) return { row: startRow, col: startCol };
     const numCols = gridData[0]?.length || 0;
     if (numCols === 0) return { row: startRow, col: startCol };
 
-    const isCellEmpty = (r: number, c: number) => !gridData[r]?.[c] || gridData[r][c].trim() === '';
+    const isEffectivelyEmpty = (r: number, c: number) => {
+        // A cell is NOT empty if it has content.
+        if (gridData[r]?.[c] && gridData[r][c].trim() !== '') {
+            return false;
+        }
+        // A cell is also NOT empty if it is part of a merged range.
+        const isPartOfMerge = mergedRanges.some(range =>
+            r >= range.start.row && r <= range.end.row &&
+            c >= range.start.col && c <= range.end.col
+        );
+        return !isPartOfMerge;
+    };
 
     let r = startRow;
     let c = startCol;
-    const isStartCellEmpty = isCellEmpty(r, c);
+
+    // If starting within a merged cell, treat the jump as if it's from the edge of that merge.
+    const startingMerge = mergedRanges.find(range => 
+        r >= range.start.row && r <= range.end.row && 
+        c >= range.start.col && c <= range.end.col
+    );
+
+    if (startingMerge) {
+        switch (direction) {
+            case 'down': r = startingMerge.end.row; break;
+            case 'up': r = startingMerge.start.row; break;
+            case 'right': c = startingMerge.end.col; break;
+            case 'left': c = startingMerge.start.col; break;
+        }
+    }
     
-    // Check if the starting cell is at a "data boundary" relative to other cells in its row/column
+    const isStartCellEffectivelyEmpty = isEffectivelyEmpty(r, c);
+    
     const isAtEdgeOfData = 
-        (direction === 'up' && (r === 0 || isCellEmpty(r - 1, c) !== isStartCellEmpty)) ||
-        (direction === 'down' && (r === numRows - 1 || isCellEmpty(r + 1, c) !== isStartCellEmpty)) ||
-        (direction === 'left' && (c === 0 || isCellEmpty(r, c - 1) !== isStartCellEmpty)) ||
-        (direction === 'right' && (c === numCols - 1 || isCellEmpty(r, c + 1) !== isStartCellEmpty));
+        (direction === 'up' && (r === 0 || isEffectivelyEmpty(r - 1, c) !== isStartCellEffectivelyEmpty)) ||
+        (direction === 'down' && (r === numRows - 1 || isEffectivelyEmpty(r + 1, c) !== isStartCellEffectivelyEmpty)) ||
+        (direction === 'left' && (c === 0 || isEffectivelyEmpty(r, c - 1) !== isStartCellEffectivelyEmpty)) ||
+        (direction === 'right' && (c === numCols - 1 || isEffectivelyEmpty(r, c + 1) !== isStartCellEffectivelyEmpty));
 
 
-    if (isStartCellEmpty || isAtEdgeOfData) {
+    if (isStartCellEffectivelyEmpty || isAtEdgeOfData) {
         // If starting from an empty cell OR at the edge of a data block, jump over empty space to the next data block.
         switch (direction) {
             case 'down':
-                while (r < numRows - 1 && isCellEmpty(r + 1, c)) r++;
-                if (r < numRows - 1 && (isStartCellEmpty || isAtEdgeOfData)) r++; 
+                while (r < numRows - 1 && isEffectivelyEmpty(r + 1, c)) r++;
+                if (r < numRows - 1 && (isStartCellEffectivelyEmpty || isAtEdgeOfData)) r++; 
                 break;
             case 'up':
-                while (r > 0 && isCellEmpty(r - 1, c)) r--;
-                 if (r > 0 && (isStartCellEmpty || isAtEdgeOfData)) r--;
+                while (r > 0 && isEffectivelyEmpty(r - 1, c)) r--;
+                 if (r > 0 && (isStartCellEffectivelyEmpty || isAtEdgeOfData)) r--;
                 break;
             case 'right':
-                while (c < numCols - 1 && isCellEmpty(r, c + 1)) c++;
-                if (c < numCols - 1 && (isStartCellEmpty || isAtEdgeOfData)) c++;
+                while (c < numCols - 1 && isEffectivelyEmpty(r, c + 1)) c++;
+                if (c < numCols - 1 && (isStartCellEffectivelyEmpty || isAtEdgeOfData)) c++;
                 break;
             case 'left':
-                while (c > 0 && isCellEmpty(r, c - 1)) c--;
-                if (c > 0 && (isStartCellEmpty || isAtEdgeOfData)) c--;
+                while (c > 0 && isEffectivelyEmpty(r, c - 1)) c--;
+                if (c > 0 && (isStartCellEffectivelyEmpty || isAtEdgeOfData)) c--;
                 break;
         }
     } else {
         // If starting from within a filled cell block, jump to the edge of that block.
         switch (direction) {
             case 'down':
-                while (r < numRows - 1 && !isCellEmpty(r + 1, c)) r++;
+                while (r < numRows - 1 && !isEffectivelyEmpty(r + 1, c)) r++;
                 break;
             case 'up':
-                while (r > 0 && !isCellEmpty(r - 1, c)) r--;
+                while (r > 0 && !isEffectivelyEmpty(r - 1, c)) r--;
                 break;
             case 'right':
-                while (c < numCols - 1 && !isCellEmpty(r, c + 1)) c++;
+                while (c < numCols - 1 && !isEffectivelyEmpty(r, c + 1)) c++;
                 break;
             case 'left':
-                while (c > 0 && !isCellEmpty(r, c - 1)) c--;
+                while (c > 0 && !isEffectivelyEmpty(r, c - 1)) c--;
                 break;
         }
     }
+    
+    // After moving, if we landed inside a different merged cell, jump to its boundary.
+    const finalMergeRange = mergedRanges.find(range => 
+        r >= range.start.row && r <= range.end.row && 
+        c >= range.start.col && c <= range.end.col
+    );
+
+    if (finalMergeRange && finalMergeRange !== startingMerge) {
+         switch (direction) {
+            case 'down': r = finalMergeRange.end.row; break;
+            case 'up': r = finalMergeRange.start.row; break;
+            case 'right': c = finalMergeRange.end.col; break;
+            case 'left': c = finalMergeRange.start.col; break;
+        }
+    }
+
     return { row: r, col: c };
 }
 
@@ -227,20 +270,19 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                 
                 let { row, col } = newSelection.activeCell;
                 
-                switch (direction) {
-                    case 'down': row = Math.min(newGridData.length - 1, row + amount); break;
-                    case 'up': row = Math.max(0, row - amount); break;
-                    case 'right': if (newGridData[0]) col = Math.min(newGridData[0].length - 1, col + amount); break;
-                    case 'left': col = Math.max(0, col - amount); break;
-                }
-
                 if (isRangeSelection) {
                     newSelection.activeCell = { row: newSelection.anchorCell.row, col: newSelection.anchorCell.col };
+                    newSelection.anchorCell = { row: newSelection.anchorCell.row, col: newSelection.anchorCell.col };
                 } else {
+                    switch (direction) {
+                        case 'down': row = Math.min(newGridData.length - 1, row + amount); break;
+                        case 'up': row = Math.max(0, row - amount); break;
+                        case 'right': if (newGridData[0]) col = Math.min(newGridData[0].length - 1, col + amount); break;
+                        case 'left': col = Math.max(0, col - amount); break;
+                    }
                     newSelection.activeCell = { row, col };
                     newSelection.anchorCell = { row, col };
                 }
-
                 newSelection.visibleOnly = false;
             }
             break;
@@ -261,7 +303,7 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                 const direction = directions[payload.to];
 
                 if (direction) {
-                    const newPos = findEdgeCell(newGridData, row, col, direction);
+                    const newPos = findEdgeCell(newGridData, row, col, direction, activeSheet.mergedRanges);
                     row = newPos.row;
                     col = newPos.col;
                 } else {
@@ -326,7 +368,7 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                         const startRow = activeCell.row;
                         // Only consider columns that have data in the starting row of the selection for determining the boundary
                         if (newGridData[startRow]?.[c]?.trim()) {
-                            const edgePos = findEdgeCell(newGridData, startRow, c, direction);
+                            const edgePos = findEdgeCell(newGridData, startRow, c, direction, activeSheet.mergedRanges);
                             if (direction === 'down') {
                                 finalRow = Math.max(finalRow, edgePos.row);
                             } else {
@@ -343,7 +385,7 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
 
                     for (let r = minRow; r <= maxRow; r++) {
                          if (newGridData[r]?.[activeCell.col]?.trim()) {
-                            const edgePos = findEdgeCell(newGridData, r, activeCell.col, direction);
+                            const edgePos = findEdgeCell(newGridData, r, activeCell.col, direction, activeSheet.mergedRanges);
                             if (direction === 'right') {
                                 finalCol = Math.max(finalCol, edgePos.col);
                             } else {
@@ -356,7 +398,7 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                 } else {
                     // Fallback to simple logic if direction is unexpected
                     const { row, col } = newSelection.activeCell;
-                    const newPos = findEdgeCell(newGridData, row, col, direction);
+                    const newPos = findEdgeCell(newGridData, row, col, direction, activeSheet.mergedRanges);
                     newSelection.activeCell = newPos;
                 }
                 newSelection.visibleOnly = false;
@@ -789,7 +831,7 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                         if (startRangeCol < activeCol) {
                             const startColChar = String.fromCharCode(65 + startRangeCol);
                             const endColChar = String.fromCharCode(65 + activeCol - 1);
-                            const formula = `=SUM(${startColChar}${row + 1}:${endColChar}${row + 1})`;
+                            const formula = `=SUM(${startColChar}${activeRow + 1}:${endColChar}${activeRow + 1})`;
                             if (newGridData[activeRow]?.[activeCol] !== undefined) {
                                 newGridData[activeRow][activeCol] = formula;
                                 for (let c = startRangeCol; c < activeCol; c++) {
@@ -1063,6 +1105,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 
