@@ -1,4 +1,5 @@
 
+
 import { FindReplaceDialogState, GridState, ChallengeStep, Sheet } from './types';
 import { calculateDialogStateForStep } from './dialog-engine';
 
@@ -283,7 +284,10 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
         }
             
         case 'MOVE_SELECTION_ADVANCED': {
-            const startCell = newSelection.activeCell;
+            const { isRangeSelection } = getFullSelectionInfo(newSelection);
+            // If a range is selected, the jump should originate from the start of the selection for intuitive behavior.
+            // Otherwise, it originates from the single active cell.
+            const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
             
             let { row, col } = startCell;
             
@@ -970,10 +974,12 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             });
             break;
         case 'FREEZE_PANES': {
-            const { minRow, maxRow, minCol, maxCol, isRangeSelection } = getFullSelectionInfo(newSelection);
-            
-            const isFullRowSelection = minCol === 0 && maxCol === (newGridData[0]?.length || 1) - 1;
-            const isFullColSelection = minRow === 0 && maxRow === newGridData.length - 1;
+            const { minRow, maxRow, minCol, maxCol } = getFullSelectionInfo(newSelection);
+            const numColsInSheet = newGridData[0]?.length || 1;
+            const numRowsInSheet = newGridData.length;
+
+            const isFullRowSelection = minCol === 0 && maxCol === numColsInSheet - 1;
+            const isFullColSelection = minRow === 0 && maxRow === numRowsInSheet - 1;
 
             if (isFullRowSelection) {
                 activeSheet.frozenAt = { row: newSelection.activeCell.row, col: -1 }; 
@@ -1039,19 +1045,19 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                 let maxWidth = 0;
                 
                 const headerContent = String.fromCharCode(65 + c);
-                const headerLength = headerContent.length;
+                const headerLength = headerContent.length * 8; // Approx character width
                 if (headerLength > maxWidth) {
                     maxWidth = headerLength;
                 }
         
                 for (let r = 0; r < newGridData.length; r++) {
                     const cellContent = newGridData[r]?.[c] || '';
-                    const contentLength = cellContent.length;
+                    const contentLength = cellContent.length * 8; // Approx character width
                     if (contentLength > maxWidth) {
                         maxWidth = contentLength;
                     }
                 }
-                activeSheet.colWidths![c] = maxWidth * 8 + 24; 
+                activeSheet.colWidths![c] = maxWidth + 24; // Add padding
             }
             break;
         }
@@ -1160,6 +1166,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 
