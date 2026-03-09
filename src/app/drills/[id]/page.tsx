@@ -78,25 +78,22 @@ export default function DrillPage({ params }: { params: { id: string } }) {
         drill.initialGridState,
         animationStep
     ) : { gridState: null, cellStyles: {} };
-
+    
+    // Calculate the dialog state up to the step *before* the current animation frame
+    let displayDialogState = calculateDialogStateForStep(drillStepsForEngine, animationStep - 1);
     const currentAnimatedStep = drillStepsForEngine[animationStep];
-    const isHideAction = !!currentAnimatedStep?.dialogEffect?.action.startsWith('HIDE');
 
-    let displayDialogState;
-
-    if (animationStep >= 0 && currentAnimatedStep && isHideAction) {
-        // For HIDE actions, we want to show the state *before* hiding, but add the preview highlight.
-        const stateBeforeHide = calculateDialogStateForStep(drillStepsForEngine, animationStep - 1);
-        if (currentAnimatedStep.previewDialogEffect) {
-            displayDialogState = applyDialogEffect(stateBeforeHide, currentAnimatedStep.previewDialogEffect);
-        } else {
-            // Fallback to just the state before, if no specific preview highlight.
-            displayDialogState = stateBeforeHide;
+    if (animationStep >= 0 && currentAnimatedStep) {
+        // Apply the main effect of the current step
+        if (currentAnimatedStep.dialogEffect) {
+            displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.dialogEffect);
         }
-    } else {
-        // For all other actions, show the final state after the action has completed.
-        displayDialogState = calculateDialogStateForStep(drillStepsForEngine, animationStep);
+        // Then layer the preview/highlight effect on top for this animation frame
+        if (currentAnimatedStep.previewDialogEffect) {
+            displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.previewDialogEffect);
+        }
     }
+
 
     return (
         <>

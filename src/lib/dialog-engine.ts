@@ -33,30 +33,6 @@ export const applyDialogEffect = (
     effect: DialogEffect
 ): FindReplaceDialogState => {
     const newState = { ...currentState };
-    // Every effect should clear the previous highlight unless it's setting a new one.
-    if (effect.action !== 'HIGHLIGHT_BUTTON') {
-        newState.highlightedButton = null;
-    }
-    if (effect.action !== 'HIGHLIGHT_INPUT') {
-        newState.highlightedInput = null;
-    }
-    if (effect.action !== 'HIGHLIGHT_CREATE_TABLE_OK') {
-        newState.createTableDialogHighlightedButton = null;
-    }
-    if (effect.action !== 'HIGHLIGHT_GO_TO_OK') {
-        newState.goToDialogHighlightedButton = null;
-    }
-    if (effect.action !== 'HIGHLIGHT_GO_TO_INPUT') {
-        newState.goToDialogHighlightedInput = false;
-    }
-    if (effect.action !== 'HIGHLIGHT_NEXT_FILTER_ITEM' && effect.action !== 'SHOW_FILTER_DROPDOWN' && effect.action !== 'TOGGLE_FILTER_ITEM') {
-        newState.filterDropdownHighlightedIndex = -1;
-    }
-    if (effect.action !== 'MOVE_FORMAT_CELLS_HIGHLIGHT' && effect.action !== 'SHOW_FORMAT_CELLS_DIALOG') {
-        newState.formatCellsDialogHighlightedCategoryIndex = 0;
-        newState.formatCellsDialogActiveCategory = 'General';
-    }
-
 
     switch (effect.action) {
         case 'SHOW':
@@ -93,7 +69,6 @@ export const applyDialogEffect = (
             newState.goToDialogHighlightedButton = null;
             newState.goToDialogHighlightedInput = false;
             newState.filterDropdownHighlightedIndex = -1;
-            newState.fillColorDropdownVisible = false;
             newState.fillColorDropdownHighlightedColor = null;
             break;
         case 'SHOW_CREATE_TABLE':
@@ -231,12 +206,13 @@ export const calculateDialogStateForStep = (
     }
 
     for (let i = 0; i <= targetStepIndex; i++) {
+        // At the beginning of processing each step, we clear previous highlights.
+        // This ensures highlights from step N-1 don't leak into step N.
+        runningState = applyDialogEffect(runningState, { action: 'CLEAR_HIGHLIGHT' });
+        
         const step = steps[i];
         if (step?.dialogEffect) {
             runningState = applyDialogEffect(runningState, step.dialogEffect);
-        } else if (step) {
-            // If a step has no dialog effect, clear highlights.
-            runningState = applyDialogEffect(runningState, { action: 'CLEAR_HIGHLIGHT' });
         }
     }
     

@@ -120,6 +120,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   // Formatting - Workarounds
   applyDateFormatFromGeneral: { description: 'Apply Date format', keys: ['control', 'shift', '3'], iconName: 'Calendar' , gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'02-Mar-26' } } },
   applyPercentageFromGeneral: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
+  repeatFormattingGeneral:  { description: 'Repeat formatting', keys: ['f4'], iconName: 'RotateCw', gridEffect: { action: 'APPLY_STYLE_GENERAL' } },
 
   // Data & Formulas 
   editFormula: { description: 'Edit formula', keys: ['f2'], iconName: 'Edit3', gridEffect: { action: 'START_EDITING', payload: { formula: '=Z4' } } },
@@ -720,16 +721,6 @@ const drills: Drill[] = [
     steps: ['selectCol','centerAlign', 'wrapText']
   },
   {
-    id: 'clear-formatting-selection',
-    level: 'Advanced',
-    name: 'Nuke Formatting',
-    description: 'Remove messy imported styles completely.',
-    repetitions: 10,
-    mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 3, 0),
-    steps: ['jumpTop','selectDownToEdge', 'clearFormatting']
-  },
-  {
     id: 'currency-decimal-cleanup',
     level: 'Advanced',
     name: 'Currency Precision',
@@ -743,12 +734,12 @@ const drills: Drill[] = [
   {
     id: 'cleanup-percentages',
     level: 'Advanced',
-    name: 'Reformat Percentages',
+    name: 'Clear Formatting & Repeat',
     description: 'Fix broken percentage formatting using Clear and Re-apply.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(dirtyTable, 0, 1, 0),
-    steps: ['extendDown','clearFormatting','jumpRight','repeatFormatting']
+    steps: ['extendDown','clearFormatting','jumpRight','extendDown','repeatFormattingGeneral']
   },
   {
     id: 'sort-dialog-full',
@@ -758,7 +749,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 0, 0),
-    steps: ['selectCurrentRegion', 'openSortDialog', 'closeSortDialog']
+    steps: ['selectRow','italic','selectDownToEdge', 'openSortDialog', 'closeSortDialog']
   },
 
   {
@@ -768,7 +759,7 @@ const drills: Drill[] = [
     description: 'Instantly fix column widths so no data is cut off.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(autofitGrid,0,0,0),
+    initialGridState: createGridState(bigTable,0,0,0),
     steps: ['selectCol','expandRight', 'expandRight', 'autofitColumns']
   },
   {
@@ -778,7 +769,7 @@ const drills: Drill[] = [
     description: 'Open the fill color menu to highlight a selection.',
     repetitions: 8,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,0,0),
+    initialGridState: createGridState(bigTable,0,1,0),
     steps: ['selectRow','extendDown','bold','openFillColor', 'moveColorHighlightRight', 'moveColorHighlightRight', 'confirmFillColor']
   },
   {
@@ -789,7 +780,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectRow','extendDown', 'groupRows']
+    steps: ['selectRow','extendDown', 'strikethrough','groupRows']
   },
   {
     id: 'format-cells-dialog',
@@ -809,7 +800,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['jumpTop','selectRow','freezePanes']
+    steps: ['jumpTop','selectRow','underline','freezePanes']
   },
   {
     id: 'jump-clean-view',
