@@ -264,32 +264,20 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             break;
         }
         case 'MOVE_SELECTION': {
-            const { isRangeSelection } = getFullSelectionInfo(newSelection);
             const { direction, amount = 1 } = payload;
-            
             let { row, col } = newSelection.activeCell;
             
-            if (isRangeSelection) {
-                // In Excel, pressing an arrow key on a selection moves the active cell to a corner
-                switch (direction) {
-                    case 'down': row = Math.max(newSelection.activeCell.row, newSelection.anchorCell.row); break;
-                    case 'up': row = Math.min(newSelection.activeCell.row, newSelection.anchorCell.row); break;
-                    case 'right': col = Math.max(newSelection.activeCell.col, newSelection.anchorCell.col); break;
-                    case 'left': col = Math.min(newSelection.activeCell.col, newSelection.anchorCell.col); break;
-                }
-                newSelection.activeCell = { row, col };
-                newSelection.anchorCell = { row, col };
-
-            } else {
-                switch (direction) {
-                    case 'down': row = Math.min(newGridData.length - 1, row + amount); break;
-                    case 'up': row = Math.max(0, row - amount); break;
-                    case 'right': if (newGridData[0]) col = Math.min(newGridData[0].length - 1, col + amount); break;
-                    case 'left': col = Math.max(0, col - amount); break;
-                }
-                newSelection.activeCell = { row, col };
-                newSelection.anchorCell = { row, col };
+            switch (direction) {
+                case 'down': row = Math.min(newGridData.length - 1, row + amount); break;
+                case 'up': row = Math.max(0, row - amount); break;
+                case 'right': if (newGridData[0]) col = Math.min(newGridData[0].length - 1, col + amount); break;
+                case 'left': col = Math.max(0, col - amount); break;
             }
+
+            // Collapse the selection to the new position
+            newSelection.activeCell = { row, col };
+            newSelection.anchorCell = { row, col };
+            
             newSelection.visibleOnly = false;
             break;
         }
@@ -982,17 +970,17 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             });
             break;
         case 'FREEZE_PANES': {
-            const { minRow, maxRow, minCol, maxCol } = getFullSelectionInfo(newSelection);
+            const { minRow, maxRow, minCol, maxCol, isRangeSelection } = getFullSelectionInfo(newSelection);
             
             const isFullRowSelection = minCol === 0 && maxCol === (newGridData[0]?.length || 1) - 1;
             const isFullColSelection = minRow === 0 && maxRow === newGridData.length - 1;
 
             if (isFullRowSelection) {
-                activeSheet.frozenAt = { row: minRow, col: -1 }; 
+                activeSheet.frozenAt = { row: newSelection.activeCell.row, col: -1 }; 
             } else if (isFullColSelection) {
-                activeSheet.frozenAt = { row: -1, col: minCol }; 
-            } else {
-                activeSheet.frozenAt = { row: minRow, col: minCol };
+                activeSheet.frozenAt = { row: -1, col: newSelection.activeCell.col }; 
+            } else { // Single cell or range
+                activeSheet.frozenAt = { row: newSelection.activeCell.row, col: newSelection.activeCell.col };
             }
             break;
         }
@@ -1172,6 +1160,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 
