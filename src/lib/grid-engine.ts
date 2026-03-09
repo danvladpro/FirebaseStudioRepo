@@ -295,7 +295,6 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
         }
             
         case 'MOVE_SELECTION_ADVANCED': {
-            const { isRangeSelection } = getFullSelectionInfo(newSelection);
             const startCell = newSelection.activeCell;
             
             let { row, col } = startCell;
@@ -336,12 +335,10 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                 }
             }
             
-             if (isRangeSelection) {
-                newSelection.activeCell = { row: newSelection.anchorCell.row, col: newSelection.anchorCell.col };
-            } else {
-                newSelection.activeCell = { row, col };
-                newSelection.anchorCell = { row, col };
-            }
+            // Always collapse selection to the new position after a jump.
+            newSelection.activeCell = { row, col };
+            newSelection.anchorCell = { row, col };
+
             newSelection.visibleOnly = false;
             break;
         }
@@ -968,7 +965,7 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             for (let r = minRow; r <= maxRow; r++) {
                 for (let c = minCol; c <= maxCol; c++) {
                     const cellId = `${r}-${c}`;
-                    const style = { ...newCellStyles[cellId] };
+                    const style: React.CSSProperties = { ...newCellStyles[cellId] };
                     const thickBorder = '2px solid hsl(var(--foreground))';
                     if (r === minRow) style.borderTop = thickBorder;
                     if (r === maxRow) style.borderBottom = thickBorder;
@@ -1175,6 +1172,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 

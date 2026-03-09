@@ -748,7 +748,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(dirtyTable, 0, 1, 0),
-    steps: ['extendDown','applyGeneralFormat', 'applyPercentage','jumpRight','repeatFormatting']
+    steps: ['extendDown','clearFormatting','jumpRight','repeatFormatting']
   },
   {
     id: 'sort-dialog-full',
