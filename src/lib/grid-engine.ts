@@ -266,9 +266,12 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
         }
         case 'MOVE_SELECTION': {
             const { direction, amount = 1 } = payload;
-            let { row, col } = newSelection.activeCell;
+            const { isRangeSelection } = getFullSelectionInfo(newSelection);
             
-            // A simple move always collapses the selection and moves from the active cell.
+            // If a range is selected, collapse and move from the ANCHOR cell. Otherwise, move from the active cell.
+            const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
+            let { row, col } = startCell;
+            
             switch (direction) {
                 case 'down': row = Math.min(newGridData.length - 1, row + amount); break;
                 case 'up': row = Math.max(0, row - amount); break;
@@ -286,7 +289,7 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             
         case 'MOVE_SELECTION_ADVANCED': {
             const { isRangeSelection } = getFullSelectionInfo(newSelection);
-            // Jump should originate from the start of the selection (anchor) if it's a range.
+            // Jump originates from the anchor cell if a range is selected, otherwise from the active cell.
             const startCell = isRangeSelection ? newSelection.anchorCell : newSelection.activeCell;
             
             let { row, col } = startCell;
@@ -1166,6 +1169,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 
