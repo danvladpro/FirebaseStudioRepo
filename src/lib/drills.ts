@@ -98,7 +98,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   applyCurrency: { description: 'Apply currency', keys: ['control', 'shift', '4'], iconName: 'DollarSign', gridEffect: { action: 'APPLY_STYLE_CURRENCY' } },
   applyPercentage: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
 
-  applyGeneralFormat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash' },
+  applyGeneralFormat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'APPLY_STYLE_GENERAL' } },
   
   decreaseDecimals: { description: 'Decrease decimals', keys: ['alt', 'h', '9'], iconName: 'MinusCircle', isSequential: true, gridEffect: { action: 'DECREASE_DECIMAL' } },
   increaseDecimals: { description: 'Increase decimals', keys: ['alt', 'h', '0'], iconName: 'PlusCircle', isSequential: true, gridEffect: { action: 'INCREASE_DECIMAL' } },
@@ -107,7 +107,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   wrapText: { description: 'Wrap text', keys: ['alt', 'h', 'w'], iconName: 'WrapText', isSequential: true, gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } },
   applyAllBorders: { description: 'Apply all borders', keys: ['alt', 'h', 'b', 'a'], iconName: 'Grid', isSequential: true, gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } },
   applyThickBorder: { description: 'Apply thick border', keys: ['alt', 'h', 'b', 't'], iconName: 'RectangleHorizontal', isSequential: true, gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } },
-  clearFormatting: { description: 'Clear formatting', keys: ['alt', 'h', 'e', 'f'], iconName: 'RemoveFormatting', isSequential: true },
+  clearFormatting: { description: 'Clear formatting', keys: ['alt', 'h', 'e', 'f'], iconName: 'RemoveFormatting', isSequential: true, gridEffect: { action: 'APPLY_STYLE_GENERAL' } },
   autofitColumns: { description: 'Auto-fit width', keys: ['alt', 'h', 'o', 'i'], iconName: 'Frame', isSequential: true, gridEffect: { action: 'AUTOFIT_COLUMNS' } },
   openFillColor: { description: 'Open Fill Color', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true, dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' } },
   moveColorHighlightRight: { description: 'Move highlight right', keys: ['arrowright'], iconName: 'ArrowRight', dialogEffect: { action: 'MOVE_FILL_COLOR_HIGHLIGHT', payload: 'right' } },
@@ -118,8 +118,6 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   moveUpFormatCategory: { description: 'Move to previous category', keys: ['arrowup'], iconName: 'ArrowUp', dialogEffect: { action: 'MOVE_FORMAT_CELLS_HIGHLIGHT', payload: 'up' } },
   
   // Formatting - Workarounds
-  applyGeneralFormatFloat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'1' } } },
-  applyGeneralFormatOnDate: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '46083' } } },
   applyDateFormatFromGeneral: { description: 'Apply Date format', keys: ['control', 'shift', '3'], iconName: 'Calendar' , gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'02-Mar-26' } } },
   applyPercentageFromGeneral: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
 
@@ -245,7 +243,6 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
         ['3', 'Sheet','','',''],
         ['', '','','',''],
         ['', '','','',''],
-        ['', '','','',''],
         ['', '','','','']
       ],
       selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
@@ -281,6 +278,12 @@ const bigTableEmptyRow = [['ID', 'Name', 'Date', 'Amount',''],
     ['', '', '', '','']
 ]
 
+const dirtyTable = [['Share', '', 'Amount', '',''],
+    ['100%', '', '$100', '',''],
+    ['200%', '', '$200', '',''],
+    ['', '', '', '','']
+]
+
 
 const emptyTable = [['', '', '', ''],
     ['', '', '', ''],
@@ -290,9 +293,9 @@ const emptyTable = [['', '', '', ''],
 ]
 
 const autofitGrid = [
-    ['This is a very long header for column A', 'Short Header B'],
-    ['Short content', 'This content is much longer and should make the column wider'],
-    ['12345', '123'],
+    ['This is a very long header for column A', 'Short Header B', 'This content is much longer and should make the column wider'],
+    ['Short content', '12345', '123'],
+    ['Another row', 'Another value', ''],
 ];
 
 
@@ -638,7 +641,7 @@ const drills: Drill[] = [
     initialGridState: createGridState(
       [['ID', 'DateNum','Date', 'Amount'],['1.0', '02-Mar-26', '46083','500'],['', '','', '']],0,1,1
     ),
-    steps: ['applyGeneralFormatOnDate','MoveRight','applyDateFormatFromGeneral','MoveRight', 'applyCurrency','selectCol','bold']
+    steps: ['applyGeneralFormat','MoveRight','applyDateFormatFromGeneral','MoveRight', 'applyCurrency','selectCol','bold']
   },
   {
     id: 'format-date-time-cols',
@@ -650,7 +653,7 @@ const drills: Drill[] = [
     initialGridState: createGridState(
       [['ID', 'Date', 'Amount','Share'],['1.0', '02-Mar-26', '500','0.2'],],0,0,0
     ),
-    steps: ['jumpRight','moveDown', 'applyPercentageFromGeneral','jumpLeft','applyGeneralFormatFloat']
+    steps: ['jumpRight','moveDown', 'applyPercentageFromGeneral','jumpLeft','applyGeneralFormat']
   },
 
   // ==========================================
@@ -744,8 +747,8 @@ const drills: Drill[] = [
     description: 'Fix broken percentage formatting using Clear and Re-apply.',
     repetitions: 10,
     mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 3, 0),
-    steps: ['clearFormatting', 'applyPercentage','moveDown','repeatFormatting']
+    initialGridState: createGridState(dirtyTable, 0, 1, 0),
+    steps: ['extendDown','applyGeneralFormat', 'applyPercentage','jumpRight','repeatFormatting']
   },
   {
     id: 'sort-dialog-full',
@@ -766,7 +769,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(autofitGrid,0,0,0),
-    steps: ['selectCol','expandRight', 'autofitColumns']
+    steps: ['selectCol','expandRight', 'expandRight', 'autofitColumns']
   },
   {
     id: 'highlight-header-fill',
@@ -829,4 +832,5 @@ export const DRILL_SET: DrillSet = {
     
 
     
+
 

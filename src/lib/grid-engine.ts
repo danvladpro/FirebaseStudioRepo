@@ -651,7 +651,7 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             if (!payload?.values) break;
 
             const valuesToPaste = payload.values as string[][];
-            const { row: startRow, col: startCol } = newSelection.activeCell;
+            const { minRow: startRow, minCol: startCol } = getFullSelectionInfo(newSelection);
 
             valuesToPaste.forEach((row, rowIndex) => {
                 row.forEach((cellValue, colIndex) => {
@@ -900,6 +900,31 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
                 }
             });
             break;
+        case 'APPLY_STYLE_GENERAL':
+            getCellsToApply(newSelection).forEach(cellId => {
+                const [r, c] = cellId.split('-').map(Number);
+                const cell = newGridData[r]?.[c];
+                if (cell !== undefined) {
+                    let newValue = cell;
+                    if (cell.endsWith('%')) {
+                        const numericValue = parseFloat(cell) / 100;
+                        if (!isNaN(numericValue)) newValue = numericValue.toString();
+                    } else if (cell.startsWith('$')) {
+                        const numericValue = parseFloat(cell.replace(/[^0-9.-]+/g, ""));
+                        if (!isNaN(numericValue)) newValue = numericValue.toString();
+                    } else {
+                        const dateMatch = cell.match(/^(\d{2})-([A-Za-z]{3})-(\d{2})$/);
+                        if (dateMatch) {
+                            newValue = '46083';
+                        }
+                    }
+                    newGridData[r][c] = newValue;
+                }
+            });
+            getCellsToApply(newSelection).forEach(cellId => {
+                delete newCellStyles[cellId];
+            });
+            break;
         case 'APPLY_STYLE_CENTER_ALIGN':
             getCellsToApply(newSelection).forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], textAlign: 'center' };
@@ -1028,21 +1053,20 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             for (let c = minCol; c <= maxCol; c++) {
                 let maxWidth = 0;
                 
-                // Also consider header width
                 const headerContent = String.fromCharCode(65 + c);
-                if (headerContent.length > maxWidth) {
-                    maxWidth = headerContent.length;
+                const headerLength = headerContent.length;
+                if (headerLength > maxWidth) {
+                    maxWidth = headerLength;
                 }
         
                 for (let r = 0; r < newGridData.length; r++) {
                     const cellContent = newGridData[r]?.[c] || '';
-                    const contentLength = cellContent.length; // Simple character length approximation
+                    const contentLength = cellContent.length;
                     if (contentLength > maxWidth) {
                         maxWidth = contentLength;
                     }
                 }
-                // Approximate width: 9 pixels per character + padding
-                activeSheet.colWidths![c] = maxWidth * 9 + 24; 
+                activeSheet.colWidths![c] = maxWidth * 8 + 24; 
             }
             break;
         }
@@ -1151,6 +1175,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 
