@@ -4,7 +4,8 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { PerformanceRecord } from '@/lib/types';
 import { z } from 'zod';
-import { ALL_EXAM_SETS } from '@/lib/challenges';
+import { CHALLENGE_SETS } from '@/lib/challenges';
+import { DRILL_SET } from '@/lib/drills';
 
 const UpdateUserPerformanceSchema = z.object({
     uid: z.string(),
@@ -54,7 +55,6 @@ export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerf
                 bestTime: newBestTime,
                 bestScore: newBestScore,
                 lastTrained: new Date().toISOString(),
-                // Remove individual certificate ID generation
             };
 
             transaction.update(userDocRef, {
@@ -62,20 +62,21 @@ export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerf
             });
             
             // Check for Mastery Certificate after updating performance
-            const isExam = ALL_EXAM_SETS.some(exam => exam.id === setId);
-            if (isExam && score === 100) {
-                const updatedPerformance = { ...userData?.performance, [setId]: newPerformanceRecord };
+            const updatedPerformance = { ...userData?.performance, [setId]: newPerformanceRecord };
                 
-                const allExamsPassed = ALL_EXAM_SETS.every(exam => {
-                    return updatedPerformance[exam.id]?.bestScore === 100;
-                });
+            const allChallengeIds = CHALLENGE_SETS.map(c => c.id);
+            const allDrillIds = DRILL_SET.drills.map(d => d.id);
+            const allRequiredIds = [...allChallengeIds, ...allDrillIds];
 
-                if (allExamsPassed && !userData?.masteryCertificateId) {
-                    const certificateId = generateCertificateId(uid);
-                    transaction.update(userDocRef, {
-                        masteryCertificateId: certificateId
-                    });
-                }
+            const allItemsPassed = allRequiredIds.every(id => {
+                return updatedPerformance[id]?.bestScore === 100;
+            });
+
+            if (allItemsPassed && !userData?.masteryCertificateId) {
+                const certificateId = generateCertificateId(uid);
+                transaction.update(userDocRef, {
+                    masteryCertificateId: certificateId
+                });
             }
         });
         

@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { CertificateModal } from './certificate-modal';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { DRILL_SET } from '@/lib/drills';
 
 const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
@@ -57,7 +58,7 @@ export default function ResultsDisplay() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [recommendedModules, setRecommendedModules] = useState<ChallengeSet[]>([]);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
-  const [allExamsPassed, setAllExamsPassed] = useState(false);
+  const [allItemsPassed, setAllItemsPassed] = useState(false);
 
 
   useEffect(() => {
@@ -108,18 +109,16 @@ export default function ResultsDisplay() {
     : [];
     
    useEffect(() => {
-    if (mode === 'timed' && challengeSet?.category === 'Exam' && !isPerfectScore && skippedChallenges.length > 0) {
+    if (mode === 'timed' && !isPerfectScore && skippedChallenges.length > 0) {
       const recommended = new Set<ChallengeSet>();
       skippedChallenges.forEach(skippedChallenge => {
         CHALLENGE_SETS.forEach(module => {
-          if (module.category !== 'Scenario') {
             const hasMatch = module.challenges.some(
               challenge => challenge.description === skippedChallenge.description
             );
             if (hasMatch) {
               recommended.add(module);
             }
-          }
         });
       });
       setRecommendedModules(Array.from(recommended));
@@ -150,14 +149,14 @@ export default function ResultsDisplay() {
   
   useEffect(() => {
      if (isLoaded) {
-        const passed = ALL_CHALLENGE_SETS.filter(s => s.category === 'Exam').every(exam => stats[exam.id]?.bestScore === 100);
-        setAllExamsPassed(passed);
+        const allChallengeIds = CHALLENGE_SETS.map(c => c.id);
+        const allDrillIds = DRILL_SET.drills.map(d => d.id);
+        const allRequiredIds = [...allChallengeIds, ...allDrillIds];
+        const passed = allRequiredIds.every(id => stats[id]?.bestScore === 100);
+        setAllItemsPassed(passed);
      }
   }, [isLoaded, stats]);
 
-
-  const isExam = challengeSet?.category === 'Exam';
-  const isScenario = challengeSet?.category === 'Scenario';
 
   if (!challengeSet || time === null || !mode) {
     return (
@@ -240,26 +239,16 @@ export default function ResultsDisplay() {
                 </div>
             )}
             
-            {isExam && mode === 'timed' && (
+            {allItemsPassed && mode === 'timed' && (
                <div className="space-y-4 pt-4">
                   <Separator />
-                  {allExamsPassed ? (
                     <>
                       <h3 className="font-semibold pt-2">Ultimate Achievement!</h3>
-                      <p className="text-sm text-muted-foreground">You've passed all exams and earned the Mastery Certificate.</p>
+                      <p className="text-sm text-muted-foreground">You've mastered all challenges and drills!</p>
                       <Button variant="premium" onClick={() => setIsCertificateModalOpen(true)} disabled={!masteryCertificateId}>
                           <Star className="mr-2 h-5 w-5" /> Claim Mastery Certificate
                       </Button>
                     </>
-                  ) : (
-                     <>
-                      <h3 className="font-semibold pt-2">One Step Closer!</h3>
-                      <p className="text-sm text-muted-foreground">Pass all three exams (Basic, Intermediate, and Advanced) to unlock your Mastery Certificate.</p>
-                       <Button disabled className="w-fit mx-auto">
-                          <Lock className="mr-2 h-5 w-5" /> Claim Mastery Certificate
-                      </Button>
-                     </>
-                  )}
               </div>
             )}
             {mode === 'timed' && recommendedModules.length > 0 && (
@@ -307,7 +296,7 @@ export default function ResultsDisplay() {
 
                         return (
                           <div key={index} className={cn("p-2 rounded-md", isSkipped && "bg-destructive/10")}>
-                            {isScenario ? (
+                            {challenge.steps.length > 1 ? (
                                 <div className="space-y-2">
                                   <div className="flex justify-between items-center">
                                     <p className="font-semibold text-foreground">{index + 1}. {challenge.description}</p>

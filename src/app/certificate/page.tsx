@@ -4,7 +4,7 @@
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Printer, Award, Medal, Trophy } from 'lucide-react';
+import { Printer, BadgeCheck } from 'lucide-react';
 import Image from 'next/image';
 
 const styles = {
@@ -150,20 +150,12 @@ function CertificateContent() {
                     <p style={styles.subtitle}>This is to certify that</p>
                     <h2 style={styles.name}>{name}</h2>
                     <p style={styles.bodyText}>
-                        has successfully passed all certification exams and demonstrated true mastery of essential Excel shortcuts and workflows.
+                        has successfully mastered all challenges and drills, demonstrating true expertise in essential Excel shortcuts and workflows.
                     </p>
                      <div style={styles.examsContainer}>
                         <div style={styles.examItem}>
-                            <Award size={40} />
-                            <span style={styles.examText}>Basic Exam</span>
-                        </div>
-                        <div style={styles.examItem}>
-                            <Medal size={40} />
-                            <span style={styles.examText}>Intermediate Exam</span>
-                        </div>
-                        <div style={styles.examItem}>
-                            <Trophy size={40} />
-                            <span style={styles.examText}>Advanced Exam</span>
+                            <BadgeCheck size={60} />
+                            <span style={styles.examText}>All Challenges & Drills Mastered</span>
                         </div>
                     </div>
                 </div>
