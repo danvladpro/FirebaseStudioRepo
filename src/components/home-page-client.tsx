@@ -201,17 +201,16 @@ export function HomePageClient() {
                             <Layers className="mr-2 h-4 w-4" /> Flashcards
                         </Link>
                     </Button>
-                    <div className="flex flex-col items-center text-sm text-center">
+                     <div className="flex h-9 items-center justify-center rounded-md border border-input bg-transparent px-4 py-2">
                         {isLoaded ? (
                             bestScore !== undefined && bestScore !== null ? (
-                                <p className="font-bold text-lg">{bestScore.toFixed(0)}%</p>
+                                <p className="font-semibold text-primary">{bestScore.toFixed(0)}%</p>
                             ) : (
-                                <p className="font-bold text-lg">-</p>
+                                <p className="text-sm font-medium text-muted-foreground">Best Score</p>
                             )
                         ) : (
-                            <Skeleton className="h-7 w-12 mx-auto" />
+                            <Skeleton className="h-5 w-16" />
                         )}
-                        <p>Best Score</p>
                     </div>
                     <Button asChild size="sm" variant="default">
                         <Link href={`/challenge/${set.id}`}>
