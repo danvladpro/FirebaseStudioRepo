@@ -127,7 +127,7 @@ export default function ChallengesPage() {
   }
 
   const getDashboardSubtitle = () => {
-    if (!isPremium) return "Learn the basics and upgrade to unlock your full potential.";
+    if (!isPremium) return "Try 'Formatting Basics' and upgrade to unlock your full potential.";
     if (isPremium) return "Master the keyboard, boost your productivity, and leave the mouse behind.";
     return "Welcome back! Here's your progress at a glance.";
   }
@@ -163,62 +163,59 @@ export default function ChallengesPage() {
             <section className="lg:col-span-2">
                 <h2 className="text-2xl font-bold mb-4">Practice & Learn</h2>
                 <TooltipProvider>
-                    <div className="flex flex-col gap-4">
+                    <div className="grid md:grid-cols-2 gap-6">
                         {setsToDisplay.map((set) => {
                             const Icon = iconMap[set.iconName];
                             const setStats = stats[set.id];
-                            const lastScore = setStats?.lastScore;
+                            const bestScore = setStats?.bestScore;
 
                             const cardContent = (
-                                <Card key={set.id} className={cn("grid md:grid-cols-[1fr_auto] items-center gap-4", set.isLocked && "bg-muted/50 text-muted-foreground")}>
-                                    <CardContent className="p-4 flex items-center gap-4">
-                                        <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
-                                        <div className="flex-1">
-                                            <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
-                                            <p className="text-sm">{set.description}</p>
+                                <Card key={set.id} className={cn(
+                                    "flex flex-col h-full transition-transform duration-200", 
+                                    set.isLocked ? "bg-muted/50 text-muted-foreground" : "hover:shadow-md hover:-translate-y-0.5"
+                                )}>
+                                    <CardHeader className="flex flex-row items-start gap-4">
+                                        <Icon className={cn("w-10 h-10 mt-1", set.isLocked ? "text-muted-foreground" : "text-primary")} />
+                                        <div>
+                                            <CardTitle className={cn("text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</CardTitle>
+                                            <CardDescription>{set.description}</CardDescription>
                                         </div>
+                                    </CardHeader>
+                                    <CardContent className="flex-grow">
+                                        <p className="text-sm text-muted-foreground">{set.challenges.length} items</p>
                                     </CardContent>
-                                    
-                                    <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto_auto] items-center justify-end gap-x-4 text-sm text-center">
-                                        <div className="flex flex-col items-center">
-                                            <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{set.challenges.length}</p>
-                                            <p>Items</p>
-                                        </div>
-                                        <div className="flex flex-col items-center">
-                                            {isLoaded ? (
-                                                lastScore !== undefined && lastScore !== null ? (
-                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{lastScore.toFixed(0)}%</p>
-                                                ) : (
-                                                    <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
-                                                )
-                                            ) : (
-                                                <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
-                                            )}
-                                            <p>Last Score</p>
-                                        </div>
-                                    
-                                        <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
-                                            {set.isLocked ? (
-                                                <Button className="w-full col-span-2" variant="premium" onClick={() => setIsPremiumModalOpen(true)}>
-                                                    <Sparkles className="mr-2 h-4 w-4" />
-                                                    Go Premium
-                                                </Button>
-                                            ) : (
-                                                <>
-                                                <Button asChild size="sm" className="w-full">
-                                                    <Link href={`/challenge/${set.id}`}>
-                                                        <Library className="mr-2 h-4 w-4" /> Challange
-                                                    </Link>
-                                                </Button>
-                                                <Button asChild size="sm" variant="secondary" className="w-full">
+                                    <CardFooter className={cn("flex items-center gap-3", set.isLocked ? "justify-center" : "justify-between")}>
+                                        {set.isLocked ? (
+                                            <Button className="w-full" variant="premium" onClick={() => setIsPremiumModalOpen(true)}>
+                                                <Sparkles className="mr-2 h-4 w-4" /> Go Premium
+                                            </Button>
+                                        ) : (
+                                            <>
+                                                <Button asChild size="sm" variant="secondary">
                                                     <Link href={`/flashcards/${set.id}`}>
                                                         <Layers className="mr-2 h-4 w-4" /> Flashcards
                                                     </Link>
                                                 </Button>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
+                                                <div className="flex flex-col items-center text-sm">
+                                                    {isLoaded ? (
+                                                        bestScore !== undefined && bestScore !== null ? (
+                                                            <p className="font-bold text-lg">{bestScore.toFixed(0)}%</p>
+                                                        ) : (
+                                                            <p className="font-bold text-lg">-</p>
+                                                        )
+                                                    ) : (
+                                                        <Skeleton className="h-7 w-12 mx-auto" />
+                                                    )}
+                                                    <p>Best Score</p>
+                                                </div>
+                                                <Button asChild size="sm">
+                                                    <Link href={`/challenge/${set.id}`}>
+                                                        Challenge <ArrowRight className="ml-2 h-4 w-4" />
+                                                    </Link>
+                                                </Button>
+                                            </>
+                                        )}
+                                    </CardFooter>
                                 </Card>
                             );
                             
@@ -226,7 +223,7 @@ export default function ChallengesPage() {
                                 return (
                                     <Tooltip key={set.id}>
                                         <TooltipTrigger asChild>
-                                            <div className="cursor-not-allowed">
+                                            <div className="cursor-not-allowed h-full">
                                                 {cardContent}
                                             </div>
                                         </TooltipTrigger>
@@ -306,3 +303,4 @@ export default function ChallengesPage() {
 }
 
     
+
