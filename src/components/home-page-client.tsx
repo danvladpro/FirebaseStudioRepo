@@ -362,78 +362,61 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
     const Icon = iconMap[set.iconName];
     const setStats = stats[set.id];
     const bestScore = setStats?.bestScore;
-    const bestTime = setStats?.bestTime;
     const isCompleted = bestScore === 100;
 
     const cardContent = (
         <Card key={set.id} className={cn(
-            "relative grid md:grid-cols-[1fr_auto] items-center gap-4 bg-card shadow-sm hover:shadow-md hover-translate-y-0.5 transition-all duration-200 hover:bg-accent/5",
-            set.isLocked && "bg-muted/50 text-muted-foreground border-dashed"
+            "flex flex-col h-full transition-transform duration-200", 
+            set.isLocked ? "bg-muted/50 text-muted-foreground border-dashed" : "hover:shadow-md hover:-translate-y-0.5"
         )}>
-            <CardContent className="p-4 flex items-center gap-4">
-                <Icon className={cn("w-10 h-10", set.isLocked ? "text-muted-foreground" : "text-primary")} />
-                <div className="flex-1">
+            <CardHeader className="flex flex-row items-start gap-4 p-4">
+                <Icon className={cn("w-10 h-10 mt-1", set.isLocked ? "text-muted-foreground" : "text-primary")} />
+                <div>
                     <div className="flex items-center gap-2">
                         <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
                          {isCompleted && !set.isLocked && (
                             <Badge variant="completed">Passed</Badge>
                          )}
                     </div>
-                    <p className="text-sm">{set.description} - {set.challenges.length} items</p>
+                    <CardDescription>{set.description}</CardDescription>
                 </div>
+            </CardHeader>
+            <CardContent className="flex-grow p-4 pt-0">
+                <p className="text-sm text-muted-foreground">{set.challenges.length} items</p>
             </CardContent>
-
-            <div className="p-4 grid grid-cols-2 md:grid-cols-[auto_auto] items-center justify-end gap-x-4 text-sm text-center">
-                <div className="flex flex-col items-center justify-center min-h-[44px]">
-                    {isLoaded ? (
-                        isCompleted ? (
-                        bestTime ? (
-                            <div className="flex items-center gap-1.5 text-green-600">
-                                <Timer className="w-4 h-4" />
-                                <span className="font-bold text-lg">{bestTime.toFixed(2)}s</span>
-                            </div>
+            <CardFooter className={cn("p-4 pt-0 mt-auto flex items-center gap-3", set.isLocked ? "justify-center" : "justify-between")}>
+                {set.isLocked ? (
+                    <Button className="w-full" variant={isLimited ? 'premium' : 'secondary'} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited && set.level !== 'Scenario'}>
+                       {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
+                       {isLimited ? 'Go Premium' : 'Locked'}
+                    </Button>
+                ) : (
+                    <>
+                     <Button asChild size="sm" variant="secondary">
+                        <Link href={`/flashcards/${set.id}`}>
+                            <Layers className="mr-2 h-4 w-4" /> Flashcards
+                        </Link>
+                    </Button>
+                    <div className="flex flex-col items-center text-sm text-center">
+                        {isLoaded ? (
+                            bestScore !== undefined && bestScore !== null ? (
+                                <p className="font-bold text-lg">{bestScore.toFixed(0)}%</p>
+                            ) : (
+                                <p className="font-bold text-lg">-</p>
+                            )
                         ) : (
-                             <div className="flex items-center gap-1.5 text-green-600">
-                                <div className="p-1 rounded-full bg-green-100 dark:bg-green-900">
-                                     <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                </div>
-                            </div>
-                        )
-                        ) : bestScore !== undefined && bestScore !== null ? (
-                            <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>{bestScore.toFixed(0)}%</p>
-                        ) : (
-                            <p className={cn("font-bold text-lg", !set.isLocked && "text-card-foreground")}>-</p>
-                        )
-                    ) : (
-                        <Skeleton className={cn("h-7 w-12 mx-auto", set.isLocked && "hidden")} />
-                    )}
-                    <p>
-                    {isCompleted ? (bestTime ? "Best Time" : "Status") : "Best Score"}
-                    </p>
-                </div>
-
-                <div className="col-span-2 md:col-span-1 mt-4 md:mt-0 grid grid-cols-2 gap-2">
-                    {set.isLocked ? (
-                        <Button className="w-full col-span-2" variant={isLimited ? 'premium' : 'secondary'} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited && set.level !== 'Scenario'}>
-                           {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
-                           {isLimited ? 'Go Premium' : 'Locked'}
-                        </Button>
-                    ) : (
-                        <>
-                         <Button asChild size="sm" variant="secondary" className="w-full">
-                            <Link href={`/flashcards/${set.id}`}>
-                                <Layers className="mr-2 h-4 w-4" /> Flashcards
-                            </Link>
-                        </Button>
-                        <Button asChild size="sm" className="w-full" variant="default">
-                            <Link href={`/challenge/${set.id}`}>
-                                <Library className="mr-2 h-4 w-4" /> Challenge
-                            </Link>
-                        </Button>
-                        </>
-                    )}
-                </div>
-            </div>
+                            <Skeleton className="h-7 w-12 mx-auto" />
+                        )}
+                        <p>Best Score</p>
+                    </div>
+                    <Button asChild size="sm" variant="default">
+                        <Link href={`/challenge/${set.id}`}>
+                           <Library className="mr-2 h-4 w-4" /> Challenge
+                        </Link>
+                    </Button>
+                    </>
+                )}
+            </CardFooter>
         </Card>
     );
 
@@ -441,7 +424,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
         return (
             <Tooltip key={set.id}>
                 <TooltipTrigger asChild>
-                    <div className="cursor-not-allowed">
+                    <div className="cursor-not-allowed h-full">
                         {cardContent}
                     </div>
                 </TooltipTrigger>
@@ -642,7 +625,7 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Real Scenarios</h2>
                     <TooltipProvider>
-                        <div className="flex flex-col gap-4">
+                        <div className="grid md:grid-cols-2 gap-6">
                             {scenarioSetsToDisplay.map((set) => renderSetCard(set))}
                         </div>
                     </TooltipProvider>
@@ -658,10 +641,12 @@ export function HomePageClient({ examSets }: HomePageClientProps) {
                                 <h2 className="text-2xl font-bold mb-4 capitalize">{level}</h2>
                                 
                                 {groupedShortcutSets[level] && (
-                                     <div className="space-y-4">
-                                         <h3 className="font-semibold text-lg text-muted-foreground">Learn Shortcuts</h3>
+                                     <div>
+                                         <h3 className="font-semibold text-lg text-muted-foreground mb-2">Learn Shortcuts</h3>
                                         <TooltipProvider>
-                                            {groupedShortcutSets[level].map((set) => renderSetCard(set))}
+                                            <div className="grid md:grid-cols-2 gap-6">
+                                                {groupedShortcutSets[level].map((set) => renderSetCard(set))}
+                                            </div>
                                         </TooltipProvider>
                                      </div>
                                 )}
