@@ -214,7 +214,7 @@ export function HomePageClient() {
                     </div>
                     <Button asChild size="sm" variant="default">
                         <Link href={`/challenge/${set.id}`}>
-                           <Library className="mr-2 h-4 w-4" /> Challenge
+                           <Library className="mr-2 h-4 w-4" /> Learn / Challenge
                         </Link>
                     </Button>
                     </>
@@ -352,13 +352,14 @@ export function HomePageClient() {
 
                     return (
                         <Card key={level}>
-                          <CardHeader className="flex flex-row items-center justify-between p-4">
+                          <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
                               <CardTitle className="text-xl capitalize">{level}</CardTitle>
-                              <p className="text-sm font-medium text-muted-foreground">
+                              <p className="text-sm font-bold text-muted-foreground">
                                   XP: {completedXpForLevel} / {xpForLevel}
                               </p>
                           </CardHeader>
-                          <CardContent className="p-4 pt-0 space-y-6">
+                          
+                          <CardContent className="p-4 pt-4 space-y-6">
                             <div>
                                 <h3 className="font-semibold text-lg text-muted-foreground mb-4">Challenges</h3>
                                 <TooltipProvider>
@@ -369,10 +370,10 @@ export function HomePageClient() {
                             </div>
                             
                             {drillsForLevel.length > 0 && (
-                                <div>
+                                <div className="bg-muted/30 rounded-lg p-4 mt-6">
                                     <h3 className="font-semibold text-lg text-muted-foreground mb-4">Drills</h3>
                                     <TooltipProvider>
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
                                             {(() => {
                                                 const areChallengesForLevelPassed = completedChallengesForLevel.length === challengesForLevel.length;
 
@@ -396,7 +397,7 @@ export function HomePageClient() {
                                                         : drill.name;
 
                                                     const buttonClasses = cn(
-                                                        "h-auto p-2 w-full text-left flex flex-col items-start shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-150",
+                                                        "h-auto p-1.5 w-full text-left flex flex-col items-start shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-150",
                                                         isDrillLocked && "bg-muted text-muted-foreground hover:bg-muted",
                                                         isNextDrill && "bg-accent text-accent-foreground hover:bg-accent/90",
                                                         isDrillPassed && "bg-emerald-600 text-white hover:bg-emerald-600/90"
@@ -415,7 +416,7 @@ export function HomePageClient() {
                                                                 <span className={cn("text-xs", isDrillPassed ? "text-white/70" : "text-foreground/70")}>Drill {index + 1}</span>
                                                                 {isDrillPassed && <Check className="w-3 h-3 text-white" />}
                                                             </div>
-                                                            <span className="text-sm font-semibold block truncate">{drill.name}</span>
+                                                            <span className="text-xs font-semibold block truncate">{drill.name}</span>
                                                         </div>
                                                     );
 
