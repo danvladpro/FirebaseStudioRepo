@@ -188,36 +188,42 @@ export function HomePageClient() {
             <CardContent className="flex-grow p-4 pt-0">
                 <p className="text-sm text-muted-foreground">{set.challenges.length} items</p>
             </CardContent>
-            <CardFooter className={cn("p-4 pt-0 mt-auto flex items-center gap-3", set.isLocked ? "justify-center" : "justify-between")}>
+            
+            <CardFooter className={cn("p-4 mt-auto")}>
                 {set.isLocked ? (
                     <Button className="w-full" variant={isLimited ? 'premium' : 'secondary'} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited}>
                        {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
                        {isLimited ? 'Go Premium' : 'Locked'}
                     </Button>
                 ) : (
-                    <>
-                     <Button asChild size="sm" variant="secondary">
-                        <Link href={`/flashcards/${set.id}`}>
-                            <Layers className="mr-2 h-4 w-4" /> Flashcards
-                        </Link>
-                    </Button>
-                     <div className="flex h-9 items-center justify-center rounded-md border border-input bg-transparent px-4 py-2">
-                        {isLoaded ? (
-                            bestScore !== undefined && bestScore !== null ? (
-                                <p className="font-semibold text-primary">{bestScore.toFixed(0)}%</p>
-                            ) : (
-                                <p className="text-sm font-medium text-muted-foreground">Best Score</p>
-                            )
-                        ) : (
-                            <Skeleton className="h-5 w-16" />
-                        )}
+                    <div className="flex flex-col gap-4 w-full">
+                        <Separator />
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <Button asChild size="sm" variant="secondary">
+                                    <Link href={`/flashcards/${set.id}`}>
+                                        <Layers className="mr-2 h-4 w-4" /> Flashcards
+                                    </Link>
+                                </Button>
+                                 <div className="flex h-9 items-center justify-center rounded-md border border-input bg-transparent px-4 py-2">
+                                    {isLoaded ? (
+                                        bestScore !== undefined && bestScore !== null ? (
+                                            <p className="font-semibold text-primary">{bestScore.toFixed(0)}%</p>
+                                        ) : (
+                                            <p className="text-sm font-medium text-muted-foreground">Best Score</p>
+                                        )
+                                    ) : (
+                                        <Skeleton className="h-5 w-16" />
+                                    )}
+                                </div>
+                            </div>
+                            <Button asChild size="sm" variant="default">
+                                <Link href={`/challenge/${set.id}`}>
+                                   <Library className="mr-2 h-4 w-4" /> Learn / Challenge
+                                </Link>
+                            </Button>
+                        </div>
                     </div>
-                    <Button asChild size="sm" variant="default">
-                        <Link href={`/challenge/${set.id}`}>
-                           <Library className="mr-2 h-4 w-4" /> Learn / Challenge
-                        </Link>
-                    </Button>
-                    </>
                 )}
             </CardFooter>
         </Card>
