@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap, Dumbbell, Repeat, Check, ClipboardPaste, Wand2, Palette, DollarSign, ShieldCheck } from "lucide-react";
@@ -408,12 +409,9 @@ export function HomePageClient() {
                                         {(() => {
                                             const areChallengesForLevelPassed = completedChallengesForLevel.length === challengesForLevel.length;
 
-                                            let firstIncompleteDrillIndex = drillsForLevel.length;
-                                            for (let i = 0; i < drillsForLevel.length; i++) {
-                                                if (stats[drillsForLevel[i].id]?.bestScore !== 100) {
-                                                    firstIncompleteDrillIndex = i;
-                                                    break;
-                                                }
+                                            let firstIncompleteDrillIndex = drillsForLevel.findIndex(d => stats[d.id]?.bestScore !== 100);
+                                            if (firstIncompleteDrillIndex === -1) {
+                                                firstIncompleteDrillIndex = drillsForLevel.length; // All are complete
                                             }
 
                                             return drillsForLevel.map((drill, index) => {
