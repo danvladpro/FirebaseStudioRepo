@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, GalleryVerticalEnd, Filter, Rocket, Award, Medal, CheckCircle, Timer, RotateCw, BadgeCheck, Star, BrainCircuit, StarIcon, HelpCircle, Zap, Dumbbell, Repeat, Check, ClipboardPaste, Wand2, Palette, DollarSign, ShieldCheck } from "lucide-react";
@@ -168,58 +167,62 @@ export function HomePageClient() {
     const bestScore = setStats?.bestScore;
     const isCompleted = bestScore === 100;
 
+
     const cardContent = (
         <Card key={set.id} className={cn(
             "flex flex-col h-full transition-transform duration-200", 
             set.isLocked ? "bg-muted/50 text-muted-foreground border-dashed" : "hover:shadow-md hover:-translate-y-0.5"
         )}>
-            <CardHeader className="flex flex-row items-start gap-4 p-4">
+            <CardHeader className="flex flex-row items-start gap-1 p-4">
                 <Icon className={cn("w-10 h-10 mt-1", set.isLocked ? "text-muted-foreground" : "text-primary")} />
                 <div>
                     <div className="flex items-center gap-2">
                         <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
-                         {isCompleted && !set.isLocked && (
+                            {isCompleted && !set.isLocked && (
                             <Badge variant="completed">Passed</Badge>
-                         )}
+                            )}
                     </div>
                     <CardDescription>{set.description}</CardDescription>
                 </div>
             </CardHeader>
-            <CardContent className="flex-grow p-4 pt-0">
+        
+            <CardContent className="p-4 pt-0 pb-2">
                 <p className="text-sm text-muted-foreground">{set.challenges.length} items</p>
             </CardContent>
-            
-            <CardFooter className={cn("p-4 mt-auto")}>
+        
+            <CardFooter className={cn("p-4 pt-2 mt-auto")}>
                 {set.isLocked ? (
                     <Button className="w-full" variant={isLimited ? 'premium' : 'secondary'} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited}>
-                       {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
-                       {isLimited ? 'Go Premium' : 'Locked'}
+                        {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
+                        {isLimited ? 'Go Premium' : 'Locked'}
                     </Button>
                 ) : (
-                    <div className="flex flex-col gap-4 w-full">
+                    <div className="flex flex-col gap-2 w-full">
                         <Separator />
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1">
                                 <Button asChild size="sm" variant="secondary">
                                     <Link href={`/flashcards/${set.id}`}>
                                         <Layers className="mr-2 h-4 w-4" /> Flashcards
                                     </Link>
                                 </Button>
-                                 <div className="flex h-9 items-center justify-center rounded-md border border-input bg-transparent px-4 py-2">
+        
+                                <div className="flex h-9 items-center justify-center rounded-md border border-input bg-transparent px-4 py-2">
                                     {isLoaded ? (
                                         bestScore !== undefined && bestScore !== null ? (
                                             <p className="font-semibold text-primary">{bestScore.toFixed(0)}%</p>
                                         ) : (
-                                            <p className="text-sm font-medium text-muted-foreground">Best Score</p>
+                                            <p className="text-sm font-medium text-muted-foreground">Score</p>
                                         )
                                     ) : (
                                         <Skeleton className="h-5 w-16" />
                                     )}
                                 </div>
                             </div>
+        
                             <Button asChild size="sm" variant="default">
                                 <Link href={`/challenge/${set.id}`}>
-                                   <Library className="mr-2 h-4 w-4" /> Learn / Challenge
+                                    <Library className="mr-2 h-4 w-4" /> Learn / Challenge
                                 </Link>
                             </Button>
                         </div>
@@ -298,6 +301,25 @@ export function HomePageClient() {
                                     </div>
                                 </div>
                                 <Separator />
+                                <div className="space-y-2">
+                                    {LEVEL_THRESHOLDS.map((level) => {
+                                        const isReached = totalXP >= level.xp;
+                                        const isNext = nextLevelInfo?.level === level.level;
+                                        
+                                        return (
+                                            <div key={level.level} className="flex items-center justify-between text-sm">
+                                                <span className={cn(
+                                                    "font-medium",
+                                                    isReached ? "text-emerald-600" : isNext ? "text-foreground" : "text-muted-foreground/60"
+                                                )}>
+                                                    {level.level} {isReached ? "✔" : isNext ? "░░░░░░" : ""}
+                                                </span>
+                                                <span className="text-xs text-muted-foreground">{level.xp} XP</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <Separator />
                                 <div className="space-y-4">
                                   <h3 className="text-lg font-semibold">Certificate of Mastery</h3>
                                   <div className="relative w-full h-4 overflow-hidden rounded-full bg-secondary">
@@ -359,7 +381,10 @@ export function HomePageClient() {
                     return (
                         <Card key={level}>
                           <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
-                              <CardTitle className="text-xl capitalize">{level}</CardTitle>
+                              <CardTitle className="text-xl capitalize">
+                                  {level === 'Beginner' ? '⚔️ ' : level === 'Intermediate' ? '🥷 ' : level === 'Advanced' ? '🏆 ' : ''}
+                                  {level}
+                              </CardTitle>
                               <p className="text-sm font-bold text-muted-foreground">
                                   XP: {completedXpForLevel} / {xpForLevel}
                               </p>
@@ -367,7 +392,7 @@ export function HomePageClient() {
                           
                           <CardContent className="p-4 pt-4 space-y-6">
                             <div>
-                                <h3 className="font-semibold text-lg text-muted-foreground mb-4">Challenges</h3>
+                                <h3 className="font-semibold text-lg text-muted-foreground mb-4">🎯 Challenges</h3>
                                 <TooltipProvider>
                                     <div className="grid sm:grid-cols-2 gap-6">
                                         {challengesForLevel.map((set) => renderSetCard(set))}
@@ -377,82 +402,84 @@ export function HomePageClient() {
                             
                             {drillsForLevel.length > 0 && (
                                 <div className="bg-muted/30 rounded-lg p-4 mt-6">
-                                    <h3 className="font-semibold text-lg text-muted-foreground mb-4">Drills</h3>
+                                    <h3 className="font-semibold text-lg text-muted-foreground mb-4">🧠 Drills</h3>
                                     <TooltipProvider>
-                                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
-                                            {(() => {
-                                                const areChallengesForLevelPassed = completedChallengesForLevel.length === challengesForLevel.length;
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                                        {(() => {
+                                            const areChallengesForLevelPassed = completedChallengesForLevel.length === challengesForLevel.length;
 
-                                                let firstIncompleteDrillIndex = drillsForLevel.length;
-                                                for (let i = 0; i < drillsForLevel.length; i++) {
-                                                    if (stats[drillsForLevel[i].id]?.bestScore !== 100) {
-                                                        firstIncompleteDrillIndex = i;
-                                                        break;
-                                                    }
+                                            let firstIncompleteDrillIndex = drillsForLevel.length;
+                                            for (let i = 0; i < drillsForLevel.length; i++) {
+                                                if (stats[drillsForLevel[i].id]?.bestScore !== 100) {
+                                                    firstIncompleteDrillIndex = i;
+                                                    break;
                                                 }
+                                            }
 
-                                                return drillsForLevel.map((drill, index) => {
-                                                    const isDrillPassed = stats[drill.id]?.bestScore === 100;
-                                                    const isDrillLocked = !isPremium && (!areChallengesForLevelPassed || index > firstIncompleteDrillIndex);
-                                                    const isNextDrill = !isDrillLocked && !isDrillPassed && index === firstIncompleteDrillIndex;
-                                                    
-                                                    const tooltipContent = isDrillLocked 
-                                                        ? (!areChallengesForLevelPassed 
-                                                            ? `Complete all '${level}' challenges to unlock drills.`
-                                                            : `Complete the previous drill to unlock.`)
-                                                        : drill.name;
+                                            return drillsForLevel.map((drill, index) => {
+                                                const isDrillPassed = stats[drill.id]?.bestScore === 100;
+                                                const isDrillLocked = !isPremium && (!areChallengesForLevelPassed || index > firstIncompleteDrillIndex);
+                                                const isNextDrill = !isDrillLocked && !isDrillPassed && index === firstIncompleteDrillIndex;
+                                                
+                                                const tooltipContent = isDrillLocked 
+                                                    ? (!areChallengesForLevelPassed 
+                                                        ? `Complete all '${level}' challenges to unlock drills.`
+                                                        : `Complete the previous drill to unlock.`)
+                                                    : drill.name;
 
-                                                    const buttonClasses = cn(
-                                                        "h-auto p-1.5 w-full text-left flex flex-col items-start shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-150",
-                                                        isDrillLocked && "bg-muted text-muted-foreground hover:bg-muted",
-                                                        isNextDrill && "bg-accent text-accent-foreground hover:bg-accent/90",
-                                                        isDrillPassed && "bg-emerald-600 text-white hover:bg-emerald-600/90"
-                                                    );
-                                                    
-                                                    const buttonContent = isDrillLocked 
-                                                    ? (
-                                                        <div className="text-center w-full">
-                                                            <span className="text-xs text-muted-foreground/80">Drill {index + 1}</span>
-                                                            <Lock className="w-4 h-4 mx-auto mt-1" />
+                                                const buttonClasses = cn(
+                                                    "h-auto p-2 w-full text-left flex flex-col items-start shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-150",
+                                                    isDrillLocked && "bg-muted text-muted-foreground",
+                                                    isNextDrill && "bg-yellow-500/10 text-yellow-600 border border-yellow-500 hover:bg-yellow-500/20",
+                                                    isDrillPassed && "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
+                                                );
+                                                
+                                                const buttonContent = isDrillLocked 
+                                                ? (
+                                                    <div className="text-center w-full">
+                                                        <span className="text-xs text-muted-foreground">Drill {index + 1}</span>
+                                                        <Lock className="w-4 h-4 mx-auto mt-1" />
+                                                    </div>
+                                                )
+                                                : (
+                                                    <div className="text-left w-full">
+                                                        <div className="flex justify-between items-center">
+                                                            <span className={cn("text-xs", isDrillPassed ? "text-emerald-600/80" : "text-muted-foreground")}>
+                                                                Drill {index + 1}
+                                                            </span>
+                                                            {isDrillPassed && <Check className="w-4 h-4 text-emerald-600" />}
                                                         </div>
-                                                    )
-                                                    : (
-                                                        <div className="text-left w-full">
-                                                            <div className="flex justify-between items-center">
-                                                                <span className={cn("text-xs", isDrillPassed ? "text-white/70" : "text-foreground/70")}>Drill {index + 1}</span>
-                                                                {isDrillPassed && <Check className="w-3 h-3 text-white" />}
-                                                            </div>
-                                                            <span className="text-xs font-semibold block truncate">{drill.name}</span>
-                                                        </div>
-                                                    );
+                                                        <span className="text-xs font-semibold block truncate">{drill.name}</span>
+                                                    </div>
+                                                );
 
-                                                    const buttonElement = isDrillLocked ? (
-                                                        <Button className={buttonClasses} disabled>
+                                                const buttonElement = isDrillLocked ? (
+                                                    <Button className={buttonClasses} disabled>
+                                                        {buttonContent}
+                                                    </Button>
+                                                ) : (
+                                                    <Button asChild className={buttonClasses}>
+                                                        <Link href={`/drills/${drill.id}?drillNumber=${index + 1}`}>
                                                             {buttonContent}
-                                                        </Button>
-                                                    ) : (
-                                                        <Button asChild className={buttonClasses}>
-                                                            <Link href={`/drills/${drill.id}?drillNumber=${index + 1}`}>
-                                                                {buttonContent}
-                                                            </Link>
-                                                        </Button>
-                                                    );
+                                                        </Link>
+                                                    </Button>
+                                                );
 
-                                                    return (
-                                                        <Tooltip key={drill.id}>
-                                                            <TooltipTrigger asChild>
-                                                                <div className={cn("w-full h-full", isDrillLocked && "cursor-not-allowed")}>
-                                                                    {buttonElement}
-                                                                </div>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent side="top">
-                                                                <p className="text-xs">{tooltipContent}</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    )
-                                                });
-                                            })()}
-                                        </div>
+                                                return (
+                                                    <Tooltip key={drill.id}>
+                                                        <TooltipTrigger asChild>
+                                                            <div className={cn("w-full h-full", isDrillLocked && "cursor-not-allowed")}>
+                                                                {buttonElement}
+                                                            </div>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent side="top">
+                                                            <p className="text-xs">{tooltipContent}</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                )
+                                            });
+                                        })()}
+                                    </div>
                                     </TooltipProvider>
                                 </div>
                             )}
@@ -467,7 +494,3 @@ export function HomePageClient() {
     </>
   );
 }
-
-    
-
-    
