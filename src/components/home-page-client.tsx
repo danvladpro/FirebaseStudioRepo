@@ -247,6 +247,7 @@ export function HomePageClient() {
                                 <Separator />
                                 <div className="space-y-4">
                                   <h3 className="text-lg font-semibold">Certificate of Mastery</h3>
+                                  <p className="text-sm text-muted-foreground -mt-3">Complete all challenges & drills to claim certificate.</p>
                                   <div className="relative w-full h-4 overflow-hidden rounded-full bg-secondary">
                                       <div
                                         className="h-full bg-gradient-to-r from-yellow-500 to-green-500 transition-all duration-500"
@@ -254,7 +255,7 @@ export function HomePageClient() {
                                       ></div>
                                        <div className="absolute inset-0 flex items-center justify-center">
                                             <span className="text-black drop-shadow-sm text-xs font-semibold">
-                                              {completedItems} of {totalItems} Items Mastered
+                                              {certificateProgress.toFixed(0)}% Complete
                                             </span>
                                         </div>
                                   </div>
