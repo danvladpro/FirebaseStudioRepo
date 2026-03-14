@@ -445,93 +445,98 @@ export function HomePageClient() {
                             </div>
                             
                             {drillsForLevel.length > 0 && (
-                                <div className="bg-muted/30 rounded-lg p-4 mt-6">
+                                <div className="bg-muted/30 rounded-lg p-4 mt-6 relative">
                                     <h3 className="font-semibold text-lg text-muted-foreground mb-4">🧠 Drills</h3>
-                                    {areDrillsLockedForPremium ? (
-                                        <div className="flex items-center justify-center text-center min-h-[80px] bg-card/50 rounded-md border-2 border-dashed p-4">
-                                            <p className="text-sm font-medium text-muted-foreground">Complete all challenges in this level to unlock drills.</p>
-                                        </div>
-                                    ) : (
-                                        <TooltipProvider>
-                                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                                                {drillsForLevel.map((drill, index) => {
-                                                    const firstIncompleteDrillIndex = drillsForLevel.findIndex(d => stats[d.id]?.bestScore !== 100);
+                                    <TooltipProvider>
+                                        <div className={cn(
+                                            "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3",
+                                            areDrillsLockedForPremium && "filter blur-sm pointer-events-none"
+                                        )}>
+                                            {drillsForLevel.map((drill, index) => {
+                                                const firstIncompleteDrillIndex = drillsForLevel.findIndex(d => stats[d.id]?.bestScore !== 100);
 
-                                                    const isDrillLocked = (() => {
-                                                        if (isAdmin) return false;
-                                                        if (!isPremium) {
-                                                            return drill.id !== 'strikethrough-undo';
-                                                        }
-                                                        if (!areChallengesForLevelPassed) return true;
-                                                        if (firstIncompleteDrillIndex === -1) return false;
-                                                        return index > firstIncompleteDrillIndex;
-                                                    })();
+                                                const isDrillLocked = (() => {
+                                                    if (isAdmin) return false;
+                                                    if (!isPremium) {
+                                                        return drill.id !== 'strikethrough-undo';
+                                                    }
+                                                    if (!areChallengesForLevelPassed) return true;
+                                                    if (firstIncompleteDrillIndex === -1) return false;
+                                                    return index > firstIncompleteDrillIndex;
+                                                })();
 
-                                                    const isDrillPassed = stats[drill.id]?.bestScore === 100;
-                                                    const isNextDrill = !isDrillLocked && !isDrillPassed && (firstIncompleteDrillIndex === -1 || index === firstIncompleteDrillIndex);
-                                                    
-                                                    const tooltipContent = (() => {
-                                                        if (isDrillLocked) {
-                                                            if (!isPremium) return "Upgrade to Premium to unlock more drills.";
-                                                            if (!areChallengesForLevelPassed) return `Complete all '${level}' challenges to unlock drills.`;
-                                                            return 'Complete the previous drill to unlock.';
-                                                        }
-                                                        return drill.name;
-                                                    })();
+                                                const isDrillPassed = stats[drill.id]?.bestScore === 100;
+                                                const isNextDrill = !isDrillLocked && !isDrillPassed && (firstIncompleteDrillIndex === -1 || index === firstIncompleteDrillIndex);
+                                                
+                                                const tooltipContent = (() => {
+                                                    if (isDrillLocked) {
+                                                        if (!isPremium) return "Upgrade to Premium to unlock more drills.";
+                                                        if (!areChallengesForLevelPassed) return `Complete all '${level}' challenges to unlock drills.`;
+                                                        return 'Complete the previous drill to unlock.';
+                                                    }
+                                                    return drill.name;
+                                                })();
 
-                                                    const buttonClasses = cn(
-                                                        "h-auto p-2 w-full text-left flex flex-col items-start shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-150",
-                                                        isDrillLocked && "bg-muted text-muted-foreground",
-                                                        isNextDrill && "bg-yellow-500/10 text-yellow-600 border border-yellow-500 hover:bg-yellow-500/20",
-                                                        isDrillPassed && "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
-                                                    );
-                                                    
-                                                    const buttonContent = isDrillLocked 
-                                                    ? (
-                                                        <div className="text-center w-full">
-                                                            <span className="text-xs text-muted-foreground">Drill {index + 1}</span>
-                                                            <Lock className="w-4 h-4 mx-auto mt-1" />
+                                                const buttonClasses = cn(
+                                                    "h-auto p-2 w-full text-left flex flex-col items-start shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-150",
+                                                    isDrillLocked && "bg-muted text-muted-foreground",
+                                                    isNextDrill && "bg-yellow-500/10 text-yellow-600 border border-yellow-500 hover:bg-yellow-500/20",
+                                                    isDrillPassed && "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
+                                                );
+                                                
+                                                const buttonContent = isDrillLocked 
+                                                ? (
+                                                    <div className="text-center w-full">
+                                                        <span className="text-xs text-muted-foreground">Drill {index + 1}</span>
+                                                        <Lock className="w-4 h-4 mx-auto mt-1" />
+                                                    </div>
+                                                )
+                                                : (
+                                                    <div className="text-left w-full">
+                                                        <div className="flex justify-between items-center">
+                                                            <span className={cn("text-xs", isDrillPassed ? "text-emerald-600/80" : "text-muted-foreground")}>
+                                                                Drill {index + 1}
+                                                            </span>
+                                                            {isDrillPassed && <Check className="w-4 h-4 text-emerald-600" />}
                                                         </div>
-                                                    )
-                                                    : (
-                                                        <div className="text-left w-full">
-                                                            <div className="flex justify-between items-center">
-                                                                <span className={cn("text-xs", isDrillPassed ? "text-emerald-600/80" : "text-muted-foreground")}>
-                                                                    Drill {index + 1}
-                                                                </span>
-                                                                {isDrillPassed && <Check className="w-4 h-4 text-emerald-600" />}
-                                                            </div>
-                                                            <span className="text-xs font-semibold block truncate">{drill.name}</span>
-                                                        </div>
-                                                    );
+                                                        <span className="text-xs font-semibold block truncate">{drill.name}</span>
+                                                    </div>
+                                                );
 
-                                                    const buttonElement = isDrillLocked ? (
-                                                        <Button className={buttonClasses} onClick={!isPremium ? () => setIsPremiumModalOpen(true) : undefined} disabled={isPremium}>
+                                                const buttonElement = isDrillLocked ? (
+                                                    <Button className={buttonClasses} onClick={!isPremium ? () => setIsPremiumModalOpen(true) : undefined} disabled={isPremium}>
+                                                        {buttonContent}
+                                                    </Button>
+                                                ) : (
+                                                    <Button asChild className={buttonClasses}>
+                                                        <Link href={`/drills/${drill.id}?drillNumber=${index + 1}`}>
                                                             {buttonContent}
-                                                        </Button>
-                                                    ) : (
-                                                        <Button asChild className={buttonClasses}>
-                                                            <Link href={`/drills/${drill.id}?drillNumber=${index + 1}`}>
-                                                                {buttonContent}
-                                                            </Link>
-                                                        </Button>
-                                                    );
+                                                        </Link>
+                                                    </Button>
+                                                );
 
-                                                    return (
-                                                        <Tooltip key={drill.id}>
-                                                            <TooltipTrigger asChild>
-                                                                <div className={cn("w-full h-full", isDrillLocked && "cursor-not-allowed")}>
-                                                                    {buttonElement}
-                                                                </div>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent side="top">
-                                                                <p className="text-xs">{tooltipContent}</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    )
-                                                })}
+                                                return (
+                                                    <Tooltip key={drill.id}>
+                                                        <TooltipTrigger asChild>
+                                                            <div className={cn("w-full h-full", isDrillLocked && "cursor-not-allowed")}>
+                                                                {buttonElement}
+                                                            </div>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent side="top">
+                                                            <p className="text-xs">{tooltipContent}</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                )
+                                            })}
+                                        </div>
+                                    </TooltipProvider>
+
+                                    {areDrillsLockedForPremium && (
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="text-center p-4 bg-card/90 rounded-md border-2 border-dashed">
+                                                <p className="text-sm font-medium text-muted-foreground">Complete all challenges in this level to unlock drills.</p>
                                             </div>
-                                        </TooltipProvider>
+                                        </div>
                                     )}
                                 </div>
                             )}
@@ -546,5 +551,3 @@ export function HomePageClient() {
     </>
   );
 }
-
-    
