@@ -450,17 +450,17 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             "w-full transform transition-all duration-500 mt-12",
             feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
         )}>
-        <CardHeader>
-            <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center gap-2 text-sm">
-                    <CardTitle className="text-2xl">{set.name}</CardTitle>
+        <CardHeader className="p-4 sm:p-6">
+            <div className="flex justify-between items-start sm:items-center flex-col sm:flex-row mb-2">
+                <div className="flex items-center gap-2 text-sm mb-2 sm:mb-0">
+                    <CardTitle className="text-xl md:text-2xl">{set.name}</CardTitle>
                 </div>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-4 text-xs sm:text-sm text-muted-foreground">
                 {mode === 'timed' ? (
                     <>
                         <div className={cn("flex items-center gap-2 transition-colors", countdown <= 3 && "text-destructive")}>
                             Remaining time:
-                            <span className="font-mono text-lg font-semibold">{countdown}</span>
+                            <span className="font-mono text-base sm:text-lg font-semibold">{countdown}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             Total time: <Timer className="h-4 w-4" />
@@ -476,11 +476,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             </div>
             </div>
             <Progress value={progress} className="w-full" />
-            <p className="text-sm text-muted-foreground text-center pt-2">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground text-center pt-2">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>
         </CardHeader>
-        <CardContent className="text-center py-8 relative">
+        <CardContent className="text-center py-4 sm:py-6 relative">
             {displayedGridState && (
-                <div className="mb-6 relative">
+                <div className="mb-4 sm:mb-6 relative">
                     <FindReplaceDialog state={finalDialogState} isSuccess={feedback === 'correct'} />
                     <CreateTableDialog
                         isVisible={!!finalDialogState.createTableDialogVisible}
@@ -508,9 +508,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 </div>
             )}
 
-            <div className="flex justify-center items-center gap-3 mb-6">
-            {ActiveIcon && <ActiveIcon className="w-7 h-7 text-primary" />}
-            <h2 className="text-xl md:text-2xl font-semibold text-foreground">{currentChallenge.description}</h2>
+            <div className="flex justify-center items-center gap-3 mb-4 sm:mb-6">
+            {ActiveIcon && <ActiveIcon className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />}
+            <h2 className="text-lg md:text-xl font-semibold text-foreground">{currentChallenge.description}</h2>
             </div>
             
             <div className="flex flex-col gap-2 text-left">
@@ -524,26 +524,26 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 <div key={index}>
                     <div
                     className={cn(
-                        "p-4 rounded-lg transition-all",
+                        "p-3 sm:p-4 rounded-lg transition-all",
                         isCompleted ? "bg-green-500/10" : "bg-muted/50",
                         isActive && feedback !== 'incorrect' && !isAccentuating && "ring-2 ring-primary",
                         isActive && isAccentuating && "ring-2 ring-green-500",
                         isActive && feedback === 'incorrect' && "ring-2 ring-destructive"
                     )}
                     >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         {isCompleted ? (
-                        <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+                        <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 flex-shrink-0" />
                         ) : (
-                        <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
-                            <Circle className={cn("w-4 h-4", isActive ? (isAccentuating ? "text-green-500" : "text-primary") : "text-muted-foreground/50")} />
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 flex items-center justify-center">
+                            <Circle className={cn("w-3 h-3 sm:w-4 sm:h-4", isActive ? (isAccentuating ? "text-green-500" : "text-primary") : "text-muted-foreground/50")} />
                         </div>
                         )}
                         {ChallengeIcon && (
-                            <ChallengeIcon className={cn("w-6 h-6", iconColor)} />
+                            <ChallengeIcon className={cn("w-5 h-5 sm:w-6 sm:h-6", iconColor)} />
                         )}
                         <p className={cn(
-                        "flex-1 font-medium",
+                        "flex-1 font-medium text-sm sm:text-base",
                         isCompleted && "text-green-700 line-through",
                         isActive && isAccentuating && "text-green-700",
                         !isActive && !isCompleted && "text-muted-foreground"
@@ -558,27 +558,23 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                     </div>
 
                     {isActive && (
-                        <div className="flex items-center justify-center gap-2 h-10 mt-4">
-                        {feedback === 'correct' && <CheckCircle className="h-10 w-10 text-green-500" />}
-                        {feedback === 'incorrect' && <XCircle className="h-10 w-10 text-destructive" />}
-                        {feedback === null && !isVirtualKeyboardMode && (
+                        <div className="flex items-center justify-center gap-2 h-10 mt-2 sm:mt-4">
+                        {feedback === 'correct' && <CheckCircle className="h-8 w-8 sm:h-10 sm:h-10 text-green-500" />}
+                        {feedback === 'incorrect' && <XCircle className="h-8 w-8 sm:h-10 sm:h-10 text-destructive" />}
+                        {feedback === null && (
                             <div className="flex items-center gap-2 text-muted-foreground">
-                            <Keyboard className="h-8 w-8" />
-                            <span className="text-lg">Use your keyboard</span>
-                            </div>
-                        )}
-                        {feedback === null && isVirtualKeyboardMode && (
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                            <MousePointerClick className="h-8 w-8" />
-                            <span className="text-lg">Click the keys below</span>
+                            {isVirtualKeyboardMode ? <MousePointerClick className="h-6 w-6 sm:h-8 sm:h-8" /> : <Keyboard className="h-6 w-6 sm:h-8 sm:h-8" />}
+                            <span className="text-base sm:text-lg">
+                                {isVirtualKeyboardMode ? "Click the keys below" : "Use your keyboard"}
+                            </span>
                             </div>
                         )}
                         </div>
                     )}
                     </div>
                     {index < currentChallenge.steps.length - 1 && (
-                    <div className="h-6 flex justify-center">
-                        <ChevronDown className="w-5 h-5 text-muted-foreground/50" />
+                    <div className="h-4 sm:h-6 flex justify-center">
+                        <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/50" />
                     </div>
                     )}
                 </div>
@@ -586,25 +582,29 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             })}
             </div>
             {isVirtualKeyboardMode && (
-                <div className="mt-8">
-                    <VisualKeyboard 
-                        highlightedKeys={currentStep.isSequential ? sequence : Array.from(pressedKeys)}
-                        onKeyClick={handleVirtualKeyClick}
-                    />
+                <div className="mt-4 sm:mt-8 -mx-2 sm:mx-0">
+                    <div className="overflow-x-auto">
+                        <div className="w-fit mx-auto scale-75 sm:scale-100 origin-center">
+                            <VisualKeyboard 
+                                highlightedKeys={currentStep.isSequential ? sequence : Array.from(pressedKeys)}
+                                onKeyClick={handleVirtualKeyClick}
+                            />
+                        </div>
+                    </div>
                 </div>
             )}
         </CardContent>
-        <CardFooter className="bg-muted/50 min-h-[80px] flex items-center justify-between gap-2 flex-wrap p-4">
+        <CardFooter className="bg-muted/50 min-h-[64px] sm:min-h-[80px] flex items-center justify-between gap-2 flex-wrap p-2 sm:p-4">
             <div className="flex items-center justify-center gap-2">
                 {currentStep.isSequential ? (
                 sequence.length > 0 ? (
                     sequence.map((key, index) => <KeyDisplay key={index} value={key} />)
-                ) : <span className="text-muted-foreground">Press the required keys in sequence...</span>
+                ) : <span className="text-muted-foreground text-sm">Press keys in sequence...</span>
                 ) : (
                 pressedKeys.size > 0 ? (
                     Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} />)
                 ) : (
-                    <span className="text-muted-foreground">Press the required keys...</span>
+                    <span className="text-muted-foreground text-sm">Press the required keys...</span>
                 )
                 )}
             </div>

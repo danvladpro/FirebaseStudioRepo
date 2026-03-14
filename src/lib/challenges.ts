@@ -17,13 +17,13 @@ const createDefaultGridState = (rows = 30): GridState => ({
   sheets: [
     {
       name: 'Sheet1',
-      data: Array.from({ length: rows }, (_, r) => [
-        `#${101 + r}`,
-        r % 3 === 0 ? 'Gadget' : (r % 3 === 1 ? 'Widget' : 'Doohickey'),
-        r % 4 === 0 ? 'North' : (r % 4 === 1 ? 'South' : (r % 4 === 2 ? 'East' : 'West')),
-        `${((Math.random() * 2000) + 500).toFixed(2)}`,
-        `${Math.floor(Math.random() * 5) + 4}%`
-      ]),
+      data: [
+        ['ID', 'Product', 'Region', 'Sales', ''],
+        ['#101', 'Gadget', 'North', '1200', ''],
+        ['#102', 'Widget', 'South', '850', ''],
+        ['#103', 'Doohickey', 'East', '2100', ''],
+        ['', '', '', '', ''],
+      ],
       selection: { activeCell: { row: 2, col: 2 }, anchorCell: { row: 2, col: 2 } },
       viewport: { startRow: 0, rowCount: 15 },
     },
