@@ -183,6 +183,33 @@ export function HomePageClient() {
   
   const levelOrder: (keyof typeof groupedShortcutSets)[] = ['Apprentice', 'Master', 'Ninja'];
 
+  const levelProgress = React.useMemo(() => {
+    if (!isLoaded) return {};
+    
+    const progress: Record<string, number> = {};
+    const levels: ChallengeLevel[] = ['Apprentice', 'Master', 'Ninja'];
+
+    levels.forEach(level => {
+      const challengesForLevel = CHALLENGE_SETS.filter(c => c.level === level);
+      const drillsForLevel = DRILL_SET.drills.filter(d => d.level === level);
+      const totalItems = challengesForLevel.length + drillsForLevel.length;
+
+      if (totalItems === 0) {
+        progress[level] = 0;
+        return;
+      }
+
+      const completedChallenges = challengesForLevel.filter(c => stats[c.id]?.bestScore === 100).length;
+      const completedDrills = drillsForLevel.filter(d => stats[d.id]?.bestScore === 100).length;
+      const completedItems = completedChallenges + completedDrills;
+      
+      progress[level] = (completedItems / totalItems) * 100;
+    });
+
+    return progress;
+  }, [isLoaded, stats]);
+  
+
   const getDashboardTitle = () => {
     if (userProfile?.name) return `Welcome back, ${userProfile.name}!`;
     if (isPremium) return "Unleash Your Shortcut Speed";
@@ -229,33 +256,51 @@ export function HomePageClient() {
                                     <div className="flex-1">
                                         <h3 className="text-lg font-bold">{currentUserProgression.name}</h3>
                                         <p className="text-2xl font-bold text-primary">{totalXP} <span className="text-base font-medium text-muted-foreground">XP</span></p>
-                                        {nextUserLevelName && (
-                                            <p className="text-xs text-muted-foreground mt-1">Complete {nextUserLevelName} to level up</p>
-                                        )}
                                     </div>
                                 </div>
                                 <Separator />
-                                <div className="space-y-3">
-                                    {PROGRESSION_LEVELS.map((level) => {
-                                        const isAchieved = level.name === currentUserLevelName;
-                                        const isNext = level.name === nextUserLevelName;
-                                        
-                                        return (
-                                            <div key={level.name} className={cn(
-                                                "p-2 rounded-lg transition-all flex items-center justify-between",
-                                                isAchieved && "border-2 border-emerald-500 bg-emerald-500/10",
-                                                isNext && "border-2 border-primary/30"
-                                            )}>
-                                                <span className={cn(
-                                                    "font-medium",
-                                                    isAchieved ? "text-emerald-600" : isNext ? "text-foreground" : "text-muted-foreground/60"
-                                                )}>
-                                                    {level.name}
-                                                </span>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                <div className="space-y-2">
+                                  {PROGRESSION_LEVELS.map((level) => {
+                                      const currentIndex = PROGRESSION_LEVELS.findIndex(l => l.name === currentUserLevelName);
+                                      const levelIndex = PROGRESSION_LEVELS.findIndex(l => l.name === level.name);
+                                      
+                                      const isCompleted = levelIndex < currentIndex;
+                                      const isCurrent = levelIndex === currentIndex;
+                                      const isNext = levelIndex === currentIndex + 1;
+                                      const isUpcoming = levelIndex > currentIndex + 1;
+                                      
+                                      const progress = isNext ? levelProgress[level.name as ChallengeLevel] ?? 0 : 0;
+
+                                      return (
+                                          <div key={level.name} className={cn(
+                                              "p-2 rounded-lg transition-all",
+                                              isCurrent && "border-2 border-emerald-500 bg-emerald-500/10",
+                                              isNext && "border-2 border-primary/30",
+                                              (isCompleted || isUpcoming) && "bg-muted/50"
+                                          )}>
+                                              <div className="flex items-center justify-between">
+                                                  <span className={cn(
+                                                      "font-medium text-sm",
+                                                      isCurrent ? "text-emerald-700 dark:text-emerald-300" : 
+                                                      isNext ? "text-foreground" : 
+                                                      "text-muted-foreground"
+                                                  )}>
+                                                      {level.name}
+                                                  </span>
+                                                  {isCompleted && (
+                                                      <CheckCircle className="w-4 h-4 text-muted-foreground" />
+                                                  )}
+                                              </div>
+                                              {isNext && (
+                                                  <div className="mt-2 space-y-1">
+                                                      <Progress value={progress} className="h-1.5" />
+                                                      <p className="text-xs text-right text-muted-foreground">{progress.toFixed(0)}% complete</p>
+                                                  </div>
+                                              )}
+                                          </div>
+                                      );
+                                  })}
+                              </div>
                                 <Separator />
                                 <div className="space-y-4">
                                   <h3 className="text-lg font-semibold">Certificate of Mastery</h3>
@@ -463,7 +508,6 @@ export function HomePageClient() {
                                     <TooltipProvider>
                                         <div className={cn(
                                             "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3",
-                                            areDrillsLockedForPremium && "filter blur-sm pointer-events-none"
                                         )}>
                                             {drillsForLevel.map((drill, index) => {
                                                 const firstIncompleteDrillIndex = drillsForLevel.findIndex(d => stats[d.id]?.bestScore !== 100);
@@ -564,3 +608,4 @@ export function HomePageClient() {
     </>
   );
 }
+
