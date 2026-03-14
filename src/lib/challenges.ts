@@ -110,13 +110,13 @@ const createMultiSheetGridState = (activeSheet: number = 0): GridState => ({
 
 export const CHALLENGE_SETS: ChallengeSet[] = [
   // ==========================================
-  // LEVEL 1: BEGINNER (Warp Speed)
+  // LEVEL 1: APPRENTICE (Warp Speed)
   // ==========================================
   {
     id: "warp-speed-navigation",
     name: "Warp Speed Navigation",
     description: "Move across the worksheet like lightning.",
-    level: "Beginner",
+    level: "Apprentice",
     category: "Navigation",
     iconName: "Zap",
     challenges: [
@@ -135,7 +135,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     id: "rapid-selection",
     name: "Rapid Selection",
     description: "Selection shortcuts that bypass the mouse.",
-    level: "Beginner",
+    level: "Apprentice",
     category: "Selection",
     iconName: "MousePointerSquareDashed",
     challenges: [
@@ -150,7 +150,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     id: "daily-basics",
     name: "Daily Basics",
     description: "Must-know shortcuts for every session.",
-    level: "Beginner",
+    level: "Apprentice",
     category: "General",
     iconName: "ClipboardPaste",
     challenges: [
@@ -170,13 +170,13 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
   },
 
   // ==========================================
-  // LEVEL 2: INTERMEDIATE (Grid Surgeon)
+  // LEVEL 2: MASTER (Grid Surgeon)
   // ==========================================
   {
     id: "structural-management",
     name: "Structural Management",
     description: "Add, remove, and hide rows or columns.",
-    level: "Intermediate",
+    level: "Master",
     category: "Management",
     iconName: "Layers",
     challenges: [
@@ -194,7 +194,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     id: "formula-data-wizard",
     name: "Formula & Data Wizard",
     description: "Handle the logic of the spreadsheet.",
-    level: "Intermediate",
+    level: "Master",
     category: "Formulas",
     iconName: "FunctionSquare",
     challenges: [
@@ -215,7 +215,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     id: "data-entry-shortcuts",
     name: "Speed Data Entry",
     description: "Fill data faster than typing.",
-    level: "Intermediate",
+    level: "Master",
     category: "Data",
     iconName: "Wand2",
     challenges: [
@@ -230,13 +230,13 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
   },
 
   // ==========================================
-  // LEVEL 3: ADVANCED (No-Ribbon Master)
+  // LEVEL 3: NINJA (No-Ribbon Master)
   // ==========================================
   {
     id: "presentation-polish",
     name: "Presentation Polish",
     description: "Make it look professional using Alt sequences.",
-    level: "Advanced",
+    level: "Ninja",
     category: "Ribbon",
     iconName: "Palette",
     challenges: [
@@ -263,7 +263,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     id: "number-formatting",
     name: "Financial Formatting",
     description: "Format currencies, dates, and precision.",
-    level: "Advanced",
+    level: "Ninja",
     category: "Formatting",
     iconName: "DollarSign",
     challenges: [
@@ -281,7 +281,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     id: "expert-view-management",
     name: "Expert Controls",
     description: "Sorting, freezing, and pasting special.",
-    level: "Advanced",
+    level: "Ninja",
     category: "Data",
     iconName: "ShieldCheck",
     challenges: [

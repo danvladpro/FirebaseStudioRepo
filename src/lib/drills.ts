@@ -303,12 +303,12 @@ const autofitGrid = [
 const drills: Drill[] = [
   
 // ==========================================
-  // LEVEL 1: BEGINNER (Warp Speed)
+  // LEVEL 1: APPRENTICE (Warp Speed)
   // Focus: Navigation, Selection, & Basic Moves
   // ==========================================
   {
     id: 'strikethrough-undo',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Strikethrough Logic',
     description: 'Apply strikethrough and revert.',
     repetitions: 10, mistakeLimit: 2,
@@ -322,7 +322,7 @@ const drills: Drill[] = [
 
   {
     id: 'navigate-block-edges',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Navigate Data Block Edges',
     description: 'Jump around the perimeter of a table using Control.',
     repetitions: 10,
@@ -332,7 +332,7 @@ const drills: Drill[] = [
   },
   {
     id: 'copy-to-row-edge',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Jump and Paste',
     description: 'Move values across a row using jump navigation.',
     repetitions: 12, mistakeLimit: 2,
@@ -346,7 +346,7 @@ const drills: Drill[] = [
   },  
   {
     id: 'expand-selection-horizontally',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Expanding Selection',
     description: 'Select all 3 cells to your right.',
     repetitions: 12,mistakeLimit: 2,
@@ -355,7 +355,7 @@ const drills: Drill[] = [
   },
   {
     id: 'cycle-worksheets',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Sheet Surfing',
     description: 'Navigate between tabs efficiently.',
     repetitions: 10, mistakeLimit: 2,
@@ -364,7 +364,7 @@ const drills: Drill[] = [
   },
   {
     id: 'copy-to-next-sheet',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Cross-Sheet Copy',
     description: 'Move data across worksheets.',
     repetitions: 15,mistakeLimit: 2,
@@ -373,7 +373,7 @@ const drills: Drill[] = [
   },
   {
     id: 'select-and-italic-table',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Select and Italicize Table',
     description: 'Quickly select a whole data table and apply italic formatting.',
     repetitions: 10, mistakeLimit: 2,
@@ -382,7 +382,7 @@ const drills: Drill[] = [
   },
   {
     id: 'select-all-and-delete',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Select All and Delete',
     description: 'Quickly select all data in the current region and delete it.',
     repetitions: 12,mistakeLimit: 2,
@@ -391,7 +391,7 @@ const drills: Drill[] = [
   },
   {
     id: 'select-rectangular-range',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Select & Move Range',
     description: 'Capture a block and move it to another sheet.',
     repetitions: 10, mistakeLimit: 2,
@@ -400,7 +400,7 @@ const drills: Drill[] = [
   },
   {
     id: 'extend-row-selection-down',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Quick Multiple Row Selection',
     description: 'Highlight multiple full rows instantly.',
     repetitions: 12, mistakeLimit: 2,
@@ -410,7 +410,7 @@ const drills: Drill[] = [
 
   {
     id: 'scan-large-data',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Scan Large Dataset',
     description: 'Review big tables quickly using Page keys.',
     repetitions: 10,
@@ -420,7 +420,7 @@ const drills: Drill[] = [
   },
   {
     id: 'emphasize-and-save',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Emphasize & Save',
     description: 'Highlight important data and save your work.',
     repetitions: 12, mistakeLimit: 2,
@@ -429,7 +429,7 @@ const drills: Drill[] = [
   },
   {
     id: 'move-up-and-format',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Relocate & Style',
     description: 'Relocate and restyle content using arrow keys.',
     repetitions: 12, mistakeLimit: 2,
@@ -438,7 +438,7 @@ const drills: Drill[] = [
   },
   {
     id: 'emphasize-start-end',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Start and End Focus',
     description: 'Underline the very first and last cells using Home/End jumps.',
     repetitions: 10, mistakeLimit: 2,
@@ -447,7 +447,7 @@ const drills: Drill[] = [
   },
   {
     id: 'bold-header-delete-last',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Boundary Cleanup',
     description: 'Quick clean up of a small range headers and footers.',
     repetitions: 12, mistakeLimit: 2,
@@ -456,7 +456,7 @@ const drills: Drill[] = [
   },
   {
     id: 'extend-selection-last-cell',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'One-Shot Workspace Selection',
     description: 'Select everything from current cell to the end of data.',
     repetitions: 12, mistakeLimit: 2,
@@ -465,7 +465,7 @@ const drills: Drill[] = [
   },
   {
     id: 'find-and-cycle',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Find and Cycle Results',
     description: 'Practice finding a term and cycling through the results.',
     repetitions: 12,mistakeLimit: 2,
@@ -474,7 +474,7 @@ const drills: Drill[] = [
   },
   {
     id: 'replace-comma-with-dot',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Quick Replace',
     description: 'Learn the sequence to open Replace, enter values, and confirm.',
     repetitions: 12, mistakeLimit: 2,
@@ -485,7 +485,7 @@ const drills: Drill[] = [
 
   {
     id: 'select-all-copy-new-paste',
-    level: 'Beginner',
+    level: 'Apprentice',
     name: 'Workspace Duplication',
     description: 'Select all data, copy it, and paste it into a new context.',
     repetitions: 10,
@@ -496,14 +496,14 @@ const drills: Drill[] = [
 
 
   // ==========================================
-  // LEVEL 2: INTERMEDIATE (Grid Surgeon)
+  // LEVEL 2: MASTER (Grid Surgeon)
   // Focus: Data Tools, Selection, & Structure
   // ==========================================
   
 
   {
     id: 'convert-region-to-table',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Convert Region to Table',
     description: 'Turn a raw data block into a functional table.',
     repetitions: 14,
@@ -513,7 +513,7 @@ const drills: Drill[] = [
   },
   {
     id: 'copy-visible-rows',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Copy Visible Rows',
     description: 'Copy filtered data while ignoring hidden rows.',
     repetitions: 14,
@@ -523,7 +523,7 @@ const drills: Drill[] = [
   },
   {
     id: 'lock-formula-reference',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Lock Formula Reference',
     description: 'Lock a cell reference while editing a formula.',
     repetitions: 10,
@@ -533,7 +533,7 @@ const drills: Drill[] = [
   },
   {
     id: 'toggle-formula-view',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Toggle Formula View',
     description: 'Audit back-end formulas and return to values.',
     repetitions: 8,
@@ -543,7 +543,7 @@ const drills: Drill[] = [
   },
   {
     id: 'autosum-column',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'AutoSum Column',
     description: 'Trigger a quick calculation total.',
     repetitions: 14,
@@ -553,7 +553,7 @@ const drills: Drill[] = [
   },
   {
     id: 'kill-formulas',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Kill all Formulas in a range',
     description: 'Copy a range and paste it as values to kill the formulas.',
     repetitions: 12,
@@ -563,7 +563,7 @@ const drills: Drill[] = [
   },
   {
     id: 'repeat-formatting-f4',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Repeat Formatting (F4)',
     description: 'Use F4 to quickly apply the same style elsewhere.',
     repetitions: 12,
@@ -574,7 +574,7 @@ const drills: Drill[] = [
 
   {
     id: 'fill-current-region',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Fill Current Region',
     description: 'Select a block and fill every cell with a single value.',
     repetitions: 10,
@@ -584,7 +584,7 @@ const drills: Drill[] = [
   },
   {
     id: 'open-filter-dropdown',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Filter Navigation',
     description: 'Access the filter menu without a mouse.',
     repetitions: 10,
@@ -594,7 +594,7 @@ const drills: Drill[] = [
   },
   {
     id: 'insert-current-time',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Insert Current Time',
     description: 'Stamp time and underline it.',
     repetitions: 10,
@@ -604,7 +604,7 @@ const drills: Drill[] = [
   },
   {
     id: 'navigate-to-cell-f5',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'The "Go To" Jump',
     description: 'Use the "Go To" dialog for precision movement.',
     repetitions: 8,
@@ -614,7 +614,7 @@ const drills: Drill[] = [
   },
   {
     id: 'insert-row-undo',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Create Space ',
     description: 'Create some space between rows.',
     repetitions: 8,
@@ -624,7 +624,7 @@ const drills: Drill[] = [
   },
   {
     id: 'delete-full-row',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Delete Full Row',
     description: 'Remove unnecessary data rows structurally.',
     repetitions: 10,
@@ -634,7 +634,7 @@ const drills: Drill[] = [
   },
   {
     id: 'reset-general-format',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Reset Number Format',
     description: 'Normalize numeric formatting across a whole sheet.',
     repetitions: 10,
@@ -646,7 +646,7 @@ const drills: Drill[] = [
   },
   {
     id: 'format-date-time-cols',
-    level: 'Intermediate',
+    level: 'Master',
     name: 'Format Date & Time Columns',
     description: 'Format adjacent columns with distinct data types.',
     repetitions: 8,
@@ -658,12 +658,12 @@ const drills: Drill[] = [
   },
 
   // ==========================================
-  // LEVEL 3: ADVANCED (No-Ribbon Master)
+  // LEVEL 3: NINJA (No-Ribbon Master)
   // Focus: Alt Sequences & Advanced Layout
   // ==========================================
   {
     id: 'center-align-column',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Mastering Column Alignment',
     description: 'Align values cleanly using Alt-sequences.',
     repetitions: 12,
@@ -673,7 +673,7 @@ const drills: Drill[] = [
   },
   {
     id: 'merge-center-header',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Merged Headers',
     description: 'Create a professional centered header across a range.',
     repetitions: 10,
@@ -687,7 +687,7 @@ const drills: Drill[] = [
   },
   {
     id: 'apply-borders-sheet',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Global Borders',
     description: 'Add structure to a full dataset using the Home border menu.',
     repetitions: 10,
@@ -697,7 +697,7 @@ const drills: Drill[] = [
   },
   {
     id: 'thick-border-block',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Block Emphasis Border',
     description: 'Emphasize a horizontal data block with thick borders.',
     repetitions: 10,
@@ -707,7 +707,7 @@ const drills: Drill[] = [
   },
   {
     id: 'wrap-and-center-header',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Readable Headers',
     description: 'Improve header readability with Wrap Text and Alignment.',
     repetitions: 10,
@@ -722,7 +722,7 @@ const drills: Drill[] = [
   },
   {
     id: 'currency-decimal-cleanup',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Currency Precision',
     description: 'Adjust decimal precision for financial presentation.',
     repetitions: 10,
@@ -733,7 +733,7 @@ const drills: Drill[] = [
 
   {
     id: 'cleanup-percentages',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Clear Formatting & Repeat',
     description: 'Fix broken percentage formatting using Clear and Re-apply.',
     repetitions: 10,
@@ -743,7 +743,7 @@ const drills: Drill[] = [
   },
   {
     id: 'sort-dialog-full',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Sort Dialog Legacy',
     description: 'Access deep sorting options via legacy Alt shortcuts.',
     repetitions: 8,
@@ -754,7 +754,7 @@ const drills: Drill[] = [
 
   {
     id: 'autofit-columns',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'The Data Cleanup',
     description: 'Instantly fix column widths so no data is cut off.',
     repetitions: 10,
@@ -764,7 +764,7 @@ const drills: Drill[] = [
   },
   {
     id: 'highlight-header-fill',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Header Highlight',
     description: 'Open the fill color menu to highlight a selection.',
     repetitions: 8,
@@ -774,7 +774,7 @@ const drills: Drill[] = [
   },
   {
     id: 'group-rows-data',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Structural Grouping',
     description: 'Create collapsible row groups for large datasets.',
     repetitions: 8,
@@ -784,7 +784,7 @@ const drills: Drill[] = [
   },
   {
     id: 'format-cells-dialog',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'The Master Dialog',
     description: 'Access deep formatting options via the Format Cells window.',
     repetitions: 10,
@@ -794,7 +794,7 @@ const drills: Drill[] = [
   },
   {
     id: 'freeze-panes-view',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Lock Headers (Freeze)',
     description: 'Keep headers visible while scrolling down.',
     repetitions: 8,
@@ -804,7 +804,7 @@ const drills: Drill[] = [
   },
   {
     id: 'jump-clean-view',
-    level: 'Advanced',
+    level: 'Ninja',
     name: 'Jump & Whiteout',
     description: 'Jump to a new worksheet and immediately toggle off gridlines for a clean look.',
     repetitions: 8,
@@ -823,5 +823,3 @@ export const DRILL_SET: DrillSet = {
     
 
     
-
-

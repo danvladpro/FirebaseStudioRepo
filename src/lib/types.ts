@@ -140,7 +140,7 @@ export interface Challenge {
   dialogEffect?: DialogEffect; // For single-step challenges
 }
 
-export type ChallengeLevel = "Beginner" | "Intermediate" | "Advanced" | "Scenario" | "General";
+export type ChallengeLevel = "Apprentice" | "Master" | "Ninja" | "Scenario" | "General";
 
 export interface ChallengeSet {
   id: string;

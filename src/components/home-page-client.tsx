@@ -48,17 +48,17 @@ const iconMap: Record<string, ElementType> = {
 
 export const XP_CONFIG = {
   General: 10,
-  Beginner: 20,
-  Intermediate: 40,
-  Advanced: 60,
+  Apprentice: 20,
+  Master: 40,
+  Ninja: 60,
   Scenario: 100,
 };
 
-const LEVEL_THRESHOLDS = [
-    { level: 'Rookie', xp: 0, icon: <Image src="/Level0.svg" alt="Rookie" width={64} height={64} /> },
-    { level: 'Apprentice', xp: 50, icon: <Image src="/Level1.svg" alt="Apprentice" width={64} height={64} /> },
-    { level: 'Master', xp: 120, icon: <Image src="/Level2.svg" alt="Master" width={64} height={64} /> },
-    { level: 'Ninja', xp: 200, icon: <Image src="/Level3.svg" alt="Ninja" width={64} height={64} /> }
+const PROGRESSION_LEVELS = [
+    { name: 'Rookie', icon: <Image src="/Level0.svg" alt="Rookie" width={64} height={64} /> },
+    { name: 'Apprentice', icon: <Image src="/Level1.svg" alt="Apprentice" width={64} height={64} /> },
+    { name: 'Master', icon: <Image src="/Level2.svg" alt="Master" width={64} height={64} /> },
+    { name: 'Ninja', icon: <Image src="/Level3.svg" alt="Ninja" width={64} height={64} /> }
 ];
 
 export function HomePageClient() {
@@ -88,7 +88,7 @@ export function HomePageClient() {
   }, []);
 
   const levelCompletion = React.useMemo(() => {
-    if (!isLoaded) return { Beginner: false, Intermediate: false, Advanced: false };
+    if (!isLoaded) return { Apprentice: false, Master: false, Ninja: false };
 
     const checkLevelCompletion = (level: ChallengeLevel) => {
         const challengesForLevel = CHALLENGE_SETS.filter(c => c.level === level);
@@ -103,15 +103,12 @@ export function HomePageClient() {
     };
 
     return {
-        Beginner: checkLevelCompletion('Beginner'),
-        Intermediate: checkLevelCompletion('Intermediate'),
-        Advanced: checkLevelCompletion('Advanced'),
+        Apprentice: checkLevelCompletion('Apprentice'),
+        Master: checkLevelCompletion('Master'),
+        Ninja: checkLevelCompletion('Ninja'),
     };
   }, [isLoaded, stats]);
-
-  const isIntermediateLockedForPremium = !isAdmin && !levelCompletion.Beginner;
-  const isAdvancedLockedForPremium = !isAdmin && !levelCompletion.Intermediate;
-
+  
   const completedChallengesCount = React.useMemo(() => {
     return CHALLENGE_SETS.filter(set => stats[set.id]?.bestScore === 100).length;
   }, [stats]);
@@ -126,7 +123,29 @@ export function HomePageClient() {
   const completedItems = completedChallengesCount + completedDrillsCount;
   const allItemsPassed = totalItems > 0 && completedItems === totalItems;
   const certificateProgress = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
+  
+  const currentUserLevelName = React.useMemo(() => {
+    if (!isLoaded) return 'Rookie';
+    if (allItemsPassed) return 'Ninja';
+    if (levelCompletion.Master) return 'Master';
+    if (levelCompletion.Apprentice) return 'Apprentice';
+    return 'Rookie';
+  }, [isLoaded, levelCompletion, allItemsPassed]);
 
+  const nextUserLevelName = React.useMemo(() => {
+    switch (currentUserLevelName) {
+        case 'Rookie': return 'Apprentice';
+        case 'Apprentice': return 'Master';
+        case 'Master': return 'Ninja';
+        default: return null;
+    }
+  }, [currentUserLevelName]);
+
+  const currentUserProgression = PROGRESSION_LEVELS.find(l => l.name === currentUserLevelName) || PROGRESSION_LEVELS[0];
+
+
+  const isMasterLockedForPremium = !isAdmin && !levelCompletion.Apprentice;
+  const isNinjaLockedForPremium = !isAdmin && !levelCompletion.Master;
 
   const totalXP = React.useMemo(() => {
     const allCompletedIds = new Set([
@@ -143,16 +162,6 @@ export function HomePageClient() {
 
     return xp;
   }, [stats]);
-  
-  const currentLevelInfo = React.useMemo(() => {
-    return LEVEL_THRESHOLDS.slice().reverse().find(l => totalXP >= l.xp) || LEVEL_THRESHOLDS[0];
-  }, [totalXP]);
-
-  const nextLevelInfo = React.useMemo(() => {
-    return LEVEL_THRESHOLDS.find(l => totalXP < l.xp);
-  }, [totalXP]);
-  
-  const xpToGo = nextLevelInfo ? nextLevelInfo.xp - totalXP : 0;
   
   const groupedShortcutSets = CHALLENGE_SETS.reduce((acc, set) => {
     const level = set.level || 'Other';
@@ -172,7 +181,7 @@ export function HomePageClient() {
     }, {} as Record<string, Drill[]>);
   }, []);
   
-  const levelOrder: (keyof typeof groupedShortcutSets)[] = ['Beginner', 'Intermediate', 'Advanced'];
+  const levelOrder: (keyof typeof groupedShortcutSets)[] = ['Apprentice', 'Master', 'Ninja'];
 
   const getDashboardTitle = () => {
     if (userProfile?.name) return `Welcome back, ${userProfile.name}!`;
@@ -215,31 +224,34 @@ export function HomePageClient() {
                             <>
                                 <div className="flex items-center gap-4">
                                     <div className="flex-shrink-0">
-                                        {currentLevelInfo.icon}
+                                        {currentUserProgression.icon}
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="text-lg font-bold">{currentLevelInfo.level}</h3>
+                                        <h3 className="text-lg font-bold">{currentUserProgression.name}</h3>
                                         <p className="text-2xl font-bold text-primary">{totalXP} <span className="text-base font-medium text-muted-foreground">XP</span></p>
-                                        {nextLevelInfo && (
-                                            <p className="text-xs text-muted-foreground mt-1">{xpToGo} XP to {nextLevelInfo.level}</p>
+                                        {nextUserLevelName && (
+                                            <p className="text-xs text-muted-foreground mt-1">Complete {nextUserLevelName} to level up</p>
                                         )}
                                     </div>
                                 </div>
                                 <Separator />
-                                <div className="space-y-2">
-                                    {LEVEL_THRESHOLDS.map((level) => {
-                                        const isReached = totalXP >= level.xp;
-                                        const isNext = nextLevelInfo?.level === level.level;
+                                <div className="space-y-3">
+                                    {PROGRESSION_LEVELS.map((level) => {
+                                        const isAchieved = level.name === currentUserLevelName;
+                                        const isNext = level.name === nextUserLevelName;
                                         
                                         return (
-                                            <div key={level.level} className="flex items-center justify-between text-sm">
+                                            <div key={level.name} className={cn(
+                                                "p-2 rounded-lg transition-all flex items-center justify-between",
+                                                isAchieved && "border-2 border-emerald-500 bg-emerald-500/10",
+                                                isNext && "border-2 border-primary/30"
+                                            )}>
                                                 <span className={cn(
                                                     "font-medium",
-                                                    isReached ? "text-emerald-600" : isNext ? "text-foreground" : "text-muted-foreground/60"
+                                                    isAchieved ? "text-emerald-600" : isNext ? "text-foreground" : "text-muted-foreground/60"
                                                 )}>
-                                                    {level.level} {isReached ? "✔" : isNext ? "░░░░░░" : ""}
+                                                    {level.name}
                                                 </span>
-                                                <span className="text-xs text-muted-foreground">{level.xp} XP</span>
                                             </div>
                                         );
                                     })}
@@ -298,15 +310,15 @@ export function HomePageClient() {
                 {(levelOrder as ChallengeLevel[]).map(level => {
                     const challengesForLevel = groupedShortcutSets[level] || [];
                     const drillsForLevel = drillsByLevel[level] || [];
-                    if (!isPremium && !isAdmin && level !== 'Beginner') return null;
+                    if (!isPremium && !isAdmin && level !== 'Apprentice') return null;
 
                     if (challengesForLevel.length === 0 && drillsForLevel.length === 0) return null;
                     
                     const isLevelLocked = (() => {
                         if (isAdmin) return false;
-                        if (!isPremium) return false;
-                        if (level === 'Intermediate' && isIntermediateLockedForPremium) return true;
-                        if (level === 'Advanced' && isAdvancedLockedForPremium) return true;
+                        if (!isPremium && level !== 'Apprentice') return true;
+                        if (level === 'Master' && isMasterLockedForPremium) return true;
+                        if (level === 'Ninja' && isNinjaLockedForPremium) return true;
                         return false;
                     })();
 
@@ -318,14 +330,14 @@ export function HomePageClient() {
                     const completedXpForLevel = completedChallengesForLevel.reduce((acc, set) => acc + (XP_CONFIG[set.level] || 0), 0);
 
                     if (isLevelLocked) {
-                        const lockReason = `Complete all challenges and drills in the ${level === 'Intermediate' ? 'Beginner' : 'Intermediate'} level to unlock.`;
+                        const lockReason = `Complete all challenges and drills in the ${level === 'Master' ? 'Apprentice' : 'Master'} level to unlock.`;
                         return (
                             <TooltipProvider key={level}>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Card className="border-dashed bg-muted/50">
                                             <CardHeader className="flex flex-row items-center justify-between p-4">
-                                                <CardTitle className="text-xl capitalize text-muted-foreground">{level === 'Intermediate' ? '🥷 ' : '🏆 '}{level}</CardTitle>
+                                                <CardTitle className="text-xl capitalize text-muted-foreground">{level === 'Master' ? '🥷 ' : '🏆 '}{level}</CardTitle>
                                                 <Lock className="w-5 h-5 text-muted-foreground"/>
                                             </CardHeader>
                                         </Card>
@@ -342,7 +354,7 @@ export function HomePageClient() {
                         <Card key={level}>
                           <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
                               <CardTitle className="text-xl capitalize">
-                                  {level === 'Beginner' ? '⚔️ ' : level === 'Intermediate' ? '🥷 ' : level === 'Advanced' ? '🏆 ' : ''}
+                                  {level === 'Apprentice' ? '⚔️ ' : level === 'Master' ? '🥷 ' : level === 'Ninja' ? '🏆 ' : ''}
                                   {level}
                               </CardTitle>
                               <p className="text-sm font-bold text-muted-foreground">
@@ -533,7 +545,7 @@ export function HomePageClient() {
                                     </TooltipProvider>
 
                                     {areDrillsLockedForPremium && (
-                                        <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="absolute inset-0 flex items-center justify-center bg-card/10 backdrop-blur-sm">
                                             <div className="text-center p-4 bg-card/90 rounded-md border-2 border-dashed">
                                                 <p className="text-sm font-medium text-muted-foreground">Complete all challenges in this level to unlock drills.</p>
                                             </div>
