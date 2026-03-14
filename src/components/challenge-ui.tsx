@@ -438,16 +438,18 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const ActiveIcon = currentStep ? icons[currentStep.iconName] as ElementType : null;
 
   return (
-    <div className={cn("relative mx-auto w-full", isVirtualKeyboardMode ? "max-w-4xl" : "max-w-2xl")}>
-        <Button asChild variant="outline" className="absolute top-0 right-0 z-10">
-            <Link href="/dashboard">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Dashboard
-            </Link>
-        </Button>
+    <div className="mx-auto w-full max-w-4xl flex flex-col gap-4">
+        <div className="flex justify-end">
+            <Button asChild variant="outline">
+                <Link href="/dashboard">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Dashboard
+                </Link>
+            </Button>
+        </div>
 
         <Card className={cn(
-            "w-full transform transition-all duration-500 mt-12",
+            "w-full transform transition-all duration-500",
             feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
         )}>
         <CardHeader className="p-4 sm:p-6">
