@@ -66,6 +66,7 @@ export function HomePageClient() {
   const { user, userProfile, isPremium } = useAuth();
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = React.useState(false);
+  const isAdmin = userProfile?.preview === true;
 
   const SCROLL_POSITION_KEY = 'dashboardScrollPosition';
 
@@ -108,8 +109,8 @@ export function HomePageClient() {
     };
   }, [isLoaded, stats]);
 
-  const isIntermediateLockedForPremium = !levelCompletion.Beginner;
-  const isAdvancedLockedForPremium = !levelCompletion.Intermediate;
+  const isIntermediateLockedForPremium = !isAdmin && !levelCompletion.Beginner;
+  const isAdvancedLockedForPremium = !isAdmin && !levelCompletion.Intermediate;
 
   const completedChallengesCount = React.useMemo(() => {
     return CHALLENGE_SETS.filter(set => stats[set.id]?.bestScore === 100).length;
@@ -296,12 +297,13 @@ export function HomePageClient() {
                 {(levelOrder as ChallengeLevel[]).map(level => {
                     const challengesForLevel = groupedShortcutSets[level] || [];
                     const drillsForLevel = drillsByLevel[level] || [];
-                    if (!isPremium && level !== 'Beginner') return null;
+                    if (!isPremium && !isAdmin && level !== 'Beginner') return null;
 
                     if (challengesForLevel.length === 0 && drillsForLevel.length === 0) return null;
                     
                     const isLevelLocked = (() => {
-                        if (!isPremium) return false; // Handled by top-level map
+                        if (isAdmin) return false;
+                        if (!isPremium) return false;
                         if (level === 'Intermediate' && isIntermediateLockedForPremium) return true;
                         if (level === 'Advanced' && isAdvancedLockedForPremium) return true;
                         return false;
@@ -354,7 +356,7 @@ export function HomePageClient() {
                                             const bestScore = setStats?.bestScore;
                                             const isCompleted = bestScore === 100;
                                             const Icon = iconMap[set.iconName];
-                                            const isChallengeLocked = !isPremium && set.id !== 'rapid-selection';
+                                            const isChallengeLocked = !isPremium && !isAdmin && set.id !== 'rapid-selection';
                                             
                                             const cardContent = (
                                                 <Card key={set.id} className={cn(
@@ -450,6 +452,7 @@ export function HomePageClient() {
                                             const firstIncompleteDrillIndex = drillsForLevel.findIndex(d => stats[d.id]?.bestScore !== 100);
 
                                             const isDrillLocked = (() => {
+                                                if (isAdmin) return false;
                                                 if (!isPremium) {
                                                     return drill.id !== 'strikethrough-undo';
                                                 }
