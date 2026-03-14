@@ -5,7 +5,7 @@ import { Trophy, ArrowRight, Library, Layers, Lock, Sparkles, ClipboardCopy, Arr
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChallengeSet } from "@/lib/types";
+import { ChallengeSet, ChallengeLevel } from "@/lib/types";
 import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
@@ -86,7 +86,30 @@ export function HomePageClient() {
     }
   }, []);
 
-  const isLimited = !isPremium;
+  const levelCompletion = React.useMemo(() => {
+    if (!isLoaded) return { Beginner: false, Intermediate: false, Advanced: false };
+
+    const checkLevelCompletion = (level: ChallengeLevel) => {
+        const challengesForLevel = CHALLENGE_SETS.filter(c => c.level === level);
+        const drillsForLevel = DRILL_SET.drills.filter(d => d.level === level);
+
+        if (challengesForLevel.length === 0 && drillsForLevel.length === 0) return true;
+
+        const allChallengesPassed = challengesForLevel.every(c => stats[c.id]?.bestScore === 100);
+        const allDrillsPassed = drillsForLevel.every(d => stats[d.id]?.bestScore === 100);
+
+        return allChallengesPassed && allDrillsPassed;
+    };
+
+    return {
+        Beginner: checkLevelCompletion('Beginner'),
+        Intermediate: checkLevelCompletion('Intermediate'),
+        Advanced: checkLevelCompletion('Advanced'),
+    };
+  }, [isLoaded, stats]);
+
+  const isIntermediateLockedForPremium = !levelCompletion.Beginner;
+  const isAdvancedLockedForPremium = !levelCompletion.Intermediate;
 
   const completedChallengesCount = React.useMemo(() => {
     return CHALLENGE_SETS.filter(set => stats[set.id]?.bestScore === 100).length;
@@ -130,21 +153,14 @@ export function HomePageClient() {
   
   const xpToGo = nextLevelInfo ? nextLevelInfo.xp - totalXP : 0;
   
-  const getIsSetLocked = (set: ChallengeSet) => {
-    if (isPremium) return false;
-    return set.id !== 'warp-speed-navigation' && set.id !== 'rapid-selection';
-  };
-
-  const shortcutSetsToDisplay = CHALLENGE_SETS.map(set => ({ ...set, isLocked: getIsSetLocked(set) }));
-      
-  const groupedShortcutSets = shortcutSetsToDisplay.reduce((acc, set) => {
+  const groupedShortcutSets = CHALLENGE_SETS.reduce((acc, set) => {
     const level = set.level || 'Other';
     if (!acc[level]) {
       acc[level] = [];
     }
     acc[level].push(set);
     return acc;
-  }, {} as Record<string, typeof shortcutSetsToDisplay>);
+  }, {} as Record<string, ChallengeSet[]>);
 
   const drillsByLevel = React.useMemo(() => {
     return DRILL_SET.drills.reduce((acc, drill) => {
@@ -157,99 +173,6 @@ export function HomePageClient() {
   
   const levelOrder: (keyof typeof groupedShortcutSets)[] = ['Beginner', 'Intermediate', 'Advanced'];
 
-  const getSetLockTooltip = (set: ChallengeSet) => {
-    if (isLimited && set.id !== 'warp-speed-navigation' && set.id !== 'rapid-selection') return "Upgrade to Premium to unlock this set.";
-    return "";
-  };
-
-  const renderSetCard = (set: ChallengeSet & { isLocked: boolean }) => {
-    const Icon = iconMap[set.iconName];
-    const setStats = stats[set.id];
-    const bestScore = setStats?.bestScore;
-    const isCompleted = bestScore === 100;
-
-
-    const cardContent = (
-        <Card key={set.id} className={cn(
-            "flex flex-col h-full transition-transform duration-200", 
-            set.isLocked ? "bg-muted/50 text-muted-foreground border-dashed" : "hover:shadow-md hover:-translate-y-0.5"
-        )}>
-            <CardHeader className="flex flex-row items-start gap-1 p-4">
-                <Icon className={cn("w-10 h-10 mt-1", set.isLocked ? "text-muted-foreground" : "text-primary")} />
-                <div>
-                    <div className="flex items-center gap-2">
-                        <h3 className={cn("font-semibold text-lg", !set.isLocked && "text-card-foreground")}>{set.name}</h3>
-                            {isCompleted && !set.isLocked && (
-                            <Badge variant="completed">Passed</Badge>
-                            )}
-                    </div>
-                    <CardDescription>{set.description}</CardDescription>
-                </div>
-            </CardHeader>
-        
-            <CardContent className="p-4 pt-0 pb-2">
-                <p className="text-sm text-muted-foreground">{set.challenges.length} items</p>
-            </CardContent>
-        
-            <CardFooter className={cn("p-4 pt-2 mt-auto")}>
-                {set.isLocked ? (
-                    <Button className="w-full" variant={isLimited ? 'premium' : 'secondary'} onClick={() => isLimited && setIsPremiumModalOpen(true)} disabled={!isLimited}>
-                        {isLimited ? <Sparkles className="mr-2 h-4 w-4" /> : <Lock className="mr-2 h-4 w-4" />}
-                        {isLimited ? 'Go Premium' : 'Locked'}
-                    </Button>
-                ) : (
-                    <div className="flex flex-col gap-2 w-full">
-                        <Separator />
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                                <Button asChild size="sm" variant="secondary">
-                                    <Link href={`/flashcards/${set.id}`}>
-                                        <Layers className="mr-2 h-4 w-4" /> Flashcards
-                                    </Link>
-                                </Button>
-        
-                                <div className="flex h-9 items-center justify-center rounded-md border border-input bg-transparent px-4 py-2">
-                                    {isLoaded ? (
-                                        bestScore !== undefined && bestScore !== null ? (
-                                            <p className="font-semibold text-primary">{bestScore.toFixed(0)}%</p>
-                                        ) : (
-                                            <p className="text-sm font-medium text-muted-foreground">Score</p>
-                                        )
-                                    ) : (
-                                        <Skeleton className="h-5 w-16" />
-                                    )}
-                                </div>
-                            </div>
-        
-                            <Button asChild size="sm" variant="default">
-                                <Link href={`/challenge/${set.id}`}>
-                                    <Library className="mr-2 h-4 w-4" /> Learn / Challenge
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </CardFooter>
-        </Card>
-    );
-
-    if (set.isLocked) {
-        return (
-            <Tooltip key={set.id}>
-                <TooltipTrigger asChild>
-                    <div className="cursor-not-allowed h-full">
-                        {cardContent}
-                    </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>{getSetLockTooltip(set)}</p>
-                </TooltipContent>
-            </Tooltip>
-        );
-    }
-    return cardContent;
-  }
-  
   const getDashboardTitle = () => {
     if (userProfile?.name) return `Welcome back, ${userProfile.name}!`;
     if (isPremium) return "Unleash Your Shortcut Speed";
@@ -370,14 +293,44 @@ export function HomePageClient() {
                 </Card>
             </aside>
             <section className="lg:col-span-3 space-y-8">
-                {levelOrder.map(level => {
+                {(levelOrder as ChallengeLevel[]).map(level => {
                     const challengesForLevel = groupedShortcutSets[level] || [];
                     const drillsForLevel = drillsByLevel[level] || [];
+                    if (!isPremium && level !== 'Beginner') return null;
+
                     if (challengesForLevel.length === 0 && drillsForLevel.length === 0) return null;
+                    
+                    const isLevelLocked = (() => {
+                        if (!isPremium) return false; // Handled by top-level map
+                        if (level === 'Intermediate' && isIntermediateLockedForPremium) return true;
+                        if (level === 'Advanced' && isAdvancedLockedForPremium) return true;
+                        return false;
+                    })();
                     
                     const completedChallengesForLevel = challengesForLevel.filter(s => stats[s.id]?.bestScore === 100);
                     const xpForLevel = challengesForLevel.reduce((acc, set) => acc + (XP_CONFIG[set.level] || 0), 0);
                     const completedXpForLevel = completedChallengesForLevel.reduce((acc, set) => acc + (XP_CONFIG[set.level] || 0), 0);
+
+                    if (isLevelLocked) {
+                        const lockReason = `Complete all challenges and drills in the ${level === 'Intermediate' ? 'Beginner' : 'Intermediate'} level to unlock.`;
+                        return (
+                            <TooltipProvider key={level}>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Card className="border-dashed bg-muted/50">
+                                            <CardHeader className="flex flex-row items-center justify-between p-4">
+                                                <CardTitle className="text-xl capitalize text-muted-foreground">{level === 'Intermediate' ? '🥷 ' : '🏆 '}{level}</CardTitle>
+                                                <Lock className="w-5 h-5 text-muted-foreground"/>
+                                            </CardHeader>
+                                        </Card>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>{lockReason}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        );
+                    }
 
                     return (
                         <Card key={level}>
@@ -396,7 +349,92 @@ export function HomePageClient() {
                                 <h3 className="font-semibold text-lg text-muted-foreground mb-4">🎯 Challenges</h3>
                                 <TooltipProvider>
                                     <div className="grid sm:grid-cols-2 gap-6">
-                                        {challengesForLevel.map((set) => renderSetCard(set))}
+                                        {challengesForLevel.map((set) => {
+                                            const setStats = stats[set.id];
+                                            const bestScore = setStats?.bestScore;
+                                            const isCompleted = bestScore === 100;
+                                            const Icon = iconMap[set.iconName];
+                                            const isChallengeLocked = !isPremium && set.id !== 'rapid-selection';
+                                            
+                                            const cardContent = (
+                                                <Card key={set.id} className={cn(
+                                                    "flex flex-col h-full transition-transform duration-200", 
+                                                    isChallengeLocked ? "bg-muted/50 text-muted-foreground border-dashed" : "hover:shadow-md hover:-translate-y-0.5"
+                                                )}>
+                                                    <CardHeader className="flex flex-row items-start gap-1 p-4">
+                                                        <Icon className={cn("w-10 h-10 mt-1", isChallengeLocked ? "text-muted-foreground" : "text-primary")} />
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <h3 className={cn("font-semibold text-lg", !isChallengeLocked && "text-card-foreground")}>{set.name}</h3>
+                                                                    {isCompleted && !isChallengeLocked && (
+                                                                    <Badge variant="completed">Passed</Badge>
+                                                                    )}
+                                                            </div>
+                                                            <CardDescription>{set.description}</CardDescription>
+                                                        </div>
+                                                    </CardHeader>
+                                                
+                                                    <CardContent className="p-4 pt-0 pb-2">
+                                                        <p className="text-sm text-muted-foreground">{set.challenges.length} items</p>
+                                                    </CardContent>
+                                                
+                                                    <CardFooter className={cn("p-4 pt-2 mt-auto")}>
+                                                        {isChallengeLocked ? (
+                                                            <Button className="w-full" variant={'premium'} onClick={() => setIsPremiumModalOpen(true)}>
+                                                                <Sparkles className="mr-2 h-4 w-4" /> Go Premium
+                                                            </Button>
+                                                        ) : (
+                                                            <div className="flex flex-col gap-2 w-full">
+                                                                <Separator />
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center gap-1">
+                                                                        <Button asChild size="sm" variant="secondary">
+                                                                            <Link href={`/flashcards/${set.id}`}>
+                                                                                <Layers className="mr-2 h-4 w-4" /> Flashcards
+                                                                            </Link>
+                                                                        </Button>
+                                                
+                                                                        <div className="flex h-9 items-center justify-center rounded-md border border-input bg-transparent px-4 py-2">
+                                                                            {isLoaded ? (
+                                                                                bestScore !== undefined && bestScore !== null ? (
+                                                                                    <p className="font-semibold text-primary">{bestScore.toFixed(0)}%</p>
+                                                                                ) : (
+                                                                                    <p className="text-sm font-medium text-muted-foreground">Score</p>
+                                                                                )
+                                                                            ) : (
+                                                                                <Skeleton className="h-5 w-16" />
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                
+                                                                    <Button asChild size="sm" variant="default">
+                                                                        <Link href={`/challenge/${set.id}`}>
+                                                                            <Library className="mr-2 h-4 w-4" /> Learn / Challenge
+                                                                        </Link>
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </CardFooter>
+                                                </Card>
+                                            );
+                                            
+                                             if (isChallengeLocked) {
+                                                return (
+                                                    <Tooltip key={set.id}>
+                                                        <TooltipTrigger asChild>
+                                                            <div className="cursor-not-allowed h-full">
+                                                                {cardContent}
+                                                            </div>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Upgrade to Premium to unlock.</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                );
+                                            }
+                                            return cardContent;
+                                        })}
                                     </div>
                                 </TooltipProvider>
                             </div>
@@ -406,77 +444,84 @@ export function HomePageClient() {
                                     <h3 className="font-semibold text-lg text-muted-foreground mb-4">🧠 Drills</h3>
                                     <TooltipProvider>
                                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                                        {(() => {
-                                            const areChallengesForLevelPassed = completedChallengesForLevel.length === challengesForLevel.length;
+                                        {drillsForLevel.map((drill, index) => {
+                                            const areChallengesForLevelPassed = challengesForLevel.every(c => stats[c.id]?.bestScore === 100);
 
-                                            let firstIncompleteDrillIndex = drillsForLevel.findIndex(d => stats[d.id]?.bestScore !== 100);
-                                            if (firstIncompleteDrillIndex === -1) {
-                                                firstIncompleteDrillIndex = drillsForLevel.length; // All are complete
-                                            }
+                                            const firstIncompleteDrillIndex = drillsForLevel.findIndex(d => stats[d.id]?.bestScore !== 100);
 
-                                            return drillsForLevel.map((drill, index) => {
-                                                const isDrillPassed = stats[drill.id]?.bestScore === 100;
-                                                const isDrillLocked = !isPremium && (!areChallengesForLevelPassed || index > firstIncompleteDrillIndex);
-                                                const isNextDrill = !isDrillLocked && !isDrillPassed && index === firstIncompleteDrillIndex;
-                                                
-                                                const tooltipContent = isDrillLocked 
-                                                    ? (!areChallengesForLevelPassed 
-                                                        ? `Complete all '${level}' challenges to unlock drills.`
-                                                        : `Complete the previous drill to unlock.`)
-                                                    : drill.name;
+                                            const isDrillLocked = (() => {
+                                                if (!isPremium) {
+                                                    return drill.id !== 'strikethrough-undo';
+                                                }
+                                                // For premium, must pass challenges, then unlock sequentially
+                                                if (!areChallengesForLevelPassed) return true;
+                                                if (firstIncompleteDrillIndex === -1) return false; // all done
+                                                return index > firstIncompleteDrillIndex;
+                                            })();
 
-                                                const buttonClasses = cn(
-                                                    "h-auto p-2 w-full text-left flex flex-col items-start shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-150",
-                                                    isDrillLocked && "bg-muted text-muted-foreground",
-                                                    isNextDrill && "bg-yellow-500/10 text-yellow-600 border border-yellow-500 hover:bg-yellow-500/20",
-                                                    isDrillPassed && "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
-                                                );
-                                                
-                                                const buttonContent = isDrillLocked 
-                                                ? (
-                                                    <div className="text-center w-full">
-                                                        <span className="text-xs text-muted-foreground">Drill {index + 1}</span>
-                                                        <Lock className="w-4 h-4 mx-auto mt-1" />
+                                            const isDrillPassed = stats[drill.id]?.bestScore === 100;
+                                            const isNextDrill = !isDrillLocked && !isDrillPassed && (firstIncompleteDrillIndex === -1 || index === firstIncompleteDrillIndex);
+                                            
+                                            const tooltipContent = (() => {
+                                                if (isDrillLocked) {
+                                                    if (!isPremium) return "Upgrade to Premium to unlock more drills.";
+                                                    if (!areChallengesForLevelPassed) return `Complete all '${level}' challenges to unlock drills.`;
+                                                    return 'Complete the previous drill to unlock.';
+                                                }
+                                                return drill.name;
+                                            })();
+
+                                            const buttonClasses = cn(
+                                                "h-auto p-2 w-full text-left flex flex-col items-start shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-150",
+                                                isDrillLocked && "bg-muted text-muted-foreground",
+                                                isNextDrill && "bg-yellow-500/10 text-yellow-600 border border-yellow-500 hover:bg-yellow-500/20",
+                                                isDrillPassed && "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
+                                            );
+                                            
+                                            const buttonContent = isDrillLocked 
+                                            ? (
+                                                <div className="text-center w-full">
+                                                    <span className="text-xs text-muted-foreground">Drill {index + 1}</span>
+                                                    <Lock className="w-4 h-4 mx-auto mt-1" />
+                                                </div>
+                                            )
+                                            : (
+                                                <div className="text-left w-full">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className={cn("text-xs", isDrillPassed ? "text-emerald-600/80" : "text-muted-foreground")}>
+                                                            Drill {index + 1}
+                                                        </span>
+                                                        {isDrillPassed && <Check className="w-4 h-4 text-emerald-600" />}
                                                     </div>
-                                                )
-                                                : (
-                                                    <div className="text-left w-full">
-                                                        <div className="flex justify-between items-center">
-                                                            <span className={cn("text-xs", isDrillPassed ? "text-emerald-600/80" : "text-muted-foreground")}>
-                                                                Drill {index + 1}
-                                                            </span>
-                                                            {isDrillPassed && <Check className="w-4 h-4 text-emerald-600" />}
-                                                        </div>
-                                                        <span className="text-xs font-semibold block truncate">{drill.name}</span>
-                                                    </div>
-                                                );
+                                                    <span className="text-xs font-semibold block truncate">{drill.name}</span>
+                                                </div>
+                                            );
 
-                                                const buttonElement = isDrillLocked ? (
-                                                    <Button className={buttonClasses} disabled>
+                                            const buttonElement = isDrillLocked ? (
+                                                <Button className={buttonClasses} onClick={!isPremium ? () => setIsPremiumModalOpen(true) : undefined} disabled={isPremium}>
+                                                    {buttonContent}
+                                                </Button>
+                                            ) : (
+                                                <Button asChild className={buttonClasses}>
+                                                    <Link href={`/drills/${drill.id}?drillNumber=${index + 1}`}>
                                                         {buttonContent}
-                                                    </Button>
-                                                ) : (
-                                                    <Button asChild className={buttonClasses}>
-                                                        <Link href={`/drills/${drill.id}?drillNumber=${index + 1}`}>
-                                                            {buttonContent}
-                                                        </Link>
-                                                    </Button>
-                                                );
+                                                    </Link>
+                                                </Button>
+                                            );
 
-                                                return (
-                                                    <Tooltip key={drill.id}>
-                                                        <TooltipTrigger asChild>
-                                                            <div className={cn("w-full h-full", isDrillLocked && "cursor-not-allowed")}>
-                                                                {buttonElement}
-                                                            </div>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent side="top">
-                                                            <p className="text-xs">{tooltipContent}</p>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                )
-                                            });
-                                        })()}
+                                            return (
+                                                <Tooltip key={drill.id}>
+                                                    <TooltipTrigger asChild>
+                                                        <div className={cn("w-full h-full", isDrillLocked && "cursor-not-allowed")}>
+                                                            {buttonElement}
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        <p className="text-xs">{tooltipContent}</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            )
+                                        })}
                                     </div>
                                     </TooltipProvider>
                                 </div>
@@ -492,3 +537,5 @@ export function HomePageClient() {
     </>
   );
 }
+
+    
