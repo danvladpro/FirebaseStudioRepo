@@ -32,7 +32,7 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
   return (
     <>
       <AppHeader />
-      <main className="min-h-screen w-full flex flex-col items-center bg-muted/40 p-2 sm:p-4 pt-20 md:justify-center">
+      <main className="min-h-screen w-full flex flex-col items-center bg-muted/40 p-2 sm:p-4 pt-20">
         {mode === null ? (
             <div className="w-full max-w-4xl flex flex-col gap-4">
                 <div className="flex justify-end">

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
@@ -606,7 +607,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             </Button>
         </CardFooter>
         <div className={cn(
-            "flex items-center justify-center transition-colors",
+            "min-h-[310px] flex items-center justify-center transition-colors",
              isVirtualKeyboardMode && "border-t"
         )}>
             {isVirtualKeyboardMode && (
