@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
@@ -23,6 +22,7 @@ import { Badge } from "./ui/badge";
 import { SortDialog } from "./sort-dialog";
 import { FormatCellsDialog } from "./format-cells-dialog";
 import { FillColorDropdown } from "./fill-color-dropdown";
+import { FilterDropdown } from "./filter-dropdown";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
