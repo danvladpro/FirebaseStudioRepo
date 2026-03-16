@@ -1,3 +1,4 @@
+
 "use client";
 
 import { cn } from "@/lib/utils";
@@ -76,11 +77,11 @@ export function VisualGrid({
                 <table className="border-collapse table-fixed w-full min-w-max">
                     <thead>
                         <tr>
-                            <th className="p-1 w-8 sm:w-10"></th>
+                            <th className="p-0.5 w-7 sm:w-9"></th>
                             {visibleColumns.map((colIndex) => (
                                 <th
                                     key={colIndex}
-                                    className="p-1 text-[10px] sm:p-1.5 sm:text-xs font-bold text-center text-muted-foreground bg-muted rounded-t-sm"
+                                    className="p-0.5 text-[10px] sm:p-1 sm:text-xs font-bold text-center text-muted-foreground bg-muted rounded-t-sm"
                                     style={colWidths?.[colIndex] ? { width: `${colWidths[colIndex]}px` } : {}}
                                 >
                                     {String.fromCharCode(65 + colIndex)}
@@ -98,7 +99,7 @@ export function VisualGrid({
                             return (
                                 <tr key={rowIndex}>
                                     <td className={cn(
-                                        "p-1 text-[10px] sm:p-1.5 sm:text-xs font-bold text-center text-muted-foreground bg-muted rounded-l-sm",
+                                        "p-0.5 text-[10px] sm:p-1 sm:text-xs font-bold text-center text-muted-foreground bg-muted rounded-l-sm",
                                         isGrouped && "border-l-4 border-muted-foreground/50"
                                     )}>
                                         {rowIndex + 1}
@@ -163,7 +164,7 @@ export function VisualGrid({
                                                 colSpan={colSpan}
                                                 rowSpan={rowSpan}
                                                 className={cn(
-                                                    "p-1 text-xs sm:p-1.5 sm:text-sm truncate transition-colors duration-200",
+                                                    "p-0.5 text-[11px] sm:p-1 sm:text-xs truncate transition-colors duration-200",
                                                     showGridlines !== false && "border border-border",
                                                     ...getCellClasses()
                                                 )}

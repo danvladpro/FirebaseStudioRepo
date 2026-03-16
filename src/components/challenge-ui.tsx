@@ -443,9 +443,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         "w-full transform transition-all duration-500 flex flex-col flex-1",
         feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
     )}>
-    <CardHeader className="p-3 sm:p-4">
+    <CardHeader className="p-2 sm:p-3">
         <div className="flex justify-between items-start sm:items-center flex-col sm:flex-row gap-2 mb-2">
-            <CardTitle className="text-lg md:text-xl">{set.name}</CardTitle>
+            <CardTitle className="text-base md:text-lg">{set.name}</CardTitle>
             <div className="flex items-center gap-4 text-xs text-muted-foreground self-end sm:self-center">
             {mode === 'timed' ? (
                 <>
@@ -469,7 +469,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         <Progress value={progress} className="w-full" />
         <p className="text-xs text-muted-foreground text-center pt-1">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>
     </CardHeader>
-    <CardContent className="grid md:grid-cols-2 gap-4 md:gap-6 items-start p-3 sm:p-4 flex-1">
+    <CardContent className="grid md:grid-cols-2 gap-2 md:gap-4 items-start p-2 sm:p-3 flex-1">
          <div className="flex flex-col gap-4">
              {displayedGridState && (
                 <div className="relative">
@@ -503,8 +503,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         </div>
         <div className="flex flex-col gap-4">
             <div className="flex justify-center items-center gap-2">
-                {ActiveIcon && <ActiveIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
-                <h2 className="text-base md:text-lg font-semibold text-foreground">{currentChallenge.description}</h2>
+                {ActiveIcon && <ActiveIcon className="w-5 h-5 text-primary" />}
+                <h2 className="text-sm md:text-base font-semibold text-foreground">{currentChallenge.description}</h2>
             </div>
             <div className="flex flex-col gap-2 text-left">
                 {currentChallenge.steps.map((step, index) => {
@@ -517,7 +517,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                     <div key={index}>
                         <div
                         className={cn(
-                            "p-2 sm:p-3 rounded-lg transition-all",
+                            "p-1.5 sm:p-2 rounded-lg transition-all",
                             isCompleted ? "bg-green-500/10" : "bg-muted/50",
                             isActive && feedback !== 'incorrect' && !isAccentuating && "ring-2 ring-primary",
                             isActive && isAccentuating && "ring-2 ring-green-500",
@@ -551,13 +551,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                         </div>
 
                         {isActive && (
-                            <div className="flex items-center justify-center gap-2 h-8 mt-2">
-                            {feedback === 'correct' && <CheckCircle className="h-6 w-6 sm:h-8 sm:h-8 text-green-500" />}
-                            {feedback === 'incorrect' && <XCircle className="h-6 w-6 sm:h-8 sm:h-8 text-destructive" />}
+                            <div className="flex items-center justify-center gap-2 h-6 mt-2">
+                            {feedback === 'correct' && <CheckCircle className="h-5 w-5 sm:h-6 sm:h-6 text-green-500" />}
+                            {feedback === 'incorrect' && <XCircle className="h-5 w-5 sm:h-6 sm:h-6 text-destructive" />}
                             {feedback === null && (
                                 <div className="flex items-center gap-2 text-muted-foreground">
-                                {isVirtualKeyboardMode ? <MousePointerClick className="h-5 w-5 sm:h-6 sm:h-6" /> : <Keyboard className="h-5 w-5 sm:h-6 sm:h-6" />}
-                                <span className="text-sm sm:text-base">
+                                {isVirtualKeyboardMode ? <MousePointerClick className="h-4 w-4 sm:h-5 sm:h-5" /> : <Keyboard className="h-4 w-4 sm:h-5 sm:h-5" />}
+                                <span className="text-xs sm:text-sm">
                                     {isVirtualKeyboardMode ? "Click keys below" : "Use your keyboard"}
                                 </span>
                                 </div>
@@ -576,7 +576,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 </div>
             </div>
     </CardContent>
-    <CardFooter className="bg-muted/50 flex items-center justify-between gap-2 flex-wrap p-2 sm:p-3">
+    <CardFooter className="bg-muted/50 flex items-center justify-between gap-2 flex-wrap p-2">
         <div className="flex items-center justify-center gap-1.5 min-h-[28px]">
             {currentStep.isSequential ? (
             sequence.length > 0 ? (
@@ -595,12 +595,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         </Button>
     </CardFooter>
     <div className={cn(
-        "flex items-center justify-center transition-colors",
+        "flex items-center justify-center transition-colors min-h-0",
          isVirtualKeyboardMode && "border-t"
     )}>
         {isVirtualKeyboardMode && (
             <div className="p-2 w-full">
-                <div className="w-fit mx-auto scale-[0.65] sm:scale-[0.8] lg:scale-100 origin-center">
+                <div className="w-fit mx-auto scale-[0.65] sm:scale-[0.8] md:scale-100 origin-center">
                     <VisualKeyboard 
                         highlightedKeys={currentStep.isSequential ? sequence : Array.from(pressedKeys)}
                         onKeyClick={handleVirtualKeyClick}
