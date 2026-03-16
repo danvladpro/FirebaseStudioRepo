@@ -6,8 +6,9 @@ import { ChallengeSet } from "@/lib/types";
 import * as icons from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { BookOpen, Loader2, Timer } from "lucide-react";
+import { ArrowLeft, BookOpen, Loader2, Timer } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface ChallengePreloaderProps {
     challengeSet: ChallengeSet;
@@ -60,68 +61,76 @@ export function ChallengePreloader({ challengeSet, onStart }: ChallengePreloader
 
     return (
         <Card className="w-full max-w-2xl p-6">
-  <CardHeader className="p-0 mb-4">
-    <CardTitle className="text-2xl text-center">
-      {challengeSet.name}
-    </CardTitle>
-  </CardHeader>
+          <CardHeader className="p-0 mb-4">
+            <CardTitle className="text-2xl text-center">
+              {challengeSet.name}
+            </CardTitle>
+          </CardHeader>
 
-  <CardContent className="p-0">
-    <div className="flex flex-col items-center gap-4">
+          <CardContent className="p-0">
+            <div className="flex flex-col items-center gap-4">
 
-      {isLoading ? (
-        <div className="flex flex-col items-center gap-3 py-4">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="text-sm font-medium text-muted-foreground">
-            {status}
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-4 py-4">
-          
-          <Image
-            src="/NinjaTying.svg"
-            alt="Excel Ninja Typing"
-            width={220}
-            height={220}
-          />
-          <p className="text-2xl font-semibold text-green-500">
-            {status}
-          </p>
-        </div>
-      )}
+              {isLoading ? (
+                <div className="flex flex-col items-center gap-3 py-4">
+                  <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {status}
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4 py-4">
+                  
+                  <Image
+                    src="/NinjaTying.svg"
+                    alt="Excel Ninja Typing"
+                    width={220}
+                    height={220}
+                  />
+                  <p className="text-2xl font-semibold text-green-500">
+                    {status}
+                  </p>
+                </div>
+              )}
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-sm">
-        <Button
-          onClick={() => onStart('timed')}
-          disabled={isLoading}
-          size="lg"
-        >
-          {isLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Timer className="mr-2 h-4 w-4" />
-          )}
-          Timed Challenge
-        </Button>
+            <div className="w-full max-w-2xl flex flex-col md:flex-row gap-3">
+                <Button
+                    onClick={() => onStart('timed')}
+                    disabled={isLoading}
+                    size="lg"
+                    className="flex-1"
+                >
+                    {isLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <Timer className="mr-2 h-4 w-4" />
+                    )}
+                    Timed Challenge
+                </Button>
 
-        <Button
-          onClick={() => onStart('training')}
-          disabled={isLoading}
-          size="lg"
-          variant="secondary"
-        >
-          {isLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <BookOpen className="mr-2 h-4 w-4" />
-          )}
-          Training Mode
-        </Button>
-      </div>
-    </div>
-  </CardContent>
-</Card>
+                <Button
+                    onClick={() => onStart('training')}
+                    disabled={isLoading}
+                    size="lg"
+                    variant="secondary"
+                    className="flex-1"
+                >
+                    {isLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <BookOpen className="mr-2 h-4 w-4" />
+                    )}
+                    Training Mode
+                </Button>
+                <Button asChild size="lg" variant="outline" className="flex-1">
+                    <Link href="/dashboard">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Dashboard
+                    </Link>
+                </Button>
+            </div>
+            </div>
+          </CardContent>
+        </Card>
 
     );
 }

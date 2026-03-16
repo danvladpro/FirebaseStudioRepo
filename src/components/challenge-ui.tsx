@@ -444,27 +444,31 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
     )}>
     <CardHeader className="p-2 sm:p-3">
-        <div className="flex justify-between items-start sm:items-center flex-col sm:flex-row gap-2 mb-2">
+        <div className="flex justify-between items-center flex-wrap gap-y-2 mb-2">
             <CardTitle className="text-base md:text-lg">{set.name}</CardTitle>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground self-end sm:self-center">
-            {mode === 'timed' ? (
-                <>
-                    <div className={cn("flex items-center gap-1 transition-colors", countdown <= 3 && "text-destructive")}>
-                        Remaining:
-                        <span className="font-mono text-sm font-semibold">{countdown}s</span>
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                {mode === 'timed' ? (
+                    <>
+                        <div className={cn("flex items-center gap-1 transition-colors", countdown <= 3 && "text-destructive")}>
+                            Remaining: <span className="font-mono text-sm font-semibold">{countdown}s</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            Total: <Timer className="h-4 w-4" /> <span>{elapsedTime.toFixed(1)}s</span>
+                        </div>
+                    </>
+                ) : (
+                    <div className="flex items-center gap-2 text-primary font-semibold bg-primary/10 px-3 py-1 rounded-full">
+                        <BookOpen className="h-4 w-4" />
+                        <span>Training Mode</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                        Total: <Timer className="h-4 w-4" />
-                        <span>{elapsedTime.toFixed(1)}s</span>
-                    </div>
-                </>
-            ) : (
-                <div className="flex items-center gap-2 text-primary font-semibold bg-primary/10 px-3 py-1 rounded-full">
-                    <BookOpen className="h-4 w-4" />
-                    <span>Training Mode</span>
-                </div>
-            )}
-        </div>
+                )}
+                <Button asChild variant="outline" size="sm">
+                    <Link href="/dashboard">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Dashboard
+                    </Link>
+                </Button>
+            </div>
         </div>
         <Progress value={progress} className="w-full" />
         <p className="text-xs text-muted-foreground text-center pt-1">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>

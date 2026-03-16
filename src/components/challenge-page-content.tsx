@@ -2,9 +2,6 @@
 "use client";
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
 import { ChallengeSet } from '@/lib/types';
 import { AppHeader } from '@/components/app-header';
 import ChallengeUI from '@/components/challenge-ui';
@@ -34,27 +31,11 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
       <AppHeader />
       <main className="w-full flex flex-col items-center bg-muted/40 p-2 sm:p-4 min-h-screen pt-20">
         {mode === null ? (
-            <div className="w-full max-w-4xl flex flex-col gap-4">
-                <div className="flex justify-end">
-                    <Button asChild variant="outline">
-                        <Link href="/dashboard">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Dashboard
-                        </Link>
-                    </Button>
-                </div>
+            <div className="w-full max-w-4xl flex flex-col items-center gap-4">
                 <ChallengePreloader challengeSet={challengeSet} onStart={handleStart} />
             </div>
         ) : (
             <div className="w-full max-w-6xl mx-auto flex flex-col gap-2 flex-1">
-                 <div className="flex justify-end">
-                    <Button asChild variant="outline" size="sm">
-                        <Link href="/dashboard">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Dashboard
-                        </Link>
-                    </Button>
-                </div>
                 <ChallengeUI set={challengeSet} mode={mode} />
             </div>
         )}
