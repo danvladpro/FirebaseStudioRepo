@@ -32,7 +32,7 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
   return (
     <>
       <AppHeader />
-      <main className="min-h-screen w-full flex flex-col items-center bg-muted/40 p-2 sm:p-4 pt-20">
+      <main className="w-full flex flex-col items-center bg-muted/40 p-2 sm:p-4 mt-16">
         {mode === null ? (
             <div className="w-full max-w-4xl flex flex-col gap-4">
                 <div className="flex justify-end">
@@ -46,7 +46,15 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
                 <ChallengePreloader challengeSet={challengeSet} onStart={handleStart} />
             </div>
         ) : (
-            <div className="w-full flex flex-col gap-4">
+            <div className="w-full max-w-6xl mx-auto flex flex-col gap-2">
+                 <div className="flex justify-end">
+                    <Button asChild variant="outline" size="sm">
+                        <Link href="/dashboard">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to Dashboard
+                        </Link>
+                    </Button>
+                </div>
                 <ChallengeUI set={challengeSet} mode={mode} />
             </div>
         )}
