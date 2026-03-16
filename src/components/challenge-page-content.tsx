@@ -28,10 +28,12 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
   return (
     <div className="flex flex-col min-h-screen bg-muted/40">
       <AppHeader />
-      <main className="flex-1 flex flex-col items-center justify-center p-2 sm:p-4">
+      <main className="flex-1 flex flex-col items-center p-2 sm:p-4 pt-20">
         {mode === null ? (
-            <div className="w-full max-w-4xl flex flex-col items-center gap-4">
-                <ChallengePreloader challengeSet={challengeSet} onStart={handleStart} />
+            <div className="flex-1 w-full flex items-center justify-center">
+              <div className="w-full max-w-4xl flex flex-col items-center gap-4">
+                  <ChallengePreloader challengeSet={challengeSet} onStart={handleStart} />
+              </div>
             </div>
         ) : (
             <div className="w-full max-w-6xl mx-auto flex flex-col gap-2 flex-1">
