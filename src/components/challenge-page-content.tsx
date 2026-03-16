@@ -29,7 +29,7 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
   return (
     <div className="bg-muted/40">
       <AppHeader />
-      <main className="min-h-screen flex flex-col items-center p-2 sm:p-4 pt-20">
+      <main className="h-screen flex flex-col items-center p-2 sm:p-4 pt-16">
         {mode === null ? (
             <div className="flex-1 w-full flex items-center justify-center">
               <div className="w-full max-w-4xl flex flex-col items-center gap-4">
