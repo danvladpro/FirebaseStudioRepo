@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -27,9 +26,9 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
   };
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-muted/40">
       <AppHeader />
-      <main className="w-full flex flex-col items-center bg-muted/40 p-2 sm:p-4 min-h-screen pt-20">
+      <main className="flex-1 flex flex-col items-center justify-center p-2 sm:p-4">
         {mode === null ? (
             <div className="w-full max-w-4xl flex flex-col items-center gap-4">
                 <ChallengePreloader challengeSet={challengeSet} onStart={handleStart} />
@@ -40,6 +39,6 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
             </div>
         )}
       </main>
-    </>
+    </div>
   );
 }
