@@ -136,7 +136,7 @@ export function VisualKeyboard({ highlightedKeys = [], onKeyClick }: VisualKeybo
                     isClickable && "cursor-pointer hover:bg-primary/80 hover:border-primary/60 active:translate-y-px"
                 )}
                 style={{
-                    width: isSpecialLayout ? '2.5rem' : (key === ' ' ? '20rem' : width || '2rem'),
+                    width: isSpecialLayout ? '2.5rem' : (width || '2rem'),
                 }}
             >
                 <span className="px-0.5">{display}</span>
