@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
@@ -447,7 +448,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     <CardHeader className="p-2 sm:p-3">
         <div className="flex justify-between items-center flex-wrap gap-y-2 mb-2">
             <CardTitle className="text-base md:text-lg">{set.name}</CardTitle>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
                 {mode === 'timed' ? (
                     <>
                         <div className={cn("flex items-center gap-1 transition-colors", countdown <= 3 && "text-destructive")}>
@@ -475,7 +476,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         <p className="text-xs text-muted-foreground text-center pt-1">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>
     </CardHeader>
     <CardContent className="grid md:grid-cols-2 gap-2 md:gap-4 items-start p-2 sm:p-3 flex-1 min-h-0">
-         <div className="flex flex-col gap-4">
+         <div className="flex flex-col gap-4 min-w-0">
              {displayedGridState && (
                 <div className="relative">
                     <FindReplaceDialog state={finalDialogState} isSuccess={feedback === 'correct'} />
@@ -506,10 +507,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 </div>
             )}
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 min-w-0">
             <div className="flex justify-center items-center gap-2">
                 {ActiveIcon && <ActiveIcon className="w-5 h-5 text-primary" />}
-                <h2 className="text-sm md:text-base font-semibold text-foreground">{currentChallenge.description}</h2>
+                <h2 className="text-sm md:text-base font-semibold text-foreground text-center">{currentChallenge.description}</h2>
             </div>
             <div className="flex flex-col gap-2 text-left">
                 {currentChallenge.steps.map((step, index) => {
