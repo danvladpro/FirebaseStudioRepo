@@ -479,7 +479,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             </p>
         </div>
     </CardHeader>
-    <CardContent className="grid md:grid-cols-2 gap-2 md:gap-4 items-start p-2 sm:p-3 flex-1 min-h-0">
+    <CardContent className="grid md:grid-cols-2 gap-4 items-start p-2 sm:p-3 flex-1 min-h-0">
          <div className="flex flex-col gap-4 min-w-0">
              {displayedGridState && (
                 <div className="relative">
@@ -611,11 +611,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         )}
     >
         {isVirtualKeyboardMode && (
-            <div className="w-full max-w-[750px] h-full max-h-[250px] flex items-center justify-center aspect-[3/1]">
-                <VisualKeyboard 
-                    highlightedKeys={currentStep.isSequential ? sequence : Array.from(pressedKeys)}
-                    onKeyClick={handleVirtualKeyClick}
-                />
+           <div className="w-full h-full max-h-[250px] flex items-center justify-center">
+                <div className="w-auto h-full aspect-[3/1]">
+                    <VisualKeyboard
+                        highlightedKeys={currentStep.isSequential ? sequence : Array.from(pressedKeys)}
+                        onKeyClick={handleVirtualKeyClick}
+                    />
+                </div>
             </div>
         )}
     </div>
