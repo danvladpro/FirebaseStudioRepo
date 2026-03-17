@@ -473,7 +473,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             </div>
         </div>
         <div className="relative w-full">
-            <Progress value={progress} className="w-full" />
+            <Progress value={progress} className="w-full h-5" />
             <p className="absolute inset-0 flex items-center justify-center text-xs text-primary-foreground font-semibold">
                 {isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}
             </p>
