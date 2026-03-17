@@ -1,5 +1,5 @@
 
-import { ChallengeSet, ChallengeLevel, Challenge, GridState, DialogEffect } from "./types";
+import { ChallengeSet, ChallengeLevel, Challenge, GridState } from "./types";
 
 const singleStep = (challenge: Omit<Challenge, 'steps'>): Challenge => ({
     ...challenge,

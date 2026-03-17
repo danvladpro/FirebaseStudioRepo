@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useCallback, useRef, ElementType } from "react";
@@ -439,10 +438,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const ActiveIcon = currentStep ? icons[currentStep.iconName] as ElementType : null;
 
   return (
-    <Card className={cn(
-        "w-full transform transition-all duration-500 flex flex-col flex-1",
+    <Card
+    className={cn(
+        "w-full transform transition-all duration-500 flex flex-col flex-1 min-h-0",
         feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
-    )}>
+    )}
+    >
     <CardHeader className="p-2 sm:p-3">
         <div className="flex justify-between items-center flex-wrap gap-y-2 mb-2">
             <CardTitle className="text-base md:text-lg">{set.name}</CardTitle>
@@ -473,7 +474,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         <Progress value={progress} className="w-full" />
         <p className="text-xs text-muted-foreground text-center pt-1">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>
     </CardHeader>
-    <CardContent className="grid md:grid-cols-2 gap-2 md:gap-4 items-start p-2 sm:p-3 flex-1">
+    <CardContent className="grid md:grid-cols-2 gap-2 md:gap-4 items-start p-2 sm:p-3 flex-1 min-h-0">
          <div className="flex flex-col gap-4">
              {displayedGridState && (
                 <div className="relative">
@@ -598,13 +599,15 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             Skip <ChevronsRight className="ml-2 h-4 w-4" />
         </Button>
     </CardFooter>
-    <div className={cn(
-        "flex items-center justify-center transition-colors min-h-0",
-         isVirtualKeyboardMode && "border-t"
-    )}>
+    <div
+        className={cn(
+            "flex items-center justify-center transition-colors min-h-0 overflow-hidden",
+            isVirtualKeyboardMode && "border-t p-1"
+        )}
+        >
         {isVirtualKeyboardMode && (
-            <div className="p-2 w-full">
-                <div className="w-fit mx-auto scale-[0.65] sm:scale-[0.8] md:scale-100 origin-center">
+            <div className="w-full">
+                <div className="w-fit mx-auto scale-[0.6] sm:scale-[0.7] md:scale-[0.85] lg:scale-100 origin-center transition-transform duration-300">
                     <VisualKeyboard 
                         highlightedKeys={currentStep.isSequential ? sequence : Array.from(pressedKeys)}
                         onKeyClick={handleVirtualKeyClick}
