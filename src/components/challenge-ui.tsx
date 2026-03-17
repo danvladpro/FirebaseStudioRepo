@@ -472,8 +472,12 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 </Button>
             </div>
         </div>
-        <Progress value={progress} className="w-full" />
-        <p className="text-xs text-muted-foreground text-center pt-1">{isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}</p>
+        <div className="relative w-full">
+            <Progress value={progress} className="w-full" />
+            <p className="absolute inset-0 flex items-center justify-center text-xs text-primary-foreground font-semibold">
+                {isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}
+            </p>
+        </div>
     </CardHeader>
     <CardContent className="grid md:grid-cols-2 gap-2 md:gap-4 items-start p-2 sm:p-3 flex-1 min-h-0">
          <div className="flex flex-col gap-4 min-w-0">
@@ -602,18 +606,16 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </CardFooter>
     <div
         className={cn(
-            "flex items-center justify-center transition-colors min-h-0 overflow-hidden",
-            isVirtualKeyboardMode && "border-t p-1"
+            "flex-1 items-center justify-center transition-colors min-h-0 overflow-hidden flex",
+            isVirtualKeyboardMode && "border-t p-1 sm:p-2"
         )}
-        >
+    >
         {isVirtualKeyboardMode && (
-            <div className="w-full">
-                <div className="w-fit mx-auto scale-[0.6] sm:scale-[0.7] md:scale-[0.85] lg:scale-100 origin-center transition-transform duration-300">
-                    <VisualKeyboard 
-                        highlightedKeys={currentStep.isSequential ? sequence : Array.from(pressedKeys)}
-                        onKeyClick={handleVirtualKeyClick}
-                    />
-                </div>
+            <div className="w-full max-w-[750px] h-full max-h-[250px] flex items-center justify-center aspect-[3/1]">
+                <VisualKeyboard 
+                    highlightedKeys={currentStep.isSequential ? sequence : Array.from(pressedKeys)}
+                    onKeyClick={handleVirtualKeyClick}
+                />
             </div>
         )}
     </div>
