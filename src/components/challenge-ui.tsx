@@ -473,7 +473,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             </div>
         </div>
         <div className="relative w-full">
-            <Progress value={progress} className="w-full h-5" />
+            <Progress value={progress} className="w-full" />
             <p className="absolute inset-0 flex items-center justify-center text-xs text-primary-foreground font-semibold">
                 {isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}
             </p>
@@ -587,16 +587,24 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             </div>
     </CardContent>
     <CardFooter className="bg-muted/50 flex items-center justify-between gap-2 flex-wrap p-2">
-        <div className="flex items-center justify-center gap-1.5 min-h-[28px]">
+        <div className="flex-1 flex items-center justify-center gap-1.5 min-h-[28px]">
             {currentStep.isSequential ? (
             sequence.length > 0 ? (
                 sequence.map((key, index) => <KeyDisplay key={index} value={key} />)
-            ) : <span className="text-muted-foreground text-xs">Press keys in sequence...</span>
+            ) : (
+                <div className="flex items-center gap-2 font-semibold text-muted-foreground text-sm">
+                    <Keyboard className="h-5 w-5" />
+                    <span>Press keys in sequence...</span>
+                </div>
+            )
             ) : (
             pressedKeys.size > 0 ? (
                 Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} />)
             ) : (
-                <span className="text-muted-foreground text-xs">Press the required keys...</span>
+                <div className="flex items-center gap-2 font-semibold text-muted-foreground text-sm">
+                    <Keyboard className="h-5 w-5" />
+                    <span>Press the required keys...</span>
+                </div>
             )
             )}
         </div>
@@ -611,13 +619,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         )}
     >
         {isVirtualKeyboardMode && (
-           <div className="w-full h-full max-h-[250px] flex items-center justify-center">
-                <div className="w-auto h-full aspect-[3/1]">
-                    <VisualKeyboard
-                        highlightedKeys={currentStep.isSequential ? sequence : Array.from(pressedKeys)}
-                        onKeyClick={handleVirtualKeyClick}
-                    />
-                </div>
+            <div className="w-full max-w-[750px] h-full max-h-[250px] flex items-center justify-center aspect-[3/1]">
+                <VisualKeyboard 
+                    highlightedKeys={currentStep.isSequential ? sequence : Array.from(pressedKeys)}
+                    onKeyClick={handleVirtualKeyClick}
+                />
             </div>
         )}
     </div>
