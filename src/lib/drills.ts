@@ -254,16 +254,6 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
 });
 
 
-const defaultDrillGridState = createGridState([
-  ['Value to Copy', ''],
-  ['', ''],
-  ['', ''],
-  ['', ''],
-  ['', ''],
-]);
-
-
-
 const bigTable = [['ID', 'Name', 'Date', 'Amount'],
     ['1', 'Project A', '2026-01-01', '500.75'],
     ['2', 'Project B', '2026-01-05', '1200.50'],
