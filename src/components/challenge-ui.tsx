@@ -260,6 +260,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setPressedKeys(new Set());
     setSequence([]);
 
+    const currentStep = currentChallenge?.steps[currentStepIndex];
+    const showsDialog = currentStep?.dialogEffect?.action.startsWith('SHOW_');
+    const delay = showsDialog ? 1200 : 400;
+
     setTimeout(() => {
         const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
         if (isLastStep) {
@@ -270,7 +274,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         
         setFeedback(null);
         setIsAccentuating(false);
-    }, 400);
+    }, delay);
   }, [currentStepIndex, currentChallenge, moveToNextChallenge]);
 
   const handleSkip = useCallback(() => {

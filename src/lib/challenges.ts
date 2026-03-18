@@ -141,34 +141,15 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Navigation",
     iconName: "Zap",
     challenges: [
-      {
-          description: "Navigate within a worksheet.",
-          initialGridState: createGridState(leanTable, 0, 2, 3, 20), // Use a table with more rows for scrolling
-          steps: [
-              { description: "Jump to: Most Left cell", keys: ["control", "arrowleft"], iconName: "MoveLeft", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } } },
-              { description: "Jump to: Beginning of row", keys: ["home"], iconName: "Home", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } } },
-              { description: "Jump to: Top-Left (A1)", keys: ["control", "home"], iconName: "PanelTopOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } } },
-              { description: "Jump to: Last Used Cell", keys: ["control", "end"], iconName: "PanelBottomOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } },
-              { description: "Scroll: one Page Down", keys: ["pagedown"], iconName: "ArrowDownToLine", gridEffect: { action: 'SCROLL_PAGE_DOWN' } },
-              { description: "Scroll: one Page Up", keys: ["pageup"], iconName: "ArrowUpToLine", gridEffect: { action: 'SCROLL_PAGE_UP' } },
-          ]
-      },
-      {
-          description: "Navigate between worksheets.",
-          initialGridState: createMultiSheetGridState(0),
-          steps: [
-              { description: "Go to: Next WorkSheet", keys: ["control", "pagedown"], iconName: "ArrowRightToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
-              { description: "Go to: Previous sheet", keys: ["control", "pageup"], iconName: "ArrowLeftToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
-          ]
-      },
-      {
-          description: "Open and close the 'Go To' dialog",
-          initialGridState: createGridState(bigTable, 0, 2, 0),
-          steps: [
-              { description: "Open 'Go To' dialog", keys: ["f5"], iconName: "Locate", dialogEffect: { action: 'SHOW_GO_TO' } },
-              { description: "Close 'Go To' dialog", keys: ["esc"], iconName: "X", dialogEffect: { action: 'HIDE_GO_TO' } }
-          ]
-      }
+      singleStep({ description: "Jump to most left cell", keys: ["control", "arrowleft"], iconName: "MoveLeft", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
+      singleStep({ description: "Jump to beginning of row", keys: ["home"], iconName: "Home", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
+      singleStep({ description: "Jump to top-left (A1)", keys: ["control", "home"], iconName: "PanelTopOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
+      singleStep({ description: "Jump to last used cell", keys: ["control", "end"], iconName: "PanelBottomOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } }, initialGridState: createGridState(leanTable, 0, 0, 0, 20) }),
+      singleStep({ description: "Scroll one page down", keys: ["pagedown"], iconName: "ArrowDownToLine", gridEffect: { action: 'SCROLL_PAGE_DOWN' }, initialGridState: createGridState(leanTable, 0, 2, 3, 20) }),
+      singleStep({ description: "Scroll one page up", keys: ["pageup"], iconName: "ArrowUpToLine", gridEffect: { action: 'SCROLL_PAGE_UP' }, initialGridState: createGridState(leanTable, 0, 10, 3, 20) }),
+      singleStep({ description: "Go to next worksheet", keys: ["control", "pagedown"], iconName: "ArrowRightToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } }, initialGridState: createMultiSheetGridState(0) }),
+      singleStep({ description: "Go to previous worksheet", keys: ["control", "pageup"], iconName: "ArrowLeftToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } }, initialGridState: createMultiSheetGridState(1) }),
+      singleStep({ description: "Open 'Go To' dialog", keys: ["f5"], iconName: "Locate", dialogEffect: { action: 'SHOW_GO_TO' }, initialGridState: createGridState(bigTable, 0, 2, 0) }),
     ],
   },
   {
@@ -179,17 +160,11 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Selection",
     iconName: "MousePointerSquareDashed",
     challenges: [
-      {
-          description: "Select data ranges without using the mouse.",
-          initialGridState: createGridState(bigTable,0,2,0),
-          steps: [
-              { description: "Extend selection", keys: ["shift", "arrowright"], iconName: "MoveRight", gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
-              { description: "Select to edge", keys: ["control", "shift", "arrowright"], iconName: "ArrowRight", gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
-              { description: "Select current region", keys: ["control", "shift", "8"], iconName: "AppWindow", gridEffect: { action: 'SELECT_ALL' } },
-              { description: "Select entire sheet", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' } },
-              { description: "Select to last cell", keys: ["control", "shift", "end"], iconName: "ArrowDownRightSquare", gridEffect: { action: 'SELECT_TO_END' } },
-          ]
-      }
+      singleStep({ description: "Extend selection right", keys: ["shift", "arrowright"], iconName: "MoveRight", gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Select to edge right", keys: ["control", "shift", "arrowright"], iconName: "ArrowRight", gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Select current region", keys: ["control", "shift", "8"], iconName: "AppWindow", gridEffect: { action: 'SELECT_ALL' }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Select entire sheet", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Select to last cell", keys: ["control", "shift", "end"], iconName: "ArrowDownRightSquare", gridEffect: { action: 'SELECT_TO_END' }, initialGridState: createGridState(bigTable,0,2,0) }),
     ],
   },
   {
@@ -210,22 +185,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Italicize", keys: ["control", "i"], iconName: "Italic", gridEffect: { action: 'APPLY_STYLE_ITALIC' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Underline", keys: ["control", "u"], iconName: "Underline", gridEffect: { action: 'APPLY_STYLE_UNDERLINE' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Strikethrough", keys: ["control", "5"], iconName: "Strikethrough", gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' }, initialGridState: createGridState(bigTable,0,2,0) }),
-      {
-          description: "Open and close the Find dialog",
-          initialGridState: createGridState(bigTable,0,2,0),
-          steps: [
-              { description: "Open Find", keys: ["control", "f"], iconName: "Search", dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } } },
-              { description: "Close Find", keys: ["esc"], iconName: "X", dialogEffect: { action: 'HIDE' } }
-          ]
-      },
-      {
-          description: "Open and close the Replace dialog",
-          initialGridState: createGridState(bigTable,0,2,0),
-          steps: [
-              { description: "Open Replace", keys: ["control", "h"], iconName: "Replace", dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } } },
-              { description: "Close Replace", keys: ["esc"], iconName: "X", dialogEffect: { action: 'HIDE' } }
-          ]
-      },
+      singleStep({ description: "Open Find dialog", keys: ["control", "f"], iconName: "Search", dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Open Replace dialog", keys: ["control", "h"], iconName: "Replace", dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } }, initialGridState: createGridState(bigTable,0,2,0) }),
     ],
   },
 
@@ -266,16 +227,9 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Name Manager", keys: ["control", "f3"], iconName: "BookUser", initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Create from selection", keys: ["control", "shift", "f3"], iconName: "CaseUpper", initialGridState: createGridState(bigTable,0,2,0) }),
-      {
-        description: "Create a table from a data range",
-        initialGridState: createGridState(bigTable,0,2,0),
-        steps: [
-            { description: "Open Create Table dialog", keys: ["control", "t"], iconName: "Table", dialogEffect: { action: 'SHOW_CREATE_TABLE' } },
-            { description: "Confirm table creation", keys: ["enter"], iconName: "Check", dialogEffect: { action: 'HIDE_CREATE_TABLE' }, gridEffect: { action: 'APPLY_TABLE_FORMATTING' }}
-        ]
-      },
+      singleStep({ description: "Create table from range", keys: ["control", "t"], iconName: "Table", dialogEffect: { action: 'SHOW_CREATE_TABLE' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Apply Filter", keys: ["control", "shift", "l"], iconName: "Filter", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Filter dropdown", keys: ["alt", "arrowdown"], iconName: "ChevronDownSquare", initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Filter dropdown", keys: ["alt", "arrowdown"], iconName: "ChevronDownSquare", initialGridState: createGridState(bigTable,0,2,0), dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' } }),
     ],
   },
   {
@@ -312,15 +266,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Wrap Text", keys: ["alt", "h", "w"], iconName: "WrapText", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } }),
       singleStep({ description: "Apply all borders", keys: ["alt", "h", "b", "a"], iconName: "Grid", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } }),
       singleStep({ description: "Thick box border", keys: ["alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } }),
-      {
-        description: "Fill Color",
-        initialGridState: createGridState(bigTable,0,2,0),
-        steps: [
-          { description: 'Open Fill Color Menu', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true, dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' } },
-          { description: 'Select a color', keys: ['arrowright'], iconName: 'ArrowRight', dialogEffect: { action: 'MOVE_FILL_COLOR_HIGHLIGHT', payload: 'right' } },
-          { description: 'Apply the color', keys: ['enter'], iconName: 'Check', dialogEffect: { action: 'HIDE_FILL_COLOR_DROPDOWN' }, gridEffect: { action: 'APPLY_FILL_COLOR' } }
-        ]
-      },
+      singleStep({ description: 'Open Fill Color Menu', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true, dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Clear formatting", keys: ["alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Auto-fit width", keys: ["alt", "h", "o", "i"], iconName: "ArrowUpNarrowWide", isSequential: true, initialGridState: createAutofitGridState(), gridEffect: { action: 'AUTOFIT_COLUMNS' } }),
       singleStep({ description: "Set column width", keys: ["alt", "h", "o", "w"], iconName: "Columns", isSequential: true, initialGridState: createGridState(bigTable,0,2,0) }),
@@ -341,14 +287,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Time format", keys: ["control", "shift", "2"], iconName: "Clock", initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Increase decimal", keys: ["alt", "h", "0"], iconName: "PlusCircle", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'INCREASE_DECIMAL' } }),
       singleStep({ description: "Decrease decimal", keys: ["alt", "h", "9"], iconName: "MinusCircle", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'DECREASE_DECIMAL' } }),
-      {
-          description: "Open and close the Format Cells dialog",
-          initialGridState: createGridState(bigTable,0,2,0),
-          steps: [
-              { description: "Open Format Cells", keys: ["control", "1"], iconName: "Settings2", dialogEffect: { action: 'SHOW_FORMAT_CELLS_DIALOG' } },
-              { description: "Close Format Cells", keys: ["esc"], iconName: "X", dialogEffect: { action: 'HIDE_FORMAT_CELLS_DIALOG' } }
-          ]
-      },
+      singleStep({ description: "Open Format Cells dialog", keys: ["control", "1"], iconName: "Settings2", dialogEffect: { action: 'SHOW_FORMAT_CELLS_DIALOG' }, initialGridState: createGridState(bigTable,0,2,0) }),
     ],
   },
   {
@@ -359,14 +298,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Data",
     iconName: "ShieldCheck",
     challenges: [
-      {
-        description: "Open and close the Sort dialog",
-        initialGridState: createGridState(bigTable,0,2,0),
-        steps: [
-            { description: "Open Sort dialog", keys: ["alt", "d", "s"], iconName: "ArrowDownUp", isSequential: true, dialogEffect: { action: 'SHOW_SORT_DIALOG' } },
-            { description: "Close Sort dialog", keys: ["esc"], iconName: "X", isSequential: false, dialogEffect: { action: 'HIDE_SORT_DIALOG' } }
-        ]
-      },
+      singleStep({ description: "Open Sort dialog", keys: ["alt", "d", "s"], iconName: "ArrowDownUp", isSequential: true, dialogEffect: { action: 'SHOW_SORT_DIALOG' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Paste Special", keys: ["control", "alt", "v"], iconName: "ClipboardSignature", initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Group rows/cols", keys: ["alt", "shift", "arrowright"], iconName: "Group", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'GROUP_ROWS' } }),
       singleStep({ description: "Ungroup rows/cols", keys: ["alt", "shift", "arrowleft"], iconName: "Ungroup", initialGridState: createGridState(bigTable,0,2,0) }),
