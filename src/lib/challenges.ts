@@ -10,6 +10,7 @@ const singleStep = (challenge: Omit<Challenge, 'steps'>): Challenge => ({
       isSequential: challenge.isSequential, 
       gridEffect: challenge.gridEffect,
       dialogEffect: challenge.dialogEffect,
+      previewDialogEffect: challenge.previewDialogEffect,
     }]
 });
 
@@ -270,14 +271,79 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Management",
     iconName: "Layers",
     challenges: [
-      singleStep({ description: "Select column", keys: ["control", " "], iconName: "Columns3", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'SELECT_COLUMN' } }),
-      singleStep({ description: "Select row", keys: ["shift", " "], iconName: "Rows3", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'SELECT_ROW' } }),
-      singleStep({ description: "Insert row/col", keys: ["control", "shift", "="], iconName: "Sheet", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'INSERT_ROW' } }),
-      singleStep({ description: "Delete row/col", keys: ["control", "-"], iconName: "Trash2", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'DELETE_ROW' } }),
-      singleStep({ description: "Hide rows", keys: ["control", "9"], iconName: "EyeOff", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'HIDE_ROW' } }),
-      singleStep({ description: "Unhide rows", keys: ["control", "shift", "9"], iconName: "Eye", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'UNHIDE_ROWS' } }),
+      {
+        description: "Select and delete a column",
+        initialGridState: createGridState(bigTable, 0, 2, 1),
+        steps: [
+          {
+            description: "Select the current column",
+            keys: ["control", " "],
+            iconName: "Columns3",
+            gridEffect: { action: 'SELECT_COLUMN' },
+          },
+          {
+            description: "Delete the selected column",
+            keys: ["control", "-"],
+            iconName: "Trash2",
+            gridEffect: { action: 'DELETE_COLUMN' },
+          }
+        ]
+      },
+      {
+        description: "Select and insert a row",
+        initialGridState: createGridState(bigTable, 0, 2, 0),
+        steps: [
+          {
+            description: "Select the current row",
+            keys: ["shift", " "],
+            iconName: "Rows3",
+            gridEffect: { action: 'SELECT_ROW' },
+          },
+          {
+            description: "Insert a new row above",
+            keys: ["control", "shift", "="],
+            iconName: "Sheet",
+            gridEffect: { action: 'INSERT_ROW' },
+          }
+        ]
+      },
+      {
+        description: "Manipulate row visibility",
+        initialGridState: createGridState(bigTable, 0, 2, 0),
+        steps: [
+          {
+            description: "Select the current row",
+            keys: ["shift", " "],
+            iconName: "Rows3",
+            gridEffect: { action: 'SELECT_ROW' },
+          },
+          {
+            description: "Hide the selected row(s)",
+            keys: ["control", "9"],
+            iconName: "EyeOff",
+            gridEffect: { action: 'HIDE_ROW' },
+          },
+          {
+            description: "Unhide all rows",
+            keys: ["control", "shift", "9"],
+            iconName: "Eye",
+            gridEffect: { action: 'UNHIDE_ROWS' },
+          },
+          {
+            description: "Hide the row again",
+            keys: ["control", "9"],
+            iconName: "EyeOff",
+            gridEffect: { action: 'HIDE_ROW' },
+          },
+          {
+            description: "Set selection to visible cells only",
+            keys: ["alt", ";"],
+            iconName: "Aperture",
+            gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' },
+          }
+        ]
+      },
       singleStep({ description: "Hide columns", keys: ["control", "0"], iconName: "EyeOff", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'HIDE_COLUMN' } }),
-      singleStep({ description: "Select visible only", keys: ["alt", ";"], iconName: "Aperture", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' } }),
     ],
   },
   {
@@ -468,4 +534,3 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
 ];
 
 export const ALL_CHALLENGE_SETS = [...CHALLENGE_SETS];
-
