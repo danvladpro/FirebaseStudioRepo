@@ -354,9 +354,30 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Formulas",
     iconName: "FunctionSquare",
     challenges: [
-      singleStep({ description: "Edit cell", keys: ["f2"], iconName: "Pencil", initialGridState: createGridState(bigTable,0,2,0) }),
+      {
+        description: "Edit and lock a formula reference",
+        initialGridState: createGridState([['A', 'B'], ['1', '=A1']], 0, 1, 1),
+        steps: [
+          {
+            description: "Edit the cell formula",
+            keys: ["f2"],
+            iconName: "Pencil",
+            gridEffect: { action: 'START_EDITING', payload: { formula: '=A1' } },
+          },
+          {
+            description: "Toggle absolute reference",
+            keys: ["f4"],
+            iconName: "Anchor",
+            gridEffect: { action: 'TOGGLE_ABS_REF' },
+          },
+          {
+            description: "Confirm the formula change",
+            keys: ["enter"],
+            iconName: "Check",
+          }
+        ]
+      },
       singleStep({ description: "Start formula", keys: ["="], iconName: "Sigma", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Lock reference (F4)", keys: ["f4"], iconName: "Anchor", initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Repeat last action", keys: ["f4"], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "AutoSum", keys: ["alt", "="], iconName: "Calculator", initialGridState: createSummableGridState(), gridEffect: { action: 'AUTOSUM' } }),
       singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState(bigTable,0,2,0) }),
