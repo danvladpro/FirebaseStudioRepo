@@ -403,25 +403,29 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
             }
         ]
       },
-      singleStep({ description: "Apply Filter", keys: ["control", "shift", "l"], iconName: "Filter", initialGridState: createGridState(bigTable,0,2,0) }),
       {
-        description: "Open and close the filter dropdown",
-        initialGridState: createGridState(bigTable,0,0,1),
+        description: "Apply and interact with data filters",
+        initialGridState: createGridState(bigTable, 0, 0, 1),
         steps: [
-            {
-                description: "Open filter dropdown",
-                keys: ["alt", "arrowdown"],
-                iconName: "ChevronDownSquare",
-                dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' }
-            },
-            {
-                description: "Close the dropdown",
-                keys: ["esc"],
-                iconName: "X",
-                dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' }
-            }
+          {
+            description: "Toggle AutoFilter",
+            keys: ["control", "shift", "l"],
+            iconName: "Filter",
+          },
+          {
+            description: "Open filter dropdown",
+            keys: ["alt", "arrowdown"],
+            iconName: "ChevronDownSquare",
+            dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' },
+          },
+          {
+            description: "Close the dropdown",
+            keys: ["esc"],
+            iconName: "X",
+            dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' },
+          },
         ]
-      }
+      },
     ],
   },
   {
