@@ -135,73 +135,6 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
   // LEVEL 1: APPRENTICE (Warp Speed)
   // ==========================================
   {
-    id: "warp-speed-navigation",
-    name: "Warp Speed Navigation",
-    description: "Move across the worksheet like lightning.",
-    level: "Apprentice",
-    category: "Navigation",
-    iconName: "Zap",
-    challenges: [
-      singleStep({ description: "Jump to most left cell", keys: ["control", "arrowleft"], iconName: "MoveLeft", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
-      singleStep({ description: "Jump to beginning of row", keys: ["home"], iconName: "Home", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
-      singleStep({ description: "Jump to top-left (A1)", keys: ["control", "home"], iconName: "PanelTopOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
-      singleStep({ description: "Jump to last used cell", keys: ["control", "end"], iconName: "PanelBottomOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } }, initialGridState: createGridState(leanTable, 0, 0, 1, 0) }),
-      {
-        description: "Scan pages up and down",
-        initialGridState: createGridState(leanTable, 0, 4, 3, 20),
-        steps: [
-            {
-                description: "Scroll one page down",
-                keys: ["pagedown"],
-                iconName: "ArrowDownToLine",
-                gridEffect: { action: 'SCROLL_PAGE_DOWN' }
-            },
-            {
-                description: "Scroll one page up",
-                keys: ["pageup"],
-                iconName: "ArrowUpToLine",
-                gridEffect: { action: 'SCROLL_PAGE_UP' }
-            }
-        ]
-      },
-      singleStep({ description: "Go to next worksheet", keys: ["control", "pagedown"], iconName: "ArrowRightToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } }, initialGridState: createMultiSheetGridState(0) }),
-      singleStep({ description: "Go to previous worksheet", keys: ["control", "pageup"], iconName: "ArrowLeftToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } }, initialGridState: createMultiSheetGridState(1) }),
-      {
-        description: "Open and close the 'Go To' dialog",
-        initialGridState: createGridState(bigTable, 0, 2, 0),
-        steps: [
-            {
-                description: "Open 'Go To' dialog",
-                keys: ["f5"],
-                iconName: "Locate",
-                dialogEffect: { action: 'SHOW_GO_TO' },
-            },
-            {
-                description: "Close the dialog",
-                keys: ["esc"],
-                iconName: "X",
-                dialogEffect: { action: 'HIDE_GO_TO' }
-            }
-        ]
-      }
-    ],
-  },
-  {
-    id: "rapid-selection",
-    name: "Rapid Selection",
-    description: "Selection shortcuts that bypass the mouse.",
-    level: "Apprentice",
-    category: "Selection",
-    iconName: "MousePointerSquareDashed",
-    challenges: [
-      singleStep({ description: "Extend selection right", keys: ["shift", "arrowright"], iconName: "MoveRight", gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } }, initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Select to edge right", keys: ["control", "shift", "arrowright"], iconName: "ArrowRight", gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } }, initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Select current region", keys: ["control", "shift", "8"], iconName: "AppWindow", gridEffect: { action: 'SELECT_ALL' }, initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Select entire sheet", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' }, initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Select to last cell", keys: ["control", "shift", "end"], iconName: "ArrowDownRightSquare", gridEffect: { action: 'SELECT_TO_END' }, initialGridState: createGridState(bigTable,0,2,0) }),
-    ],
-  },
-  {
     id: "daily-basics",
     name: "Daily Basics",
     description: "Must-know shortcuts for every session.",
@@ -220,45 +153,70 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Underline", keys: ["control", "u"], iconName: "Underline", gridEffect: { action: 'APPLY_STYLE_UNDERLINE' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Strikethrough", keys: ["control", "5"], iconName: "Strikethrough", gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' }, initialGridState: createGridState(bigTable,0,2,0) }),
       {
-        description: "Open and close the Find dialog",
-        initialGridState: createGridState(bigTable,0,2,0),
+        description: "Open and close the Find dialog",initialGridState: createGridState(bigTable,0,2,0),
         steps: [
-            {
-                description: "Open Find dialog",
-                keys: ["control", "f"],
-                iconName: "Search",
-                dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } }
-            },
-            {
-                description: "Close the dialog",
-                keys: ["esc"],
-                iconName: "X",
-                dialogEffect: { action: 'HIDE' },
-                previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' }
-            }
+            {description: "Open Find dialog",keys: ["control", "f"],iconName: "Search",dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } }},
+            {description: "Close the dialog",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE' },previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' }}
         ]
       },
       {
-        description: "Open and close the Replace dialog",
-        initialGridState: createGridState(bigTable,0,2,0),
+        description: "Open and close the Replace dialog",initialGridState: createGridState(bigTable,0,2,0),
         steps: [
-            {
-                description: "Open Replace dialog",
-                keys: ["control", "h"],
-                iconName: "Replace",
-                dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } }
-            },
-            {
-                description: "Close the dialog",
-                keys: ["esc"],
-                iconName: "X",
-                dialogEffect: { action: 'HIDE' },
-                previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' }
-            }
+            {description: "Open Replace dialog",keys: ["control", "h"],iconName: "Replace",dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } }},
+            {description: "Close the dialog",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE' },previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' }}
         ]
       }
     ],
   },
+  
+  
+  {
+    id: "warp-speed-navigation",
+    name: "Warp Speed Navigation",
+    description: "Move across the worksheet like lightning.",
+    level: "Apprentice",
+    category: "Navigation",
+    iconName: "Zap",
+    challenges: [
+      singleStep({ description: "Jump to most left cell", keys: ["control", "arrowleft"], iconName: "MoveLeft", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
+      singleStep({ description: "Jump to beginning of row", keys: ["home"], iconName: "Home", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
+      singleStep({ description: "Jump to top-left (A1)", keys: ["control", "home"], iconName: "PanelTopOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
+      singleStep({ description: "Jump to last used cell", keys: ["control", "end"], iconName: "PanelBottomOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } }, initialGridState: createGridState(leanTable, 0, 0, 1, 0) }),
+      {
+        description: "Scan pages up and down",
+        initialGridState: createGridState(leanTable, 0, 4, 3, 20),
+        steps: [
+            {description: "Scroll one page down",keys: ["pagedown"],iconName: "ArrowDownToLine",gridEffect: { action: 'SCROLL_PAGE_DOWN' }},
+            {description: "Scroll one page up",keys: ["pageup"],iconName: "ArrowUpToLine",gridEffect: { action: 'SCROLL_PAGE_UP' }}
+        ]
+      },
+      singleStep({ description: "Go to next worksheet", keys: ["control", "pagedown"], iconName: "ArrowRightToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } }, initialGridState: createMultiSheetGridState(0) }),
+      singleStep({ description: "Go to previous worksheet", keys: ["control", "pageup"], iconName: "ArrowLeftToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } }, initialGridState: createMultiSheetGridState(1) }),
+      {
+        description: "Open and close the 'Go To' dialog",
+        initialGridState: createGridState(bigTable, 0, 2, 0),
+        steps: [
+            {description: "Open 'Go To' dialog",keys: ["f5"],iconName: "Locate",dialogEffect: { action: 'SHOW_GO_TO' },},
+            {description: "Close the dialog",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE_GO_TO' }}
+        ]
+      }
+    ],
+  },
+  {
+    id: "rapid-selection",
+    name: "Rapid Selection",
+    description: "Selection shortcuts that bypass the mouse.",
+    level: "Apprentice",
+    category: "Selection",
+    iconName: "MousePointerSquareDashed",
+    challenges: [
+      singleStep({ description: "Extend selection right", keys: ["shift", "arrowright"], iconName: "MoveRight", gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Select to edge right", keys: ["control", "shift", "arrowright"], iconName: "ArrowRight", gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Select current region", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Select to last cell", keys: ["control", "shift", "end"], iconName: "ArrowDownRightSquare", gridEffect: { action: 'SELECT_TO_END' }, initialGridState: createGridState(bigTable,0,2,0) }),
+    ],
+  },
+
 
   // ==========================================
   // LEVEL 2: MASTER (Grid Surgeon)
@@ -272,78 +230,32 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     iconName: "Layers",
     challenges: [
       {
-        description: "Select and delete a column",
-        initialGridState: createGridState(bigTable, 0, 2, 1),
+        description: "Select and delete a column",initialGridState: createGridState(bigTable, 0, 2, 1),
         steps: [
-          {
-            description: "Select the current column",
-            keys: ["control", " "],
-            iconName: "Columns3",
-            gridEffect: { action: 'SELECT_COLUMN' },
-          },
-          {
-            description: "Delete the selected column",
-            keys: ["control", "-"],
-            iconName: "Trash2",
-            gridEffect: { action: 'DELETE_COLUMN' },
-          }
+          {description: "Select the current column",keys: ["control", " "],iconName: "Columns3",gridEffect: { action: 'SELECT_COLUMN' },},
+          {description: "Delete the selected column",keys: ["control", "-"],iconName: "Trash2",gridEffect: { action: 'DELETE_COLUMN' },}
         ]
       },
       {
-        description: "Select and insert a row",
-        initialGridState: createGridState(bigTable, 0, 2, 0),
+        description: "Select and insert a row",initialGridState: createGridState(bigTable, 0, 2, 0),
         steps: [
-          {
-            description: "Select the current row",
-            keys: ["shift", " "],
-            iconName: "Rows3",
-            gridEffect: { action: 'SELECT_ROW' },
-          },
-          {
-            description: "Insert a new row above",
-            keys: ["control", "shift", "="],
-            iconName: "Sheet",
-            gridEffect: { action: 'INSERT_ROW' },
-          }
-        ]
-      },
+          {description: "Select the current row",keys: ["shift", " "],iconName: "Rows3",gridEffect: { action: 'SELECT_ROW' },},
+          {description: "Insert a new row above",keys: ["control", "shift", "="],iconName: "Sheet",gridEffect: { action: 'INSERT_ROW' },}
+        ]},
       {
-        description: "Manipulate row visibility",
-        initialGridState: createGridState(bigTable, 0, 2, 0),
+        description: "Manipulate row visibility",initialGridState: createGridState(bigTable, 0, 2, 0),
         steps: [
-          {
-            description: "Select the current row",
-            keys: ["shift", " "],
-            iconName: "Rows3",
-            gridEffect: { action: 'SELECT_ROW' },
-          },
-          {
-            description: "Hide the selected row(s)",
-            keys: ["control", "9"],
-            iconName: "EyeOff",
-            gridEffect: { action: 'HIDE_ROW' },
-          },
-          {
-            description: "Unhide all rows",
-            keys: ["control", "shift", "9"],
-            iconName: "Eye",
-            gridEffect: { action: 'UNHIDE_ROWS' },
-          },
-          {
-            description: "Hide the row again",
-            keys: ["control", "9"],
-            iconName: "EyeOff",
-            gridEffect: { action: 'HIDE_ROW' },
-          },
-          {
-            description: "Set selection to visible cells only",
-            keys: ["alt", ";"],
-            iconName: "Aperture",
-            gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' },
-          }
-        ]
-      },
-      singleStep({ description: "Hide columns", keys: ["control", "0"], iconName: "EyeOff", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'HIDE_COLUMN' } }),
+          {description: "Hide Row",keys: ["control", "9"],iconName: "EyeOff",gridEffect: { action: 'HIDE_ROW' },},
+          {description: "Unhide rows",keys: ["control", "shift", "9"],iconName: "Eye",gridEffect: { action: 'UNHIDE_ROWS' },},
+          {description: "Hide column",keys: ["control", "0"],iconName: "EyeOff",gridEffect: { action: 'HIDE_COLUMN' },},
+          //{description: "Unhide columns",keys: ["control", "shift", "0"],iconName: "Eye",gridEffect: { action: 'UNHIDE_COLUMNS' },},
+        ]},
+      {
+        description: "Select all visible cells",initialGridState: createGridState(bigTable, 0, 2, 0),
+        steps: [
+          {description: "Select current region", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' },},
+          {description: "Set selection to visible cells only",keys: ["alt", ";"],iconName: "Aperture",gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' },}
+        ]},
     ],
   },
   {
@@ -358,72 +270,31 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         description: "Edit and lock a formula reference",
         initialGridState: createGridState([['A', 'B'], ['1', '=A1']], 0, 1, 1),
         steps: [
-          {
-            description: "Edit the cell formula",
-            keys: ["f2"],
-            iconName: "Pencil",
-            gridEffect: { action: 'START_EDITING', payload: { formula: '=A1' } },
-          },
-          {
-            description: "Toggle absolute reference",
-            keys: ["f4"],
-            iconName: "Anchor",
-            gridEffect: { action: 'TOGGLE_ABS_REF' },
-          },
-          {
-            description: "Confirm the formula change",
-            keys: ["enter"],
-            iconName: "Check",
-          }
+          {description: "Edit the cell formula",keys: ["f2"],iconName: "Pencil",gridEffect: { action: 'START_EDITING', payload: { formula: '=A1' } },},
+          {description: "Toggle absolute reference",keys: ["f4"],iconName: "Anchor",gridEffect: { action: 'TOGGLE_ABS_REF' },},
+          {description: "Confirm the formula change",keys: ["enter"],iconName: "Check",}
         ]
       },
-      singleStep({ description: "Start formula", keys: ["="], iconName: "Sigma", initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Repeat last action", keys: ["f4"], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "AutoSum", keys: ["alt", "="], iconName: "Calculator", initialGridState: createSummableGridState(), gridEffect: { action: 'AUTOSUM' } }),
       singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Name Manager", keys: ["control", "f3"], iconName: "BookUser", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Create from selection", keys: ["control", "shift", "f3"], iconName: "CaseUpper", initialGridState: createGridState(bigTable,0,2,0) }),
+      //singleStep({ description: "Name Manager", keys: ["control", "f3"], iconName: "BookUser", initialGridState: createGridState(bigTable,0,2,0) }),
+      //singleStep({ description: "Create from selection", keys: ["control", "shift", "f3"], iconName: "CaseUpper", initialGridState: createGridState(bigTable,0,2,0) }),
       {
         description: "Create a table from a data range",
         initialGridState: createGridState(bigTable,0,2,0),
         steps: [
-            {
-                description: "Open Create Table dialog",
-                keys: ["control", "t"],
-                iconName: "Table",
-                dialogEffect: { action: 'SHOW_CREATE_TABLE' }
-            },
-            {
-                description: "Confirm table creation",
-                keys: ["enter"],
-                iconName: "Check",
-                dialogEffect: { action: 'HIDE_CREATE_TABLE' },
-                gridEffect: { action: 'APPLY_TABLE_FORMATTING' },
-                previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' }
-            }
+            {description: "Open Create Table dialog",keys: ["control", "t"],iconName: "Table",dialogEffect: { action: 'SHOW_CREATE_TABLE' }},
+            {description: "Confirm table creation",keys: ["enter"],iconName: "Check",dialogEffect: { action: 'HIDE_CREATE_TABLE' },gridEffect: { action: 'APPLY_TABLE_FORMATTING' },previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' }}
         ]
       },
       {
         description: "Apply and interact with data filters",
         initialGridState: createGridState(bigTable, 0, 0, 1),
         steps: [
-          {
-            description: "Toggle AutoFilter",
-            keys: ["control", "shift", "l"],
-            iconName: "Filter",
-          },
-          {
-            description: "Open filter dropdown",
-            keys: ["alt", "arrowdown"],
-            iconName: "ChevronDownSquare",
-            dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' },
-          },
-          {
-            description: "Close the dropdown",
-            keys: ["esc"],
-            iconName: "X",
-            dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' },
-          },
+          {description: "Toggle AutoFilter",keys: ["control", "shift", "l"],iconName: "Filter",},
+          {description: "Open filter dropdown",keys: ["alt", "arrowdown"],iconName: "ChevronDownSquare",dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' },},
+          {description: "Close the dropdown",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' },},
         ]
       },
     ],
@@ -466,20 +337,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         description: "Use the ribbon to apply a fill color",
         initialGridState: createGridState(bigTable, 0, 2, 0),
         steps: [
-            {
-                description: 'Open Fill Color Menu',
-                keys: ['alt', 'h', 'h'],
-                iconName: 'PaintBucket',
-                isSequential: true,
-                dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' }
-            },
-            {
-                description: 'Select a color and apply',
-                keys: ['enter'],
-                iconName: 'Check',
-                dialogEffect: { action: 'HIDE_FILL_COLOR_DROPDOWN' },
-                gridEffect: { action: 'APPLY_FILL_COLOR' }
-            }
+            {description: 'Open Fill Color Menu',keys: ['alt', 'h', 'h'],iconName: 'PaintBucket',isSequential: true,dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' }},
+            {description: 'Select a color and apply',keys: ['enter'],iconName: 'Check',dialogEffect: { action: 'HIDE_FILL_COLOR_DROPDOWN' },gridEffect: { action: 'APPLY_FILL_COLOR' }}
         ]
       },
       singleStep({ description: "Clear formatting", keys: ["alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createGridState(bigTable,0,2,0) }),

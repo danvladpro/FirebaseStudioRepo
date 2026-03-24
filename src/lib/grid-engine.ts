@@ -723,6 +723,12 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             }
             break;
         }
+        case 'UNHIDE_COLUMNS': {
+            if (activeSheet.hiddenColumns) {
+                activeSheet.hiddenColumns.clear();
+            }
+            break;
+        }
         case 'SCROLL_PAGE_DOWN': {
             if (!activeSheet.viewport) {
                 activeSheet.viewport = { startRow: 0, rowCount: 6 };
@@ -1169,6 +1175,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 

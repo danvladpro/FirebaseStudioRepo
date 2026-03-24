@@ -68,6 +68,7 @@ export type GridEffectAction =
   | 'HIDE_ROW'
   | 'HIDE_COLUMN'
   | 'UNHIDE_ROWS'
+  | 'UNHIDE_COLUMNS'
   | 'SCROLL_PAGE_DOWN'
   | 'SCROLL_PAGE_UP'
   | 'AUTOSUM'
