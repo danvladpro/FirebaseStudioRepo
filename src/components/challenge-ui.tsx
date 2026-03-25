@@ -24,58 +24,36 @@ import { SortDialog } from "./sort-dialog";
 import { FormatCellsDialog } from "./format-cells-dialog";
 import { FillColorDropdown } from "./fill-color-dropdown";
 import { FilterDropdown } from "./filter-dropdown";
+import { useShortcutEngine } from "@/hooks/use-shortcut-engine";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
   mode: 'timed' | 'training';
 }
 
-const isModifier = (key: string) => ['control', 'shift', 'alt', 'meta'].includes(key);
-
-const keyDisplayMap: Record<string, string | JSX.Element> = {
-    'esc': 'Esc',
-    'backspace': 'Backspace',
-    'delete': 'Del',
-    'tab': 'Tab',
-    'capslock': 'Caps Lock',
-    'enter': 'Enter',
-    'return': 'Return',
-    'shift': 'Shift',
-    'control': '⌃',
-    'meta': '⌘',
-    'alt': '⌥',
-    ' ': 'Space',
-    'fn': 'fn',
-    'insert': 'Ins',
-    'home': 'Home',
-    'pageup': 'PgUp',
-    'end': 'End',
-    'pagedown': 'PgDn',
-    'arrowup': <ArrowUp size={14} />,
-    'arrowdown': <ArrowDown size={14} />,
-    'arrowleft': <ArrowLeft size={14} />,
-    'arrowright': <ArrowRight size={14} />,
-};
-
-const windowsKeyDisplayMap: Record<string, string | JSX.Element> = {
-    ...keyDisplayMap,
-    'control': 'Ctrl',
-    'meta': 'Win',
-    'alt': 'Alt',
-    'delete': 'Del'
-};
-
 const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
-    const isModifierKey = isModifier(value);
+    const isModifier = ["control", "shift", "alt", "meta"].includes(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
-    const displayValue = isMac ? (keyDisplayMap[value] || value.toUpperCase()) : (windowsKeyDisplayMap[value] || value.toUpperCase());
+    const keyDisplayMap: Record<string, string | JSX.Element> = {
+        'esc': 'Esc', 'backspace': 'Backspace', 'delete': 'Del', 'tab': 'Tab',
+        'capslock': 'Caps Lock', 'enter': 'Enter', 'return': 'Return', 'shift': 'Shift',
+        'control': '⌃', 'meta': '⌘', 'alt': '⌥', ' ': 'Space', 'fn': 'fn',
+        'insert': 'Ins', 'home': 'Home', 'pageup': 'PgUp', 'end': 'End', 'pagedown': 'PgDn',
+        'arrowup': <ArrowUp size={14} />, 'arrowdown': <ArrowDown size={14} />,
+        'arrowleft': <ArrowLeft size={14} />, 'arrowright': <ArrowRight size={14} />,
+    };
 
+    const windowsKeyDisplayMap: Record<string, string | JSX.Element> = {
+        ...keyDisplayMap, 'control': 'Ctrl', 'meta': 'Win', 'alt': 'Alt', 'delete': 'Del'
+    };
+
+    const displayValue = isMac ? (keyDisplayMap[value] || value.toUpperCase()) : (windowsKeyDisplayMap[value] || value.toUpperCase());
 
     return (
         <kbd className={cn(
             "px-2 py-1.5 text-xs font-semibold rounded-md border-b-2 text-muted-foreground bg-muted",
-            isModifierKey ? "min-w-[4rem] text-center" : "",
+            isModifier ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
             {displayValue}
@@ -88,8 +66,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const { userProfile } = useAuth();
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
-  const [sequence, setSequence] = useState<string[]>([]);
   const [startTime, setStartTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
@@ -100,14 +76,56 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const [isMac, setIsMac] = useState(false);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
   
-  const incorrectLockRef = useRef(false);
-  const keyHandlersRef = useRef({
-    handleKeyDown: (e: KeyboardEvent) => {},
-    handleKeyUp: (e: KeyboardEvent) => {},
-  });
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
+  
+  useEffect(() => {
+    setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
+  }, []);
+  
+  const getRequiredKeys = useCallback(() => {
+    if (!currentStep) return [];
+    return getPlatformKeys(currentStep, isMac);
+  }, [currentStep, isMac]);
+
+  const advanceStepOrChallenge = useCallback(() => {
+    setFeedback("correct");
+    setIsAccentuating(true);
+    
+    const currentStep = currentChallenge?.steps[currentStepIndex];
+    const showsDialog = currentStep?.dialogEffect?.action.startsWith('SHOW_');
+    const delay = showsDialog ? 1200 : 400;
+
+    setTimeout(() => {
+        const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
+        if (isLastStep) {
+            moveToNextChallenge();
+        } else {
+            setCurrentStepIndex(prev => prev + 1);
+        }
+        
+        setFeedback(null);
+        setIsAccentuating(false);
+    }, delay);
+  }, [currentStepIndex, currentChallenge, router]);
+
+  const handleIncorrect = useCallback(() => {
+    setFeedback("incorrect");
+    setTimeout(() => {
+      setFeedback(null);
+    }, 500);
+  }, []);
+
+  const { pressedKeys, sequence } = useShortcutEngine({
+    requiredKeys: getRequiredKeys(),
+    isSequential: !!currentStep?.isSequential,
+    onSuccess: advanceStepOrChallenge,
+    onIncorrect: handleIncorrect,
+    enabled: !!currentStep && feedback === null,
+  });
 
   // --- Dialog State Calculation ---
   const dialogStateBefore = calculateDialogStateForStep(currentChallenge.steps, currentStepIndex - 1);
@@ -137,63 +155,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const { gridState: previewGridState, cellStyles: previewCellStyles } = initialGridState
     ? calculateGridStateForStep(currentChallenge.steps, initialGridState, currentStepIndex)
     : { gridState: null, cellStyles: {} };
-
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  const normalizeKey = (code: string) => {
-    const lower = code.toLowerCase();
-
-    // From event.code
-    if (lower.startsWith('key')) return lower.substring(3);
-    if (lower.startsWith('digit')) return lower.substring(5);
-    if (lower.startsWith('numpad')) return lower.substring(6);
-    if (lower.startsWith('arrow')) return lower;
-    if (lower.startsWith('control')) return 'control';
-    if (lower.startsWith('shift')) return 'shift';
-    if (lower.startsWith('alt')) return 'alt';
-    if (lower.startsWith('meta')) return 'meta';
-
-    switch (lower) {
-        case 'escape': return 'esc';
-        case 'space': return ' ';
-        case 'enter':
-        case 'numpadenter':
-          return isMac ? 'return' : 'enter';
-        case 'backspace': return 'backspace';
-        case 'delete': return 'delete';
-        case 'pageup': return 'pageup';
-        case 'pagedown': return 'pagedown';
-        case 'home': return 'home';
-        case 'end': return 'end';
-        case 'insert': return 'insert';
-        case 'tab': return 'tab';
-        case 'backquote': return '`';
-        case 'minus': return '-';
-        case 'equal': return '=';
-        case 'bracketleft': return '[';
-        case 'bracketright': return ']';
-        case 'backslash': return '\\';
-        case 'semicolon': return ';';
-        case 'quote': return "'";
-        case 'comma': return ',';
-        case 'period': return '.';
-        case 'slash': return '/';
-    }
-    
-    // For F-keys
-    if (lower.startsWith('f') && lower.length > 1 && !isNaN(parseInt(lower.substring(1)))) {
-        return lower;
-    }
-
-    // Fallback for any unmapped codes or if event.key was passed
-    return code.toLowerCase();
-  };
-  
-  useEffect(() => {
-    setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
-  }, []);
-
   const finishChallenge = useCallback((finalSkippedIndices?: number[]) => {
     const indicesToUse = finalSkippedIndices || skippedIndices;
     if (mode === 'training') {
@@ -206,16 +168,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     const skippedParam = Array.from(indicesToUse).join(',');
     router.push(`/results?setId=${set.id}&time=${duration.toFixed(2)}&skipped=${indicesToUse.length}&skippedIndices=${skippedParam}&mode=${mode}`);
   }, [router, set.id, startTime, mode, skippedIndices]);
-
-  const getRequiredKeys = useCallback(() => {
-    if (!currentStep) return [];
-    const keys = getPlatformKeys(currentStep, isMac);
-    // For combo shortcuts, de-duplicate keys. For sequential, keep them as is.
-    if (currentStep.isSequential) {
-      return keys;
-    }
-    return Array.from(new Set(keys));
-  }, [currentStep, isMac]);
 
   useEffect(() => {
     if (!currentStep) {
@@ -268,43 +220,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setCountdown(8);
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
-  const handleIncorrect = useCallback(() => {
-    incorrectLockRef.current = true;
-    setPressedKeys(new Set());
-    setSequence([]);
-    setFeedback("incorrect");
-
-    setTimeout(() => {
-      setFeedback(null);
-      incorrectLockRef.current = false;
-    }, 500);
-  }, []);
-
-  const advanceStepOrChallenge = useCallback(() => {
-    setFeedback("correct");
-    setIsAccentuating(true);
-    setPressedKeys(new Set());
-    setSequence([]);
-
-    const currentStep = currentChallenge?.steps[currentStepIndex];
-    const showsDialog = currentStep?.dialogEffect?.action.startsWith('SHOW_');
-    const delay = showsDialog ? 1200 : 400;
-
-    setTimeout(() => {
-        const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
-        if (isLastStep) {
-            moveToNextChallenge();
-        } else {
-            setCurrentStepIndex(prev => prev + 1);
-        }
-        
-        setFeedback(null);
-        setIsAccentuating(false);
-    }, delay);
-  }, [currentStepIndex, currentChallenge, moveToNextChallenge]);
-
   const handleSkip = useCallback(() => {
-    if (incorrectLockRef.current) return;
     const newSkippedIndices = [...skippedIndices, currentChallengeIndex];
     setSkippedIndices(newSkippedIndices);
     
@@ -317,25 +233,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     }, 100);
   }, [moveToNextChallenge, currentChallengeIndex, set.challenges.length, skippedIndices, finishChallenge]);
   
-  const processSequentialKeyPress = useCallback((key: string) => {
-    if (incorrectLockRef.current) return;
-    
-    const newSequence = [...sequence, key]; 
-    setSequence(newSequence);
-    
-    const requiredSequence = getRequiredKeys(); 
-    
-    for (let i = 0; i < newSequence.length; i++) {
-      if (newSequence[i] !== requiredSequence[i]) {
-        handleIncorrect();
-        return;
-      }
-    }
-    if (newSequence.length === requiredSequence.length) {
-      advanceStepOrChallenge();
-    }
-  }, [sequence, getRequiredKeys, advanceStepOrChallenge, handleIncorrect]);
-
   useEffect(() => {
     if (currentChallengeIndex === 0 && currentStepIndex === 0 && startTime === 0) {
       setStartTime(Date.now());
@@ -373,83 +270,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       };
   }, [currentChallengeIndex, currentStepIndex, handleSkip, mode]);
 
-  useEffect(() => {
-    if (incorrectLockRef.current || feedback !== null || !currentStep || currentStep.isSequential || pressedKeys.size === 0) {
-        return;
-    }
-
-    const requiredKeys = new Set(getRequiredKeys());
-    if (pressedKeys.size >= requiredKeys.size && [...requiredKeys].every(k => pressedKeys.has(k))) {
-        advanceStepOrChallenge();
-    }
-  }, [pressedKeys, currentStep, getRequiredKeys, advanceStepOrChallenge, feedback]);
-
-  useEffect(() => {
-    keyHandlersRef.current = {
-      handleKeyDown: (e: KeyboardEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.repeat || incorrectLockRef.current || feedback !== null) return;
-
-        const key = normalizeKey(e.code);
-        setPressedKeys(prev => new Set(prev).add(key));
-
-        if (currentStep?.isSequential) {
-          processSequentialKeyPress(key);
-        }
-      },
-      handleKeyUp: (e: KeyboardEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        setPressedKeys(prev => {
-          const newKeys = new Set(prev);
-          newKeys.delete(normalizeKey(e.code));
-          return newKeys;
-        });
-      },
-    };
-  }, [currentStep, processSequentialKeyPress, feedback]);
-
-  useEffect(() => {
-    if (currentChallengeIndex >= set.challenges.length) return;
-    
-    const onKeyDown = (e: KeyboardEvent) => keyHandlersRef.current.handleKeyDown(e);
-    const onKeyUp = (e: KeyboardEvent) => keyHandlersRef.current.handleKeyUp(e);
-
-    const handleBlur = () => {
-      setPressedKeys(new Set());
-      setSequence([]);
-    };
-
-    window.addEventListener("keydown", onKeyDown, { capture: true });
-    window.addEventListener("keyup", onKeyUp, { capture: true });
-    window.addEventListener('blur', handleBlur);
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown, { capture: true });
-      window.removeEventListener("keyup", onKeyUp, { capture: true });
-      window.removeEventListener('blur', handleBlur);
-    };
-  }, [currentChallengeIndex, set.challenges.length]);
-
   const handleVirtualKeyClick = (key: string) => {
-      if (incorrectLockRef.current) return;
-      const normalized = normalizeKey(key);
-
-      setPressedKeys(prev => {
-          const newKeys = new Set(prev);
-          if (newKeys.has(normalized)) {
-              newKeys.delete(normalized);
-          } else {
-              newKeys.add(normalized);
-          }
-          return newKeys;
-      });
-
-      if (currentStep?.isSequential) {
-          processSequentialKeyPress(normalized);
-      }
+      // The useShortcutEngine does not support manual key clicks.
+      // This is a limitation for now.
   };
 
   const progress = ((currentChallengeIndex + 1) / set.challenges.length) * 100;
@@ -504,11 +327,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 </Button>
             </div>
         </div>
-        <div className="relative w-full">
-            <Progress value={progress} className="w-full" />
-            <p className="absolute inset-0 flex items-center justify-center text-xs text-primary-foreground font-semibold">
+        <div className="relative w-full h-4 overflow-hidden rounded-full bg-secondary">
+          <Progress value={progress} className="absolute inset-0 h-full w-full" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-xs text-primary-foreground font-semibold">
                 {isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}
             </p>
+          </div>
         </div>
     </CardHeader>
     <CardContent className="grid md:grid-cols-2 gap-4 items-start p-2 sm:p-3 flex-1 min-h-0">
@@ -624,7 +449,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             sequence.length > 0 ? (
                 sequence.map((key, index) => <KeyDisplay key={index} value={key} isMac={isMac} />)
             ) : (
-                <div className="flex items-center gap-2 font-semibold text-muted-foreground text-sm">
+                <div className="flex items-center justify-center gap-2 font-semibold text-muted-foreground text-sm">
                     <Keyboard className="h-5 w-5" />
                     <span>Press keys in sequence...</span>
                 </div>
@@ -633,7 +458,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             pressedKeys.size > 0 ? (
                 Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} isMac={isMac} />)
             ) : (
-                <div className="flex items-center gap-2 font-semibold text-muted-foreground text-sm">
+                <div className="flex items-center justify-center gap-2 font-semibold text-muted-foreground text-sm">
                     <Keyboard className="h-5 w-5" />
                     <span>Press the required keys...</span>
                 </div>
@@ -646,7 +471,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     </CardFooter>
     <div
         className={cn(
-            "flex-1 items-center justify-center transition-colors min-h-0 overflow-hidden flex",
+            "flex-1 items-center justify-center transition-colors flex h-full min-h-0",
             isVirtualKeyboardMode && "border-t p-1 sm:p-2"
         )}
     >
