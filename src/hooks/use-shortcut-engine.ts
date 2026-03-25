@@ -92,7 +92,8 @@ export const useShortcutEngine = ({
         if (isDisabled || incorrectLockRef.current) return;
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.repeat) return;
+            //if (e.repeat) return;  VD - Original
+            if (e.repeat || incorrectLockRef.current) return; // added VD TEST
             e.preventDefault();
             e.stopPropagation();
 
@@ -107,6 +108,7 @@ export const useShortcutEngine = ({
         const handleKeyUp = (e: KeyboardEvent) => {
             e.preventDefault();
             e.stopPropagation();
+            
             const key = normalizeKey(e.code, isMac);
             setPressedKeys(prev => {
                 const newKeys = new Set(prev);

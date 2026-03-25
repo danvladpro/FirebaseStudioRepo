@@ -126,10 +126,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     setFeedback("correct");
     setIsAccentuating(true);
     
-    const delay = (currentStep?.dialogEffect?.action.startsWith('SHOW_') || currentStep?.dialogEffect?.action === 'SHOW') ? 1200 : 400;
+    const _currentChallenge = set.challenges[currentChallengeIndex];
+    const _currentStep = _currentChallenge?.steps[currentStepIndex];
+
+    const delay = (_currentStep?.dialogEffect?.action.startsWith('SHOW_') || _currentStep?.dialogEffect?.action === 'SHOW') ? 1200 : 400;
 
     setTimeout(() => {
-        const isLastStep = currentStepIndex === currentChallenge.steps.length - 1;
+        const isLastStep = currentStepIndex === _currentChallenge.steps.length - 1;
         if (isLastStep) {
             moveToNextChallenge();
         } else {
@@ -139,7 +142,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         setFeedback(null);
         setIsAccentuating(false);
     }, delay);
-  }, [currentStepIndex, currentChallenge, moveToNextChallenge, currentStep, feedback]);
+  }, [currentStepIndex, currentChallengeIndex, set.challenges, moveToNextChallenge, feedback]);
 
   const handleIncorrect = useCallback(() => {
     if (feedback !== null) return;
