@@ -26,6 +26,7 @@ import { Badge } from "./ui/badge";
 import { SortDialog } from "./sort-dialog";
 import { FormatCellsDialog } from "./format-cells-dialog";
 import { FillColorDropdown } from "./fill-color-dropdown";
+import { useShortcutEngine } from "@/hooks/use-shortcut-engine";
 
 interface DrillUIProps {
   drill: Drill;
@@ -37,52 +38,6 @@ enum RepStatus {
   Correct,
   Incorrect,
 }
-
-const normalizeKey = (code: string, isMac: boolean) => {
-    const lower = code.toLowerCase();
-
-    // From event.code
-    if (lower.startsWith('key')) return lower.substring(3);
-    if (lower.startsWith('digit')) return lower.substring(5);
-    if (lower.startsWith('numpad')) return lower.substring(6);
-    if (lower.startsWith('arrow')) return lower;
-    if (lower.startsWith('control')) return 'control';
-    if (lower.startsWith('shift')) return 'shift';
-    if (lower.startsWith('alt')) return 'alt';
-    if (lower.startsWith('meta')) return 'meta';
-
-    switch (lower) {
-        case 'escape': return 'esc';
-        case 'space': return ' ';
-        case 'enter':
-        case 'numpadenter':
-          return isMac ? 'return' : 'enter';
-        case 'backspace': return 'backspace';
-        case 'delete': return 'delete';
-        case 'pageup': return 'pageup';
-        case 'pagedown': return 'pagedown';
-        case 'home': return 'home';
-        case 'end': return 'end';
-        case 'insert': return 'insert';
-        case 'tab': return 'tab';
-        case 'backquote': return '`';
-        case 'minus': return '-';
-        case 'equal': return '=';
-        case 'bracketleft': return '[';
-        case 'bracketright': return ']';
-        case 'backslash': return '\\';
-        case 'semicolon': return ';';
-        case 'quote': return "'";
-        case 'comma': return ',';
-        case 'period': return '.';
-        case 'slash': return '/';
-    }
-    
-    if (lower.startsWith('f') && lower.length > 1 && !isNaN(parseInt(lower.substring(1)))) {
-        return lower;
-    }
-    return lower;
-};
 
 const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifier = ["control", "shift", "alt", "meta"].includes(value);
@@ -128,10 +83,6 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   const [isMac, setIsMac] = useState(false);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
   
-  const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
-  const [sequence, setSequence] = useState<string[]>([]);
-  const incorrectLockRef = useRef(false);
-
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
@@ -143,12 +94,6 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
     if (!activeStep) return [];
     return getPlatformKeys(activeStep, isMac);
   }, [activeStep, isMac]);
-
-  useEffect(() => {
-      setPressedKeys(new Set());
-      setSequence([]);
-      incorrectLockRef.current = false;
-  }, [requiredKeys, isSequential]);
 
   const finishDrill = useCallback(async () => {
     setLogicalStepIndex(drill.steps.length);
@@ -167,7 +112,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   }, [drill.id, router, user, drill.steps.length, drillNumber]);
 
   const handleStepSuccess = useCallback(() => {
-    if (incorrectLockRef.current) return;
+    if (stepFeedback === 'correct') return;
     setStepFeedback('correct');
     
     setTimeout(() => {
@@ -197,7 +142,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
         
         setStepFeedback(null);
     }, 400);
-  }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
+  }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill, stepFeedback]);
 
   const resetDrill = useCallback(() => {
     toast({
@@ -211,12 +156,10 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
     setVisualStepIndex(0);
     setMistakes(0);
     setStepFeedback(null);
-    incorrectLockRef.current = false;
   }, [drill.repetitions]);
 
   const handleIncorrect = useCallback(() => {
-    if (incorrectLockRef.current) return;
-    incorrectLockRef.current = true;
+    if (stepFeedback !== null) return;
     setStepFeedback('incorrect');
 
     setReps(prevReps => {
@@ -237,73 +180,18 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
     } else {
       setTimeout(() => {
         setStepFeedback(null);
-        incorrectLockRef.current = false;
       }, 500);
     }
-  }, [currentRep, drill.mistakeLimit, mistakes, resetDrill]);
-
-  useEffect(() => {
-    if (!activeStep || stepFeedback !== null) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.repeat || incorrectLockRef.current) return;
-      e.preventDefault();
-      e.stopPropagation();
-
-      const key = normalizeKey(e.code, isMac);
-      setPressedKeys(prev => new Set(prev).add(key));
-      if (isSequential) {
-        setSequence(prevSeq => [...prevSeq, key]);
-      }
-    };
-    const handleKeyUp = (e: KeyboardEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setPressedKeys(prev => {
-        const newKeys = new Set(prev);
-        newKeys.delete(normalizeKey(e.code, isMac));
-        return newKeys;
-      });
-    };
-    const handleBlur = () => {
-      setPressedKeys(new Set());
-      setSequence([]);
-    };
-    
-    window.addEventListener("keydown", handleKeyDown, { capture: true });
-    window.addEventListener("keyup", handleKeyUp, { capture: true });
-    window.addEventListener('blur', handleBlur);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown, { capture: true });
-      window.removeEventListener("keyup", handleKeyUp, { capture: true });
-      window.removeEventListener('blur', handleBlur);
-    };
-  }, [activeStep, isSequential, isMac, stepFeedback]);
-
-  useEffect(() => {
-    if (incorrectLockRef.current || !activeStep || stepFeedback !== null) return;
-
-    if (isSequential) {
-      if (sequence.length === 0) return;
-      for (let i = 0; i < sequence.length; i++) {
-        if (sequence[i] !== requiredKeys[i]) {
-          handleIncorrect();
-          setSequence([]);
-          return;
-        }
-      }
-      if (sequence.length === requiredKeys.length) {
-        handleStepSuccess();
-      }
-    } else {
-      if (pressedKeys.size === 0) return;
-      const requiredSet = new Set(requiredKeys);
-      if (pressedKeys.size === requiredSet.size && [...requiredSet].every(k => pressedKeys.has(k))) {
-        handleStepSuccess();
-      }
-    }
-  }, [pressedKeys, sequence, isSequential, requiredKeys, activeStep, stepFeedback, handleStepSuccess, handleIncorrect]);
+  }, [currentRep, drill.mistakeLimit, mistakes, resetDrill, stepFeedback]);
+  
+  const { pressedKeys, handleVirtualKeyClick } = useShortcutEngine({
+      requiredKeys,
+      isSequential,
+      onSuccess: handleStepSuccess,
+      onIncorrect: handleIncorrect,
+      isMac,
+      isDisabled: stepFeedback !== null,
+  });
 
   const drillStepsForEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
   
@@ -353,25 +241,6 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
     drill.initialGridState!,
     visualStepIndex
   ) : { gridState: null, cellStyles: {} };
-  
-  const handleVirtualKeyClick = (key: string) => {
-    if (incorrectLockRef.current || stepFeedback !== null) return;
-    const normalizedKey = normalizeKey(key, isMac);
-
-    if (isSequential) {
-      setSequence(prev => [...prev, normalizedKey]);
-    } else {
-      setPressedKeys(prev => {
-        const newKeys = new Set(prev);
-        if (newKeys.has(normalizedKey)) {
-          newKeys.delete(normalizedKey);
-        } else {
-          newKeys.add(normalizedKey);
-        }
-        return newKeys;
-      });
-    }
-  };
   
   const formatKeysForDisplay = (step: DrillStep, isMac: boolean): string => {
     const keysToDisplay = getPlatformKeys(step, isMac);
@@ -538,24 +407,13 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                 </div>
               ) : (
                  <div className="flex items-center justify-center gap-2">
-                    {activeStep.isSequential ? (
-                    sequence.length > 0 ? (
-                        sequence.map((key, index) => <KeyDisplay key={index} value={key} isMac={isMac} />)
+                    {pressedKeys.length > 0 ? (
+                        pressedKeys.map((key, index) => <KeyDisplay key={`${key}-${index}`} value={key} isMac={isMac} />)
                     ) : (
                         <div className="flex items-center justify-center gap-2 font-semibold text-muted-foreground text-sm">
                             <Keyboard className="h-5 w-5" />
-                            <span>Press keys in sequence...</span>
+                            <span>{isSequential ? "Press keys in sequence..." : "Press the required keys..."}</span>
                         </div>
-                    )
-                    ) : (
-                    pressedKeys.size > 0 ? (
-                        Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} isMac={isMac} />)
-                    ) : (
-                        <div className="flex items-center justify-center gap-2 font-semibold text-muted-foreground text-sm">
-                            <Keyboard className="h-5 w-5" />
-                            <span>Press the required keys...</span>
-                        </div>
-                    )
                     )}
                 </div>
               )
@@ -569,7 +427,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                 <div className="p-4 w-full h-full max-w-[750px] ">
                     <div className="w-full h-full max-h-[250px] aspect-[3/1]">
                         <VisualKeyboard 
-                            highlightedKeys={activeStep.isSequential ? sequence : Array.from(pressedKeys)}
+                            highlightedKeys={pressedKeys}
                             onKeyClick={handleVirtualKeyClick}
                         />
                     </div>
