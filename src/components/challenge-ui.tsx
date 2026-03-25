@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ChallengeSet, ChallengeStep, Sheet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, BookOpen, MousePointerClick, ArrowLeft } from "lucide-react";
+import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, BookOpen, MousePointerClick, ArrowLeft, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
 import { cn, getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
@@ -32,19 +32,45 @@ interface ChallengeUIProps {
 
 const isModifier = (key: string) => ['control', 'shift', 'alt', 'meta'].includes(key);
 
-const KeyDisplay = ({ value }: { value: string }) => {
+const keyDisplayMap: Record<string, string | JSX.Element> = {
+    'esc': 'Esc',
+    'backspace': 'Backspace',
+    'delete': 'Del',
+    'tab': 'Tab',
+    'capslock': 'Caps Lock',
+    'enter': 'Enter',
+    'return': 'Return',
+    'shift': 'Shift',
+    'control': '⌃',
+    'meta': '⌘',
+    'alt': '⌥',
+    ' ': 'Space',
+    'fn': 'fn',
+    'insert': 'Ins',
+    'home': 'Home',
+    'pageup': 'PgUp',
+    'end': 'End',
+    'pagedown': 'PgDn',
+    'arrowup': <ArrowUp size={14} />,
+    'arrowdown': <ArrowDown size={14} />,
+    'arrowleft': <ArrowLeft size={14} />,
+    'arrowright': <ArrowRight size={14} />,
+};
+
+const windowsKeyDisplayMap: Record<string, string | JSX.Element> = {
+    ...keyDisplayMap,
+    'control': 'Ctrl',
+    'meta': 'Win',
+    'alt': 'Alt',
+    'delete': 'Del'
+};
+
+const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifierKey = isModifier(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
-    const displayValue: Record<string, string> = {
-        'control': 'Ctrl',
-        'meta': 'Cmd',
-        'command': 'Cmd',
-        'alt': 'Alt',
-        'option': 'Opt',
-        ' ': 'Space'
-    }
-    const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
+    const displayValue = isMac ? (keyDisplayMap[value] || value.toUpperCase()) : (windowsKeyDisplayMap[value] || value.toUpperCase());
+
 
     return (
         <kbd className={cn(
@@ -52,7 +78,7 @@ const KeyDisplay = ({ value }: { value: string }) => {
             isModifierKey ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
-            {displayValue[value] || capitalizedValue}
+            {displayValue}
         </kbd>
     );
 };
@@ -594,7 +620,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         <div className="flex-1 flex items-center justify-center gap-1.5 min-h-[28px]">
             {currentStep.isSequential ? (
             sequence.length > 0 ? (
-                sequence.map((key, index) => <KeyDisplay key={index} value={key} />)
+                sequence.map((key, index) => <KeyDisplay key={index} value={key} isMac={isMac} />)
             ) : (
                 <div className="flex items-center gap-2 font-semibold text-muted-foreground text-sm">
                     <Keyboard className="h-5 w-5" />
@@ -603,7 +629,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             )
             ) : (
             pressedKeys.size > 0 ? (
-                Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} />)
+                Array.from(pressedKeys).map(key => <KeyDisplay key={key} value={key} isMac={isMac} />)
             ) : (
                 <div className="flex items-center gap-2 font-semibold text-muted-foreground text-sm">
                     <Keyboard className="h-5 w-5" />

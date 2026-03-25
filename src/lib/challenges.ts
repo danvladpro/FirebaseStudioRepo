@@ -248,7 +248,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
           {description: "Hide Row",keys: ["control", "9"],iconName: "EyeOff",gridEffect: { action: 'HIDE_ROW' },},
           {description: "Unhide rows",keys: ["control", "shift", "9"],iconName: "Eye",gridEffect: { action: 'UNHIDE_ROWS' },},
           {description: "Hide column",keys: ["control", "0"],iconName: "EyeOff",gridEffect: { action: 'HIDE_COLUMN' },},
-          //{description: "Unhide columns",keys: ["control", "shift", "0"],iconName: "Eye",gridEffect: { action: 'UNHIDE_COLUMNS' },},
+          {description: "Unhide columns",keys: ["control", "shift", "0"],iconName: "Eye",gridEffect: { action: 'UNHIDE_COLUMNS' },},
         ]},
       {
         description: "Select all visible cells",initialGridState: createGridState(bigTable, 0, 2, 0),
@@ -268,30 +268,25 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     challenges: [
       {
         description: "Edit and lock a formula reference",
-        initialGridState: createGridState([['A', 'B'], ['1', '=A1']], 0, 1, 1),
+        initialGridState: createGridState([['A', 'B'], ['1', '2']], 0, 1, 1),
         steps: [
           {description: "Edit the cell formula",keys: ["f2"],iconName: "Pencil",gridEffect: { action: 'START_EDITING', payload: { formula: '=A1' } },},
           {description: "Toggle absolute reference",keys: ["f4"],iconName: "Anchor",gridEffect: { action: 'TOGGLE_ABS_REF' },},
-          {description: "Confirm the formula change",keys: ["enter"],iconName: "Check",}
         ]
       },
-      singleStep({ description: "Repeat last action", keys: ["f4"], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0) }),
+
       singleStep({ description: "AutoSum", keys: ["alt", "="], iconName: "Calculator", initialGridState: createSummableGridState(), gridEffect: { action: 'AUTOSUM' } }),
+      singleStep({ description: "Repeat last action", keys: ["f4"], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState(bigTable,0,2,0) }),
       //singleStep({ description: "Name Manager", keys: ["control", "f3"], iconName: "BookUser", initialGridState: createGridState(bigTable,0,2,0) }),
       //singleStep({ description: "Create from selection", keys: ["control", "shift", "f3"], iconName: "CaseUpper", initialGridState: createGridState(bigTable,0,2,0) }),
       {
         description: "Create a table from a data range",
-        initialGridState: createGridState(bigTable,0,2,0),
+        initialGridState: createGridState(bigTable,0,0,0),
         steps: [
+            {description: "Select current region", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' },},
             {description: "Open Create Table dialog",keys: ["control", "t"],iconName: "Table",dialogEffect: { action: 'SHOW_CREATE_TABLE' }},
-            {description: "Confirm table creation",keys: ["enter"],iconName: "Check",dialogEffect: { action: 'HIDE_CREATE_TABLE' },gridEffect: { action: 'APPLY_TABLE_FORMATTING' },previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' }}
-        ]
-      },
-      {
-        description: "Apply and interact with data filters",
-        initialGridState: createGridState(bigTable, 0, 0, 1),
-        steps: [
+            {description: "Confirm table creation",keys: ["enter"],iconName: "Check",dialogEffect: { action: 'HIDE_CREATE_TABLE' },gridEffect: { action: 'APPLY_TABLE_FORMATTING' },previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' }},
           {description: "Toggle AutoFilter",keys: ["control", "shift", "l"],iconName: "Filter",},
           {description: "Open filter dropdown",keys: ["alt", "arrowdown"],iconName: "ChevronDownSquare",dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' },},
           {description: "Close the dropdown",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' },},
@@ -395,7 +390,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         steps: [
             {
                 description: "Open Sort dialog",
-                keys: ["alt", "d", "s"],
+                keys: ["alt", "a", "s","s"],
                 iconName: "ArrowDownUp",
                 isSequential: true,
                 dialogEffect: { action: 'SHOW_SORT_DIALOG' }
