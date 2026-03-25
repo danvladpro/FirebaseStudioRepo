@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Drill, ALL_DRILL_STEPS, DrillStep } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
@@ -26,7 +26,6 @@ import { Badge } from "./ui/badge";
 import { SortDialog } from "./sort-dialog";
 import { FormatCellsDialog } from "./format-cells-dialog";
 import { FillColorDropdown } from "./fill-color-dropdown";
-import { useShortcutEngine } from "@/hooks/use-shortcut-engine";
 
 interface DrillUIProps {
   drill: Drill;
@@ -38,6 +37,52 @@ enum RepStatus {
   Correct,
   Incorrect,
 }
+
+const normalizeKey = (code: string, isMac: boolean) => {
+    const lower = code.toLowerCase();
+
+    // From event.code
+    if (lower.startsWith('key')) return lower.substring(3);
+    if (lower.startsWith('digit')) return lower.substring(5);
+    if (lower.startsWith('numpad')) return lower.substring(6);
+    if (lower.startsWith('arrow')) return lower;
+    if (lower.startsWith('control')) return 'control';
+    if (lower.startsWith('shift')) return 'shift';
+    if (lower.startsWith('alt')) return 'alt';
+    if (lower.startsWith('meta')) return 'meta';
+
+    switch (lower) {
+        case 'escape': return 'esc';
+        case 'space': return ' ';
+        case 'enter':
+        case 'numpadenter':
+          return isMac ? 'return' : 'enter';
+        case 'backspace': return 'backspace';
+        case 'delete': return 'delete';
+        case 'pageup': return 'pageup';
+        case 'pagedown': return 'pagedown';
+        case 'home': return 'home';
+        case 'end': return 'end';
+        case 'insert': return 'insert';
+        case 'tab': return 'tab';
+        case 'backquote': return '`';
+        case 'minus': return '-';
+        case 'equal': return '=';
+        case 'bracketleft': return '[';
+        case 'bracketright': return ']';
+        case 'backslash': return '\\';
+        case 'semicolon': return ';';
+        case 'quote': return "'";
+        case 'comma': return ',';
+        case 'period': return '.';
+        case 'slash': return '/';
+    }
+    
+    if (lower.startsWith('f') && lower.length > 1 && !isNaN(parseInt(lower.substring(1)))) {
+        return lower;
+    }
+    return lower;
+};
 
 const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     const isModifier = ["control", "shift", "alt", "meta"].includes(value);
@@ -82,6 +127,9 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   const [mistakes, setMistakes] = useState(0);
   const [isMac, setIsMac] = useState(false);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
+  
+  const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+  const [sequence, setSequence] = useState<string[]>([]);
   const incorrectLockRef = useRef(false);
 
   useEffect(() => {
@@ -89,40 +137,37 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   }, []);
 
   const activeStep = drill.steps[logicalStepIndex] ? ALL_DRILL_STEPS[drill.steps[logicalStepIndex]] : null;
+  const isSequential = !!activeStep?.isSequential;
 
-  const getRequiredKeys = useCallback(() => {
+  const requiredKeys = useMemo(() => {
     if (!activeStep) return [];
     return getPlatformKeys(activeStep, isMac);
   }, [activeStep, isMac]);
 
-  const handleIncorrect = useCallback(() => {
-    incorrectLockRef.current = true;
-    setStepFeedback('incorrect');
+  useEffect(() => {
+      setPressedKeys(new Set());
+      setSequence([]);
+      incorrectLockRef.current = false;
+  }, [requiredKeys, isSequential]);
 
-    setReps(prevReps => {
-      const nextReps = [...prevReps];
-      if (nextReps[currentRep] !== RepStatus.Incorrect) {
-        nextReps[currentRep] = RepStatus.Incorrect;
+  const finishDrill = useCallback(async () => {
+    setLogicalStepIndex(drill.steps.length);
+    if (user) {
+      try {
+        await updateUserPerformance({ uid: user.uid, setId: drill.id, time: 0, score: 100 });
+      } catch (error: any) {
+        toast({
+          title: "Error Saving Progress",
+          description: "Could not save your drill completion. Your progress may not be tracked.",
+          variant: "destructive",
+        });
       }
-      return nextReps;
-    });
-
-    const newMistakes = mistakes + 1;
-    setMistakes(newMistakes);
-
-    if (newMistakes >= drill.mistakeLimit) {
-      setTimeout(() => {
-        resetDrill();
-      }, 500);
-    } else {
-      setTimeout(() => {
-        setStepFeedback(null);
-        incorrectLockRef.current = false;
-      }, 500);
     }
-  }, [currentRep, drill.mistakeLimit, mistakes]);
+    router.push(`/drill-results?drillId=${drill.id}&drillNumber=${drillNumber}`);
+  }, [drill.id, router, user, drill.steps.length, drillNumber]);
 
   const handleStepSuccess = useCallback(() => {
+    if (incorrectLockRef.current) return;
     setStepFeedback('correct');
     
     setTimeout(() => {
@@ -152,68 +197,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
         
         setStepFeedback(null);
     }, 400);
-  }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions]);
-
-  const { pressedKeys, sequence } = useShortcutEngine({
-    requiredKeys: getRequiredKeys(),
-    isSequential: !!activeStep?.isSequential,
-    onSuccess: handleStepSuccess,
-    onIncorrect: handleIncorrect,
-    enabled: !!activeStep && stepFeedback === null,
-  });
-
-  const drillStepsForEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
-  
-  const dialogStateBefore = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex - 1);
-  const dialogStateAfter = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex);
-  const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : dialogStateBefore;
-
-  useEffect(() => {
-    if (!activeStep) {
-        setIsVirtualKeyboardMode(false);
-        return;
-    }
-
-    const requiredKeysForStepSet = new Set(getRequiredKeys());
-
-    // Check for browser-conflicting shortcuts
-    const hasT = requiredKeysForStepSet.has('t');
-    const hasR = requiredKeysForStepSet.has('r');
-    const hasW = requiredKeysForStepSet.has('w');
-    const hasModifier = requiredKeysForStepSet.has('control') || requiredKeysForStepSet.has('meta');
-    
-    if (requiredKeysForStepSet.size === 2 && hasModifier && (hasT || hasR || hasW)) {
-        setIsVirtualKeyboardMode(true);
-        return;
-    }
-
-    if (!userProfile?.missingKeys) {
-        setIsVirtualKeyboardMode(false);
-        return;
-    }
-
-    const requiredKeysForStep = Array.from(requiredKeysForStepSet);
-    const userMissingKeys = userProfile.missingKeys.map(k => k.toLowerCase());
-    
-    const normalizedRequired = requiredKeysForStep.map(k => k.startsWith('f') && k.length > 1 && !isNaN(Number(k.substring(1))) ? 'f-keys (f1-f12)' : k);
-    
-    const needsVirtual = normalizedRequired.some(key => userMissingKeys.includes(key));
-    setIsVirtualKeyboardMode(needsVirtual);
-  }, [activeStep, userProfile?.missingKeys, getRequiredKeys, isMac]);
-
-  const drillStepsForGridEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
-
-  const { gridState: displayedGridState, cellStyles: displayedCellStyles } = drill.initialGridState ? calculateGridStateForStep(
-    drillStepsForGridEngine,
-    drill.initialGridState!,
-    visualStepIndex - 1
-  ) : { gridState: null, cellStyles: {} };
-
-  const { gridState: previewGridState, cellStyles: previewCellStyles } = drill.initialGridState ? calculateGridStateForStep(
-    drillStepsForGridEngine,
-    drill.initialGridState!,
-    visualStepIndex
-  ) : { gridState: null, cellStyles: {} };
+  }, [visualStepIndex, currentRep, drill.steps.length, drill.repetitions, finishDrill]);
 
   const resetDrill = useCallback(() => {
     toast({
@@ -229,26 +213,164 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
     setStepFeedback(null);
     incorrectLockRef.current = false;
   }, [drill.repetitions]);
-  
-  const finishDrill = useCallback(async () => {
-    setLogicalStepIndex(drill.steps.length);
-    if (user) {
-      try {
-        await updateUserPerformance({ uid: user.uid, setId: drill.id, time: 0, score: 100 });
-      } catch (error: any) {
-        toast({
-          title: "Error Saving Progress",
-          description: "Could not save your drill completion. Your progress may not be tracked.",
-          variant: "destructive",
-        });
+
+  const handleIncorrect = useCallback(() => {
+    if (incorrectLockRef.current) return;
+    incorrectLockRef.current = true;
+    setStepFeedback('incorrect');
+
+    setReps(prevReps => {
+      const nextReps = [...prevReps];
+      if (nextReps[currentRep] !== RepStatus.Incorrect) {
+        nextReps[currentRep] = RepStatus.Incorrect;
+      }
+      return nextReps;
+    });
+
+    const newMistakes = mistakes + 1;
+    setMistakes(newMistakes);
+
+    if (newMistakes >= drill.mistakeLimit) {
+      setTimeout(() => {
+        resetDrill();
+      }, 500);
+    } else {
+      setTimeout(() => {
+        setStepFeedback(null);
+        incorrectLockRef.current = false;
+      }, 500);
+    }
+  }, [currentRep, drill.mistakeLimit, mistakes, resetDrill]);
+
+  useEffect(() => {
+    if (!activeStep || stepFeedback !== null) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat || incorrectLockRef.current) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const key = normalizeKey(e.code, isMac);
+      setPressedKeys(prev => new Set(prev).add(key));
+      if (isSequential) {
+        setSequence(prevSeq => [...prevSeq, key]);
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setPressedKeys(prev => {
+        const newKeys = new Set(prev);
+        newKeys.delete(normalizeKey(e.code, isMac));
+        return newKeys;
+      });
+    };
+    const handleBlur = () => {
+      setPressedKeys(new Set());
+      setSequence([]);
+    };
+    
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    window.addEventListener("keyup", handleKeyUp, { capture: true });
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, { capture: true });
+      window.removeEventListener("keyup", handleKeyUp, { capture: true });
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [activeStep, isSequential, isMac, stepFeedback]);
+
+  useEffect(() => {
+    if (incorrectLockRef.current || !activeStep || stepFeedback !== null) return;
+
+    if (isSequential) {
+      if (sequence.length === 0) return;
+      for (let i = 0; i < sequence.length; i++) {
+        if (sequence[i] !== requiredKeys[i]) {
+          handleIncorrect();
+          setSequence([]);
+          return;
+        }
+      }
+      if (sequence.length === requiredKeys.length) {
+        handleStepSuccess();
+      }
+    } else {
+      if (pressedKeys.size === 0) return;
+      const requiredSet = new Set(requiredKeys);
+      if (pressedKeys.size === requiredSet.size && [...requiredSet].every(k => pressedKeys.has(k))) {
+        handleStepSuccess();
       }
     }
-    router.push(`/drill-results?drillId=${drill.id}&drillNumber=${drillNumber}`);
-  }, [drill.id, router, user, drill.steps.length, drillNumber]);
+  }, [pressedKeys, sequence, isSequential, requiredKeys, activeStep, stepFeedback, handleStepSuccess, handleIncorrect]);
 
+  const drillStepsForEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
+  
+  const dialogStateBefore = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex - 1);
+  const dialogStateAfter = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex);
+  const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : dialogStateBefore;
+
+  useEffect(() => {
+    if (!activeStep) {
+        setIsVirtualKeyboardMode(false);
+        return;
+    }
+
+    const requiredKeysForStepSet = new Set(requiredKeys);
+
+    const hasT = requiredKeysForStepSet.has('t');
+    const hasR = requiredKeysForStepSet.has('r');
+    const hasW = requiredKeysForStepSet.has('w');
+    const hasModifier = requiredKeysForStepSet.has('control') || requiredKeysForStepSet.has('meta');
+    
+    if (requiredKeysForStepSet.size === 2 && hasModifier && (hasT || hasR || hasW)) {
+        setIsVirtualKeyboardMode(true);
+        return;
+    }
+
+    if (!userProfile?.missingKeys) {
+        setIsVirtualKeyboardMode(false);
+        return;
+    }
+
+    const userMissingKeys = userProfile.missingKeys.map(k => k.toLowerCase());
+    const normalizedRequired = requiredKeys.map(k => k.startsWith('f') && k.length > 1 && !isNaN(Number(k.substring(1))) ? 'f-keys (f1-f12)' : k);
+    const needsVirtual = normalizedRequired.some(key => userMissingKeys.includes(key));
+    setIsVirtualKeyboardMode(needsVirtual);
+  }, [activeStep, userProfile?.missingKeys, requiredKeys, isMac]);
+
+  const drillStepsForGridEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
+
+  const { gridState: displayedGridState, cellStyles: displayedCellStyles } = drill.initialGridState ? calculateGridStateForStep(
+    drillStepsForGridEngine,
+    drill.initialGridState!,
+    visualStepIndex - 1
+  ) : { gridState: null, cellStyles: {} };
+
+  const { gridState: previewGridState, cellStyles: previewCellStyles } = drill.initialGridState ? calculateGridStateForStep(
+    drillStepsForGridEngine,
+    drill.initialGridState!,
+    visualStepIndex
+  ) : { gridState: null, cellStyles: {} };
+  
   const handleVirtualKeyClick = (key: string) => {
-    // This is not supported by the current hook implementation for simplicity.
-    // If virtual keyboard is needed for drills, this would need to be revisited.
+    if (incorrectLockRef.current || stepFeedback !== null) return;
+    const normalizedKey = normalizeKey(key, isMac);
+
+    if (isSequential) {
+      setSequence(prev => [...prev, normalizedKey]);
+    } else {
+      setPressedKeys(prev => {
+        const newKeys = new Set(prev);
+        if (newKeys.has(normalizedKey)) {
+          newKeys.delete(normalizedKey);
+        } else {
+          newKeys.add(normalizedKey);
+        }
+        return newKeys;
+      });
+    }
   };
   
   const formatKeysForDisplay = (step: DrillStep, isMac: boolean): string => {
@@ -440,15 +562,17 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
             )}
        </CardFooter>
         <div className={cn(
-            "h-full min-h-[310px] flex items-center justify-center transition-colors",
+            "h-full min-h-0 flex items-center justify-center transition-colors",
             isVirtualKeyboardMode && "border-t"
         )}>
             {isVirtualKeyboardMode && activeStep && (
-                <div className="p-4 w-full h-full max-w-[750px] aspect-[3/1] max-h-[250px]">
-                    <VisualKeyboard 
-                        highlightedKeys={activeStep.isSequential ? sequence : Array.from(pressedKeys)}
-                        onKeyClick={handleVirtualKeyClick}
-                    />
+                <div className="p-4 w-full h-full max-w-[750px] ">
+                    <div className="w-full h-full max-h-[250px] aspect-[3/1]">
+                        <VisualKeyboard 
+                            highlightedKeys={activeStep.isSequential ? sequence : Array.from(pressedKeys)}
+                            onKeyClick={handleVirtualKeyClick}
+                        />
+                    </div>
                 </div>
             )}
         </div>
