@@ -412,6 +412,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentStep, processSequentialKeyPress, feedback]);
 
   useEffect(() => {
+    if (currentChallengeIndex >= set.challenges.length) return;
+    
     const onKeyDown = (e: KeyboardEvent) => keyHandlersRef.current.handleKeyDown(e);
     const onKeyUp = (e: KeyboardEvent) => keyHandlersRef.current.handleKeyUp(e);
 
@@ -429,7 +431,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
       window.removeEventListener("keyup", onKeyUp, { capture: true });
       window.removeEventListener('blur', handleBlur);
     };
-  }, []);
+  }, [currentChallengeIndex, set.challenges.length]);
 
   const handleVirtualKeyClick = (key: string) => {
       if (incorrectLockRef.current) return;
