@@ -254,12 +254,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
           {description: "Unhide rows",keys: ["control", "shift", "9"],iconName: "Eye",gridEffect: { action: 'UNHIDE_ROWS' },},
           {description: "Hide column",keys: ["control", "0"],iconName: "EyeOff",gridEffect: { action: 'HIDE_COLUMN' },},
           {description: "Unhide columns",keys: ["control", "shift", "0"],iconName: "Eye",gridEffect: { action: 'UNHIDE_COLUMNS' },},
-        ]},
-      {
-        description: "Select all visible cells",initialGridState: createGridState(bigTable, 0, 2, 0),
-        steps: [
-          {description: "Select current region", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' },},
-          {description: "Set selection to visible cells only",keys: ["alt", ";"],iconName: "Aperture",gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' },}
+          {description: "Select visible cells only",keys: ["alt", ";"],iconName: "Aperture",gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' },}
         ]},
     ],
   },
@@ -400,7 +395,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         description: "Group & Ungroup Rows",initialGridState: createGridState(bigTable,0,2,0),
         steps: [
             {description: "Group rows", keys: ["alt", "shift", "arrowright"], iconName: "Group", gridEffect: { action: 'GROUP_ROWS' } },
-            {description: "Ungroup rows/cols", keys: ["alt", "shift", "arrowleft"], iconName: "Ungroup" }
+            {description: "Ungroup rows/cols", keys: ["alt", "shift", "arrowleft"], iconName: "Ungroup", gridEffect: { action: 'UNGROUP_ROWS' } }
         ]
       },
       singleStep({ description: "Paste Special", keys: ["control", "alt", "v"], iconName: "ClipboardSignature", initialGridState: createGridState(bigTable,0,2,0) }),

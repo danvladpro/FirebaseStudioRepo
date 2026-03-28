@@ -83,6 +83,7 @@ export type GridEffectAction =
   | 'FREEZE_PANES'
   | 'TOGGLE_GRIDLINES'
   | 'GROUP_ROWS'
+  | 'UNGROUP_ROWS'
   | 'AUTOFIT_COLUMNS'
   | 'APPLY_FILL_COLOR'
   | 'INCREASE_DECIMAL'

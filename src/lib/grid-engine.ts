@@ -857,6 +857,12 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             activeSheet.groupedRowRanges.push({ start: minRow, end: maxRow });
             break;
         }
+        case 'UNGROUP_ROWS': {
+            if (activeSheet.groupedRowRanges) {
+                activeSheet.groupedRowRanges = [];
+            }
+            break;
+        }
         case 'APPLY_STYLE_BOLD':
             getCellsToApply(newSelection).forEach(cellId => {
                 newCellStyles[cellId] = { ...newCellStyles[cellId], fontWeight: 'bold' };
@@ -1175,6 +1181,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 

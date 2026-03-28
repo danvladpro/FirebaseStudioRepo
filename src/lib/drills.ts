@@ -154,6 +154,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   hideRow: { description: 'Hide row', keys: ['control', '9'], iconName: 'EyeOff', gridEffect: { action: 'HIDE_ROW' } },
   unhideRows: { description: 'Unhide all rows', keys: ['control', 'shift', '9'], iconName: 'Eye', gridEffect: { action: 'UNHIDE_ROWS' } },
   groupRows: { description: 'Group selected', keys: ['shift', 'alt', 'arrowright'], iconName: 'Group', gridEffect: { action: 'GROUP_ROWS' } },
+  ungroupRows: { description: 'Ungroup rows', keys: ['shift', 'alt', 'arrowleft'], iconName: 'Ungroup', gridEffect: { action: 'UNGROUP_ROWS' } },
   openFind: { description: 'Open Find', keys: ['control', 'f'], iconName: 'Search', dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } } },
   findNext: { description: 'Find next match', keys: ['enter'], iconName: 'ArrowDownToLine', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
   confirmFind: { description: 'Confirm Find', keys: ['enter'], iconName: 'CornerDownLeft', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
@@ -765,11 +766,11 @@ const drills: Drill[] = [
     id: 'group-rows-data',
     level: 'Ninja',
     name: 'Structural Grouping',
-    description: 'Create collapsible row groups for large datasets.',
+    description: 'Create and remove collapsible row groups.',
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectRow','extendDown', 'strikethrough','groupRows']
+    steps: ['selectRow','extendDown', 'groupRows', 'ungroupRows']
   },
   {
     id: 'format-cells-dialog',
