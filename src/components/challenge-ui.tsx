@@ -25,6 +25,7 @@ import { FormatCellsDialog } from "./format-cells-dialog";
 import { FillColorDropdown } from "./fill-color-dropdown";
 import { FilterDropdown } from "./filter-dropdown";
 import { useShortcutEngine } from "@/hooks/use-shortcut-engine";
+import { PasteSpecialDialog } from "./paste-special-dialog";
 
 interface ChallengeUIProps {
   set: ChallengeSet;
@@ -122,7 +123,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [currentChallengeIndex, set.challenges.length, finishChallenge]);
 
   const advanceStepOrChallenge = useCallback(() => {
-    if (feedback === 'correct') return; // Prevent double trigger
     setFeedback("correct");
     setIsAccentuating(true);
     
@@ -132,6 +132,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     const delay = (_currentStep?.dialogEffect?.action.startsWith('SHOW_') || _currentStep?.dialogEffect?.action === 'SHOW') ? 1200 : 400;
 
     setTimeout(() => {
+        setFeedback(null);
+        setIsAccentuating(false);
         const isLastStep = currentStepIndex === _currentChallenge.steps.length - 1;
         if (isLastStep) {
             moveToNextChallenge();
@@ -139,10 +141,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             setCurrentStepIndex(prev => prev + 1);
         }
         
-        setFeedback(null);
-        setIsAccentuating(false);
     }, delay);
-  }, [currentStepIndex, currentChallengeIndex, set.challenges, moveToNextChallenge, feedback]);
+  }, [currentStepIndex, currentChallengeIndex, set.challenges, moveToNextChallenge]);
+
 
   const handleIncorrect = useCallback(() => {
     if (feedback !== null) return;
@@ -213,12 +214,18 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     const hasT = requiredKeysForStepSet.has('t');
     const hasR = requiredKeysForStepSet.has('r');
     const hasW = requiredKeysForStepSet.has('w');
+    const hasV = requiredKeysForStepSet.has('v');
     const hasModifier = requiredKeysForStepSet.has('control') || requiredKeysForStepSet.has('meta');
     
     if (requiredKeysForStepSet.size === 2 && hasModifier && (hasT || hasR || hasW)) {
         setIsVirtualKeyboardMode(true);
         return;
     }
+     if (requiredKeysForStepSet.size === 3 && hasModifier && hasV && requiredKeysForStepSet.has('alt')) {
+        setIsVirtualKeyboardMode(true);
+        return;
+    }
+
 
     if (!userProfile?.missingKeys) {
         setIsVirtualKeyboardMode(false);
@@ -350,6 +357,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                     <FormatCellsDialog state={finalDialogState} />
                     <FilterDropdown state={finalDialogState} />
                     <FillColorDropdown state={finalDialogState} />
+                    <PasteSpecialDialog state={finalDialogState} />
                     <VisualGrid 
                         gridState={displayedGridState} 
                         cellStyles={displayedCellStyles}

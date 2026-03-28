@@ -26,6 +26,8 @@ export const initialDialogState: FindReplaceDialogState = {
     formatCellsDialogHighlightedCategoryIndex: 0,
     fillColorDropdownVisible: false,
     fillColorDropdownHighlightedColor: null,
+    pasteSpecialDialogVisible: false,
+    pasteSpecialDialogHighlightedOption: null,
 };
 
 export const applyDialogEffect = (
@@ -70,6 +72,7 @@ export const applyDialogEffect = (
             newState.goToDialogHighlightedInput = false;
             newState.filterDropdownHighlightedIndex = -1;
             newState.fillColorDropdownHighlightedColor = null;
+            newState.pasteSpecialDialogHighlightedOption = null;
             break;
         case 'SHOW_CREATE_TABLE':
             newState.createTableDialogVisible = true;
@@ -191,6 +194,17 @@ export const applyDialogEffect = (
             newState.fillColorDropdownHighlightedColor = allColors[newIndex];
             break;
         }
+        case 'SHOW_PASTE_SPECIAL_DIALOG':
+            newState.pasteSpecialDialogVisible = true;
+            newState.pasteSpecialDialogHighlightedOption = 'All';
+            break;
+        case 'HIDE_PASTE_SPECIAL_DIALOG':
+            newState.pasteSpecialDialogVisible = false;
+            newState.pasteSpecialDialogHighlightedOption = null;
+            break;
+        case 'MOVE_PASTE_SPECIAL_HIGHLIGHT':
+            newState.pasteSpecialDialogHighlightedOption = effect.payload;
+            break;
     }
     return newState;
 };

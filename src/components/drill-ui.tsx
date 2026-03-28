@@ -27,6 +27,7 @@ import { SortDialog } from "./sort-dialog";
 import { FormatCellsDialog } from "./format-cells-dialog";
 import { FillColorDropdown } from "./fill-color-dropdown";
 import { useShortcutEngine } from "@/hooks/use-shortcut-engine";
+import { PasteSpecialDialog } from "./paste-special-dialog";
 
 interface DrillUIProps {
   drill: Drill;
@@ -210,9 +211,14 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
     const hasT = requiredKeysForStepSet.has('t');
     const hasR = requiredKeysForStepSet.has('r');
     const hasW = requiredKeysForStepSet.has('w');
+    const hasV = requiredKeysForStepSet.has('v');
     const hasModifier = requiredKeysForStepSet.has('control') || requiredKeysForStepSet.has('meta');
     
     if (requiredKeysForStepSet.size === 2 && hasModifier && (hasT || hasR || hasW)) {
+        setIsVirtualKeyboardMode(true);
+        return;
+    }
+    if (requiredKeysForStepSet.size === 3 && hasModifier && hasV && requiredKeysForStepSet.has('alt')) {
         setIsVirtualKeyboardMode(true);
         return;
     }
@@ -336,6 +342,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                     <FormatCellsDialog state={finalDialogState} />
                     <FilterDropdown state={finalDialogState} />
                     <FillColorDropdown state={finalDialogState} />
+                    <PasteSpecialDialog state={finalDialogState} />
                     <VisualGrid 
                         gridState={displayedGridState}
                         cellStyles={displayedCellStyles}

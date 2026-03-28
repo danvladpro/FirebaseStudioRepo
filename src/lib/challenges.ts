@@ -278,8 +278,6 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "AutoSum", keys: ["alt", "="], iconName: "Calculator", initialGridState: createSummableGridState(), gridEffect: { action: 'AUTOSUM' } }),
       singleStep({ description: "Repeat last action", keys: ["f4"], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState(bigTable,0,2,0) }),
-      //singleStep({ description: "Name Manager", keys: ["control", "f3"], iconName: "BookUser", initialGridState: createGridState(bigTable,0,2,0) }),
-      //singleStep({ description: "Create from selection", keys: ["control", "shift", "f3"], iconName: "CaseUpper", initialGridState: createGridState(bigTable,0,2,0) }),
       {
         description: "Create a table and open filter",
         initialGridState: createGridState(bigTable,0,0,0),
@@ -306,7 +304,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Fill Down", keys: ["control", "d"], iconName: "ArrowDownSquare",initialGridState: createGridState(flashTable,0,4,2),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'Project 3' } }}),
       singleStep({ description: "Insert Date", keys: ["control", ";"], iconName: "CalendarDays", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'12-Mar-2026' } }}),
       singleStep({ description: "Insert Time", keys: ["control", "shift", ";"], iconName: "Clock", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'3 PM' } }}),
-      singleStep({ description: "Insert Comment", keys: ["shift", "f2"], iconName: "MessageSquarePlus", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'SHOW_COMMENT' } }),
+      singleStep({ description: "Add a comment", keys: ["shift", "f2"], iconName: "MessageSquarePlus", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'SHOW_COMMENT' } }),
       {
         description: "Start a new line in a cell",
         initialGridState: createGridState(bigTable, 0, 2, 0),
@@ -373,7 +371,15 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     iconName: "ShieldCheck",
     challenges: [
       singleStep({ description: "Open Sort dialog",keys: ["alt", "a", "s","s"],iconName: "ArrowDownUp",isSequential: true,initialGridState: createGridState(bigTable,0,2,0),dialogEffect: { action: 'SHOW_SORT_DIALOG' }}),
-      singleStep({ description: "Paste Special", keys: ["control", "alt", "v"], iconName: "ClipboardSignature", initialGridState: createGridState(bigTable,0,2,0) }),
+      {
+        description: "Use Paste Special to paste values",
+        initialGridState: createGridState(bigTable, 0, 2, 0),
+        steps: [
+          { description: "Open Paste Special dialog", keys: ["control", "alt", "v"], iconName: "ClipboardSignature", dialogEffect: { action: 'SHOW_PASTE_SPECIAL_DIALOG' } },
+          { description: "Select 'Values' to paste", keys: ["v"], isSequential: true, iconName: "Baseline", dialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Values' } },
+          { description: "Confirm Paste Special", keys: ["enter"], iconName: "Check", dialogEffect: { action: 'HIDE_PASTE_SPECIAL_DIALOG' }, gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Pasted Value' } } }
+        ]
+      },
       singleStep({ description: "Toggle Gridlines", keys: ["alt", "w", "v", "g"], iconName: "Grid3X3", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'TOGGLE_GRIDLINES' } }),
       singleStep({ description: "Freeze Panes", keys: ["alt", "w", "f", "f"], iconName: "Lock", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'FREEZE_PANES' } }),
       {
