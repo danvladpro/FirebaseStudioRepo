@@ -74,7 +74,7 @@ export function VisualGrid({
     return (
         <div className="p-2 bg-muted/50 rounded-lg border">
             <div className="overflow-auto">
-                <table className="border-collapse table-fixed w-full min-w-max">
+                <table className="border-collapse w-full min-w-max">
                     <thead>
                         <tr>
                             <th className="p-0.5 w-7 sm:w-9"></th>
@@ -169,7 +169,7 @@ export function VisualGrid({
                                                 colSpan={colSpan}
                                                 rowSpan={rowSpan}
                                                 className={cn(
-                                                    "relative p-0.5 text-[11px] sm:p-1 sm:text-xs truncate transition-colors duration-200",
+                                                    "relative p-0.5 text-[11px] sm:p-1 sm:text-xs transition-colors duration-200",
                                                     showGridlines !== false && "border border-border",
                                                     ...getCellClasses()
                                                 )}
