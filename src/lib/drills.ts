@@ -1,5 +1,4 @@
 
-
 import { MoveRight } from "lucide-react";
 import { ChallengeLevel, GridEffect, GridState, DialogEffect, FindReplaceDialogState } from "./types";
 

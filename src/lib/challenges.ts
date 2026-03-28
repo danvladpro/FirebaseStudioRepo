@@ -54,6 +54,11 @@ const leanTable = [['','ID', 'Name',  'Amount',''],
     ['','4', 'Project D', '2000.25',''],
 ];
 
+const formatTable = [['Number','Date', 'Time','General'],
+    ['1','46108', '0.63', '2.000'],
+    ['','', '',''],
+];
+
 const createSummableGridState = (): GridState => ({
   sheets: [
     {
@@ -281,15 +286,15 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       //singleStep({ description: "Name Manager", keys: ["control", "f3"], iconName: "BookUser", initialGridState: createGridState(bigTable,0,2,0) }),
       //singleStep({ description: "Create from selection", keys: ["control", "shift", "f3"], iconName: "CaseUpper", initialGridState: createGridState(bigTable,0,2,0) }),
       {
-        description: "Create a table from a data range",
+        description: "Create a table and open filter",
         initialGridState: createGridState(bigTable,0,0,0),
         steps: [
             {description: "Select current region", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' },},
             {description: "Open Create Table dialog",keys: ["control", "t"],iconName: "Table",dialogEffect: { action: 'SHOW_CREATE_TABLE' }},
             {description: "Confirm table creation",keys: ["enter"],iconName: "Check",dialogEffect: { action: 'HIDE_CREATE_TABLE' },gridEffect: { action: 'APPLY_TABLE_FORMATTING' },previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' }},
-          {description: "Toggle AutoFilter",keys: ["control", "shift", "l"],iconName: "Filter",},
-          {description: "Open filter dropdown",keys: ["alt", "arrowdown"],iconName: "ChevronDownSquare",dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' },},
-          {description: "Close the dropdown",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' },},
+            {description: "Toggle AutoFilter",keys: ["control", "shift", "l"],iconName: "Filter",},
+            {description: "Open filter dropdown",keys: ["alt", "arrowdown"],iconName: "ChevronDownSquare",dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' },},
+            {description: "Close the dropdown",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' },},
         ]
       },
     ],
@@ -324,8 +329,26 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     iconName: "Palette",
     challenges: [
       singleStep({ description: "Center align", keys: ["alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } }),
-      singleStep({ description: "Merge & Center", keys: ["alt", "h", "m", "c"], iconName: "Merge", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_MERGE_CENTER' } }),
-      singleStep({ description: "Wrap Text", keys: ["alt", "h", "w"], iconName: "WrapText", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } }),
+      {
+        description: "Merge and Center",
+        initialGridState: createGridState(bigTable, 0, 2, 0),
+        steps: [
+            {description: "Extend selection right", keys: ["shift", "arrowright"], iconName: "MoveRight", gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
+            {description: 'Open Fill Color Menu',keys: ['alt', 'h', 'h'],iconName: 'PaintBucket',isSequential: true,dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' }},
+            {description: "Merge & Center", keys: ["alt", "h", "m", "c"], iconName: "Merge", isSequential: true, gridEffect: { action: 'APPLY_STYLE_MERGE_CENTER' } }
+        ]
+      },
+      singleStep({ 
+        description: "Wrap Text", 
+        keys: ["alt", "h", "w"], 
+        iconName: "WrapText", 
+        isSequential: true, 
+        initialGridState: createGridState(
+          [['Long Text Here','', '','', ''],
+          ['Long Text Here', '','','', ''],
+          ['','','', '',''],
+          ['','','', '',''],],0,0,0),
+        gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } }),
       singleStep({ description: "Apply all borders", keys: ["alt", "h", "b", "a"], iconName: "Grid", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } }),
       singleStep({ description: "Thick box border", keys: ["alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } }),
       {
@@ -337,43 +360,25 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         ]
       },
       singleStep({ description: "Clear formatting", keys: ["alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Auto-fit width", keys: ["alt", "h", "o", "i"], iconName: "ArrowUpNarrowWide", isSequential: true, initialGridState: createAutofitGridState(), gridEffect: { action: 'AUTOFIT_COLUMNS' } }),
-      singleStep({ description: "Set column width", keys: ["alt", "h", "o", "w"], iconName: "Columns", isSequential: true, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Auto-fit width", keys: ["alt", "h", "o", "i"], iconName: "ArrowUpNarrowWide", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'AUTOFIT_COLUMNS' } }),
     ],
   },
   {
     id: "number-formatting",
-    name: "Financial Formatting",
+    name: "Number Formatting",
     description: "Format currencies, dates, and precision.",
     level: "Ninja",
     category: "Formatting",
     iconName: "DollarSign",
     challenges: [
-      singleStep({ description: "Currency format", keys: ["control", "shift", "4"], iconName: "DollarSign", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_CURRENCY' } }),
-      singleStep({ description: "Percentage format", keys: ["control", "shift", "5"], iconName: "Percent", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } }),
-      singleStep({ description: "General format", keys: ["control", "shift", "`"], iconName: "Hash", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Date format", keys: ["control", "shift", "3"], iconName: "Calendar", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Time format", keys: ["control", "shift", "2"], iconName: "Clock", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Increase decimal", keys: ["alt", "h", "0"], iconName: "PlusCircle", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'INCREASE_DECIMAL' } }),
-      singleStep({ description: "Decrease decimal", keys: ["alt", "h", "9"], iconName: "MinusCircle", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'DECREASE_DECIMAL' } }),
-      {
-        description: "Open and close the Format Cells dialog",
-        initialGridState: createGridState(bigTable,0,2,0),
-        steps: [
-            {
-                description: "Open Format Cells dialog",
-                keys: ["control", "1"],
-                iconName: "Settings2",
-                dialogEffect: { action: 'SHOW_FORMAT_CELLS_DIALOG' }
-            },
-            {
-                description: "Confirm and close",
-                keys: ["enter"],
-                iconName: "Check",
-                dialogEffect: { action: 'HIDE_FORMAT_CELLS_DIALOG' }
-            }
-        ]
-      },
+      singleStep({ description: "Currency format", keys: ["control", "shift", "4"], iconName: "DollarSign", initialGridState: createGridState(formatTable,0,1,0), gridEffect: { action: 'APPLY_STYLE_CURRENCY' } }),
+      singleStep({ description: "Percentage format", keys: ["control", "shift", "5"], iconName: "Percent", initialGridState: createGridState(formatTable,0,1,0), gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } }),
+      singleStep({ description: "General format", keys: ["control", "shift", "`"], iconName: "Hash", initialGridState: createGridState(formatTable,0,1,3),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'2' } } }),
+      singleStep({ description: "Date format", keys: ["control", "shift", "3"], iconName: "Calendar", initialGridState: createGridState(formatTable,0,1,1), gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'27-Mar-26' } } }),
+      singleStep({ description: "Time format", keys: ["control", "shift", "2"], iconName: "Clock", initialGridState: createGridState(formatTable,0,1,2), gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'3 PM' } } }),
+      singleStep({ description: "Increase decimal", keys: ["alt", "h", "0"], iconName: "PlusCircle", isSequential: true, initialGridState: createGridState(formatTable,0,1,3), gridEffect: { action: 'INCREASE_DECIMAL' } }),
+      singleStep({ description: "Decrease decimal", keys: ["alt", "h", "9"], iconName: "MinusCircle", isSequential: true, initialGridState: createGridState(formatTable,0,1,3), gridEffect: { action: 'DECREASE_DECIMAL' } }),
+      singleStep({ description: "Open Format Cells dialog",keys: ["control", "1"],iconName: "Settings2",initialGridState: createGridState(formatTable,0,1,0),dialogEffect: { action: 'SHOW_FORMAT_CELLS_DIALOG' } }),
     ],
   },
   {
@@ -385,27 +390,20 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     iconName: "ShieldCheck",
     challenges: [
       {
-        description: "Open and close the Sort dialog",
-        initialGridState: createGridState(bigTable,0,2,0),
+        description: "Open and close the Sort dialog",initialGridState: createGridState(bigTable,0,2,0),
         steps: [
-            {
-                description: "Open Sort dialog",
-                keys: ["alt", "a", "s","s"],
-                iconName: "ArrowDownUp",
-                isSequential: true,
-                dialogEffect: { action: 'SHOW_SORT_DIALOG' }
-            },
-            {
-                description: "Close the dialog",
-                keys: ["esc"],
-                iconName: "X",
-                dialogEffect: { action: 'HIDE_SORT_DIALOG' }
-            }
+            {description: "Open Sort dialog",keys: ["alt", "a", "s","s"],iconName: "ArrowDownUp",isSequential: true,dialogEffect: { action: 'SHOW_SORT_DIALOG' }},
+            {description: "Close the dialog",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE_SORT_DIALOG' }}
+        ]
+      },
+      {
+        description: "Group & Ungroup Rows",initialGridState: createGridState(bigTable,0,2,0),
+        steps: [
+            {description: "Group rows", keys: ["alt", "shift", "arrowright"], iconName: "Group", gridEffect: { action: 'GROUP_ROWS' } },
+            {description: "Ungroup rows/cols", keys: ["alt", "shift", "arrowleft"], iconName: "Ungroup" }
         ]
       },
       singleStep({ description: "Paste Special", keys: ["control", "alt", "v"], iconName: "ClipboardSignature", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Group rows/cols", keys: ["alt", "shift", "arrowright"], iconName: "Group", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'GROUP_ROWS' } }),
-      singleStep({ description: "Ungroup rows/cols", keys: ["alt", "shift", "arrowleft"], iconName: "Ungroup", initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Toggle Gridlines", keys: ["alt", "w", "v", "g"], iconName: "Grid3X3", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'TOGGLE_GRIDLINES' } }),
       singleStep({ description: "Freeze Panes", keys: ["alt", "w", "f", "f"], iconName: "Lock", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'FREEZE_PANES' } }),
     ],
