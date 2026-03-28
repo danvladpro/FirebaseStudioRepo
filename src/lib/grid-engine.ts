@@ -1141,8 +1141,11 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
         }
         case 'INSERT_LINE_BREAK_IN_FORMULA': {
             const { row, col } = newSelection.activeCell;
+            const cellId = `${row}-${col}`;
             if (newGridData[row]?.[col] !== undefined) {
                 newGridData[row][col] += '\n';
+                // Also apply the wrap text style, just like Excel does.
+                newCellStyles[cellId] = { ...newCellStyles[cellId], whiteSpace: 'pre-wrap' };
             }
             break;
         }
@@ -1198,6 +1201,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 
