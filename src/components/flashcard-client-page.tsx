@@ -2,10 +2,10 @@
 "use client";
 
 import { useState, ElementType, useEffect } from "react";
-import { Challenge, ChallengeSet, GridState } from "@/lib/types";
+import { Challenge, ChallengeSet, GridState, ChallengeStep } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
-import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VisualKeyboard } from "./visual-keyboard";
 import * as icons from "lucide-react";
@@ -13,35 +13,46 @@ import { useAuth } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { VisualGrid } from "./visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
+import { getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
+import { calculateDialogStateForStep } from "@/lib/dialog-engine";
 
-interface KeyDisplayProps {
-    value: string;
-    isMac?: boolean;
-}
+// Dialog imports
+import { FindReplaceDialog } from "./find-replace-dialog";
+import { CreateTableDialog } from "./create-table-dialog";
+import { GoToDialog } from "./go-to-dialog";
+import { SortDialog } from "./sort-dialog";
+import { FormatCellsDialog } from "./format-cells-dialog";
+import { FillColorDropdown } from "./fill-color-dropdown";
+import { FilterDropdown } from "./filter-dropdown";
+import { PasteSpecialDialog } from "./paste-special-dialog";
 
-const KeyDisplay = ({ value, isMac = false }: KeyDisplayProps) => {
-    const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
+
+const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
+    const isModifier = ["control", "shift", "alt", "meta"].includes(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
-    const displayMap: Record<string, string> = {
-        'Control': isMac ? '⌃' : 'Ctrl',
-        'Meta': isMac ? '⌘' : 'Win',
-        'Alt': isMac ? '⌥' : 'Alt',
-        ' ': 'Space',
-        'enter': 'Enter',
-        'return': 'Return',
-        'backspace': 'Backspace',
-        'delete': 'Delete',
-        'escape': 'Esc',
+    const keyDisplayMap: Record<string, string | JSX.Element> = {
+        'esc': 'Esc', 'backspace': 'Backspace', 'delete': 'Del', 'tab': 'Tab',
+        'capslock': 'Caps Lock', 'enter': 'Enter', 'return': 'Return', 'shift': 'Shift',
+        'control': '⌃', 'meta': '⌘', 'alt': '⌥', ' ': 'Space', 'fn': 'fn',
+        'insert': 'Ins', 'home': 'Home', 'pageup': 'PgUp', 'end': 'End', 'pagedown': 'PgDn',
+        'arrowup': <ArrowUp size={14} />, 'arrowdown': <ArrowDown size={14} />,
+        'arrowleft': <icons.ArrowLeft size={14} />, 'arrowright': <ArrowRight size={14} />,
     };
+
+    const windowsKeyDisplayMap: Record<string, string | JSX.Element> = {
+        ...keyDisplayMap, 'control': 'Ctrl', 'meta': 'Win', 'alt': 'Alt', 'delete': 'Del'
+    };
+
+    const displayValue = isMac ? (keyDisplayMap[value] || value.toUpperCase()) : (windowsKeyDisplayMap[value] || value.toUpperCase());
 
     return (
         <kbd className={cn(
-            "px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted rounded-md border-b-2",
-            isModifier ? "min-w-[2.5rem] text-center" : "",
+            "px-2 py-1.5 text-xs font-semibold rounded-md border-b-2 text-muted-foreground bg-muted",
+            isModifier ? "min-w-[3rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
-            {displayMap[value] || value}
+            {displayValue}
         </kbd>
     );
 };
@@ -70,6 +81,8 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     const { gridState: finalDisplayGridState, cellStyles: finalDisplayCellStyles } = initialGridState
         ? calculateGridStateForStep(currentChallenge.steps, initialGridState, currentChallenge.steps.length - 1)
         : { gridState: null, cellStyles: {} };
+    
+    const finalDialogState = calculateDialogStateForStep(currentChallenge.steps, currentChallenge.steps.length - 1);
 
     const handleNext = () => {
         setIsAnswerShown(false);
@@ -85,25 +98,8 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
         setIsAnswerShown(!isAnswerShown);
     };
 
-    const getOsKeys = (challenge: Challenge, isMac: boolean) => {
-        const primaryStep = challenge.steps[0];
-        if (!primaryStep) return [];
-
-        const isStrikethrough = primaryStep.description.toLowerCase().includes('strikethrough');
-        
-        return primaryStep.keys.map(key => {
-            if (isMac && key.toLowerCase() === 'control' && !isStrikethrough) {
-                return 'Meta';
-            }
-            return key;
-        });
-    }
-
-    const windowsKeys = getOsKeys(currentChallenge, false);
-    const macKeys = getOsKeys(currentChallenge, true);
-
-    const ChallengeIcon = currentChallenge.steps[0] ? icons[currentChallenge.steps[0].iconName] as ElementType : null;
-
+    const allStepKeys = currentChallenge.steps.flatMap(step => getPlatformKeys(step, isMac));
+    
     return (
         <div className="w-full max-w-4xl flex flex-col items-center">
             <Card className="w-full min-h-[300px] flex flex-col justify-center relative">
@@ -117,8 +113,8 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
 
                 <CardContent className="py-8 px-6 md:px-8 text-center flex flex-col items-center">
                     
-                    {initialDisplayGridState && (
-                        <div className="mb-6 w-full max-w-lg">
+                    <div className="mb-6 w-full max-w-lg relative">
+                        {initialGridState && (
                              <VisualGrid 
                                 gridState={initialDisplayGridState} 
                                 cellStyles={initialDisplayCellStyles}
@@ -128,40 +124,59 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                                 } : null}
                                 isAccentuating={isAnswerShown}
                             />
-                        </div>
-                    )}
-                    
-                    <div className="flex justify-center items-center gap-3 mb-4">
-                        {ChallengeIcon && <ChallengeIcon className="w-7 h-7 text-primary" />}
-                        <p className="text-xl md:text-2xl font-semibold text-foreground">
-                            {currentChallenge.description}
-                        </p>
+                        )}
+                         {isAnswerShown && (
+                            <>
+                                <FindReplaceDialog state={finalDialogState} />
+                                <CreateTableDialog
+                                    isVisible={!!finalDialogState.createTableDialogVisible}
+                                    isHighlighted={false}
+                                    range={getSelectionRangeString(initialDisplayGridState?.sheets[initialDisplayGridState.activeSheetIndex]?.selection!)}
+                                />
+                                <GoToDialog
+                                    isVisible={!!finalDialogState.goToDialogVisible}
+                                    reference={finalDialogState.goToDialogReference || ''}
+                                    isOkHighlighted={false}
+                                    isInputHighlighted={false}
+                                />
+                                <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
+                                <FormatCellsDialog state={finalDialogState} />
+                                <FilterDropdown state={finalDialogState} />
+                                <FillColorDropdown state={finalDialogState} />
+                                <PasteSpecialDialog state={finalDialogState} />
+                            </>
+                        )}
                     </div>
+                    
+                    <p className="text-xl md:text-2xl font-semibold text-foreground mb-4">
+                        {currentChallenge.description}
+                    </p>
 
-                    <div className="flex flex-col items-center justify-center gap-2 min-h-[80px]">
+                    <div className="flex flex-col items-center justify-center gap-2 min-h-[80px] w-full">
                         {isAnswerShown ? (
-                        <div className="flex flex-col items-center justify-center gap-2 animate-in fade-in">
-                            <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold w-16">Windows:</span>
-                            <div className="flex items-center justify-center gap-1">
-                                {windowsKeys.map((key, index) => (
-                                <KeyDisplay key={`win-${key}-${index}`} value={key} isMac={false} />
-                                ))}
+                            <div className="flex flex-col gap-2 text-left w-full animate-in fade-in">
+                                {currentChallenge.steps.map((step, index) => {
+                                    const StepIcon = icons[step.iconName] as ElementType;
+                                    const stepKeys = getPlatformKeys(step, isMac);
+                                    return (
+                                        <div key={index} className="p-2 rounded-lg bg-muted/50 flex items-center justify-between gap-4">
+                                            <div className="flex items-center gap-3">
+                                                {StepIcon && <StepIcon className="w-5 h-5 text-primary" />}
+                                                <p>{step.description}</p>
+                                            </div>
+                                            <div className="flex items-center justify-center gap-1">
+                                                {stepKeys.map((key, keyIndex) => (
+                                                    <KeyDisplay key={`${key}-${keyIndex}`} value={key} isMac={isMac} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
                             </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold w-16">macOS:</span>
-                            <div className="flex items-center justify-center gap-1">
-                                {macKeys.map((key, index) => (
-                                <KeyDisplay key={`mac-${key}-${index}`} value={key} isMac={true} />
-                                ))}
-                            </div>
-                            </div>
-                        </div>
                         ) : (
-                        <Button onClick={toggleAnswer} variant="outline" className="mt-2 animate-pulse-subtle">
-                            <Eye className="mr-2" /> Show Shortcut
-                        </Button>
+                            <Button onClick={toggleAnswer} variant="outline" className="mt-2 animate-pulse-subtle">
+                                <Eye className="mr-2" /> Show Shortcuts & Effects
+                            </Button>
                         )}
                     </div>
                 </CardContent>
@@ -171,22 +186,22 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                 </Button>
             </Card>
 
-            <div className="w-full mt-8">
-                 <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                             <VisualKeyboard highlightedKeys={isAnswerShown ? getOsKeys(currentChallenge, isMac) : []} />
-                        </TooltipTrigger>
-                        {!isAnswerShown && (
-                            <TooltipContent>
-                                <p>The correct keys will be highlighted here once you flip the card.</p>
-                            </TooltipContent>
-                        )}
-                    </Tooltip>
-                 </TooltipProvider>
+            <div className="w-full h-full max-w-[750px] mt-8">
+                <div className="w-full h-full max-h-[250px] aspect-[3/1]">
+                     <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                 <VisualKeyboard highlightedKeys={isAnswerShown ? allStepKeys : []} />
+                            </TooltipTrigger>
+                            {!isAnswerShown && (
+                                <TooltipContent>
+                                    <p>The correct keys will be highlighted here once you flip the card.</p>
+                                </TooltipContent>
+                            )}
+                        </Tooltip>
+                     </TooltipProvider>
+                </div>
             </div>
         </div>
     );
 }
-
-    
