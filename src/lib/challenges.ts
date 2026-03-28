@@ -39,7 +39,12 @@ const createGridState = (data: string[][], activeSheetIndex: number = 0, Row: nu
     };
 };
 
-
+const flashTable = [['','ID', 'Name',  '',''],
+    ['','1', 'Project 1',  '',''],
+    ['','2', 'Project 2', '',''],
+    ['','3', 'Project 3',  '',''],
+    ['','4', '', '',''],
+];
 const bigTable = [['ID', 'Name', 'Date', 'Amount'],
     ['1', 'Project A', '2026-01-01', '500.75'],
     ['2', 'Project B', '2026-01-05', '1200.50'],
@@ -58,6 +63,11 @@ const formatTable = [['Number','Date', 'Time','General'],
     ['1','46108', '0.63', '2.000'],
     ['','', '',''],
 ];
+
+const wrapTable = [['Long Text Here','', '','', ''],
+['Long Text Here', '','','', ''],
+['','','', '',''],
+['','','', '',''],]
 
 const createSummableGridState = (): GridState => ({
   sheets: [
@@ -157,23 +167,13 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Italicize", keys: ["control", "i"], iconName: "Italic", gridEffect: { action: 'APPLY_STYLE_ITALIC' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Underline", keys: ["control", "u"], iconName: "Underline", gridEffect: { action: 'APPLY_STYLE_UNDERLINE' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Strikethrough", keys: ["control", "5"], iconName: "Strikethrough", gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' }, initialGridState: createGridState(bigTable,0,2,0) }),
-      {
-        description: "Open and close the Find dialog",initialGridState: createGridState(bigTable,0,2,0),
-        steps: [
-            {description: "Open Find dialog",keys: ["control", "f"],iconName: "Search",dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } }},
-            {description: "Close the dialog",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE' },previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' }}
-        ]
-      },
-      {
-        description: "Open and close the Replace dialog",initialGridState: createGridState(bigTable,0,2,0),
-        steps: [
-            {description: "Open Replace dialog",keys: ["control", "h"],iconName: "Replace",dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } }},
-            {description: "Close the dialog",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE' },previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' }}
-        ]
-      }
+      { description: "Open Find and Replace dialogs", initialGridState: createGridState(bigTable,0,2,0), steps: [
+        {description: "Open Find dialog",keys: ["control", "f"],iconName: "Search",dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } } },
+        {description: "Open Replace dialog",keys: ["control", "h"],iconName: "Replace",dialogEffect: { action: 'SET_TAB', payload: 'replace' } },
+        {description: "Close Dialog",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE' } },
+      ]},
     ],
   },
-  
   
   {
     id: "warp-speed-navigation",
@@ -187,6 +187,15 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Jump to beginning of row", keys: ["home"], iconName: "Home", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
       singleStep({ description: "Jump to top-left (A1)", keys: ["control", "home"], iconName: "PanelTopOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
       singleStep({ description: "Jump to last used cell", keys: ["control", "end"], iconName: "PanelBottomOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } }, initialGridState: createGridState(leanTable, 0, 0, 1, 0) }),
+      singleStep({ description: "Go to next worksheet", keys: ["control", "pagedown"], iconName: "ArrowRightToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } }, initialGridState: createMultiSheetGridState(0) }),
+      singleStep({ description: "Go to previous worksheet", keys: ["control", "pageup"], iconName: "ArrowLeftToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } }, initialGridState: createMultiSheetGridState(1) }),
+      {
+        description: "Open 'Go To' dialog",initialGridState: createGridState(bigTable, 0, 2, 0),
+        steps: [
+          {description: "Open 'Go To' dialog",keys: ["f5"],iconName: "Locate",dialogEffect: { action: 'SHOW_GO_TO' }},
+          {description: "Close dialog",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE_GO_TO' }}
+        ]
+      },
       {
         description: "Scan pages up and down",
         initialGridState: createGridState(leanTable, 0, 4, 3, 20),
@@ -195,16 +204,6 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
             {description: "Scroll one page up",keys: ["pageup"],iconName: "ArrowUpToLine",gridEffect: { action: 'SCROLL_PAGE_UP' }}
         ]
       },
-      singleStep({ description: "Go to next worksheet", keys: ["control", "pagedown"], iconName: "ArrowRightToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } }, initialGridState: createMultiSheetGridState(0) }),
-      singleStep({ description: "Go to previous worksheet", keys: ["control", "pageup"], iconName: "ArrowLeftToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } }, initialGridState: createMultiSheetGridState(1) }),
-      {
-        description: "Open and close the 'Go To' dialog",
-        initialGridState: createGridState(bigTable, 0, 2, 0),
-        steps: [
-            {description: "Open 'Go To' dialog",keys: ["f5"],iconName: "Locate",dialogEffect: { action: 'SHOW_GO_TO' },},
-            {description: "Close the dialog",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE_GO_TO' }}
-        ]
-      }
     ],
   },
   {
@@ -248,13 +247,13 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
           {description: "Insert a new row above",keys: ["control", "shift", "="],iconName: "Sheet",gridEffect: { action: 'INSERT_ROW' },}
         ]},
       {
-        description: "Manipulate row visibility",initialGridState: createGridState(bigTable, 0, 2, 0),
+        description: "Manipulate row and column visibility",initialGridState: createGridState(bigTable, 0, 2, 0),
         steps: [
           {description: "Hide Row",keys: ["control", "9"],iconName: "EyeOff",gridEffect: { action: 'HIDE_ROW' },},
           {description: "Unhide rows",keys: ["control", "shift", "9"],iconName: "Eye",gridEffect: { action: 'UNHIDE_ROWS' },},
           {description: "Hide column",keys: ["control", "0"],iconName: "EyeOff",gridEffect: { action: 'HIDE_COLUMN' },},
           {description: "Unhide columns",keys: ["control", "shift", "0"],iconName: "Eye",gridEffect: { action: 'UNHIDE_COLUMNS' },},
-          {description: "Select visible cells only",keys: ["alt", ";"],iconName: "Aperture",gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' },}
+          {description: "Select visible cells",keys: ["alt", ";"],iconName: "Aperture",gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' },}
         ]},
     ],
   },
@@ -272,6 +271,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         steps: [
           {description: "Edit the cell formula",keys: ["f2"],iconName: "Pencil",gridEffect: { action: 'START_EDITING', payload: { formula: '=A1' } },},
           {description: "Toggle absolute reference",keys: ["f4"],iconName: "Anchor",gridEffect: { action: 'TOGGLE_ABS_REF' },},
+          {description: "Confirm change", keys: ["enter"], iconName: "Check"}
         ]
       },
 
@@ -302,13 +302,19 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Data",
     iconName: "Wand2",
     challenges: [
-      singleStep({ description: "Flash Fill", keys: ["control", "e"], iconName: "Wand2", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Fill Down", keys: ["control", "d"], iconName: "ArrowDownSquare", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Fill Right", keys: ["control", "r"], iconName: "ArrowRightSquare", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Insert Date", keys: ["control", ";"], iconName: "CalendarDays", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Insert Time", keys: ["control", "shift", ";"], iconName: "Clock", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Insert line break", keys: ["alt", "enter"], iconName: "WrapText", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Insert Comment", keys: ["shift", "f2"], iconName: "MessageSquarePlus", initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Flash Fill", keys: ["control", "e"], iconName: "Wand2", initialGridState: createGridState(flashTable,0,4,2),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'Project 4' } }}),
+      singleStep({ description: "Fill Down", keys: ["control", "d"], iconName: "ArrowDownSquare",initialGridState: createGridState(flashTable,0,4,2),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'Project 3' } }}),
+      singleStep({ description: "Insert Date", keys: ["control", ";"], iconName: "CalendarDays", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'12-Mar-2026' } }}),
+      singleStep({ description: "Insert Time", keys: ["control", "shift", ";"], iconName: "Clock", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'3 PM' } }}),
+      singleStep({ description: "Insert Comment", keys: ["shift", "f2"], iconName: "MessageSquarePlus", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'SHOW_COMMENT' } }),
+      {
+        description: "Start a new line in a cell",
+        initialGridState: createGridState(bigTable, 0, 2, 0),
+        steps: [
+            {description: "Edit the cell formula",keys: ["f2"],iconName: "Pencil",gridEffect: { action: 'START_EDITING', payload: { formula: '=A1' } },},
+            {description: "Insert line break", keys: ["alt", "enter"], iconName: "WrapText", gridEffect: { action: 'INSERT_LINE_BREAK_IN_FORMULA' } },
+        ]
+      },
     ],
   },
 
@@ -323,38 +329,20 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Ribbon",
     iconName: "Palette",
     challenges: [
-      singleStep({ description: "Center align", keys: ["alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } }),
       {
         description: "Merge and Center",
         initialGridState: createGridState(bigTable, 0, 2, 0),
         steps: [
             {description: "Extend selection right", keys: ["shift", "arrowright"], iconName: "MoveRight", gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
-            {description: 'Open Fill Color Menu',keys: ['alt', 'h', 'h'],iconName: 'PaintBucket',isSequential: true,dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' }},
             {description: "Merge & Center", keys: ["alt", "h", "m", "c"], iconName: "Merge", isSequential: true, gridEffect: { action: 'APPLY_STYLE_MERGE_CENTER' } }
         ]
       },
-      singleStep({ 
-        description: "Wrap Text", 
-        keys: ["alt", "h", "w"], 
-        iconName: "WrapText", 
-        isSequential: true, 
-        initialGridState: createGridState(
-          [['Long Text Here','', '','', ''],
-          ['Long Text Here', '','','', ''],
-          ['','','', '',''],
-          ['','','', '',''],],0,0,0),
-        gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } }),
+      singleStep({ description: "Center align", keys: ["alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } }),
+      singleStep({ description: "Wrap Text", keys: ["alt", "h", "w"], iconName: "WrapText", isSequential: true, initialGridState: createGridState(wrapTable,0,0,0),gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } }),
+      singleStep({ description: "Clear formatting", keys: ["alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Apply all borders", keys: ["alt", "h", "b", "a"], iconName: "Grid", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } }),
       singleStep({ description: "Thick box border", keys: ["alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } }),
-      {
-        description: "Use the ribbon to apply a fill color",
-        initialGridState: createGridState(bigTable, 0, 2, 0),
-        steps: [
-            {description: 'Open Fill Color Menu',keys: ['alt', 'h', 'h'],iconName: 'PaintBucket',isSequential: true,dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' }},
-            {description: 'Select a color and apply',keys: ['enter'],iconName: 'Check',dialogEffect: { action: 'HIDE_FILL_COLOR_DROPDOWN' },gridEffect: { action: 'APPLY_FILL_COLOR' }}
-        ]
-      },
-      singleStep({ description: "Clear formatting", keys: ["alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: 'Open Fill Color Menu',keys: ['alt', 'h', 'h'],iconName: 'PaintBucket',isSequential: true, initialGridState: createGridState(bigTable,0,2,0),dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' } }),
       singleStep({ description: "Auto-fit width", keys: ["alt", "h", "o", "i"], iconName: "ArrowUpNarrowWide", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'AUTOFIT_COLUMNS' } }),
     ],
   },
@@ -384,23 +372,17 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Data",
     iconName: "ShieldCheck",
     challenges: [
-      {
-        description: "Open and close the Sort dialog",initialGridState: createGridState(bigTable,0,2,0),
-        steps: [
-            {description: "Open Sort dialog",keys: ["alt", "a", "s","s"],iconName: "ArrowDownUp",isSequential: true,dialogEffect: { action: 'SHOW_SORT_DIALOG' }},
-            {description: "Close the dialog",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE_SORT_DIALOG' }}
-        ]
-      },
+      singleStep({ description: "Open Sort dialog",keys: ["alt", "a", "s","s"],iconName: "ArrowDownUp",isSequential: true,initialGridState: createGridState(bigTable,0,2,0),dialogEffect: { action: 'SHOW_SORT_DIALOG' }}),
+      singleStep({ description: "Paste Special", keys: ["control", "alt", "v"], iconName: "ClipboardSignature", initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Toggle Gridlines", keys: ["alt", "w", "v", "g"], iconName: "Grid3X3", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'TOGGLE_GRIDLINES' } }),
+      singleStep({ description: "Freeze Panes", keys: ["alt", "w", "f", "f"], iconName: "Lock", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'FREEZE_PANES' } }),
       {
         description: "Group & Ungroup Rows",initialGridState: createGridState(bigTable,0,2,0),
         steps: [
             {description: "Group rows", keys: ["alt", "shift", "arrowright"], iconName: "Group", gridEffect: { action: 'GROUP_ROWS' } },
-            {description: "Ungroup rows/cols", keys: ["alt", "shift", "arrowleft"], iconName: "Ungroup", gridEffect: { action: 'UNGROUP_ROWS' } }
+            {description: "Ungroup rows", keys: ["alt", "shift", "arrowleft"], iconName: "Ungroup", gridEffect: { action: 'UNGROUP_ROWS' } }
         ]
       },
-      singleStep({ description: "Paste Special", keys: ["control", "alt", "v"], iconName: "ClipboardSignature", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Toggle Gridlines", keys: ["alt", "w", "v", "g"], iconName: "Grid3X3", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'TOGGLE_GRIDLINES' } }),
-      singleStep({ description: "Freeze Panes", keys: ["alt", "w", "f", "f"], iconName: "Lock", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'FREEZE_PANES' } }),
     ],
   },
 ];

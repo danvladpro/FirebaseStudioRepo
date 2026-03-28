@@ -24,6 +24,7 @@ export interface Sheet {
     start: { row: number; col: number };
     end: { row: number; col: number };
   }[];
+  comments?: Record<string, string>;
 }
 
 export interface GridState {
@@ -87,7 +88,9 @@ export type GridEffectAction =
   | 'AUTOFIT_COLUMNS'
   | 'APPLY_FILL_COLOR'
   | 'INCREASE_DECIMAL'
-  | 'DECREASE_DECIMAL';
+  | 'DECREASE_DECIMAL'
+  | 'SHOW_COMMENT'
+  | 'INSERT_LINE_BREAK_IN_FORMULA';
 
 export interface GridEffect {
   action: GridEffectAction;

@@ -120,6 +120,7 @@ export function VisualGrid({
 
                                         const cell = gridDataToRender[rowIndex][colIndex];
                                         const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
+                                        const hasComment = !!finalSheet.comments?.[cellId];
 
                                         const getCellClasses = () => {
                                             const classes: string[] = [];
@@ -146,6 +147,10 @@ export function VisualGrid({
 
                                         const style = { ...finalCellStyles[cellId] };
                                         
+                                        if (cell?.includes('\n')) {
+                                            style.whiteSpace = 'pre-wrap';
+                                        }
+
                                         if (mergeInfo) {
                                             colSpan = mergeInfo.end.col - mergeInfo.start.col + 1;
                                             rowSpan = mergeInfo.end.row - mergeInfo.start.row + 1;
@@ -164,13 +169,24 @@ export function VisualGrid({
                                                 colSpan={colSpan}
                                                 rowSpan={rowSpan}
                                                 className={cn(
-                                                    "p-0.5 text-[11px] sm:p-1 sm:text-xs truncate transition-colors duration-200",
+                                                    "relative p-0.5 text-[11px] sm:p-1 sm:text-xs truncate transition-colors duration-200",
                                                     showGridlines !== false && "border border-border",
                                                     ...getCellClasses()
                                                 )}
                                                 style={style}
                                             >
                                                 {cell}
+                                                {hasComment && (
+                                                    <>
+                                                        <div className="absolute top-0 right-0 w-0 h-0 border-solid border-t-red-600 border-l-transparent border-t-[6px] border-l-[6px]" />
+                                                        {isActive && (
+                                                            <div className="absolute left-full top-0 z-10 ml-2 w-48 rounded border border-gray-400 p-2 shadow-lg text-black" style={{ backgroundColor: '#FFFDE1' }}>
+                                                                <p className="text-xs font-bold border-b border-gray-300 pb-1 mb-1">User:</p>
+                                                                <p className="text-xs whitespace-pre-wrap">{finalSheet.comments![cellId]}</p>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )}
                                             </td>
                                         );
                                     })}

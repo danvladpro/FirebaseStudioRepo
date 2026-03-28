@@ -23,6 +23,7 @@ export const deepCloneGridState = (state: GridState): GridState => {
       groupedRowRanges: sheet.groupedRowRanges ? [...sheet.groupedRowRanges] : undefined,
       colWidths: sheet.colWidths ? [...sheet.colWidths] : undefined,
       mergedRanges: sheet.mergedRanges ? sheet.mergedRanges.map(r => ({ start: { ...r.start }, end: { ...r.end } })) : undefined,
+      comments: sheet.comments ? { ...sheet.comments } : undefined,
     })),
     activeSheetIndex: state.activeSheetIndex,
     clipboard: state.clipboard ? {
@@ -1129,6 +1130,22 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
             });
             break;
         }
+        case 'SHOW_COMMENT': {
+            if (!activeSheet.comments) {
+                activeSheet.comments = {};
+            }
+            const { row, col } = newSelection.activeCell;
+            const cellId = `${row}-${col}`;
+            activeSheet.comments[cellId] = "New Comment...";
+            break;
+        }
+        case 'INSERT_LINE_BREAK_IN_FORMULA': {
+            const { row, col } = newSelection.activeCell;
+            if (newGridData[row]?.[col] !== undefined) {
+                newGridData[row][col] += '\n';
+            }
+            break;
+        }
     }
 
     newGridState.sheets[newGridState.activeSheetIndex] = activeSheet;
@@ -1181,6 +1198,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 
