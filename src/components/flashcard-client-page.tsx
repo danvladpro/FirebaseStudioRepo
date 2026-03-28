@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, ElementType, useEffect } from "react";
+import { useState, ElementType, useEffect, useMemo } from "react";
 import { Challenge, ChallengeSet, GridState, ChallengeStep } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
@@ -57,6 +57,15 @@ const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
     );
 };
 
+interface FlashcardItem {
+  parentChallengeDescription: string;
+  step: ChallengeStep;
+  stepIndex: number;
+  totalSteps: number;
+  initialGridState: GridState | null;
+  allSteps: ChallengeStep[];
+}
+
 
 export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -69,42 +78,73 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     }, []);
     
     const isLimited = !isPremium;
-    const challenges = isLimited ? set.challenges.slice(0, 5) : set.challenges;
+    
+    const flashcards = useMemo((): FlashcardItem[] => {
+        const allFlashcards: FlashcardItem[] = [];
+        const sourceChallenges = isLimited ? set.challenges.slice(0, 5) : set.challenges;
 
-    const currentChallenge = challenges[currentIndex];
-    const initialGridState = currentChallenge?.initialGridState ?? null;
+        sourceChallenges.forEach(challenge => {
+            challenge.steps.forEach((step, stepIndex) => {
+                allFlashcards.push({
+                    parentChallengeDescription: challenge.description,
+                    step: step,
+                    stepIndex: stepIndex,
+                    totalSteps: challenge.steps.length,
+                    initialGridState: challenge.initialGridState || null,
+                    allSteps: challenge.steps,
+                });
+            });
+        });
+        return allFlashcards;
+    }, [set.challenges, isLimited]);
+
+
+    const currentFlashcard = flashcards[currentIndex];
+    const initialGridState = currentFlashcard?.initialGridState ?? null;
 
     const { gridState: initialDisplayGridState, cellStyles: initialDisplayCellStyles } = initialGridState
-        ? calculateGridStateForStep(currentChallenge.steps, initialGridState, -1)
+        ? calculateGridStateForStep(currentFlashcard.allSteps, initialGridState, currentFlashcard.stepIndex - 1)
         : { gridState: null, cellStyles: {} };
         
     const { gridState: finalDisplayGridState, cellStyles: finalDisplayCellStyles } = initialGridState
-        ? calculateGridStateForStep(currentChallenge.steps, initialGridState, currentChallenge.steps.length - 1)
+        ? calculateGridStateForStep(currentFlashcard.allSteps, initialGridState, currentFlashcard.stepIndex)
         : { gridState: null, cellStyles: {} };
     
-    const finalDialogState = calculateDialogStateForStep(currentChallenge.steps, currentChallenge.steps.length - 1);
+    const dialogStateBefore = calculateDialogStateForStep(currentFlashcard.allSteps, currentFlashcard.stepIndex - 1);
+    const dialogStateAfter = calculateDialogStateForStep(currentFlashcard.allSteps, currentFlashcard.stepIndex);
 
     const handleNext = () => {
         setIsAnswerShown(false);
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % challenges.length);
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % flashcards.length);
     };
 
     const handlePrevious = () => {
         setIsAnswerShown(false);
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + challenges.length) % challenges.length);
+        setCurrentIndex((prevIndex) => (prevIndex - 1 + flashcards.length) % flashcards.length);
     };
 
     const toggleAnswer = () => {
         setIsAnswerShown(!isAnswerShown);
     };
 
-    const allStepKeys = currentChallenge.steps.flatMap(step => getPlatformKeys(step, isMac));
+    if (!currentFlashcard) {
+        return (
+            <div className="w-full max-w-4xl flex flex-col items-center">
+                <Card className="w-full min-h-[300px] flex flex-col justify-center items-center">
+                    <p>No flashcards in this set.</p>
+                </Card>
+            </div>
+        );
+    }
     
+    const stepKeys = getPlatformKeys(currentFlashcard.step, isMac);
+    const StepIcon = icons[currentFlashcard.step.iconName] as ElementType;
+
     return (
         <div className="w-full max-w-4xl flex flex-col items-center">
             <Card className="w-full min-h-[300px] flex flex-col justify-center relative">
                 <p className="absolute top-4 right-4 text-sm text-muted-foreground font-medium">
-                    Card {currentIndex + 1} of {challenges.length}
+                    Card {currentIndex + 1} of {flashcards.length}
                 </p>
 
                 <Button variant="ghost" size="icon" onClick={handlePrevious} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 animate-pulse-subtle">
@@ -125,57 +165,78 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                                 isAccentuating={isAnswerShown}
                             />
                         )}
-                         {isAnswerShown && (
+                        {isAnswerShown && (
                             <>
-                                <FindReplaceDialog state={finalDialogState} />
+                                <FindReplaceDialog state={dialogStateAfter} />
                                 <CreateTableDialog
-                                    isVisible={!!finalDialogState.createTableDialogVisible}
+                                    isVisible={!!dialogStateAfter.createTableDialogVisible}
                                     isHighlighted={false}
                                     range={getSelectionRangeString(initialDisplayGridState?.sheets[initialDisplayGridState.activeSheetIndex]?.selection!)}
                                 />
                                 <GoToDialog
-                                    isVisible={!!finalDialogState.goToDialogVisible}
-                                    reference={finalDialogState.goToDialogReference || ''}
+                                    isVisible={!!dialogStateAfter.goToDialogVisible}
+                                    reference={dialogStateAfter.goToDialogReference || ''}
                                     isOkHighlighted={false}
                                     isInputHighlighted={false}
                                 />
-                                <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
-                                <FormatCellsDialog state={finalDialogState} />
-                                <FilterDropdown state={finalDialogState} />
-                                <FillColorDropdown state={finalDialogState} />
-                                <PasteSpecialDialog state={finalDialogState} />
+                                <SortDialog isVisible={!!dialogStateAfter.sortDialogVisible} />
+                                <FormatCellsDialog state={dialogStateAfter} />
+                                <FilterDropdown state={dialogStateAfter} />
+                                <FillColorDropdown state={dialogStateAfter} />
+                                <PasteSpecialDialog state={dialogStateAfter} />
+                            </>
+                        )}
+                         {!isAnswerShown && (
+                            <>
+                                <FindReplaceDialog state={dialogStateBefore} />
+                                <CreateTableDialog
+                                    isVisible={!!dialogStateBefore.createTableDialogVisible}
+                                    isHighlighted={false}
+                                    range={getSelectionRangeString(initialDisplayGridState?.sheets[initialDisplayGridState.activeSheetIndex]?.selection!)}
+                                />
+                                <GoToDialog
+                                    isVisible={!!dialogStateBefore.goToDialogVisible}
+                                    reference={dialogStateBefore.goToDialogReference || ''}
+                                    isOkHighlighted={false}
+                                    isInputHighlighted={false}
+                                />
+                                <SortDialog isVisible={!!dialogStateBefore.sortDialogVisible} />
+                                <FormatCellsDialog state={dialogStateBefore} />
+                                <FilterDropdown state={dialogStateBefore} />
+                                <FillColorDropdown state={dialogStateBefore} />
+                                <PasteSpecialDialog state={dialogStateBefore} />
                             </>
                         )}
                     </div>
                     
+                    {currentFlashcard.totalSteps > 1 && (
+                        <p className="text-sm font-semibold text-primary mb-2">
+                           {currentFlashcard.parentChallengeDescription} (Step {currentFlashcard.stepIndex + 1}/{currentFlashcard.totalSteps})
+                        </p>
+                    )}
+                    
                     <p className="text-xl md:text-2xl font-semibold text-foreground mb-4">
-                        {currentChallenge.description}
+                        {currentFlashcard.step.description}
                     </p>
 
                     <div className="flex flex-col items-center justify-center gap-2 min-h-[80px] w-full">
                         {isAnswerShown ? (
                             <div className="flex flex-col gap-2 text-left w-full animate-in fade-in">
-                                {currentChallenge.steps.map((step, index) => {
-                                    const StepIcon = icons[step.iconName] as ElementType;
-                                    const stepKeys = getPlatformKeys(step, isMac);
-                                    return (
-                                        <div key={index} className="p-2 rounded-lg bg-muted/50 flex items-center justify-between gap-4">
-                                            <div className="flex items-center gap-3">
-                                                {StepIcon && <StepIcon className="w-5 h-5 text-primary" />}
-                                                <p>{step.description}</p>
-                                            </div>
-                                            <div className="flex items-center justify-center gap-1">
-                                                {stepKeys.map((key, keyIndex) => (
-                                                    <KeyDisplay key={`${key}-${keyIndex}`} value={key} isMac={isMac} />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
+                                <div className="p-2 rounded-lg bg-muted/50 flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        {StepIcon && <StepIcon className="w-5 h-5 text-primary" />}
+                                        <p>{currentFlashcard.step.description}</p>
+                                    </div>
+                                    <div className="flex items-center justify-center gap-1">
+                                        {stepKeys.map((key, keyIndex) => (
+                                            <KeyDisplay key={`${key}-${keyIndex}`} value={key} isMac={isMac} />
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                             <Button onClick={toggleAnswer} variant="outline" className="mt-2 animate-pulse-subtle">
-                                <Eye className="mr-2" /> Show Shortcuts & Effects
+                                <Eye className="mr-2" /> Show Shortcut & Effect
                             </Button>
                         )}
                     </div>
@@ -191,7 +252,7 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                      <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                 <VisualKeyboard highlightedKeys={isAnswerShown ? allStepKeys : []} />
+                                 <VisualKeyboard highlightedKeys={isAnswerShown ? stepKeys : []} />
                             </TooltipTrigger>
                             {!isAnswerShown && (
                                 <TooltipContent>
@@ -205,3 +266,4 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
         </div>
     );
 }
+
