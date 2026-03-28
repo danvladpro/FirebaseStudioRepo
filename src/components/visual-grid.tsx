@@ -119,6 +119,7 @@ export function VisualGrid({
                                         );
 
                                         const cell = gridDataToRender[rowIndex][colIndex];
+                                        const hasLineBreak = cell?.includes('\n');
                                         const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
                                         const hasComment = !!finalSheet.comments?.[cellId];
 
@@ -147,7 +148,7 @@ export function VisualGrid({
 
                                         const style = { ...finalCellStyles[cellId] };
                                         
-                                        if (cell?.includes('\n')) {
+                                        if (hasLineBreak) {
                                             style.whiteSpace = 'pre-wrap';
                                         }
 
@@ -175,7 +176,15 @@ export function VisualGrid({
                                                 )}
                                                 style={style}
                                             >
-                                                {cell}
+                                                {hasLineBreak
+                                                  ? cell.split('\n').map((line, i, arr) => (
+                                                      <React.Fragment key={i}>
+                                                        {line}
+                                                        {i < arr.length - 1 && <br />}
+                                                      </React.Fragment>
+                                                    ))
+                                                  : cell
+                                                }
                                                 {hasComment && (
                                                     <>
                                                         <div className="absolute top-0 right-0 w-0 h-0 border-solid border-t-red-600 border-l-transparent border-t-[6px] border-l-[6px]" />
