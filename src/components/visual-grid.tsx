@@ -1,4 +1,3 @@
-
 "use client";
 
 import { cn } from "@/lib/utils";
@@ -189,9 +188,9 @@ export function VisualGrid({
                                                     <>
                                                         <div className="absolute top-0 right-0 w-0 h-0 border-solid border-t-red-600 border-l-transparent border-t-[6px] border-l-[6px]" />
                                                         {isActive && (
-                                                            <div className="absolute left-full top-0 z-10 ml-2 w-48 rounded border border-gray-400 p-2 shadow-lg text-black" style={{ backgroundColor: '#FFFDE1' }}>
-                                                                <p className="text-xs font-bold border-b border-gray-300 pb-1 mb-1">User:</p>
-                                                                <p className="text-xs whitespace-pre-wrap">{finalSheet.comments![cellId]}</p>
+                                                            <div className="absolute left-full top-0 z-10 ml-2 w-64 rounded border border-gray-400 p-2 shadow-lg text-black" style={{ backgroundColor: '#FFFDE1' }}>
+                                                                <p className="text-sm font-bold border-b border-gray-300 pb-1 mb-1">User:</p>
+                                                                <p className="text-sm whitespace-pre-wrap">{finalSheet.comments![cellId]}</p>
                                                             </div>
                                                         )}
                                                     </>
