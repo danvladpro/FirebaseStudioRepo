@@ -25,6 +25,10 @@ export interface Sheet {
     end: { row: number; col: number };
   }[];
   comments?: Record<string, string>;
+  autoFilterRange?: {
+    start: { row: number; col: number };
+    end: { row: number; col: number };
+  } | null;
 }
 
 export interface GridState {
@@ -90,7 +94,8 @@ export type GridEffectAction =
   | 'INCREASE_DECIMAL'
   | 'DECREASE_DECIMAL'
   | 'SHOW_COMMENT'
-  | 'INSERT_LINE_BREAK_IN_FORMULA';
+  | 'INSERT_LINE_BREAK_IN_FORMULA'
+  | 'TOGGLE_AUTOFILTER';
 
 export interface GridEffect {
   action: GridEffectAction;

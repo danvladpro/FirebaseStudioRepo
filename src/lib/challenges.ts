@@ -286,7 +286,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
             {description: "Select current region", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' },},
             {description: "Open Create Table dialog",keys: ["control", "t"],iconName: "Table",dialogEffect: { action: 'SHOW_CREATE_TABLE' }},
             {description: "Confirm table creation",keys: ["enter"],iconName: "Check",dialogEffect: { action: 'HIDE_CREATE_TABLE' },gridEffect: { action: 'APPLY_TABLE_FORMATTING' },previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' }},
-            {description: "Toggle AutoFilter",keys: ["control", "shift", "l"],iconName: "Filter",},
+            {description: "Toggle AutoFilter",keys: ["control", "shift", "l"],iconName: "Filter", gridEffect: { action: 'TOGGLE_AUTOFILTER' }},
             {description: "Open filter dropdown",keys: ["alt", "arrowdown"],iconName: "ChevronDownSquare",dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' },},
         ]
       },
@@ -305,6 +305,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Insert Date", keys: ["control", ";"], iconName: "CalendarDays", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'12-Mar-2026' } }}),
       singleStep({ description: "Insert Time", keys: ["control", "shift", ";"], iconName: "Clock", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'3 PM' } }}),
       singleStep({ description: "Add a comment", keys: ["shift", "f2"], iconName: "MessageSquarePlus", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'SHOW_COMMENT' } }),
+      singleStep({ description: "Insert line break", keys: ["alt", "enter"], iconName: "Pilcrow", initialGridState: createGridState([['=A1', '']], 0, 0, 0), gridEffect: { action: 'INSERT_LINE_BREAK_IN_FORMULA' } }),
     ],
   },
 

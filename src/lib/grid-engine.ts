@@ -24,6 +24,7 @@ export const deepCloneGridState = (state: GridState): GridState => {
       colWidths: sheet.colWidths ? [...sheet.colWidths] : undefined,
       mergedRanges: sheet.mergedRanges ? sheet.mergedRanges.map(r => ({ start: { ...r.start }, end: { ...r.end } })) : undefined,
       comments: sheet.comments ? { ...sheet.comments } : undefined,
+      autoFilterRange: sheet.autoFilterRange ? { start: { ...sheet.autoFilterRange.start }, end: { ...sheet.autoFilterRange.end } } : null,
     })),
     activeSheetIndex: state.activeSheetIndex,
     clipboard: state.clipboard ? {
@@ -1009,6 +1010,20 @@ export const applyGridEffect = (gridState: GridState, dialogState: FindReplaceDi
         case 'TOGGLE_GRIDLINES':
             activeSheet.showGridlines = !(activeSheet.showGridlines ?? true);
             break;
+        case 'TOGGLE_AUTOFILTER': {
+            if (activeSheet.autoFilterRange) {
+                // If filter is on, turn it off
+                activeSheet.autoFilterRange = null;
+            } else {
+                // If filter is off, turn it on for the current selection's row
+                const { minRow, minCol, maxCol } = getFullSelectionInfo(newSelection);
+                activeSheet.autoFilterRange = {
+                    start: { row: minRow, col: minCol },
+                    end: { row: minRow, col: maxCol }
+                };
+            }
+            break;
+        }
         case 'APPLY_TABLE_FORMATTING': {
             const { anchorCell, activeCell } = newSelection;
             const minRow = Math.min(anchorCell.row, activeCell.row);
@@ -1201,6 +1216,7 @@ export const calculateGridStateForStep = (steps: ChallengeStep[], initialGridSta
 
 
     
+
 
 
 

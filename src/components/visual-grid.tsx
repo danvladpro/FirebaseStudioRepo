@@ -4,6 +4,7 @@
 import { cn } from "@/lib/utils";
 import React from "react";
 import { GridState, Sheet } from "@/lib/types";
+import { ChevronDown } from "lucide-react";
 
 interface VisualGridProps {
     gridState: GridState | null;
@@ -59,7 +60,7 @@ export function VisualGrid({
         ? previewState.gridState.activeSheetIndex
         : gridState.activeSheetIndex;
 
-    const { hiddenRows = new Set<number>(), hiddenColumns = new Set<number>(), frozenAt, showGridlines, groupedRowRanges, colWidths } = finalSheet;
+    const { hiddenRows = new Set<number>(), hiddenColumns = new Set<number>(), frozenAt, showGridlines, groupedRowRanges, colWidths, autoFilterRange } = finalSheet;
     const viewport = finalSheet.viewport || { startRow: 0, rowCount: gridDataToRender.length };
 
     const visibleColumns: number[] = [];
@@ -121,6 +122,7 @@ export function VisualGrid({
                                         const cell = gridDataToRender[rowIndex][colIndex];
                                         const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
                                         const hasComment = !!finalSheet.comments?.[cellId];
+                                        const isAutoFilterHeader = autoFilterRange && rowIndex === autoFilterRange.start.row && colIndex >= autoFilterRange.start.col && colIndex <= autoFilterRange.end.col;
 
                                         const getCellClasses = () => {
                                             const classes: string[] = [];
@@ -165,21 +167,31 @@ export function VisualGrid({
                                                 colSpan={colSpan}
                                                 rowSpan={rowSpan}
                                                 className={cn(
-                                                    "relative p-0.5 text-[11px] sm:p-1 sm:text-xs transition-colors duration-200 whitespace-nowrap overflow-hidden text-ellipsis",
+                                                    "relative p-0.5 text-[11px] sm:p-1 sm:text-xs transition-colors duration-200",
                                                     showGridlines !== false && "border border-border",
                                                     ...getCellClasses()
                                                 )}
                                                 style={style}
                                             >
-                                                {cell?.includes('\\n')
-                                                  ? cell.split('\\n').map((line, i, arr) => (
-                                                      <React.Fragment key={i}>
-                                                        {line}
-                                                        {i < arr.length - 1 && <br />}
-                                                      </React.Fragment>
-                                                    ))
-                                                  : cell
-                                                }
+                                                <div className="flex items-center justify-between w-full h-full gap-1">
+                                                    <span className="flex-grow whitespace-nowrap overflow-hidden text-ellipsis">
+                                                        {cell?.includes('\\n')
+                                                        ? cell.split('\\n').map((line, i, arr) => (
+                                                            <React.Fragment key={i}>
+                                                                {line}
+                                                                {i < arr.length - 1 && <br />}
+                                                            </React.Fragment>
+                                                            ))
+                                                        : cell
+                                                        }
+                                                    </span>
+                                                    {isAutoFilterHeader && (
+                                                        <div className="flex-shrink-0">
+                                                            <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                                                        </div>
+                                                    )}
+                                                </div>
+
                                                 {hasComment && (
                                                     <>
                                                         <div className="absolute top-0 right-0 w-0 h-0 border-solid border-t-red-600 border-l-transparent border-t-[8px] border-l-[8px]" />
