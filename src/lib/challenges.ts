@@ -167,11 +167,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Italicize", keys: ["control", "i"], iconName: "Italic", gridEffect: { action: 'APPLY_STYLE_ITALIC' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Underline", keys: ["control", "u"], iconName: "Underline", gridEffect: { action: 'APPLY_STYLE_UNDERLINE' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Strikethrough", keys: ["control", "5"], iconName: "Strikethrough", gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' }, initialGridState: createGridState(bigTable,0,2,0) }),
-      { description: "Open Find and Replace dialogs", initialGridState: createGridState(bigTable,0,2,0), steps: [
-        {description: "Open Find dialog",keys: ["control", "f"],iconName: "Search",dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } } },
-        {description: "Open Replace dialog",keys: ["control", "h"],iconName: "Replace",dialogEffect: { action: 'SET_TAB', payload: 'replace' } },
-        {description: "Close Dialog",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE' } },
-      ]},
+      singleStep({description: "Open Find dialog",keys: ["control", "f"],iconName: "Search",dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Open Replace dialog",keys: ["control", "h"],iconName: "Replace",dialogEffect: { action: 'SET_TAB', payload: 'replace' }, initialGridState: createGridState(bigTable,0,2,0) }),
     ],
   },
   
@@ -253,8 +250,13 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
           {description: "Unhide rows",keys: ["control", "shift", "9"],iconName: "Eye",gridEffect: { action: 'UNHIDE_ROWS' },},
           {description: "Hide column",keys: ["control", "0"],iconName: "EyeOff",gridEffect: { action: 'HIDE_COLUMN' },},
           {description: "Unhide columns",keys: ["control", "shift", "0"],iconName: "Eye",gridEffect: { action: 'UNHIDE_COLUMNS' },},
-          {description: "Select visible cells",keys: ["alt", ";"],iconName: "Aperture",gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' },}
         ]},
+        {
+          description: "Select visible cells in a range",initialGridState: createGridState(bigTable, 0, 2, 0),
+          steps: [
+            {description: "Select current region", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' },},
+            {description: "Select visible cells",keys: ["alt", ";"],iconName: "Aperture",gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' },}
+          ]},
     ],
   },
   {
@@ -271,13 +273,12 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         steps: [
           {description: "Edit the cell formula",keys: ["f2"],iconName: "Pencil",gridEffect: { action: 'START_EDITING', payload: { formula: '=A1' } },},
           {description: "Toggle absolute reference",keys: ["f4"],iconName: "Anchor",gridEffect: { action: 'TOGGLE_ABS_REF' },},
-          {description: "Confirm change", keys: ["enter"], iconName: "Check"}
         ]
       },
 
       singleStep({ description: "AutoSum", keys: ["alt", "="], iconName: "Calculator", initialGridState: createSummableGridState(), gridEffect: { action: 'AUTOSUM' } }),
-      singleStep({ description: "Repeat last action", keys: ["f4"], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Repeat last action (Bold)", keys: ["f4"], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'APPLY_STYLE_BOLD' },}),
+      singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState([['Amt1','Amt2','Amt3','Amt4'],['30','40','50','60']],0,1,0),gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: [['30','=Z4','50','=Q33']] },}}),
       {
         description: "Create a table and open filter",
         initialGridState: createGridState(bigTable,0,0,0),
@@ -287,7 +288,6 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
             {description: "Confirm table creation",keys: ["enter"],iconName: "Check",dialogEffect: { action: 'HIDE_CREATE_TABLE' },gridEffect: { action: 'APPLY_TABLE_FORMATTING' },previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' }},
             {description: "Toggle AutoFilter",keys: ["control", "shift", "l"],iconName: "Filter",},
             {description: "Open filter dropdown",keys: ["alt", "arrowdown"],iconName: "ChevronDownSquare",dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' },},
-            {description: "Close the dropdown",keys: ["esc"],iconName: "X",dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' },},
         ]
       },
     ],
@@ -368,6 +368,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         initialGridState: createGridState(bigTable, 0, 2, 0),
         steps: [
           { description: "Open Paste Special dialog", keys: ["control", "alt", "v"], iconName: "ClipboardSignature", dialogEffect: { action: 'SHOW_PASTE_SPECIAL_DIALOG' } },
+          { description: "Select 'Formulas' to paste", keys: ["f"], isSequential: true, iconName: "Baseline", dialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Formulas' } },
+          { description: "Select 'Formats' to paste", keys: ["t"], isSequential: true, iconName: "Baseline", dialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Formats' } },
           { description: "Select 'Values' to paste", keys: ["v"], isSequential: true, iconName: "Baseline", dialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Values' } },
           { description: "Confirm Paste Special", keys: ["enter"], iconName: "Check", dialogEffect: { action: 'HIDE_PASTE_SPECIAL_DIALOG' }, gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Pasted Value' } } }
         ]
@@ -377,6 +379,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       {
         description: "Group & Ungroup Rows",initialGridState: createGridState(bigTable,0,2,0),
         steps: [
+            {description: "Select the current row",keys: ["shift", " "],iconName: "Rows3",gridEffect: { action: 'SELECT_ROW' },},
             {description: "Group rows", keys: ["alt", "shift", "arrowright"], iconName: "Group", gridEffect: { action: 'GROUP_ROWS' } },
             {description: "Ungroup rows", keys: ["alt", "shift", "arrowleft"], iconName: "Ungroup", gridEffect: { action: 'UNGROUP_ROWS' } }
         ]
