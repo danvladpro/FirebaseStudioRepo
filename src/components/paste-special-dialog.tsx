@@ -33,12 +33,12 @@ export function PasteSpecialDialog({ state }: PasteSpecialDialogProps) {
             <X className="h-4 w-4" />
         </Button>
       </CardHeader>
-      <CardContent className="p-4 flex gap-4">
+      <CardContent className="p-2 flex gap-4">
         <div className="flex-1">
-            <h4 className="font-semibold text-sm mb-2">Paste</h4>
-            <RadioGroup value={activeOption} className="space-y-1">
+            <h4 className="font-semibold text-sm mb-1">Paste</h4>
+            <RadioGroup value={activeOption} className="space-y-0.5">
             {pasteOptions.map(option => (
-                <div key={option} className={cn("flex items-center space-x-2 p-1 rounded-sm", activeOption === option && "bg-accent text-accent-foreground")}>
+                <div key={option} className={cn("flex items-center space-x-2 px-1 py-0.5 rounded-sm", activeOption === option && "bg-accent text-accent-foreground")}>
                     <RadioGroupItem value={option} id={`paste-${option}`} />
                     <Label htmlFor={`paste-${option}`} className="font-normal flex-1 cursor-pointer">
                         <span className="underline">{option.charAt(0)}</span>{option.substring(1)}
@@ -48,12 +48,12 @@ export function PasteSpecialDialog({ state }: PasteSpecialDialogProps) {
             </RadioGroup>
         </div>
         <Separator orientation="vertical" className="h-auto" />
-        <div className="flex-1 space-y-4">
+        <div className="flex-1 space-y-2">
             <div>
-                <h4 className="font-semibold text-sm mb-2">Operation</h4>
-                 <RadioGroup defaultValue="None" className="space-y-1">
+                <h4 className="font-semibold text-sm mb-1">Operation</h4>
+                 <RadioGroup defaultValue="None" className="space-y-0.5">
                     {operationOptions.map(option => (
-                        <div key={option} className="flex items-center space-x-2 p-1">
+                        <div key={option} className="flex items-center space-x-2 px-1 py-0.5">
                             <RadioGroupItem value={option} id={`op-${option}`} />
                             <Label htmlFor={`op-${option}`} className="font-normal flex-1 cursor-pointer">
                                 <span className="underline">{option.charAt(0)}</span>{option.substring(1)}
@@ -62,7 +62,7 @@ export function PasteSpecialDialog({ state }: PasteSpecialDialogProps) {
                     ))}
                 </RadioGroup>
             </div>
-             <div className="space-y-2 pt-2">
+             <div className="space-y-1 pt-1">
                 <div className="flex items-center space-x-2">
                     <Checkbox id="skip-blanks" />
                     <Label htmlFor="skip-blanks" className="font-normal">Skip <span className="underline">b</span>lanks</Label>
@@ -74,7 +74,7 @@ export function PasteSpecialDialog({ state }: PasteSpecialDialogProps) {
             </div>
         </div>
       </CardContent>
-      <CardFooter className="p-4 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
+      <CardFooter className="p-2 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
         <Button variant="default" size="sm">OK</Button>
         <Button variant="outline" size="sm">Cancel</Button>
       </CardFooter>
