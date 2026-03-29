@@ -305,14 +305,6 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Insert Date", keys: ["control", ";"], iconName: "CalendarDays", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'12-Mar-2026' } }}),
       singleStep({ description: "Insert Time", keys: ["control", "shift", ";"], iconName: "Clock", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'3 PM' } }}),
       singleStep({ description: "Add a comment", keys: ["shift", "f2"], iconName: "MessageSquarePlus", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'SHOW_COMMENT' } }),
-      {
-        description: "Start a new line in a cell",
-        initialGridState: createGridState(bigTable, 0, 2, 0),
-        steps: [
-            {description: "Edit the cell formula",keys: ["f2"],iconName: "Pencil",gridEffect: { action: 'START_EDITING', payload: { formula: '=A1' } },},
-            {description: "Insert line break", keys: ["alt", "enter"], iconName: "WrapText", gridEffect: { action: 'INSERT_LINE_BREAK_IN_FORMULA' } },
-        ]
-      },
     ],
   },
 
@@ -338,8 +330,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Center align", keys: ["alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } }),
       singleStep({ description: "Wrap Text", keys: ["alt", "h", "w"], iconName: "WrapText", isSequential: true, initialGridState: createGridState(wrapTable,0,0,0),gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } }),
       singleStep({ description: "Clear formatting", keys: ["alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Apply all borders", keys: ["alt", "h", "b", "a"], iconName: "Grid", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } }),
-      singleStep({ description: "Thick box border", keys: ["alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } }),
+      singleStep({ description: "Apply all borders", keys: ["alt", "h", "b", "a"], iconName: "Grid", isSequential: true, initialGridState: createGridState(bigTable,0,2,1), gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } }),
+      singleStep({ description: "Thick box border", keys: ["alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true, initialGridState: createGridState(bigTable,0,2,2), gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } }),
       singleStep({ description: 'Open Fill Color Menu',keys: ['alt', 'h', 'h'],iconName: 'PaintBucket',isSequential: true, initialGridState: createGridState(bigTable,0,2,0),dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' } }),
       singleStep({ description: "Auto-fit width", keys: ["alt", "h", "o", "i"], iconName: "ArrowUpNarrowWide", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'AUTOFIT_COLUMNS' } }),
     ],

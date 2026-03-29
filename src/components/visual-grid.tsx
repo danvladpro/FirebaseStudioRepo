@@ -1,3 +1,4 @@
+
 "use client";
 
 import { cn } from "@/lib/utils";
@@ -73,7 +74,7 @@ export function VisualGrid({
     return (
         <div className="p-2 bg-muted/50 rounded-lg border">
             <div className="overflow-auto">
-                <table className="border-collapse w-full min-w-max">
+                <table className="table-fixed border-collapse w-full min-w-max">
                     <thead>
                         <tr>
                             <th className="p-0.5 w-7 sm:w-9"></th>
@@ -118,7 +119,6 @@ export function VisualGrid({
                                         );
 
                                         const cell = gridDataToRender[rowIndex][colIndex];
-                                        const hasLineBreak = cell?.includes('\n');
                                         const isActive = activeCell.row === rowIndex && activeCell.col === colIndex;
                                         const hasComment = !!finalSheet.comments?.[cellId];
 
@@ -147,10 +147,6 @@ export function VisualGrid({
 
                                         const style = { ...finalCellStyles[cellId] };
                                         
-                                        if (hasLineBreak) {
-                                            style.whiteSpace = 'pre-wrap';
-                                        }
-
                                         if (mergeInfo) {
                                             colSpan = mergeInfo.end.col - mergeInfo.start.col + 1;
                                             rowSpan = mergeInfo.end.row - mergeInfo.start.row + 1;
@@ -175,7 +171,7 @@ export function VisualGrid({
                                                 )}
                                                 style={style}
                                             >
-                                                {hasLineBreak
+                                                {cell?.includes('\n')
                                                   ? cell.split('\n').map((line, i, arr) => (
                                                       <React.Fragment key={i}>
                                                         {line}
@@ -186,7 +182,7 @@ export function VisualGrid({
                                                 }
                                                 {hasComment && (
                                                     <>
-                                                        <div className="absolute top-0 right-0 w-0 h-0 border-solid border-t-red-600 border-l-transparent border-t-[6px] border-l-[6px]" />
+                                                        <div className="absolute top-0 right-0 w-0 h-0 border-solid border-t-red-600 border-l-transparent border-t-[8px] border-l-[8px]" />
                                                         {isActive && (
                                                             <div className="absolute left-full top-0 z-10 ml-2 w-64 rounded border border-gray-400 p-2 shadow-lg text-black" style={{ backgroundColor: '#FFFDE1' }}>
                                                                 <p className="text-sm font-bold border-b border-gray-300 pb-1 mb-1">User:</p>
