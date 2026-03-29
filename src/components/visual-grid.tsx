@@ -165,14 +165,14 @@ export function VisualGrid({
                                                 colSpan={colSpan}
                                                 rowSpan={rowSpan}
                                                 className={cn(
-                                                    "relative p-0.5 text-[11px] sm:p-1 sm:text-xs transition-colors duration-200",
+                                                    "relative p-0.5 text-[11px] sm:p-1 sm:text-xs transition-colors duration-200 whitespace-nowrap overflow-hidden text-ellipsis",
                                                     showGridlines !== false && "border border-border",
                                                     ...getCellClasses()
                                                 )}
                                                 style={style}
                                             >
-                                                {cell?.includes('\n')
-                                                  ? cell.split('\n').map((line, i, arr) => (
+                                                {cell?.includes('\\n')
+                                                  ? cell.split('\\n').map((line, i, arr) => (
                                                       <React.Fragment key={i}>
                                                         {line}
                                                         {i < arr.length - 1 && <br />}
