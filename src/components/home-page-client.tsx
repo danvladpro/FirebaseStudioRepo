@@ -438,7 +438,7 @@ export function HomePageClient() {
                                                     </CardHeader>
                                                 
                                                     <CardContent className="p-4 pt-0 pb-2">
-                                                        <p className="text-sm text-muted-foreground">{set.challenges.length} items</p>
+                                                         {/* <p className="text-sm text-muted-foreground">{set.challenges.length} items</p> */}
                                                     </CardContent>
                                                 
                                                     <CardFooter className={cn("p-4 pt-2 mt-auto")}>
@@ -472,7 +472,7 @@ export function HomePageClient() {
                                                 
                                                                     <Button asChild size="sm" variant="default">
                                                                         <Link href={`/challenge/${set.id}`}>
-                                                                            <Library className="mr-2 h-4 w-4" /> Learn / Challenge
+                                                                            <Library className="mr-2 h-4 w-4" /> Challenge
                                                                         </Link>
                                                                     </Button>
                                                                 </div>

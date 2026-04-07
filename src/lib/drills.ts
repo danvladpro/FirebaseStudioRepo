@@ -509,7 +509,7 @@ const drills: Drill[] = [
     repetitions: 14,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
-    steps: [ 'hideRow','moveDown','selectCurrentRegion','selectVisible', 'copySelection', 'nextSheet', 'pasteValuesOnly']
+    steps: [ 'hideRow','moveDown','selectCurrentRegion','selectVisible', 'copySelection', 'nextSheet', 'paste']
   },
   {
     id: 'lock-formula-reference',
@@ -529,7 +529,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(formulaDrillValues, 0, 0, 0),
-    steps: ['toggleFormulas', 'hideFormulas','selectRightToEdge','selectDownToEdge','copySelection','pasteValuesOnly']
+    steps: ['toggleFormulas', 'hideFormulas','selectRightToEdge','selectDownToEdge','cut']
   },
   {
     id: 'autosum-column',
@@ -540,16 +540,6 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: createGridState(bigTableEmptyRow, 0, 2, 0),
     steps: ['jumpRight','selectDownToEdge', 'autoSum']
-  },
-  {
-    id: 'kill-formulas',
-    level: 'Master',
-    name: 'Kill all Formulas in a range',
-    description: 'Copy a range and paste it as values to kill the formulas.',
-    repetitions: 12,
-    mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,0,0),
-    steps: ['selectCurrentRegion', 'copySelection', 'pasteValuesOnly']
   },
   {
     id: 'repeat-formatting-f4',
@@ -622,30 +612,7 @@ const drills: Drill[] = [
     initialGridState: createMultiSheetGridState(0),
     steps: [ 'nextSheet',	'selectCol','deleteCol']
   },
-  {
-    id: 'reset-general-format',
-    level: 'Master',
-    name: 'Reset Number Format',
-    description: 'Normalize numeric formatting across a whole sheet.',
-    repetitions: 10,
-    mistakeLimit: 2,
-    initialGridState: createGridState(
-      [['ID', 'DateNum','Date', 'Amount'],['1.0', '02-Mar-26', '46083','500'],['', '','', '']],0,1,1
-    ),
-    steps: ['applyGeneralFormat','MoveRight','applyDateFormatFromGeneral','MoveRight', 'applyCurrency','selectCol','bold']
-  },
-  {
-    id: 'format-date-time-cols',
-    level: 'Master',
-    name: 'Format Date & Time Columns',
-    description: 'Format adjacent columns with distinct data types.',
-    repetitions: 8,
-    mistakeLimit: 2,
-    initialGridState: createGridState(
-      [['ID', 'Date', 'Amount','Share'],['1.0', '02-Mar-26', '500','0.2'],],0,0,0
-    ),
-    steps: ['jumpRight','moveDown', 'applyPercentageFromGeneral','jumpLeft','applyGeneralFormat']
-  },
+
 
   // ==========================================
   // LEVEL 3: NINJA (No-Ribbon Master)
@@ -662,6 +629,16 @@ const drills: Drill[] = [
     steps: ['jumpTop','selectRow', 'centerAlign']
   },
   {
+    id: 'kill-formulas',
+    level: 'Ninja',
+    name: 'Kill all Formulas in a range',
+    description: 'Copy a range and paste it as values to kill the formulas.',
+    repetitions: 12,
+    mistakeLimit: 2,
+    initialGridState: createGridState(bigTable,0,0,0),
+    steps: ['selectCurrentRegion', 'copySelection', 'pasteValuesOnly']
+  },
+  {
     id: 'merge-center-header',
     level: 'Ninja',
     name: 'Merged Headers',
@@ -676,6 +653,18 @@ const drills: Drill[] = [
     steps: ['expandRight', 'mergeCenter','jumpRight','expandRight','mergeCenter']
   },
   {
+    id: 'reset-general-format',
+    level: 'Ninja',
+    name: 'Reset Number Format',
+    description: 'Normalize numeric formatting across a whole sheet.',
+    repetitions: 10,
+    mistakeLimit: 2,
+    initialGridState: createGridState(
+      [['ID', 'DateNum','Date', 'Amount'],['1.0', '02-Mar-26', '46083','500'],['', '','', '']],0,1,1
+    ),
+    steps: ['applyGeneralFormat','MoveRight','applyDateFormatFromGeneral','MoveRight', 'applyCurrency','selectCol','bold']
+  },
+  {
     id: 'apply-borders-sheet',
     level: 'Ninja',
     name: 'Global Borders',
@@ -684,6 +673,18 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(1),
     steps: ['prevSheet','selectCurrentRegion', 'applyAllBorders']
+  },
+  {
+    id: 'format-date-time-cols',
+    level: 'Ninja',
+    name: 'Format Date & Time Columns',
+    description: 'Format adjacent columns with distinct data types.',
+    repetitions: 8,
+    mistakeLimit: 2,
+    initialGridState: createGridState(
+      [['ID', 'Date', 'Amount','Share'],['1.0', '02-Mar-26', '500','0.2'],],0,0,0
+    ),
+    steps: ['jumpRight','moveDown', 'applyPercentageFromGeneral','jumpLeft','applyGeneralFormat']
   },
   {
     id: 'thick-border-block',
