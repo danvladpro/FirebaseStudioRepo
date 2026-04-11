@@ -1,5 +1,4 @@
 
-import { MoveRight } from "lucide-react";
 import { ChallengeLevel, GridEffect, GridState, DialogEffect, FindReplaceDialogState } from "./types";
 
 export interface DrillStep {
@@ -299,8 +298,8 @@ const drills: Drill[] = [
   {
     id: 'strikethrough-undo',
     level: 'Apprentice',
-    name: 'Strikethrough Logic',
-    description: 'Apply strikethrough and revert.',
+    name: 'Strikethrough Toggle',
+    description: 'Apply strikethrough, undo it, then redo to toggle the effect.',
     repetitions: 10, mistakeLimit: 2,
     initialGridState: createGridState([
       ['Strikethrough', '', ''],
@@ -313,7 +312,7 @@ const drills: Drill[] = [
   {
     id: 'navigate-block-edges',
     level: 'Apprentice',
-    name: 'Navigate Data Block Edges',
+    name: 'Navigate Block Edges',
     description: 'Jump around the perimeter of a table using Control.',
     repetitions: 10,
     mistakeLimit: 2,
@@ -323,8 +322,8 @@ const drills: Drill[] = [
   {
     id: 'copy-to-row-edge',
     level: 'Apprentice',
-    name: 'Jump and Paste',
-    description: 'Move values across a row using jump navigation.',
+    name: 'Jump & Paste',
+    description: 'Copy a value from one end of a row to the other using jump navigation.',
     repetitions: 12, mistakeLimit: 2,
     initialGridState: createGridState([
       ['Copy Me', '', '', 'Paste Here'],
@@ -337,8 +336,8 @@ const drills: Drill[] = [
   {
     id: 'expand-selection-horizontally',
     level: 'Apprentice',
-    name: 'Expanding Selection',
-    description: 'Select all 3 cells to your right.',
+    name: 'Expand & Copy Range',
+    description: 'Select a horizontal range of cells, copy it, and paste below.',
     repetitions: 12,mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
     steps: ['expandRight', 'expandRight', 'copySelection', 'moveDown', 'pasteData']
@@ -346,8 +345,8 @@ const drills: Drill[] = [
   {
     id: 'cycle-worksheets',
     level: 'Apprentice',
-    name: 'Sheet Surfing',
-    description: 'Navigate between tabs efficiently.',
+    name: 'Cycle Worksheets',
+    description: 'Navigate forward and backward through worksheet tabs.',
     repetitions: 10, mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
     steps: ['nextSheet', 'nextSheet', 'prevSheet', 'prevSheet']
@@ -364,8 +363,8 @@ const drills: Drill[] = [
   {
     id: 'select-and-italic-table',
     level: 'Apprentice',
-    name: 'Select and Italicize Table',
-    description: 'Quickly select a whole data table and apply italic formatting.',
+    name: 'Italicize Table',
+    description: 'Select the entire table and apply italic formatting to all cells.',
     repetitions: 10, mistakeLimit: 2,
     initialGridState: createGridState(bigTableEmptyRow, 0, 0, 0),
     steps: ['selectDownToEdge', 'selectRightToEdge', 'italic']
@@ -373,8 +372,8 @@ const drills: Drill[] = [
   {
     id: 'select-all-and-delete',
     level: 'Apprentice',
-    name: 'Select All and Delete',
-    description: 'Quickly select all data in the current region and delete it.',
+    name: 'Clear Data Block',
+    description: 'Select the entire current data region and clear its contents.',
     repetitions: 12,mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['selectCurrentRegion', 'deleteContent']
@@ -382,17 +381,17 @@ const drills: Drill[] = [
   {
     id: 'select-rectangular-range',
     level: 'Apprentice',
-    name: 'Select & Move Range',
-    description: 'Capture a block and move it to another sheet.',
+    name: 'Transfer Block',
+    description: 'Select a rectangular data block, cut it, and paste into another worksheet.',
     repetitions: 10, mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
-    steps: ['selectRightToEdge', 'extendDown', 'copySelection', 'nextSheet', 'pasteData']
+    steps: ['selectRightToEdge', 'extendDown', 'cut', 'nextSheet', 'pasteData']
   },
   {
     id: 'extend-row-selection-down',
     level: 'Apprentice',
-    name: 'Quick Multiple Row Selection',
-    description: 'Highlight multiple full rows instantly.',
+    name: 'Bold Multiple Rows',
+    description: 'Select multiple rows from current position to the bottom and apply bold formatting.',
     repetitions: 12, mistakeLimit: 2,
     initialGridState: createGridState(bigTableEmptyRow,0,0,2),
     steps: ['selectRow', 'selectDownToEdge', 'bold']
@@ -401,8 +400,8 @@ const drills: Drill[] = [
   {
     id: 'scan-large-data',
     level: 'Apprentice',
-    name: 'Scan Large Dataset',
-    description: 'Review big tables quickly using Page keys.',
+    name: 'Page Scrolling',
+    description: 'Navigate through large datasets using page up and down keys.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0, 30),
@@ -411,8 +410,8 @@ const drills: Drill[] = [
   {
     id: 'emphasize-and-save',
     level: 'Apprentice',
-    name: 'Emphasize & Save',
-    description: 'Highlight important data and save your work.',
+    name: 'Highlight & Save',
+    description: 'Select all data, apply bold and underline formatting, then save the workbook.',
     repetitions: 12, mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
     steps: ['selectCurrentRegion8', 'bold', 'underline', 'save']
@@ -420,8 +419,8 @@ const drills: Drill[] = [
   {
     id: 'move-up-and-format',
     level: 'Apprentice',
-    name: 'Relocate & Style',
-    description: 'Relocate and restyle content using arrow keys.',
+    name: 'Move and Format',
+    description: 'Cut a value, move it to the top of the column, paste, and apply underline and bold formatting.',
     repetitions: 12, mistakeLimit: 2,
     initialGridState: createGridState([['', ''], ['', ''],['Value to Move', ''],['', ''],],0,2,0),
     steps: ['cut', 'jumpTop', 'pasteData', 'underline', 'bold']
@@ -429,17 +428,17 @@ const drills: Drill[] = [
   {
     id: 'emphasize-start-end',
     level: 'Apprentice',
-    name: 'Start and End Focus',
-    description: 'Underline the very first and last cells using Home/End jumps.',
+    name: 'Start & End',
+    description: 'Navigate to the first cell of the data, underline it, then to the last cell and strikethrough it.',
     repetitions: 10, mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['jumpStart', 'underline', 'jumpEnd', 'underline']
+    steps: ['jumpStart', 'underline', 'jumpEnd', 'strikethrough']
   },
   {
     id: 'bold-header-delete-last',
     level: 'Apprentice',
-    name: 'Boundary Cleanup',
-    description: 'Quick clean up of a small range headers and footers.',
+    name: 'Jump Columns',
+    description: 'Bold the first column, then strikethrough the last column.',
     repetitions: 12, mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
     steps: ['selectCol', 'bold', 'jumpRight', 'selectCol', 'strikethrough']
@@ -447,8 +446,8 @@ const drills: Drill[] = [
   {
     id: 'extend-selection-last-cell',
     level: 'Apprentice',
-    name: 'One-Shot Workspace Selection',
-    description: 'Select everything from current cell to the end of data.',
+    name: 'Select to End',
+    description: 'Select from the current cell to the very end of the data and apply underline formatting.',
     repetitions: 12, mistakeLimit: 2,
     initialGridState: createGridState(bigTableEmptyRow,0,2,0),
     steps: ['selectToEnd', 'underline']
@@ -476,8 +475,8 @@ const drills: Drill[] = [
   {
     id: 'select-all-copy-new-paste',
     level: 'Apprentice',
-    name: 'Workspace Duplication',
-    description: 'Select all data, copy it, and paste it into a new context.',
+    name: 'Duplicate Data',
+    description: 'Select the entire data region, copy it, and paste into the next worksheet.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
@@ -494,8 +493,8 @@ const drills: Drill[] = [
   {
     id: 'convert-region-to-table',
     level: 'Master',
-    name: 'Convert Region to Table',
-    description: 'Turn a raw data block into a functional table.',
+    name: 'Create Table',
+    description: 'Convert a selected data range into an Excel table for better data management.',
     repetitions: 14,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
@@ -505,7 +504,7 @@ const drills: Drill[] = [
     id: 'copy-visible-rows',
     level: 'Master',
     name: 'Copy Visible Rows',
-    description: 'Copy filtered data while ignoring hidden rows.',
+    description: 'After hiding rows, select only visible cells and copy them to another sheet.',
     repetitions: 14,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
@@ -514,8 +513,8 @@ const drills: Drill[] = [
   {
     id: 'lock-formula-reference',
     level: 'Master',
-    name: 'Lock Formula Reference',
-    description: 'Lock a cell reference while editing a formula.',
+    name: 'Edit Formula Reference',
+    description: 'Edit a formula and make a cell reference absolute.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
@@ -524,8 +523,8 @@ const drills: Drill[] = [
   {
     id: 'toggle-formula-view',
     level: 'Master',
-    name: 'Toggle Formula View',
-    description: 'Audit back-end formulas and return to values.',
+    name: 'Toggle Formulas',
+    description: 'Toggle to view formulas, then back to values, and clear the selected range.',
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(formulaDrillValues, 0, 0, 0),
@@ -535,7 +534,7 @@ const drills: Drill[] = [
     id: 'autosum-column',
     level: 'Master',
     name: 'AutoSum Column',
-    description: 'Trigger a quick calculation total.',
+    description: 'Select a column of numbers and insert an AutoSum formula at the bottom.',
     repetitions: 14,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTableEmptyRow, 0, 2, 0),
@@ -544,8 +543,8 @@ const drills: Drill[] = [
   {
     id: 'repeat-formatting-f4',
     level: 'Master',
-    name: 'Repeat Formatting (F4)',
-    description: 'Use F4 to quickly apply the same style elsewhere.',
+    name: 'Repeat Formatting',
+    description: 'Apply underline formatting and repeat it on adjacent cells',
     repetitions: 12,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTableEmptyRow,0,2,0),
@@ -555,8 +554,8 @@ const drills: Drill[] = [
   {
     id: 'fill-current-region',
     level: 'Master',
-    name: 'Fill Current Region',
-    description: 'Select a block and fill every cell with a single value.',
+    name: 'Fill Range',
+    description: 'Select a range and fill all cells with the same value',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(emptyTable,0,0,0),
@@ -565,8 +564,8 @@ const drills: Drill[] = [
   {
     id: 'open-filter-dropdown',
     level: 'Master',
-    name: 'Filter Navigation',
-    description: 'Access the filter menu without a mouse.',
+    name: 'Filter Dropdown',
+    description: 'Open the filter dropdown, select and deselect items, then apply the filter.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,0,1),
@@ -575,8 +574,8 @@ const drills: Drill[] = [
   {
     id: 'insert-current-time',
     level: 'Master',
-    name: 'Insert Current Time',
-    description: 'Stamp time and underline it.',
+    name: 'Insert Timestamp',
+    description: 'Insert current time and date, then underline both entries.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(emptyTable,0,0,0),
@@ -585,8 +584,8 @@ const drills: Drill[] = [
   {
     id: 'navigate-to-cell-f5',
     level: 'Master',
-    name: 'The "Go To" Jump',
-    description: 'Use the "Go To" dialog for precision movement.',
+    name: 'Go To Selection',
+    description: 'Select a range and use Go To dialog to navigate precisely.',
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
@@ -595,8 +594,8 @@ const drills: Drill[] = [
   {
     id: 'insert-row-undo',
     level: 'Master',
-    name: 'Create Space ',
-    description: 'Create some space between rows.',
+    name: 'Insert Rows',
+    description: 'Insert multiple rows to create space in the table.',
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 3, 0),
@@ -605,8 +604,8 @@ const drills: Drill[] = [
   {
     id: 'delete-full-row',
     level: 'Master',
-    name: 'Delete Full Row',
-    description: 'Remove unnecessary data rows structurally.',
+    name: 'Column Delete',
+    description: 'Navigate to another sheet and delete an entire column.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
@@ -621,8 +620,8 @@ const drills: Drill[] = [
   {
     id: 'center-align-column',
     level: 'Ninja',
-    name: 'Mastering Column Alignment',
-    description: 'Align values cleanly using Alt-sequences.',
+    name: 'Center Header',
+    description: 'Select the header row and center-align its contents.',
     repetitions: 12,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 3, 0),
@@ -631,7 +630,7 @@ const drills: Drill[] = [
   {
     id: 'kill-formulas',
     level: 'Ninja',
-    name: 'Kill all Formulas in a range',
+    name: 'Kill Formulas',
     description: 'Copy a range and paste it as values to kill the formulas.',
     repetitions: 12,
     mistakeLimit: 2,
@@ -641,8 +640,8 @@ const drills: Drill[] = [
   {
     id: 'merge-center-header',
     level: 'Ninja',
-    name: 'Merged Headers',
-    description: 'Create a professional centered header across a range.',
+    name: 'Merge Headers',
+    description: 'Merge and center cells to create spanning headers.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(
@@ -655,8 +654,8 @@ const drills: Drill[] = [
   {
     id: 'reset-general-format',
     level: 'Ninja',
-    name: 'Reset Number Format',
-    description: 'Normalize numeric formatting across a whole sheet.',
+    name: 'Reset Formats',
+    description: 'Reset formats to general, apply date and currency formats, and bold a column.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(
@@ -667,8 +666,8 @@ const drills: Drill[] = [
   {
     id: 'apply-borders-sheet',
     level: 'Ninja',
-    name: 'Global Borders',
-    description: 'Add structure to a full dataset using the Home border menu.',
+    name: 'Apply Borders',
+    description: 'Select the entire data region and apply all borders for structure.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(1),
@@ -677,8 +676,8 @@ const drills: Drill[] = [
   {
     id: 'format-date-time-cols',
     level: 'Ninja',
-    name: 'Format Date & Time Columns',
-    description: 'Format adjacent columns with distinct data types.',
+    name: 'Format Columns',
+    description: 'Apply percentage format to one column and general format to another.',
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(
@@ -689,8 +688,8 @@ const drills: Drill[] = [
   {
     id: 'thick-border-block',
     level: 'Ninja',
-    name: 'Block Emphasis Border',
-    description: 'Emphasize a horizontal data block with thick borders.',
+    name: 'Thick Border',
+    description: 'Select a row and apply thick borders to emphasize it.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
@@ -699,8 +698,8 @@ const drills: Drill[] = [
   {
     id: 'wrap-and-center-header',
     level: 'Ninja',
-    name: 'Readable Headers',
-    description: 'Improve header readability with Wrap Text and Alignment.',
+    name: 'Wrap Headers',
+    description: 'Center-align and wrap text in header columns for better readability.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(
@@ -714,8 +713,8 @@ const drills: Drill[] = [
   {
     id: 'currency-decimal-cleanup',
     level: 'Ninja',
-    name: 'Currency Precision',
-    description: 'Adjust decimal precision for financial presentation.',
+    name: 'Adjust Decimals',
+    description: 'Apply currency format and reduce decimal places for clean financial display.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 1, 0),
@@ -725,8 +724,8 @@ const drills: Drill[] = [
   {
     id: 'cleanup-percentages',
     level: 'Ninja',
-    name: 'Clear Formatting & Repeat',
-    description: 'Fix broken percentage formatting using Clear and Re-apply.',
+    name: 'Clear Formats',
+    description: 'Clear formatting from a range and reapply general format using repeat.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(dirtyTable, 0, 1, 0),
@@ -735,8 +734,8 @@ const drills: Drill[] = [
   {
     id: 'sort-dialog-full',
     level: 'Ninja',
-    name: 'Sort Dialog Legacy',
-    description: 'Access deep sorting options via legacy Alt shortcuts.',
+    name: 'Open Sort Dialog',
+    description: 'Italicize a range and open the sort dialog using Alt shortcuts.',
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 0, 0),
@@ -746,8 +745,8 @@ const drills: Drill[] = [
   {
     id: 'autofit-columns',
     level: 'Ninja',
-    name: 'The Data Cleanup',
-    description: 'Instantly fix column widths so no data is cut off.',
+    name: 'Column Autofit',
+    description: 'Select multiple columns and autofit their widths to display all data.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,0,0),
@@ -756,8 +755,8 @@ const drills: Drill[] = [
   {
     id: 'highlight-header-fill',
     level: 'Ninja',
-    name: 'Header Highlight',
-    description: 'Open the fill color menu to highlight a selection.',
+    name: 'Fill Color',
+    description: 'Select a range, bold it, and apply a fill color from the dropdown.',
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,1,0),
@@ -766,8 +765,8 @@ const drills: Drill[] = [
   {
     id: 'group-rows-data',
     level: 'Ninja',
-    name: 'Structural Grouping',
-    description: 'Create and remove collapsible row groups.',
+    name: 'Group Rows',
+    description: 'Group selected rows for collapsible structure, then ungroup them.',
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,2,0),
@@ -776,8 +775,8 @@ const drills: Drill[] = [
   {
     id: 'format-cells-dialog',
     level: 'Ninja',
-    name: 'The Master Dialog',
-    description: 'Access deep formatting options via the Format Cells window.',
+    name: 'Format Dialog',
+    description: 'Clear formatting and open the Format Cells dialog to adjust settings.',
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
@@ -786,8 +785,8 @@ const drills: Drill[] = [
   {
     id: 'freeze-panes-view',
     level: 'Ninja',
-    name: 'Lock Headers (Freeze)',
-    description: 'Keep headers visible while scrolling down.',
+    name: 'Freeze Panes',
+    description: 'Select the header row, underline it, and freeze panes to keep headers visible.',
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
@@ -796,8 +795,8 @@ const drills: Drill[] = [
   {
     id: 'jump-clean-view',
     level: 'Ninja',
-    name: 'Jump & Whiteout',
-    description: 'Jump to a new worksheet and immediately toggle off gridlines for a clean look.',
+    name: 'Clean Sheet',
+    description: 'Navigate to a sheet, clear all data, and remove gridlines for a clean presentation.',
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(1),
