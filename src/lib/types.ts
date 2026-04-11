@@ -186,6 +186,7 @@ export interface Challenge {
   initialGridState?: GridState;
   gridEffect?: GridEffect; // For single-step challenges
   dialogEffect?: DialogEffect; // For single-step challenges
+  previewDialogEffect?: DialogEffect; // For single-step challenges
 }
 
 export type ChallengeLevel = "Apprentice" | "Master" | "Ninja" | "Scenario" | "General";
