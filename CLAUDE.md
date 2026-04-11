@@ -129,12 +129,17 @@ Multiple specialised agents collaborate on this codebase. Each agent has a defin
 ### Agent 4 — UI / Animation (`ui`)
 **Persona**: Product designer focused on desktop-class web UIs.  
 **Owns**: Tailwind config, shadcn/ui component customisation, `scroll-animation.tsx`, landing page components, certificate modal, visual polish.  
-**Style rules** (from `docs/blueprint.md`):
-- Primary: Deep blue `#3F51B5` | Background: `#F0F4F8` | Accent: `#FFAB40`
+**Style rules** (source of truth: `src/app/globals.css` + `tailwind.config.ts`):
+- Primary: Emerald green `hsl(142 76% 36%)` — used for CTAs, active states, ring, success feedback
+- Accent: Orange `hsl(34 100% 62%)` — used for highlights, badges, interactive callouts
+- Background: Off-white `hsl(220 20% 97%)` — clean, near-white canvas
+- Cards: Pure white `hsl(0 0% 100%)`
+- Dark mode equivalents are defined in `.dark` in `globals.css` — keep them in sync when changing light-mode values
 - Font: `Inter` (grotesque, neutral, professional)
 - Grid layout with ample whitespace; no decorative chrome.
 - Subtle animations on completion / key press — never janky or distracting.
 - The simulated Excel grid must look and feel like real Excel: row/column headers, cell borders, selection highlight, formula bar.
+- **Do not revert to the old blueprint palette** (deep blue `#3F51B5` / `#F0F4F8`). The current green/orange/white theme is intentional and must be preserved.
 
 ---
 
