@@ -22,6 +22,7 @@ import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { CertificateModal } from "./certificate-modal";
 import { DRILL_SET, Drill } from "@/lib/drills";
+import { BeforeYouStart } from "./before-you-start";
 
 const iconMap: Record<string, ElementType> = {
     ClipboardPaste,
@@ -352,6 +353,7 @@ export function HomePageClient() {
                 </Card>
             </aside>
             <section className="lg:col-span-3 space-y-8">
+                <BeforeYouStart />
                 {(levelOrder as ChallengeLevel[]).map(level => {
                     const challengesForLevel = groupedShortcutSets[level] || [];
                     const drillsForLevel = drillsByLevel[level] || [];

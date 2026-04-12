@@ -32,7 +32,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   moveDown: { description: 'Move down', keys: ['arrowdown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } } },
   moveUp: { description: 'Move up', keys: ['arrowup'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'up' } } },
   moveLeft: { description: 'Move left', keys: ['arrowleft'], iconName: 'ArrowLeft', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'left' } } },
-  MoveRight: { description: 'Move right', keys: ['arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'right' } } },
+  moveRight: { description: 'Move right', keys: ['arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'right' } } },
   // Jumping
   jumpTop: { description: 'Jump Top', keys: ['control', 'arrowup'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
   jumpRight: { description: 'Jump Right', keys: ['control', 'arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
@@ -165,7 +165,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
-  openSortDialog: { description: 'Sort menu', keys: ['alt', 'd', 's'], iconName: 'ArrowUpDown', isSequential: true, dialogEffect: { action: 'SHOW_SORT_DIALOG' } },
+  openSortDialog: { description: 'Sort menu', keys: ['alt', 'a','s', 's'], iconName: 'ArrowUpDown', isSequential: true, dialogEffect: { action: 'SHOW_SORT_DIALOG' } },
   closeSortDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: { action: 'HIDE_SORT_DIALOG' } },
   freezePanes: { description: 'Freeze Panes', keys: ['alt', 'w', 'f', 'f'], iconName: 'Lock', isSequential: true, gridEffect: { action: 'FREEZE_PANES' } },
   removeGridlines: { description: 'Remove gridlines', keys: ['alt', 'w', 'v', 'g'], iconName: 'Grid3X3', isSequential: true, gridEffect: { action: 'TOGGLE_GRIDLINES' } },
@@ -508,7 +508,7 @@ const drills: Drill[] = [
     repetitions: 14,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
-    steps: [ 'hideRow','moveDown','selectCurrentRegion','selectVisible', 'copySelection', 'nextSheet', 'paste']
+    steps: [ 'hideRow','moveDown','selectCurrentRegion','selectVisible', 'copySelection', 'nextSheet', 'pasteData']
   },
   {
     id: 'lock-formula-reference',
@@ -579,7 +579,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(emptyTable,0,0,0),
-    steps: ['insertTime', 'MoveRight','insertDate','expandLeft','underline']
+    steps: ['insertTime', 'moveRight','insertDate','expandLeft','underline']
   },
   {
     id: 'navigate-to-cell-f5',
@@ -602,7 +602,7 @@ const drills: Drill[] = [
     steps: ['selectRow', 'insertRow', 'insertRow']
   },
   {
-    id: 'delete-full-row',
+    id: 'delete-column',
     level: 'Master',
     name: 'Column Delete',
     description: 'Navigate to another sheet and delete an entire column.',
@@ -661,7 +661,7 @@ const drills: Drill[] = [
     initialGridState: createGridState(
       [['ID', 'DateNum','Date', 'Amount'],['1.0', '02-Mar-26', '46083','500'],['', '','', '']],0,1,1
     ),
-    steps: ['applyGeneralFormat','MoveRight','applyDateFormatFromGeneral','MoveRight', 'applyCurrency','selectCol','bold']
+    steps: ['applyGeneralFormat','moveRight','applyDateFormatFromGeneral','moveRight', 'applyCurrency','selectCol','bold']
   },
   {
     id: 'apply-borders-sheet',
