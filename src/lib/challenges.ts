@@ -180,7 +180,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     category: "Navigation",
     iconName: "Zap",
     challenges: [
-      singleStep({ description: "Jump to most left cell", keys: ["control", "arrowleft"], iconName: "MoveLeft", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
+      singleStep({ description: "Jump to most left edge", keys: ["control", "arrowleft"], iconName: "MoveLeft", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
       singleStep({ description: "Jump to beginning of row", keys: ["home"], iconName: "Home", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
       singleStep({ description: "Jump to top-left (A1)", keys: ["control", "home"], iconName: "PanelTopOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
       singleStep({ description: "Jump to last used cell", keys: ["control", "end"], iconName: "PanelBottomOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } }, initialGridState: createGridState(leanTable, 0, 0, 1, 0) }),
@@ -272,7 +272,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         initialGridState: createGridState([['A', 'B'], ['1', '2']], 0, 1, 1),
         steps: [
           {description: "Edit the cell formula",keys: ["f2"],iconName: "Pencil",gridEffect: { action: 'START_EDITING', payload: { formula: '=A1' } },},
-          {description: "Toggle absolute reference",keys: ["f4"],iconName: "Anchor",gridEffect: { action: 'TOGGLE_ABS_REF' },},
+          {description: "Toggl formula reference",keys: ["f4"],iconName: "Anchor",gridEffect: { action: 'TOGGLE_ABS_REF' },},
         ]
       },
 
@@ -306,6 +306,18 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Insert Time", keys: ["control", "shift", ";"], iconName: "Clock", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'3 PM' } }}),
       singleStep({ description: "Add a comment", keys: ["shift", "f2"], iconName: "MessageSquarePlus", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'SHOW_COMMENT' } }),
       singleStep({ description: "Insert line break", keys: ["alt", "enter"], iconName: "Pilcrow", initialGridState: createGridState([['=A1', '']], 0, 0, 0), gridEffect: { action: 'INSERT_LINE_BREAK_IN_FORMULA' } }),
+
+// double step 
+ {
+        description: "Create a table and open filter",
+        initialGridState: createGridState(bigTable,0,0,0),
+        steps: [
+            {description: "Select current region", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' },},
+            {description: 'Type "9"', keys: ['9'], iconName: 'Type', gridEffect: { action: 'UPDATE_ACTIVE_CELL_CONTENT', payload: { value: '9' } } },
+            {description: 'Fill all', keys: ['control', 'enter'], iconName: 'CheckCheck', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '9' } } },
+
+        ]
+      },
     ],
   },
 
@@ -330,7 +342,10 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       },
       singleStep({ description: "Center align", keys: ["alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } }),
       singleStep({ description: "Wrap Text", keys: ["alt", "h", "w"], iconName: "WrapText", isSequential: true, initialGridState: createGridState(wrapTable,0,0,0),gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } }),
-      singleStep({ description: "Clear formatting", keys: ["alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Clear only formatting", keys: ["alt", "h", "e", "f"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createGridState(bigTable,0,3,3), gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'700' } } }),
+      singleStep({ description: "Clear all values and formatting", keys: ["alt", "h", "e", "a"], iconName: "RemoveFormatting", isSequential: true, initialGridState: createGridState(bigTable,0,3,3), gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'' } } }),
+      
+      
       singleStep({ description: "Apply all borders", keys: ["alt", "h", "b", "a"], iconName: "Grid", isSequential: true, initialGridState: createGridState(bigTable,0,2,1), gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } }),
       singleStep({ description: "Thick box border", keys: ["alt", "h", "b", "t"], iconName: "RectangleHorizontal", isSequential: true, initialGridState: createGridState(bigTable,0,2,2), gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } }),
       singleStep({ description: 'Open Fill Color Menu',keys: ['alt', 'h', 'h'],iconName: 'PaintBucket',isSequential: true, initialGridState: createGridState(bigTable,0,2,0),dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' } }),
