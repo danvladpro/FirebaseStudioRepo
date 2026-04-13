@@ -11,185 +11,6 @@ export interface DrillStep {
   previewDialogEffect?: DialogEffect;
 }
 
-const formulaDrillValues = [
-    ['Header A', 'Header B', 'Header C'],
-    ['100', '250', '350'],
-    ['150', '300', '450'],
-    ['200', '350', '550']
-];
-
-const formulaDrillFormulas = [
-    ['Header A', 'Header B', 'Header C'],
-    ['=Z4', '=Z5', '=SUM(B2:C2)'],
-    ['=A2+50', '=B2+50', '=SUM(B3:C3)'],
-    ['=A3+50', '=B3+50', '=SUM(B4:C4)']
-];
-
-// This is the new centralized repository of all possible drill steps.
-export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
-  // ----- Navigation
-  // Arrows
-  moveDown: { description: 'Move down', keys: ['arrowdown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } } },
-  moveUp: { description: 'Move up', keys: ['arrowup'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'up' } } },
-  moveLeft: { description: 'Move left', keys: ['arrowleft'], iconName: 'ArrowLeft', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'left' } } },
-  moveRight: { description: 'Move right', keys: ['arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'right' } } },
-  // Jumping
-  jumpTop: { description: 'Jump Top', keys: ['control', 'arrowup'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
-  jumpRight: { description: 'Jump Right', keys: ['control', 'arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
-  jumpBottom: { description: 'Jump Bottom', keys: ['control', 'arrowdown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeDown' } } },
-  jumpLeft: { description: 'Jump Left', keys: ['control', 'arrowleft'], iconName: 'ArrowLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } } },
-  // Home & End
-  jumpStart: { description: 'Go to Start', keys: ['control', 'home'], iconName: 'ArrowUpLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } } },
-  jumpEnd: { description: 'Go to End', keys: ['control', 'end'], iconName: 'ArrowDownRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } },
-  // Jumping sheets/pages
-  nextSheet: { description: 'Next worksheet', keys: ['control', 'pagedown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
-  prevSheet: { description: 'Previous worksheet', keys: ['control', 'pageup'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
-  pageDown: { description: 'Page down', keys: ['pagedown'], iconName: 'ArrowDownToLine', gridEffect: { action: 'SCROLL_PAGE_DOWN' } },
-  pageUp: { description: 'Page up', keys: ['pageup'], iconName: 'ArrowUpToLine', gridEffect: { action: 'SCROLL_PAGE_UP' } },
-  // other
-  openGoTo: { description: 'Open Go To', keys: ['f5'], iconName: 'Navigation', dialogEffect: { action: 'SHOW_GO_TO' } },
-  confirmGoTo: { description: 'Confirm Go To', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_GO_TO' }, previewDialogEffect: { action: 'HIGHLIGHT_GO_TO_OK' } },
-  
-
-  // ------ Selection
-  selectRow: { description: 'Select row', keys: ['shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
-  selectCol: { description: 'Select column', keys: ['control', ' '], iconName: 'Columns', gridEffect: { action: 'SELECT_COLUMN' } },
- 
-  selectCurrentRegion:  { description: 'Select All', keys: ['control', 'a'], iconName: 'Frame', gridEffect: { action: 'SELECT_ALL' } },
-  selectCurrentRegion8: { description: 'Select current region', keys: ['control', 'shift', '8'], iconName: 'Scan', gridEffect: { action: 'SELECT_ALL' } },
-
-  expandRight: { description: 'Expand right', keys: ['shift', 'arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
-  extendDown:  { description: 'Extend down', keys: ['shift', 'arrowdown'], iconName: 'ArrowDown', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } },
-  expandLeft:  { description: 'Expand left', keys: ['shift', 'arrowleft'], iconName: 'ArrowLeft', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'left' } } },
-  expandUp:    { description: 'Expand up', keys: ['shift', 'arrowup'], iconName: 'ArrowUp', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'up' } } },
-
-  selectRightToEdge: { description: 'Select all to the right', keys: ['control', 'shift', 'arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
-  selectDownToEdge:  { description:  'Select all to the bottom', keys: ['control', 'shift', 'arrowdown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } },
-  selectLeftToEdge:  { description:  'Select all to the left', keys: ['control', 'shift', 'arrowleft'], iconName: 'ArrowLeft', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'left' } } },
-  selectUpToEdge:    { description:  'Select all to the top', keys: ['control', 'shift', 'arrowup'], iconName: 'ArrowUp', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'up' } } },
-  selectToEnd:       { description: 'Extend to end', keys: ['control', 'shift', 'end'], iconName: 'ArrowDownRight', gridEffect: { action: 'SELECT_TO_END' } },
-  selectVisible:     { description: 'Select visible cells', keys: ['alt', ';'], iconName: 'Eye', gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' } },
-
-  // Actions (Copy, Paste, Undo, etc.)
-  copySelection: { description: 'Copy selection', keys: ['control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
-  pasteData: { description: 'Paste', keys: ['control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
-  pasteWelcome: { description: 'Paste', keys: ['control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Welcome' } } },
-  
-  pasteValuesOnly: { description: 'Paste values', keys: ['control', 'alt', 'v'], iconName: 'ClipboardSignature' , gridEffect: { action: 'PASTE' } },
-  cut: { description: 'Cut value', keys: ['control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },
-  deleteContent: { description: 'Delete content', keys: ['delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
-
-  undo: { description: 'Undo deletion', keys: ['control', 'z'], iconName: 'Undo2', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Delete' } } },
-  undoStrikethrough: { description: 'Undo action', keys: ['control', 'z'], iconName: 'Undo2',gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Strikethrough' } }},
-  undoInsert: { description: 'Undo insert', keys: ['control', 'z'], iconName: 'Undo2' },
-
-  redo: { description: 'Redo deletion', keys: ['control', 'y'], iconName: 'Redo2', gridEffect: { action: 'DELETE_CONTENT' } },
-  redoStrike: { description: 'Redo deletion', keys: ['control', 'y'], iconName: 'Redo2', gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } },
-  save: { description: 'Save workbook', keys: ['control', 's'], iconName: 'Save' },
-
-  // Formatting
-  bold:          { description: 'Apply Bold', keys: ['control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
-  italic:        { description: 'Apply italic', keys: ['control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } },
-  underline:     { description: 'Underline', keys: ['control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
-  strikethrough: { description: 'Strikethrough', keys: ['control', '5'], iconName: 'Strikethrough', gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } },
-  
-  applyCurrency: { description: 'Apply currency', keys: ['control', 'shift', '4'], iconName: 'DollarSign', gridEffect: { action: 'APPLY_STYLE_CURRENCY' } },
-  applyPercentage: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
-
-  applyGeneralFormat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'APPLY_STYLE_GENERAL' } },
-  
-  decreaseDecimals: { description: 'Decrease decimals', keys: ['alt', 'h', '9'], iconName: 'MinusCircle', isSequential: true, gridEffect: { action: 'DECREASE_DECIMAL' } },
-  increaseDecimals: { description: 'Increase decimals', keys: ['alt', 'h', '0'], iconName: 'PlusCircle', isSequential: true, gridEffect: { action: 'INCREASE_DECIMAL' } },
-  centerAlign: { description: 'Center align', keys: ['alt', 'h', 'a', 'c'], iconName: 'AlignCenter', isSequential: true, gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } },
-  mergeCenter: { description: 'Merge & center', keys: ['alt', 'h', 'm', 'c'], iconName: 'Merge', isSequential: true, gridEffect: { action: 'APPLY_STYLE_MERGE_CENTER' } },
-  wrapText: { description: 'Wrap text', keys: ['alt', 'h', 'w'], iconName: 'WrapText', isSequential: true, gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } },
-  applyAllBorders: { description: 'Apply all borders', keys: ['alt', 'h', 'b', 'a'], iconName: 'Grid', isSequential: true, gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } },
-  applyThickBorder: { description: 'Apply thick border', keys: ['alt', 'h', 'b', 't'], iconName: 'RectangleHorizontal', isSequential: true, gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } },
-  clearFormatting: { description: 'Clear formatting', keys: ['alt', 'h', 'e', 'f'], iconName: 'RemoveFormatting', isSequential: true, gridEffect: { action: 'APPLY_STYLE_GENERAL' } },
-  autofitColumns: { description: 'Auto-fit width', keys: ['alt', 'h', 'o', 'i'], iconName: 'Frame', isSequential: true, gridEffect: { action: 'AUTOFIT_COLUMNS' } },
-  openFillColor: { description: 'Open Fill Color', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true, dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' } },
-  moveColorHighlightRight: { description: 'Move highlight right', keys: ['arrowright'], iconName: 'ArrowRight', dialogEffect: { action: 'MOVE_FILL_COLOR_HIGHLIGHT', payload: 'right' } },
-  moveColorHighlightLeft: { description: 'Move highlight left', keys: ['arrowleft'], iconName: 'ArrowLeft', dialogEffect: { action: 'MOVE_FILL_COLOR_HIGHLIGHT', payload: 'left' } },
-  confirmFillColor: { description: 'Apply fill color', keys: ['enter'], iconName: 'Check', dialogEffect: { action: 'HIDE_FILL_COLOR_DROPDOWN' }, gridEffect: { action: 'APPLY_FILL_COLOR' } },
-  openFormatCells: { description: 'Open Format Cells', keys: ['control', '1'], iconName: 'Settings2', dialogEffect: { action: 'SHOW_FORMAT_CELLS_DIALOG' } },
-  moveDownFormatCategory: { description: 'Move to next category', keys: ['arrowdown'], iconName: 'ArrowDown', dialogEffect: { action: 'MOVE_FORMAT_CELLS_HIGHLIGHT', payload: 'down' } },
-  moveUpFormatCategory: { description: 'Move to previous category', keys: ['arrowup'], iconName: 'ArrowUp', dialogEffect: { action: 'MOVE_FORMAT_CELLS_HIGHLIGHT', payload: 'up' } },
-  
-  // Formatting - Workarounds
-  applyDateFormatFromGeneral: { description: 'Apply Date format', keys: ['control', 'shift', '3'], iconName: 'Calendar' , gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'02-Mar-26' } } },
-  applyPercentageFromGeneral: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
-  repeatFormattingGeneral:  { description: 'Repeat formatting', keys: ['f4'], iconName: 'RotateCw', gridEffect: { action: 'APPLY_STYLE_GENERAL' } },
-
-  // Data & Formulas 
-  editFormula: { description: 'Edit formula', keys: ['f2'], iconName: 'Edit3', gridEffect: { action: 'START_EDITING', payload: { formula: '=Z4' } } },
-  toggleAbsRef: { description: 'Toggle absolute reference', keys: ['f4'], iconName: 'Lock', gridEffect: { action: 'TOGGLE_ABS_REF' } },
-  confirmFormula: { description: 'Confirm formula', keys: ['enter'], iconName: 'CornerDownLeft' },
-  autoSum: { description: 'Insert AutoSum', keys: ['alt', '='], iconName: 'Sigma', gridEffect: { action: 'AUTOSUM' } },
-  
-  toggleFormulas: {description: 'Show formulas',keys: ['control', '`'],iconName: 'Code',gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: formulaDrillFormulas },},},
-  hideFormulas: {description: 'Hide formulas',keys: ['control', '`'],iconName: 'EyeOff',gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: formulaDrillValues },},},
-
-  createTable: { description: 'Create table', keys: ['control', 't'], iconName: 'Table', dialogEffect: { action: 'SHOW_CREATE_TABLE' } },
-  confirmTable: { description: 'Confirm table', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_CREATE_TABLE' }, gridEffect: { action: 'APPLY_TABLE_FORMATTING' }, previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' } },
-  flashFill: { description: 'Apply Flash Fill', keys: ['control', 'e'], iconName: 'Zap', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Flash Filled' } } },
-  repeatFormatting: { description: 'Repeat formatting', keys: ['f4'], iconName: 'RotateCw', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
-  insertDate: { description: 'Insert date', keys: ['control', ';'], iconName: 'Calendar', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '2026-01-24' } } },
-  insertTime: { description: 'Insert time', keys: ['control', 'shift', ';'], iconName: 'Clock', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '14:00' } } },
-  confirmEntry: { description: 'Enter', keys: ['enter'], iconName: 'CornerDownLeft' },
-  confirm: { description: 'Confirm', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_FORMAT_CELLS_DIALOG' } },
-  type9: { description: 'Type "9"', keys: ['9'], iconName: 'Type', gridEffect: { action: 'UPDATE_ACTIVE_CELL_CONTENT', payload: { value: '9' } } },
-  fillAll: { description: 'Fill all', keys: ['control', 'enter'], iconName: 'CheckCheck', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '9' } } },
-  openFilterDropdown: { description: 'Open filter dropdown', keys: ['alt', 'arrowdown'], iconName: 'Filter', dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' } },
-  moveToFilterItem: { description: 'Move to next item', keys: ['arrowdown'], iconName: 'ArrowDown', dialogEffect: { action: 'HIGHLIGHT_NEXT_FILTER_ITEM' } },
-  applyFilterSelection: { description: 'Confirm selection', keys: ['enter'], iconName: 'Check', dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' } },
-  toggleFilterItem: { description: 'Toggle item selection', keys: [' '], iconName: 'CheckSquare', dialogEffect: { action: 'TOGGLE_FILTER_ITEM' }, previewDialogEffect: { action: 'TOGGLE_FILTER_ITEM'} },
-  
-  // Structure & Dialogs
-  insertRow: { description: 'Insert row', keys: ['control', 'shift', '='], iconName: 'Sheet', gridEffect: { action: 'INSERT_ROW' } },
-  deleteRow: { description: 'Delete row', keys: ['control', '-'], iconName: 'Trash2', gridEffect: { action: 'DELETE_ROW' } },
-  deleteCol: { description: 'Delete Column', keys: ['control', '-'], iconName: 'Trash2', gridEffect: { action: 'DELETE_COLUMN' } },
-
-  
-  hideRow: { description: 'Hide row', keys: ['control', '9'], iconName: 'EyeOff', gridEffect: { action: 'HIDE_ROW' } },
-  unhideRows: { description: 'Unhide all rows', keys: ['control', 'shift', '9'], iconName: 'Eye', gridEffect: { action: 'UNHIDE_ROWS' } },
-  groupRows: { description: 'Group selected', keys: ['shift', 'alt', 'arrowright'], iconName: 'Group', gridEffect: { action: 'GROUP_ROWS' } },
-  ungroupRows: { description: 'Ungroup rows', keys: ['shift', 'alt', 'arrowleft'], iconName: 'Ungroup', gridEffect: { action: 'UNGROUP_ROWS' } },
-  openFind: { description: 'Open Find', keys: ['control', 'f'], iconName: 'Search', dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } } },
-  findNext: { description: 'Find next match', keys: ['enter'], iconName: 'ArrowDownToLine', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
-  confirmFind: { description: 'Confirm Find', keys: ['enter'], iconName: 'CornerDownLeft', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
-  findNextResult: { description: 'Find next result', keys: ['enter'], iconName: 'ArrowDown', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' } },
-  closeDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: {action: 'HIDE'}, previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' } },
-  openReplace: { description: 'Open Replace dialog', keys: ['control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } } },
-  confirmReplace: { description: 'Confirm replacement', keys: ['enter'], iconName: 'Check', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
-  replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: true, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' } },
-  tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
-  typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
-  typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
-  openSortDialog: { description: 'Sort menu', keys: ['alt', 'a','s', 's'], iconName: 'ArrowUpDown', isSequential: true, dialogEffect: { action: 'SHOW_SORT_DIALOG' } },
-  closeSortDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: { action: 'HIDE_SORT_DIALOG' } },
-  freezePanes: { description: 'Freeze Panes', keys: ['alt', 'w', 'f', 'f'], iconName: 'Lock', isSequential: true, gridEffect: { action: 'FREEZE_PANES' } },
-  removeGridlines: { description: 'Remove gridlines', keys: ['alt', 'w', 'v', 'g'], iconName: 'Grid3X3', isSequential: true, gridEffect: { action: 'TOGGLE_GRIDLINES' } },
-  tabToTabs: { description: 'Tab to tabs', keys: ['control', 'tab'], iconName: 'ArrowRightLeft' },
-};
-
-
-export interface Drill {
-    id: string;
-    name: string;
-    description: string;
-    level: ChallengeLevel;
-    repetitions: number;
-    mistakeLimit: number;
-    steps: string[];
-    initialGridState?: GridState;
-}
-
-export interface DrillSet {
-    id: string;
-    name: string;
-    drills: Drill[];
-}
-
 const createGridState = (data: string[][], activeSheetIndex: number = 0, Row: number = 0, Col: number = 0, totalRows: number = 0): GridState => {
     const finalData = data.map(r => [...r]); // deep copy
     const numCols = data.length > 0 ? data[0].length : 1;
@@ -212,6 +33,56 @@ const createGridState = (data: string[][], activeSheetIndex: number = 0, Row: nu
         clipboard: null,
     };
 };
+
+
+
+const formulaDrillValues = [
+    ['Header A', 'Header B', 'Header C'],
+    ['100', '250', '350'],
+    ['150', '300', '450'],
+    ['200', '350', '550']
+];
+
+const formulaDrillFormulas = [
+    ['Header A', 'Header B', 'Header C'],
+    ['=Z4', '=Z5', '=SUM(B2:C2)'],
+    ['=A2+50', '=B2+50', '=SUM(B3:C3)'],
+    ['=A3+50', '=B3+50', '=SUM(B4:C4)']
+];
+const bigTable = [['ID', 'Name', 'Date', 'Amount'],
+    ['1', 'Project A', '2026-01-01', '500.75'],
+    ['2', 'Project B', '2026-01-05', '1200.50'],
+    ['3', 'Project C', '2026-01-10', '750.00'],
+    ['4', 'Project D', '2026-01-15', '2000.25'],
+];
+
+const bigTableEmptyRow = [['ID', 'Name', 'Date', 'Amount',''],
+    ['1', 'Project A', '2026-01-01', '500',''],
+    ['2', 'Project B', '2026-01-05', '1200',''],
+    ['3', 'Project C', '2026-01-10', '750',''],
+    ['4', 'Project D', '2026-01-15', '2000',''],
+    ['', '', '', '','']
+]
+
+const dirtyTable = [['Share', '', 'Amount', '',''],
+    ['100%', '', '$100', '',''],
+    ['200%', '', '$200', '',''],
+    ['', '', '', '','']
+]
+
+
+const emptyTable = [['', '', '', ''],
+    ['', '', '', ''],
+    ['', '', '', ''],
+    ['', '', '', ''],
+    ['', '', '', '']
+]
+
+const autofitGrid = [
+    ['This is a very long header for column A', 'Short Header B', 'This content is much longer and should make the column wider'],
+    ['Short content', '12345', '123'],
+    ['Another row', 'Another value', ''],
+];
 
 const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => ({
   sheets: [
@@ -252,41 +123,189 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
   clipboard: null,
 });
 
+// This is the new centralized repository of all possible drill steps.
+export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
+  // ----- Navigation
+  // Arrows
+  moveDown: { description: 'Move down', keys: ['arrowdown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } } },
+  moveUp: { description: 'Move up', keys: ['arrowup'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'up' } } },
+  moveLeft: { description: 'Move left', keys: ['arrowleft'], iconName: 'ArrowLeft', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'left' } } },
+  moveRight: { description: 'Move right', keys: ['arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'right' } } },
+  // Jumping
+  jumpTop: { description: 'Jump Top', keys: ['control', 'arrowup'], iconName: 'ArrowUp', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeUp' } } },
+  jumpRight: { description: 'Jump Right', keys: ['control', 'arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } } },
+  jumpBottom: { description: 'Jump Bottom', keys: ['control', 'arrowdown'], iconName: 'ArrowDown', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeDown' } } },
+  jumpLeft: { description: 'Jump Left', keys: ['control', 'arrowleft'], iconName: 'ArrowLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeLeft' } } },
+  // Home & End
+  home:{ description: "Jump to beginning of row", keys: ["home"], iconName: "Home", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } }},
+  jumpStart: { description: 'Go to Start', keys: ['control', 'home'], iconName: 'ArrowUpLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } } },
+  jumpEnd: { description: 'Go to End', keys: ['control', 'end'], iconName: 'ArrowDownRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } },
+  // Jumping sheets/pages
+  nextSheet: { description: 'Next worksheet', keys: ['control', 'pagedown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
+  prevSheet: { description: 'Previous worksheet', keys: ['control', 'pageup'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
+  pageDown: { description: 'Page down', keys: ['pagedown'], iconName: 'ArrowDownToLine', gridEffect: { action: 'SCROLL_PAGE_DOWN' } },
+  pageUp: { description: 'Page up', keys: ['pageup'], iconName: 'ArrowUpToLine', gridEffect: { action: 'SCROLL_PAGE_UP' } },
+  // other
+  openGoTo: { description: 'Open Go To', keys: ['f5'], iconName: 'Navigation', dialogEffect: { action: 'SHOW_GO_TO' } },
+  confirmGoTo: { description: 'Confirm Go To', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_GO_TO' }, previewDialogEffect: { action: 'HIGHLIGHT_GO_TO_OK' } },
+  
 
-const bigTable = [['ID', 'Name', 'Date', 'Amount'],
-    ['1', 'Project A', '2026-01-01', '500.75'],
-    ['2', 'Project B', '2026-01-05', '1200.50'],
-    ['3', 'Project C', '2026-01-10', '750.00'],
-    ['4', 'Project D', '2026-01-15', '2000.25'],
-];
+  // ------ Selection
+  selectRow: { description: 'Select row', keys: ['shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
+  selectCol: { description: 'Select column', keys: ['control', ' '], iconName: 'Columns', gridEffect: { action: 'SELECT_COLUMN' } },
+ 
+  selectCurrentRegion:  { description: 'Select All', keys: ['control', 'a'], iconName: 'Frame', gridEffect: { action: 'SELECT_ALL' } },
+  selectCurrentRegion8: { description: 'Select current region', keys: ['control', 'shift', '8'], iconName: 'Scan', gridEffect: { action: 'SELECT_ALL' } },
 
-const bigTableEmptyRow = [['ID', 'Name', 'Date', 'Amount',''],
-    ['1', 'Project A', '2026-01-01', '500',''],
-    ['2', 'Project B', '2026-01-05', '1200',''],
-    ['3', 'Project C', '2026-01-10', '750',''],
-    ['4', 'Project D', '2026-01-15', '2000',''],
-    ['', '', '', '','']
-]
+  expandRight: { description: 'Expand right', keys: ['shift', 'arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
+  extendDown:  { description: 'Extend down', keys: ['shift', 'arrowdown'], iconName: 'ArrowDown', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } },
+  expandLeft:  { description: 'Expand left', keys: ['shift', 'arrowleft'], iconName: 'ArrowLeft', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'left' } } },
+  expandUp:    { description: 'Expand up', keys: ['shift', 'arrowup'], iconName: 'ArrowUp', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'up' } } },
 
-const dirtyTable = [['Share', '', 'Amount', '',''],
-    ['100%', '', '$100', '',''],
-    ['200%', '', '$200', '',''],
-    ['', '', '', '','']
-]
+  selectRightToEdge: { description: 'Select all to the right', keys: ['control', 'shift', 'arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'right' } } },
+  selectDownToEdge:  { description:  'Select all to the bottom', keys: ['control', 'shift', 'arrowdown'], iconName: 'ArrowDown', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'down' } } },
+  selectLeftToEdge:  { description:  'Select all to the left', keys: ['control', 'shift', 'arrowleft'], iconName: 'ArrowLeft', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'left' } } },
+  selectUpToEdge:    { description:  'Select all to the top', keys: ['control', 'shift', 'arrowup'], iconName: 'ArrowUp', gridEffect: { action: 'SELECT_TO_EDGE', payload: { direction: 'up' } } },
+  selectToEnd:       { description: 'Extend to end', keys: ['control', 'shift', 'end'], iconName: 'ArrowDownRight', gridEffect: { action: 'SELECT_TO_END' } },
+  selectVisible:     { description: 'Select visible cells', keys: ['alt', ';'], iconName: 'Eye', gridEffect: { action: 'SET_SELECTION_MODE', payload: 'visibleOnly' } },
+
+  // Actions (Copy, Paste, Undo, etc.)
+  copySelection: { description: 'Copy selection', keys: ['control', 'c'], iconName: 'Copy', gridEffect: { action: 'COPY' } },
+  pasteData: { description: 'Paste', keys: ['control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE' } },
+  pasteWelcome: { description: 'Paste', keys: ['control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Welcome' } } },
+  
+  pasteSpecial: { description: 'Paste values', keys: ['control', 'alt', 'v'], iconName: 'ClipboardSignature' , dialogEffect: { action: 'SHOW_PASTE_SPECIAL_DIALOG' } },
+  pasteSpecialSelectValues: { description: "Select 'Values' to paste", keys: ["v"], isSequential: true, iconName: "Baseline", dialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Values' } },
+  pasteSpecialConfirm: { description: "Confirm Paste Special", keys: ["enter"], iconName: "Check", dialogEffect: { action: 'HIDE_PASTE_SPECIAL_DIALOG' }, gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Pasted Value' } } },
+  pasteSpecialConfirmBigTable: { description: "Confirm Paste Special", keys: ["enter"], iconName: "Check", dialogEffect: { action: 'HIDE_PASTE_SPECIAL_DIALOG' }, gridEffect: { action: 'PASTE_MULTIPLE_VALUES', payload: { value: bigTable } } },
+
+  cut: { description: 'Cut value', keys: ['control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },
+  deleteContent: { description: 'Delete content', keys: ['delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
+
+  undo: { description: 'Undo deletion', keys: ['control', 'z'], iconName: 'Undo2', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Value to Delete' } } },
+  undoDeleteBigTable: { description: 'Undo deletion of big table', keys: ['control', 'z'], iconName: 'Undo2', gridEffect: { action: 'PASTE_MULTIPLE_VALUES', payload: { values: bigTable } } },
+  undoStrikethrough: { description: 'Undo action', keys: ['control', 'z'], iconName: 'Undo2',gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Strikethrough' } }},
+  undoInsert: { description: 'Undo insert', keys: ['control', 'z'], iconName: 'Undo2' },
+
+  redo: { description: 'Redo deletion', keys: ['control', 'y'], iconName: 'Redo2', gridEffect: { action: 'DELETE_CONTENT' } },
+  redoStrike: { description: 'Redo Strikethrough', keys: ['control', 'y'], iconName: 'Redo2', gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } },
+  save: { description: 'Save workbook', keys: ['control', 's'], iconName: 'Save' },
+
+  // Filling
+  fillDown: { description: "Fill Down", keys: ["control", "d"], iconName: "ArrowDownSquare",gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'Project 3' } }},
+
+  // Formatting
+  bold:          { description: 'Apply Bold', keys: ['control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
+  italic:        { description: 'Apply italic', keys: ['control', 'i'], iconName: 'Italic', gridEffect: { action: 'APPLY_STYLE_ITALIC' } },
+  underline:     { description: 'Underline', keys: ['control', 'u'], iconName: 'Underline', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
+  strikethrough: { description: 'Strikethrough', keys: ['control', '5'], iconName: 'Strikethrough', gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } },
+  
+  applyCurrency: { description: 'Apply currency', keys: ['control', 'shift', '4'], iconName: 'DollarSign', gridEffect: { action: 'APPLY_STYLE_CURRENCY' } },
+  applyPercentage: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
+
+  applyGeneralFormat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'APPLY_STYLE_GENERAL' } },
+  applyGeneralFormatOne: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'1' } }},
+  
+  decreaseDecimals: { description: 'Decrease decimals', keys: ['alt', 'h', '9'], iconName: 'MinusCircle', isSequential: true, gridEffect: { action: 'DECREASE_DECIMAL' } },
+  increaseDecimals: { description: 'Increase decimals', keys: ['alt', 'h', '0'], iconName: 'PlusCircle', isSequential: true, gridEffect: { action: 'INCREASE_DECIMAL' } },
+  centerAlign: { description: 'Center align', keys: ['alt', 'h', 'a', 'c'], iconName: 'AlignCenter', isSequential: true, gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } },
+  mergeCenter: { description: 'Merge & center', keys: ['alt', 'h', 'm', 'c'], iconName: 'Merge', isSequential: true, gridEffect: { action: 'APPLY_STYLE_MERGE_CENTER' } },
+  wrapText: { description: 'Wrap text', keys: ['alt', 'h', 'w'], iconName: 'WrapText', isSequential: true, gridEffect: { action: 'APPLY_STYLE_WRAP_TEXT' } },
+  applyAllBorders: { description: 'Apply all borders', keys: ['alt', 'h', 'b', 'a'], iconName: 'Grid', isSequential: true, gridEffect: { action: 'APPLY_STYLE_ALL_BORDERS' } },
+  applyThickBorder: { description: 'Apply thick border', keys: ['alt', 'h', 'b', 't'], iconName: 'RectangleHorizontal', isSequential: true, gridEffect: { action: 'APPLY_STYLE_THICK_BORDER' } },
+  clearFormatting: { description: 'Clear formatting', keys: ['alt', 'h', 'e', 'f'], iconName: 'RemoveFormatting', isSequential: true, gridEffect: { action: 'APPLY_STYLE_GENERAL' } },
+  clearAll: { description: 'Clear Values & Formatting', keys: ['alt', 'h', 'e', 'a'], iconName: 'Trash2', isSequential: true, gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'' } } },
+
+  
+  autofitColumns: { description: 'Auto-fit width', keys: ['alt', 'h', 'o', 'i'], iconName: 'Frame', isSequential: true, gridEffect: { action: 'AUTOFIT_COLUMNS' } },
+  openFillColor: { description: 'Open Fill Color', keys: ['alt', 'h', 'h'], iconName: 'PaintBucket', isSequential: true, dialogEffect: { action: 'SHOW_FILL_COLOR_DROPDOWN' } },
+  moveColorHighlightRight: { description: 'Move highlight right', keys: ['arrowright'], iconName: 'ArrowRight', dialogEffect: { action: 'MOVE_FILL_COLOR_HIGHLIGHT', payload: 'right' } },
+  moveColorHighlightLeft: { description: 'Move highlight left', keys: ['arrowleft'], iconName: 'ArrowLeft', dialogEffect: { action: 'MOVE_FILL_COLOR_HIGHLIGHT', payload: 'left' } },
+  confirmFillColor: { description: 'Apply fill color', keys: ['enter'], iconName: 'Check', dialogEffect: { action: 'HIDE_FILL_COLOR_DROPDOWN' }, gridEffect: { action: 'APPLY_FILL_COLOR' } },
+  openFormatCells: { description: 'Open Format Cells', keys: ['control', '1'], iconName: 'Settings2', dialogEffect: { action: 'SHOW_FORMAT_CELLS_DIALOG' } },
+  moveDownFormatCategory: { description: 'Move to next category', keys: ['arrowdown'], iconName: 'ArrowDown', dialogEffect: { action: 'MOVE_FORMAT_CELLS_HIGHLIGHT', payload: 'down' } },
+  moveUpFormatCategory: { description: 'Move to previous category', keys: ['arrowup'], iconName: 'ArrowUp', dialogEffect: { action: 'MOVE_FORMAT_CELLS_HIGHLIGHT', payload: 'up' } },
+  
+  // Formatting - Workarounds
+  applyDateFormatFromGeneral: { description: 'Apply Date format', keys: ['control', 'shift', '3'], iconName: 'Calendar' , gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'02-Mar-26' } } },
+  repeatFormattingGeneral:  { description: 'Repeat formatting', keys: ['f4'], iconName: 'RotateCw', gridEffect: { action: 'APPLY_STYLE_GENERAL' } },
+
+  // Data & Formulas 
+  editFormula: { description: 'Edit formula', keys: ['f2'], iconName: 'Edit3', gridEffect: { action: 'START_EDITING', payload: { formula: '=Z4' } } },
+  toggleAbsRef: { description: 'Toggle absolute reference', keys: ['f4'], iconName: 'Lock', gridEffect: { action: 'TOGGLE_ABS_REF' } },
+  confirmFormula: { description: 'Confirm formula', keys: ['enter'], iconName: 'CornerDownLeft' },
+  autoSum: { description: 'Insert AutoSum', keys: ['alt', '='], iconName: 'Sigma', gridEffect: { action: 'AUTOSUM' } },
+  
+  toggleFormulas: {description: 'Show formulas',keys: ['control', '`'],iconName: 'Code',gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: formulaDrillFormulas },},},
+  hideFormulas: {description: 'Hide formulas',keys: ['control', '`'],iconName: 'EyeOff',gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: formulaDrillValues },},},
+
+  createTable: { description: 'Create table', keys: ['control', 't'], iconName: 'Table', dialogEffect: { action: 'SHOW_CREATE_TABLE' } },
+  confirmTable: { description: 'Confirm table', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_CREATE_TABLE' }, gridEffect: { action: 'APPLY_TABLE_FORMATTING' }, previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' } },
+  flashFill: { description: 'Apply Flash Fill', keys: ['control', 'e'], iconName: 'Zap', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Flash Filled' } } },
+  repeatFormatting: { description: 'Repeat formatting', keys: ['f4'], iconName: 'RotateCw', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
+  insertDate: { description: 'Insert date', keys: ['control', ';'], iconName: 'Calendar', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '2026-01-24' } } },
+  insertTime: { description: 'Insert time', keys: ['control', 'shift', ';'], iconName: 'Clock', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '14:00' } } },
+  confirmEntry: { description: 'Enter', keys: ['enter'], iconName: 'CornerDownLeft' },
+  confirm: { description: 'Confirm', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_FORMAT_CELLS_DIALOG' } },
+  type9: { description: 'Type "9"', keys: ['9'], iconName: 'Type', gridEffect: { action: 'UPDATE_ACTIVE_CELL_CONTENT', payload: { value: '9' } } },
+  fillAll: { description: 'Fill all', keys: ['control', 'enter'], iconName: 'CheckCheck', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: '9' } } },
+  
+  
+  //filter
+  autoFilter: {description: "Toggle AutoFilter",keys: ["control", "shift", "l"],iconName: "Filter", gridEffect: { action: 'TOGGLE_AUTOFILTER' }},
+  
+  openFilterDropdown: { description: 'Open filter dropdown', keys: ['alt', 'arrowdown'], iconName: 'Filter', dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' } },
+  moveToFilterItem: { description: 'Move to next item', keys: ['arrowdown'], iconName: 'ArrowDown', dialogEffect: { action: 'HIGHLIGHT_NEXT_FILTER_ITEM' } },
+  applyFilterSelection: { description: 'Confirm selection', keys: ['enter'], iconName: 'Check', dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' } },
+  toggleFilterItem: { description: 'Toggle item selection', keys: [' '], iconName: 'CheckSquare', dialogEffect: { action: 'TOGGLE_FILTER_ITEM' }, previewDialogEffect: { action: 'TOGGLE_FILTER_ITEM'} },
+  
+  // Structure & Dialogs
+  insertRow: { description: 'Insert row', keys: ['control', 'shift', '='], iconName: 'Sheet', gridEffect: { action: 'INSERT_ROW' } },
+  deleteRow: { description: 'Delete row', keys: ['control', '-'], iconName: 'Trash2', gridEffect: { action: 'DELETE_ROW' } },
+  deleteCol: { description: 'Delete Column', keys: ['control', '-'], iconName: 'Trash2', gridEffect: { action: 'DELETE_COLUMN' } },
+
+  addComment: { description: "Add a comment", keys: ["shift", "f2"], iconName: "MessageSquarePlus", gridEffect: { action: 'SHOW_COMMENT' } },
+
+  hideRow: { description: 'Hide row', keys: ['control', '9'], iconName: 'EyeOff', gridEffect: { action: 'HIDE_ROW' } },
+  hideCol: {description: "Hide column",keys: ["control", "0"],iconName: "EyeOff",gridEffect: { action: 'HIDE_COLUMN' },},
+  unhideRows: { description: 'Unhide all rows', keys: ['control', 'shift', '9'], iconName: 'Eye', gridEffect: { action: 'UNHIDE_ROWS' } },
+  groupRows: { description: 'Group selected', keys: ['alt', 'shift', 'arrowright'], iconName: 'Group', gridEffect: { action: 'GROUP_ROWS' } },
+  ungroupRows: { description: 'Ungroup rows', keys: ['alt', 'shift', 'arrowleft'], iconName: 'Ungroup', gridEffect: { action: 'UNGROUP_ROWS' } },
+  openFind: { description: 'Open Find', keys: ['control', 'f'], iconName: 'Search', dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } } },
+  findNext: { description: 'Find next result', keys: ['enter'], iconName: 'ArrowDown', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' }, gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } } },
+  closeDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: {action: 'HIDE'}, previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' } },
+  openReplace: { description: 'Open Replace dialog', keys: ['control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } } },
+  confirmReplace: { description: 'Confirm replacement', keys: ['enter'], iconName: 'Check', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
+  replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: true, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' } },
+  tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
+  typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
+  typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
+  openSortDialog: { description: 'Sort menu', keys: ['alt', 'a','s', 's'], iconName: 'ArrowUpDown', isSequential: true, dialogEffect: { action: 'SHOW_SORT_DIALOG' } },
+  closeSortDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: { action: 'HIDE_SORT_DIALOG' } },
+  freezePanes: { description: 'Freeze Panes', keys: ['alt', 'w', 'f', 'f'], iconName: 'Lock', isSequential: true, gridEffect: { action: 'FREEZE_PANES' } },
+  removeGridlines: { description: 'Remove gridlines', keys: ['alt', 'w', 'v', 'g'], iconName: 'Grid3X3', isSequential: true, gridEffect: { action: 'TOGGLE_GRIDLINES' } },
+  tabToTabs: { description: 'Tab to tabs', keys: ['control', 'tab'], iconName: 'ArrowRightLeft' },
+};
 
 
-const emptyTable = [['', '', '', ''],
-    ['', '', '', ''],
-    ['', '', '', ''],
-    ['', '', '', ''],
-    ['', '', '', '']
-]
+export interface Drill {
+    id: string;
+    name: string;
+    description: string;
+    level: ChallengeLevel;
+    repetitions: number;
+    mistakeLimit: number;
+    steps: string[];
+    initialGridState?: GridState;
+}
 
-const autofitGrid = [
-    ['This is a very long header for column A', 'Short Header B', 'This content is much longer and should make the column wider'],
-    ['Short content', '12345', '123'],
-    ['Another row', 'Another value', ''],
-];
+export interface DrillSet {
+    id: string;
+    name: string;
+    drills: Drill[];
+}
+
+
 
 
 const drills: Drill[] = [
@@ -358,7 +377,7 @@ const drills: Drill[] = [
     description: 'Move data across worksheets.',
     repetitions: 15,mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
-    steps: ['copySelection', 'nextSheet', 'pasteData']
+    steps: ['home','copySelection', 'nextSheet', 'pasteData']
   },
   {
     id: 'select-and-italic-table',
@@ -376,7 +395,7 @@ const drills: Drill[] = [
     description: 'Select the entire current data region and clear its contents.',
     repetitions: 12,mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['selectCurrentRegion', 'deleteContent']
+    steps: ['selectCurrentRegion', 'deleteContent','undoDeleteBigTable']
   },
   {
     id: 'select-rectangular-range',
@@ -458,8 +477,8 @@ const drills: Drill[] = [
     name: 'Find and Cycle Results',
     description: 'Practice finding a term and cycling through the results.',
     repetitions: 12,mistakeLimit: 2,
-    initialGridState: createGridState(bigTable, 0, 2, 0),
-    steps: ['openFind', 'typeComma','findNextResult', 'findNextResult', 'closeDialog']
+    initialGridState: createGridState([['First', 'Line',''], ['Second', 'Line'],['Third,', 'Line']], 0, 1, 0),
+    steps: ['openFind', 'typeComma','findNext', 'closeDialog']
   },
   {
     id: 'replace-comma-with-dot',
@@ -559,7 +578,7 @@ const drills: Drill[] = [
     repetitions: 10,
     mistakeLimit: 2,
     initialGridState: createGridState(emptyTable,0,0,0),
-    steps: ['expandRight','extendDown', 'type9', 'fillAll']
+    steps: ['expandRight','extendDown', 'type9', 'fillAll','addComment']
   },
   {
     id: 'open-filter-dropdown',
@@ -592,7 +611,7 @@ const drills: Drill[] = [
     steps: ['jumpStart','selectDownToEdge','openGoTo', 'confirmGoTo']
   },
   {
-    id: 'insert-row-undo',
+    id: 'insert-row-twice',
     level: 'Master',
     name: 'Insert Rows',
     description: 'Insert multiple rows to create space in the table.',
@@ -625,7 +644,7 @@ const drills: Drill[] = [
     repetitions: 12,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 3, 0),
-    steps: ['jumpTop','selectRow', 'centerAlign']
+    steps: ['jumpTop','selectRow', 'centerAlign','autoFilter']
   },
   {
     id: 'kill-formulas',
@@ -635,7 +654,7 @@ const drills: Drill[] = [
     repetitions: 12,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable,0,0,0),
-    steps: ['selectCurrentRegion', 'copySelection', 'pasteValuesOnly']
+    steps: ['selectCurrentRegion', 'copySelection', 'pasteSpecial','pasteSpecialSelectValues','pasteSpecialConfirmBigTable']
   },
   {
     id: 'merge-center-header',
@@ -683,7 +702,7 @@ const drills: Drill[] = [
     initialGridState: createGridState(
       [['ID', 'Date', 'Amount','Share'],['1.0', '02-Mar-26', '500','0.2'],],0,0,0
     ),
-    steps: ['jumpRight','moveDown', 'applyPercentageFromGeneral','jumpLeft','applyGeneralFormat']
+    steps: ['jumpRight','moveDown', 'applyPercentage','jumpLeft','applyGeneralFormatOne']
   },
   {
     id: 'thick-border-block',
@@ -800,7 +819,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(1),
-    steps: ['prevSheet','selectCurrentRegion','deleteContent','removeGridlines']
+    steps: ['prevSheet','selectCurrentRegion','clearAll','removeGridlines']
   }
 ];
 
