@@ -373,8 +373,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
   },
   {
     id: "expert-view-management",
-    name: "Expert Controls",
-    description: "Sorting, freezing, and pasting special.",
+    name: "Power View & Layout",
+    description: "Sort data, freeze panes, group rows, and paste special.",
     level: "Ninja",
     category: "Data",
     iconName: "ShieldCheck",
