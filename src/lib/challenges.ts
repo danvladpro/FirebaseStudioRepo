@@ -168,7 +168,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Underline", keys: ["control", "u"], iconName: "Underline", gridEffect: { action: 'APPLY_STYLE_UNDERLINE' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({ description: "Strikethrough", keys: ["control", "5"], iconName: "Strikethrough", gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({description: "Open Find dialog",keys: ["control", "f"],iconName: "Search",dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } }, initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Open Replace dialog",keys: ["control", "h"],iconName: "Replace",dialogEffect: { action: 'SET_TAB', payload: 'replace' }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Open Replace dialog",keys: ["control", "h"],iconName: "Replace",dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } }, initialGridState: createGridState(bigTable,0,2,0) }),
     ],
   },
   
@@ -275,7 +275,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
           {description: "Toggl formula reference",keys: ["f4"],iconName: "Anchor",gridEffect: { action: 'TOGGLE_ABS_REF' },},
         ]
       },
-
+      singleStep({ description: 'Recalculate Workbook', keys: ['f9'], iconName: 'RefreshCw' , initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: 'Recalculate Current Sheet', keys: ['shift','f9'], iconName: 'RefreshCw', initialGridState: createGridState(bigTable,0,2,0)}),
       singleStep({ description: "AutoSum", keys: ["alt", "="], iconName: "Calculator", initialGridState: createSummableGridState(), gridEffect: { action: 'AUTOSUM' } }),
       singleStep({ description: "Repeat last action (Bold)", keys: ["f4"], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'APPLY_STYLE_BOLD' },}),
       singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState([['Amt1','Amt2','Amt3','Amt4'],['30','40','50','60']],0,1,0),gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: [['30','=Z4','50','=Q33']] },}}),
