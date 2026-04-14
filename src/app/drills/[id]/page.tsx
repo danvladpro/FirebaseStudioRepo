@@ -84,13 +84,18 @@ export default function DrillPage({ params }: { params: { id: string } }) {
     const currentAnimatedStep = drillStepsForEngine[animationStep];
 
     if (animationStep >= 0 && currentAnimatedStep) {
-        // Apply the main effect of the current step
-        if (currentAnimatedStep.dialogEffect) {
-            displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.dialogEffect);
-        }
-        // Then layer the preview/highlight effect on top for this animation frame
+        // Apply preview highlight first so the ring is visible before any HIDE fires
+        // (e.g. Close button must be highlighted while dialog is still on screen).
         if (currentAnimatedStep.previewDialogEffect) {
             displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.previewDialogEffect);
+        }
+        // Apply the main dialog transition, but skip HIDE-class actions so the dialog
+        // stays visible during animation frames (HIDE fires on actual key press in the game).
+        const isHideAction = currentAnimatedStep.dialogEffect?.action === 'HIDE'
+            || currentAnimatedStep.dialogEffect?.action === 'HIDE_CREATE_TABLE'
+            || currentAnimatedStep.dialogEffect?.action === 'HIDE_GO_TO';
+        if (currentAnimatedStep.dialogEffect && !isHideAction) {
+            displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.dialogEffect);
         }
     }
 

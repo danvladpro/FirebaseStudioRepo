@@ -78,11 +78,6 @@ const emptyTable = [['', '', '', ''],
     ['', '', '', '']
 ]
 
-const autofitGrid = [
-    ['This is a very long header for column A', 'Short Header B', 'This content is much longer and should make the column wider'],
-    ['Short content', '12345', '123'],
-    ['Another row', 'Another value', ''],
-];
 
 const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => ({
   sheets: [
@@ -148,7 +143,8 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   // other
   openGoTo: { description: 'Open Go To', keys: ['f5'], iconName: 'Navigation', dialogEffect: { action: 'SHOW_GO_TO' } },
   confirmGoTo: { description: 'Confirm Go To', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_GO_TO' }, previewDialogEffect: { action: 'HIGHLIGHT_GO_TO_OK' } },
-  
+  refresh: { description: 'Recalculate Workbook', keys: ['f9'], iconName: 'RefreshCw' },
+  refreshSheet: { description: 'Recalculate Current Sheet', keys: ['shift','f9'], iconName: 'RefreshCw' },
 
   // ------ Selection
   selectRow: { description: 'Select row', keys: ['shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
@@ -192,7 +188,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   save: { description: 'Save workbook', keys: ['control', 's'], iconName: 'Save' },
 
   // Filling
-  fillDown: { description: "Fill Down", keys: ["control", "d"], iconName: "ArrowDownSquare",gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'Project 3' } }},
+  fillDown: { description: "Fill Down", keys: ["control", "d"], iconName: "ArrowDownSquare",gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'100%' } }},
 
   // Formatting
   bold:          { description: 'Apply Bold', keys: ['control', 'b'], iconName: 'Bold', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
@@ -271,12 +267,12 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   unhideRows: { description: 'Unhide all rows', keys: ['control', 'shift', '9'], iconName: 'Eye', gridEffect: { action: 'UNHIDE_ROWS' } },
   groupRows: { description: 'Group selected', keys: ['alt', 'shift', 'arrowright'], iconName: 'Group', gridEffect: { action: 'GROUP_ROWS' } },
   ungroupRows: { description: 'Ungroup rows', keys: ['alt', 'shift', 'arrowleft'], iconName: 'Ungroup', gridEffect: { action: 'UNGROUP_ROWS' } },
-  openFind: { description: 'Open Find', keys: ['control', 'f'], iconName: 'Search', dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } } },
+  openFind: { description: 'Open Find', keys: ['control', 'f'], iconName: 'Search', dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   findNext: { description: 'Find next result', keys: ['enter'], iconName: 'ArrowDown', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' }, gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } } },
   closeDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: {action: 'HIDE'}, previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' } },
-  openReplace: { description: 'Open Replace dialog', keys: ['control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } } },
+  openReplace: { description: 'Open Replace dialog', keys: ['control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   confirmReplace: { description: 'Confirm replacement', keys: ['enter'], iconName: 'Check', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
-  replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: true, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' } },
+  replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: true, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' }, gridEffect: { action: 'PASTE_MULTIPLE_VALUES', payload: { values: [['Sales.North', 'Sales.South'], ['Profit.North', 'Profit.South']] } }  },
   tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
@@ -557,7 +553,7 @@ const drills: Drill[] = [
     repetitions: 14,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTableEmptyRow, 0, 2, 0),
-    steps: ['jumpRight','selectDownToEdge', 'autoSum']
+    steps: ['jumpRight','selectDownToEdge', 'autoSum','refresh']
   },
   {
     id: 'repeat-formatting-f4',
@@ -618,7 +614,7 @@ const drills: Drill[] = [
     repetitions: 8,
     mistakeLimit: 2,
     initialGridState: createGridState(bigTable, 0, 3, 0),
-    steps: ['selectRow', 'insertRow', 'insertRow']
+    steps: ['selectRow', 'insertRow', 'insertRow','refreshSheet']
   },
   {
     id: 'delete-column',
@@ -629,6 +625,16 @@ const drills: Drill[] = [
     mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
     steps: [ 'nextSheet',	'selectCol','deleteCol']
+  },
+    {
+    id: 'fill-down-hide-column',
+    level: 'Master',
+    name: 'Fill Down & hide',
+    description: 'Fill cells in a column with the same value.',
+    repetitions: 8,
+    mistakeLimit: 2,
+    initialGridState: createGridState(dirtyTable, 0, 2, 0), 
+    steps: [ 'fillDown','moveDown','fillDown','moveRight','hideCol']
   },
 
 

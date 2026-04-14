@@ -256,6 +256,10 @@ npm run genkit:dev   # Start Genkit dev UI for AI flows
 
 ---
 
+## No Test Framework
+There is no jest/vitest/playwright. Verification = `npm run typecheck` + dev server visual check.
+`npm run typecheck` has pre-existing errors in `challenges/page.tsx`, `drill-ui.tsx`, `scroll-animation.tsx` — grep output for your specific file to confirm it's clean.
+
 ## Key Conventions
 
 - **No `any` in new code** — use proper types from `src/lib/types.ts`.
@@ -263,3 +267,4 @@ npm run genkit:dev   # Start Genkit dev UI for AI flows
 - **Key normalisation** — always use `normalizeKey()` from `use-shortcut-engine.ts`; never hardcode raw `event.key` strings in challenge definitions.
 - **Challenge realism** — every new challenge or drill scenario must be grounded in a real-world Excel use case (see Agent 5 / Content rules above).
 - **Platform parity** — Windows shortcuts are primary; macOS equivalents must be documented in the same challenge definition.
+- **Blue is off-palette** — never use `bg-blue-*` / `text-blue-*` for UI elements. Tip boxes and info callouts use `bg-emerald-50 border-emerald-200 text-emerald-800`.

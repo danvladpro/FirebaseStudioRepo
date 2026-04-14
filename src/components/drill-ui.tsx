@@ -195,10 +195,18 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   });
 
   const drillStepsForEngine = drill.steps.map(stepId => ALL_DRILL_STEPS[stepId]);
-  
+
   const dialogStateBefore = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex - 1);
   const dialogStateAfter = calculateDialogStateForStep(drillStepsForEngine, logicalStepIndex);
-  const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : dialogStateBefore;
+
+  // Apply previewDialogEffect on top of dialogStateBefore so button/input hints
+  // are visible while the user is waiting to press the correct key.
+  const currentStepForPreview = drillStepsForEngine[logicalStepIndex];
+  const dialogStateWithPreview = currentStepForPreview?.previewDialogEffect
+    ? applyDialogEffect(dialogStateBefore, currentStepForPreview.previewDialogEffect)
+    : dialogStateBefore;
+
+  const finalDialogState = stepFeedback === 'correct' ? dialogStateAfter : dialogStateWithPreview;
 
   useEffect(() => {
     if (!activeStep) {
