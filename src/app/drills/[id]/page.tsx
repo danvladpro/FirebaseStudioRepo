@@ -89,8 +89,12 @@ export default function DrillPage({ params }: { params: { id: string } }) {
         if (currentAnimatedStep.previewDialogEffect) {
             displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.previewDialogEffect);
         }
-        // Then apply the main dialog transition for this animation frame
-        if (currentAnimatedStep.dialogEffect) {
+        // Apply the main dialog transition, but skip HIDE-class actions so the dialog
+        // stays visible during animation frames (HIDE fires on actual key press in the game).
+        const isHideAction = currentAnimatedStep.dialogEffect?.action === 'HIDE'
+            || currentAnimatedStep.dialogEffect?.action === 'HIDE_CREATE_TABLE'
+            || currentAnimatedStep.dialogEffect?.action === 'HIDE_GO_TO';
+        if (currentAnimatedStep.dialogEffect && !isHideAction) {
             displayDialogState = applyDialogEffect(displayDialogState, currentAnimatedStep.dialogEffect);
         }
     }
