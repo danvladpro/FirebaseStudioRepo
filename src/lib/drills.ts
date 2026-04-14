@@ -78,11 +78,6 @@ const emptyTable = [['', '', '', ''],
     ['', '', '', '']
 ]
 
-const autofitGrid = [
-    ['This is a very long header for column A', 'Short Header B', 'This content is much longer and should make the column wider'],
-    ['Short content', '12345', '123'],
-    ['Another row', 'Another value', ''],
-];
 
 const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => ({
   sheets: [
@@ -277,7 +272,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   closeDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: {action: 'HIDE'}, previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' } },
   openReplace: { description: 'Open Replace dialog', keys: ['control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   confirmReplace: { description: 'Confirm replacement', keys: ['enter'], iconName: 'Check', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
-  replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: true, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' } },
+  replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: true, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' }, gridEffect: { action: 'PASTE_MULTIPLE_VALUES', payload: { values: [['Sales.North', 'Sales.South'], ['Profit.North', 'Profit.South']] } }  },
   tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
