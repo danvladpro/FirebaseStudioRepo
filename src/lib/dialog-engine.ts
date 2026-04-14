@@ -70,9 +70,9 @@ export const applyDialogEffect = (
             newState.createTableDialogHighlightedButton = null;
             newState.goToDialogHighlightedButton = null;
             newState.goToDialogHighlightedInput = false;
-            newState.filterDropdownHighlightedIndex = -1;
-            newState.fillColorDropdownHighlightedColor = null;
-            newState.pasteSpecialDialogHighlightedOption = null;
+            // filterDropdownHighlightedIndex, fillColorDropdownHighlightedColor, and
+            // pasteSpecialDialogHighlightedOption are functional selection positions —
+            // they must persist across steps and are reset by their HIDE_* actions.
             break;
         case 'SHOW_CREATE_TABLE':
             newState.createTableDialogVisible = true;
