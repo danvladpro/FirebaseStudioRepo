@@ -175,6 +175,7 @@ export interface ChallengeStep {
   gridEffect?: GridEffect;
   dialogEffect?: DialogEffect;
   previewDialogEffect?: DialogEffect;
+  warningMessage?: string;
 }
 
 export interface Challenge {

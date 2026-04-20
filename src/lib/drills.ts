@@ -9,7 +9,10 @@ export interface DrillStep {
   gridEffect?: GridEffect;
   dialogEffect?: DialogEffect;
   previewDialogEffect?: DialogEffect;
+  warningMessage?: string;
 }
+
+const warningSequence = "Internet Browser Limitation -  press 'Cntr'/'Command' last."
 
 const createGridState = (data: string[][], activeSheetIndex: number = 0, Row: number = 0, Col: number = 0, totalRows: number = 0): GridState => {
     const finalData = data.map(r => [...r]); // deep copy
@@ -147,11 +150,10 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   refreshSheet: { description: 'Recalculate Current Sheet', keys: ['shift','f9'], iconName: 'RefreshCw' },
 
   // ------ Selection
-  selectRow: { description: 'Select row', keys: ['shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' } },
-  selectCol: { description: 'Select column', keys: ['control', ' '], iconName: 'Columns', gridEffect: { action: 'SELECT_COLUMN' } },
+  selectRow: { description: 'Select row', keys: ['shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' }, warningMessage: warningSequence },
+  selectCol: { description: 'Select column', keys: ['control', ' '], iconName: 'Columns', gridEffect: { action: 'SELECT_COLUMN' }, warningMessage: warningSequence },
  
   selectCurrentRegion:  { description: 'Select All', keys: ['control', 'a'], iconName: 'Frame', gridEffect: { action: 'SELECT_ALL' } },
-  selectCurrentRegion8: { description: 'Select current region', keys: ['control', 'shift', '8'], iconName: 'Scan', gridEffect: { action: 'SELECT_ALL' } },
 
   expandRight: { description: 'Expand right', keys: ['shift', 'arrowright'], iconName: 'ArrowRight', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'right' } } },
   extendDown:  { description: 'Extend down', keys: ['shift', 'arrowdown'], iconName: 'ArrowDown', gridEffect: { action: 'EXTEND_SELECTION', payload: { direction: 'down' } } },
@@ -199,7 +201,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   applyCurrency: { description: 'Apply currency', keys: ['control', 'shift', '4'], iconName: 'DollarSign', gridEffect: { action: 'APPLY_STYLE_CURRENCY' } },
   applyPercentage: { description: 'Apply percentage', keys: ['control', 'shift', '5'], iconName: 'Percent', gridEffect: { action: 'APPLY_STYLE_PERCENTAGE' } },
 
-  applyGeneralFormat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'APPLY_STYLE_GENERAL' } },
+  applyGeneralFormat: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'APPLY_STYLE_GENERAL' }},
   applyGeneralFormatOne: { description: 'Apply General format', keys: ['control', 'shift', '`'], iconName: 'Hash', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'1' } }},
   
   decreaseDecimals: { description: 'Decrease decimals', keys: ['alt', 'h', '9'], iconName: 'MinusCircle', isSequential: true, gridEffect: { action: 'DECREASE_DECIMAL' } },
@@ -232,10 +234,10 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   confirmFormula: { description: 'Confirm formula', keys: ['enter'], iconName: 'CornerDownLeft' },
   autoSum: { description: 'Insert AutoSum', keys: ['alt', '='], iconName: 'Sigma', gridEffect: { action: 'AUTOSUM' } },
   
-  toggleFormulas: {description: 'Show formulas',keys: ['control', '`'],iconName: 'Code',gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: formulaDrillFormulas },},},
-  hideFormulas: {description: 'Hide formulas',keys: ['control', '`'],iconName: 'EyeOff',gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: formulaDrillValues },},},
+  toggleFormulas: {description: 'Show formulas',keys: ['control', '`'],iconName: 'Code',gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: formulaDrillFormulas },}, warningMessage: warningSequence ,},
+  hideFormulas: {description: 'Hide formulas',keys: ['control', '`'],iconName: 'EyeOff',gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: formulaDrillValues },}, warningMessage: warningSequence ,},
 
-  createTable: { description: 'Create table', keys: ['control', 't'], iconName: 'Table', dialogEffect: { action: 'SHOW_CREATE_TABLE' } },
+  createTable: { description: 'Create table', keys: ['control', 't'], iconName: 'Table', dialogEffect: { action: 'SHOW_CREATE_TABLE' }, warningMessage: warningSequence },
   confirmTable: { description: 'Confirm table', keys: ['enter'], iconName: 'CornerDownLeft', dialogEffect: { action: 'HIDE_CREATE_TABLE' }, gridEffect: { action: 'APPLY_TABLE_FORMATTING' }, previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' } },
   flashFill: { description: 'Apply Flash Fill', keys: ['control', 'e'], iconName: 'Zap', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Flash Filled' } } },
   repeatFormatting: { description: 'Repeat formatting', keys: ['f4'], iconName: 'RotateCw', gridEffect: { action: 'APPLY_STYLE_UNDERLINE' } },
@@ -253,7 +255,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   openFilterDropdown: { description: 'Open filter dropdown', keys: ['alt', 'arrowdown'], iconName: 'Filter', dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' } },
   moveToFilterItem: { description: 'Move to next item', keys: ['arrowdown'], iconName: 'ArrowDown', dialogEffect: { action: 'HIGHLIGHT_NEXT_FILTER_ITEM' } },
   applyFilterSelection: { description: 'Confirm selection', keys: ['enter'], iconName: 'Check', dialogEffect: { action: 'HIDE_FILTER_DROPDOWN' } },
-  toggleFilterItem: { description: 'Toggle item selection', keys: [' '], iconName: 'CheckSquare', dialogEffect: { action: 'TOGGLE_FILTER_ITEM' }, previewDialogEffect: { action: 'TOGGLE_FILTER_ITEM'} },
+  toggleFilterItem: { description: 'Toggle item selection', keys: [' '], iconName: 'CheckSquare', dialogEffect: { action: 'TOGGLE_FILTER_ITEM' }},
   
   // Structure & Dialogs
   insertRow: { description: 'Insert row', keys: ['control', 'shift', '='], iconName: 'Sheet', gridEffect: { action: 'INSERT_ROW' } },
@@ -273,14 +275,14 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   openReplace: { description: 'Open Replace dialog', keys: ['control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   confirmReplace: { description: 'Confirm replacement', keys: ['enter'], iconName: 'Check', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
   replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: true, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' }, gridEffect: { action: 'PASTE_MULTIPLE_VALUES', payload: { values: [['Sales.North', 'Sales.South'], ['Profit.North', 'Profit.South']] } }  },
-  tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
+  tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' }, warningMessage: "Tab is captured by the training UI here. If focus leaves the page, click the exercise area and try again." },
   typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   openSortDialog: { description: 'Sort menu', keys: ['alt', 'a','s', 's'], iconName: 'ArrowUpDown', isSequential: true, dialogEffect: { action: 'SHOW_SORT_DIALOG' } },
   closeSortDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: { action: 'HIDE_SORT_DIALOG' } },
   freezePanes: { description: 'Freeze Panes', keys: ['alt', 'w', 'f', 'f'], iconName: 'Lock', isSequential: true, gridEffect: { action: 'FREEZE_PANES' } },
   removeGridlines: { description: 'Remove gridlines', keys: ['alt', 'w', 'v', 'g'], iconName: 'Grid3X3', isSequential: true, gridEffect: { action: 'TOGGLE_GRIDLINES' } },
-  tabToTabs: { description: 'Tab to tabs', keys: ['control', 'tab'], iconName: 'ArrowRightLeft' },
+  tabToTabs: { description: 'Tab to tabs', keys: ['control', 'tab'], iconName: 'ArrowRightLeft', warningMessage: "Ctrl+Tab switches browser tabs in most browsers. Press quickly while this page is focused, or use the virtual keyboard." },
 };
 
 
@@ -403,16 +405,6 @@ const drills: Drill[] = [
     steps: ['selectRightToEdge', 'extendDown', 'cut', 'nextSheet', 'pasteData']
   },
   {
-    id: 'extend-row-selection-down',
-    level: 'Apprentice',
-    name: 'Bold Multiple Rows',
-    description: 'Select multiple rows from current position to the bottom and apply bold formatting.',
-    repetitions: 12, mistakeLimit: 2,
-    initialGridState: createGridState(bigTableEmptyRow,0,0,2),
-    steps: ['selectRow', 'selectDownToEdge', 'bold']
-  },
-
-  {
     id: 'scan-large-data',
     level: 'Apprentice',
     name: 'Page Scrolling',
@@ -429,7 +421,7 @@ const drills: Drill[] = [
     description: 'Select all data, apply bold and underline formatting, then save the workbook.',
     repetitions: 12, mistakeLimit: 2,
     initialGridState: createMultiSheetGridState(0),
-    steps: ['selectCurrentRegion8', 'bold', 'underline', 'save']
+    steps: ['selectCurrentRegion', 'bold', 'underline', 'save']
   },
   {
     id: 'move-up-and-format',
@@ -449,15 +441,7 @@ const drills: Drill[] = [
     initialGridState: createGridState(bigTable,0,2,0),
     steps: ['jumpStart', 'underline', 'jumpEnd', 'strikethrough']
   },
-  {
-    id: 'bold-header-delete-last',
-    level: 'Apprentice',
-    name: 'Jump Columns',
-    description: 'Bold the first column, then strikethrough the last column.',
-    repetitions: 12, mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
-    steps: ['selectCol', 'bold', 'jumpRight', 'selectCol', 'strikethrough']
-  },
+
   {
     id: 'extend-selection-last-cell',
     level: 'Apprentice',
@@ -503,7 +487,15 @@ const drills: Drill[] = [
   // LEVEL 2: MASTER (Grid Surgeon)
   // Focus: Data Tools, Selection, & Structure
   // ==========================================
-  
+    {
+    id: 'bold-header-delete-last',
+    level: 'Master',
+    name: 'Jump Columns',
+    description: 'Bold the first column, then strikethrough the last column.',
+    repetitions: 12, mistakeLimit: 2,
+    initialGridState: createGridState(bigTable,0,2,0),
+    steps: ['selectCol', 'bold', 'jumpRight', 'selectCol', 'strikethrough']
+  },
 
   {
     id: 'convert-region-to-table',
@@ -515,6 +507,16 @@ const drills: Drill[] = [
     initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['selectCurrentRegion', 'createTable', 'confirmTable']
   },
+    {
+    id: 'extend-row-selection-down',
+    level: 'Master',
+    name: 'Bold Multiple Rows',
+    description: 'Select multiple rows from current position to the bottom and apply bold formatting.',
+    repetitions: 12, mistakeLimit: 2,
+    initialGridState: createGridState(bigTableEmptyRow,0,0,2),
+    steps: ['selectRow', 'selectDownToEdge', 'bold']
+  },
+
   {
     id: 'copy-visible-rows',
     level: 'Master',

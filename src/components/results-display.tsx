@@ -11,7 +11,7 @@ import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from './ui/separator';
 import { useAuth } from './auth-provider';
-import { cn } from '@/lib/utils';
+import { cn, getPlatformKeys } from '@/lib/utils';
 import { Challenge, ChallengeSet, ChallengeStep } from '@/lib/types';
 import Confetti from 'react-confetti';
 import { updateUserPerformance } from '@/app/actions/update-user-performance';
@@ -94,14 +94,10 @@ export default function ResultsDisplay() {
   const showXp = xpEarned > 0 && previousBestScore !== 100;
 
   const getOsKeys = (step: ChallengeStep, isMac: boolean) => {
-    const isStrikethrough = step.description.toLowerCase().includes('strikethrough');
-    
-    return step.keys.map(key => {
-        if (isMac && key.toLowerCase() === 'control' && !isStrikethrough) {
-            return 'Meta';
-        }
-        return key;
-    });
+    const capitalizedModifiers: Record<string, string> = {
+        'control': 'Control', 'meta': 'Meta', 'shift': 'Shift', 'alt': 'Alt',
+    };
+    return getPlatformKeys(step, isMac).map(k => capitalizedModifiers[k] ?? k);
   }
 
   const skippedChallenges = skippedIndicesStr && challengeSet

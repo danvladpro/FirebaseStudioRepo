@@ -1,16 +1,17 @@
 
 import { ChallengeSet, ChallengeLevel, Challenge, GridState } from "./types";
 
-const singleStep = (challenge: Omit<Challenge, 'steps'>): Challenge => ({
+const singleStep = (challenge: Omit<Challenge, 'steps'> & { warningMessage?: string }): Challenge => ({
     ...challenge,
-    steps: [{ 
-      description: challenge.description, 
-      keys: challenge.keys!, 
-      iconName: challenge.iconName!, 
-      isSequential: challenge.isSequential, 
+    steps: [{
+      description: challenge.description,
+      keys: challenge.keys!,
+      iconName: challenge.iconName!,
+      isSequential: challenge.isSequential,
       gridEffect: challenge.gridEffect,
       dialogEffect: challenge.dialogEffect,
       previewDialogEffect: challenge.previewDialogEffect,
+      warningMessage: challenge.warningMessage,
     }]
 });
 
@@ -38,6 +39,10 @@ const createGridState = (data: string[][], activeSheetIndex: number = 0, Row: nu
         clipboard: null,
     };
 };
+
+const warningSequence = "Internet Browser Limitation -  press 'Cntr'/'Command' last."
+
+
 
 const flashTable = [['','ID', 'Name',  '',''],
     ['','1', 'Project 1',  '',''],
@@ -233,14 +238,14 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       {
         description: "Select and delete a column",initialGridState: createGridState(bigTable, 0, 2, 1),
         steps: [
-          {description: "Select the current column",keys: ["control", " "],iconName: "Columns3",gridEffect: { action: 'SELECT_COLUMN' },},
+          {description: "Select the current column",keys: ["control", " "],iconName: "Columns3",gridEffect: { action: 'SELECT_COLUMN' },warningMessage: warningSequence},
           {description: "Delete the selected column",keys: ["control", "-"],iconName: "Trash2",gridEffect: { action: 'DELETE_COLUMN' },}
         ]
       },
       {
         description: "Select and insert a row",initialGridState: createGridState(bigTable, 0, 2, 0),
         steps: [
-          {description: "Select the current row",keys: ["shift", " "],iconName: "Rows3",gridEffect: { action: 'SELECT_ROW' },},
+          {description: "Select the current row",keys: ["shift", " "],iconName: "Rows3",gridEffect: { action: 'SELECT_ROW' },warningMessage: warningSequence},
           {description: "Insert a new row above",keys: ["control", "shift", "="],iconName: "Sheet",gridEffect: { action: 'INSERT_ROW' },}
         ]},
       {
@@ -279,13 +284,13 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: 'Recalculate Current Sheet', keys: ['shift','f9'], iconName: 'RefreshCw', initialGridState: createGridState(bigTable,0,2,0)}),
       singleStep({ description: "AutoSum", keys: ["alt", "="], iconName: "Calculator", initialGridState: createSummableGridState(), gridEffect: { action: 'AUTOSUM' } }),
       singleStep({ description: "Repeat last action (Bold)", keys: ["f4"], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'APPLY_STYLE_BOLD' },}),
-      singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState([['Amt1','Amt2','Amt3','Amt4'],['30','40','50','60']],0,1,0),gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: [['30','=Z4','50','=Q33']] },}}),
+      singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState([['Amt1','Amt2','Amt3','Amt4'],['30','40','50','60']],0,1,0),gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: [['30','=Z4','50','=Q33']] },}  }),
       {
         description: "Create a table and open filter",
         initialGridState: createGridState(bigTable,0,0,0),
         steps: [
             {description: "Select current region", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' },},
-            {description: "Open Create Table dialog",keys: ["control", "t"],iconName: "Table",dialogEffect: { action: 'SHOW_CREATE_TABLE' }},
+            {description: "Open Create Table dialog",keys: ["control", "t"],iconName: "Table",dialogEffect: { action: 'SHOW_CREATE_TABLE' },warningMessage: warningSequence},
             {description: "Confirm table creation",keys: ["enter"],iconName: "Check",dialogEffect: { action: 'HIDE_CREATE_TABLE' },gridEffect: { action: 'APPLY_TABLE_FORMATTING' },previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' }},
             {description: "Toggle AutoFilter",keys: ["control", "shift", "l"],iconName: "Filter", gridEffect: { action: 'TOGGLE_AUTOFILTER' }},
             {description: "Open filter dropdown",keys: ["alt", "arrowdown"],iconName: "ChevronDownSquare",dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' },},
@@ -396,7 +401,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       {
         description: "Group & Ungroup Rows",initialGridState: createGridState(bigTable,0,2,0),
         steps: [
-            {description: "Select the current row",keys: ["shift", " "],iconName: "Rows3",gridEffect: { action: 'SELECT_ROW' },},
+            {description: "Select the current row",keys: ["shift", " "],iconName: "Rows3",gridEffect: { action: 'SELECT_ROW' },warningMessage: warningSequence},
             {description: "Group rows", keys: ["alt", "shift", "arrowright"], iconName: "Group", gridEffect: { action: 'GROUP_ROWS' } },
             {description: "Ungroup rows", keys: ["alt", "shift", "arrowleft"], iconName: "Ungroup", gridEffect: { action: 'UNGROUP_ROWS' } }
         ]

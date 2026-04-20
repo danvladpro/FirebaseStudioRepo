@@ -37,7 +37,7 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
             </div>
           </div>
         ) : (
-          <div className="w-full max-w-6xl mx-auto flex flex-col flex-1 min-h-0 p-2 sm:p-4">
+          <div className="w-full max-w-6xl mx-auto p-2 sm:p-4">
             <ChallengeUI set={challengeSet} mode={mode} />
           </div>
         )}
