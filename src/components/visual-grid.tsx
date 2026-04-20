@@ -174,7 +174,7 @@ export function VisualGrid({
                                                 style={style}
                                             >
                                                 <div className="flex items-center justify-between w-full h-full gap-1">
-                                                    <span className="flex-grow whitespace-nowrap overflow-hidden text-ellipsis">
+                                                    <span className={cn("flex-grow overflow-hidden", style.whiteSpace === 'pre-wrap' ? "whitespace-pre-wrap break-words" : "whitespace-nowrap text-ellipsis")}>
                                                         {cell?.includes('\\n')
                                                         ? cell.split('\\n').map((line, i, arr) => (
                                                             <React.Fragment key={i}>

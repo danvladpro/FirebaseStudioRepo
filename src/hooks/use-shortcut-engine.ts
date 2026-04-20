@@ -53,28 +53,6 @@ const normalizeKey = (code: string, isMac: boolean): string => {
     return lower;
 };
 
-// On macOS, pressing Option+key fires an EXTRA keydown for the composed Unicode
-// character (e.g. Option+= fires '≠', Option+p fires 'π', Option+2 fires '™').
-// These come through with e.code = 'Equal' / 'KeyP' etc. but e.key = '≠' / 'π'.
-// After normalizeKey runs on e.code they look like '=' or 'p' — indistinguishable
-// from the real key — BUT the browser fires them as a second separate keydown event
-// immediately after the real one, so pressedKeys ends up with size 3 instead of 2
-// and the strict size===size check fails.
-//
-// The fix: track via e.code only (already done), and also check e.altKey on the
-// event. If altKey is held and the resulting normalized key is a single printable
-// ASCII char that isn't a modifier, it's the composed-character ghost event — skip it.
-// We detect this in handleKeyDown by passing the original event.
-const isComposedMacOptionKey = (e: KeyboardEvent, normalizedKey: string): boolean => {
-    if (!e.altKey) return false;
-    // The ghost event for Option+= has e.code='Equal' but e.key='≠' (non-ASCII).
-    // The real event for Option+= also has e.code='Equal' and e.key='≠'.
-    // The difference: the FIRST event is the modifier key itself (AltLeft) which
-    // normalizes to 'alt'. The composed char event has e.key.length === 1 and
-    // e.key.charCodeAt(0) > 127 (non-ASCII Unicode).
-    if (e.key.length === 1 && e.key.charCodeAt(0) > 127) return true;
-    return false;
-};
 
 const isKnownKey = (normalizedKey: string): boolean => {
     if (normalizedKey.length === 0) return false;
@@ -110,12 +88,16 @@ export const useShortcutEngine = ({
     const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
     const [sequence, setSequence] = useState<string[]>([]);
     const incorrectLockRef = useRef(false);
+    // Tracks which raw e.code values are currently physically held.
+    // Used to detect macOS ghost keydown events for Option+key combos.
+    const pressedCodesRef = useRef(new Set<string>());
 
     // Reset state when the required keys or mode changes
     useEffect(() => {
         setPressedKeys(new Set());
         setSequence([]);
         incorrectLockRef.current = false;
+        pressedCodesRef.current.clear();
     }, [requiredKeys, isSequential]);
 
     // Clear pressed keys when disabled (e.g. after correct answer) to prevent
@@ -126,6 +108,7 @@ export const useShortcutEngine = ({
         if (isDisabled) {
             setPressedKeys(new Set());
             setSequence([]);
+            pressedCodesRef.current.clear();
         }
     }, [isDisabled]);
     
@@ -140,21 +123,27 @@ export const useShortcutEngine = ({
 
     // Physical keyboard listener
     useEffect(() => {
-        if (isDisabled || incorrectLockRef.current) return;
+        if (isDisabled) return;
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.repeat || incorrectLockRef.current) return;
+            // Prevent browser/OS shortcuts (zoom, find, etc.) on every keydown,
+            // including repeats — repeat events must still be suppressed so held
+            // keys don't keep triggering zoom/other actions.
             e.preventDefault();
             e.stopPropagation();
+            if (e.repeat || incorrectLockRef.current) return;
 
             const key = normalizeKey(e.code, isMac);
 
             // Skip unknown keys (e.g. 'Unidentified')
             if (!isKnownKey(key)) return;
 
-            // Skip the ghost composed-character keydown macOS fires for Option combos
-            // (e.g. Option+= fires a second keydown where e.key='≠', a non-ASCII char)
-            if (isMac && isComposedMacOptionKey(e, key)) return;
+            // On macOS, Option+key fires an extra ghost keydown with the same e.code
+            // immediately after the real one (e.g. Option+= fires a ghost for 'Equal').
+            // Both real and ghost events are identical — detect the ghost by checking
+            // whether this e.code is already tracked as physically held.
+            if (isMac && e.altKey && pressedCodesRef.current.has(e.code)) return;
+            pressedCodesRef.current.add(e.code);
 
             setPressedKeys(prev => new Set(prev).add(key));
 
@@ -166,8 +155,18 @@ export const useShortcutEngine = ({
         const handleKeyUp = (e: KeyboardEvent) => {
             e.preventDefault();
             e.stopPropagation();
-            
+            pressedCodesRef.current.delete(e.code);
             const key = normalizeKey(e.code, isMac);
+
+            // On macOS, keyup events for non-modifier keys are suppressed by the OS
+            // while Meta (Cmd) is held, so those keys never fire their own keyup.
+            // When Cmd is released, clear everything to prevent stuck visuals.
+            if (isMac && key === 'meta') {
+                pressedCodesRef.current.clear();
+                setPressedKeys(new Set());
+                return;
+            }
+
             setPressedKeys(prev => {
                 const newKeys = new Set(prev);
                 newKeys.delete(key);
@@ -176,6 +175,7 @@ export const useShortcutEngine = ({
         };
 
         const handleBlur = () => {
+            pressedCodesRef.current.clear();
             setPressedKeys(new Set());
             setSequence([]);
         };
@@ -213,10 +213,15 @@ export const useShortcutEngine = ({
             }
         } else { // Combo logic
             if (pressedKeys.size === 0) return;
-            
+
             const requiredSet = new Set(requiredKeys);
-            if (pressedKeys.size === requiredSet.size && [...requiredSet].every(k => pressedKeys.has(k))) {
-                onSuccess();
+            if (pressedKeys.size === requiredSet.size) {
+                if ([...requiredSet].every(k => pressedKeys.has(k))) {
+                    onSuccess();
+                } else {
+                    // Same key count but wrong keys — trigger error feedback and clear
+                    handleIncorrect();
+                }
             }
         }
     }, [pressedKeys, sequence, isSequential, requiredKeys, isDisabled, onSuccess, handleIncorrect]);

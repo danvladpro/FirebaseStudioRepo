@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Drill, ALL_DRILL_STEPS, DrillStep } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { cn, getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
-import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle, MousePointerClick, ArrowLeft, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
+import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle, MousePointerClick, ArrowLeft, ArrowUp, ArrowDown, ArrowRight, AlertTriangle } from "lucide-react";
 import { useAuth } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
 import { toast } from "@/hooks/use-toast";
@@ -90,6 +90,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
 
   const activeStep = drill.steps[logicalStepIndex] ? ALL_DRILL_STEPS[drill.steps[logicalStepIndex]] : null;
   const isSequential = !!activeStep?.isSequential;
+  const activeStepWarning = activeStep?.warningMessage ?? null;
 
   const requiredKeys = useMemo(() => {
     if (!activeStep) return [];
@@ -288,6 +289,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   };
 
   return (
+    <>
     <Card className="w-full max-w-5xl">
       <CardHeader>
         <div className="flex justify-between items-start mb-4">
@@ -434,21 +436,31 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
               )
             )}
        </CardFooter>
-        <div className={cn(
-            "h-full min-h-0 flex items-center justify-center transition-colors",
-            isVirtualKeyboardMode && "border-t"
-        )}>
-            {isVirtualKeyboardMode && activeStep && (
-                <div className="p-4 w-full h-full max-w-[750px] ">
-                    <div className="w-full h-full max-h-[250px] aspect-[3/1]">
-                        <VisualKeyboard 
-                            highlightedKeys={pressedKeys}
-                            onKeyClick={handleVirtualKeyClick}
-                        />
-                    </div>
-                </div>
-            )}
-        </div>
     </Card>
+    {isVirtualKeyboardMode && activeStep && (
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t flex items-center justify-center py-2">
+        <div className="w-full max-w-[750px] px-4">
+          <div className="w-full max-h-[220px] aspect-[3/1]">
+            <VisualKeyboard
+              highlightedKeys={pressedKeys}
+              onKeyClick={handleVirtualKeyClick}
+            />
+          </div>
+        </div>
+      </div>
+    )}
+    {activeStepWarning && (
+      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40 max-w-[220px]">
+        <div className="bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 rounded-lg p-3 shadow-md">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 text-orange-500 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-orange-800 dark:text-orange-200 leading-snug">
+              {activeStepWarning}
+            </p>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

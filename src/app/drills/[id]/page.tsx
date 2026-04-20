@@ -179,7 +179,7 @@ export default function DrillPage({ params }: { params: { id: string } }) {
   return (
     <>
         <AppHeader />
-        <main className="min-h-screen w-full flex flex-col items-center justify-center bg-muted/40 p-4 pt-20">
+        <main className="min-h-screen w-full flex flex-col items-center justify-start bg-muted/40 p-4 pt-20">
             <DrillUI drill={drill} drillNumber={drillNumber} />
         </main>
     </>

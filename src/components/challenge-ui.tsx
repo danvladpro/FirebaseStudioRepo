@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ChallengeSet, ChallengeStep, Sheet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, BookOpen, MousePointerClick, ArrowLeft, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
+import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, BookOpen, MousePointerClick, ArrowLeft, ArrowUp, ArrowDown, ArrowRight, AlertTriangle } from "lucide-react";
 import { cn, getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
@@ -295,9 +295,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const ActiveIcon = currentStep ? icons[currentStep.iconName] as ElementType : null;
 
   return (
+    <>
     <Card
     className={cn(
-        "w-full transform transition-all duration-500 flex flex-col flex-1 min-h-0",
+        "w-full transform transition-all duration-500",
         feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
     )}
     >
@@ -320,6 +321,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                         <span>Training Mode</span>
                     </div>
                 )}
+                <Button variant="outline" size="sm" onClick={handleSkip}>
+                    Skip <ChevronsRight className="ml-2 h-4 w-4" />
+                </Button>
                 <Button asChild variant="outline" size="sm">
                     <Link href="/dashboard">
                         <ArrowLeft className="mr-2 h-4 w-4" />
@@ -337,7 +341,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
           </div>
         </div>
     </CardHeader>
-    <CardContent className="grid md:grid-cols-2 gap-4 items-start p-2 sm:p-3 flex-1 min-h-0">
+    <CardContent className="grid md:grid-cols-2 gap-4 items-start p-2 sm:p-3">
          <div className="flex flex-col gap-4 min-w-0">
              {displayedGridState && (
                 <div className="relative">
@@ -419,6 +423,14 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                             )}
                         </div>
 
+                        {isActive && step.warningMessage && (
+                            <div className="mt-1.5 flex items-start gap-1.5 rounded-md bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 px-2 py-1.5">
+                                <AlertTriangle className="h-3.5 w-3.5 text-orange-500 flex-shrink-0 mt-0.5" />
+                                <p className="text-xs text-orange-700 dark:text-orange-300 leading-snug">
+                                    {step.warningMessage}
+                                </p>
+                            </div>
+                        )}
                         {isActive && (
                             <div className="flex items-center justify-center gap-2 h-6 mt-2">
                             {feedback === 'correct' && <CheckCircle className="h-5 w-5 sm:h-6 sm:h-6 text-green-500" />}
@@ -445,33 +457,29 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 </div>
             </div>
     </CardContent>
-    <CardFooter className="bg-muted/50 flex items-center justify-between gap-2 flex-wrap p-2">
-        <div className="flex-1 flex items-center justify-center gap-1.5 min-h-[28px]">
-            {pressedKeys.length > 0 ? (
-                pressedKeys.map((key, index) => <KeyDisplay key={`${key}-${index}`} value={key} isMac={isMac} />)
-            ) : (
-                <div className="flex items-center justify-center gap-2 font-semibold text-muted-foreground text-sm">
-                    <Keyboard className="h-5 w-5" />
-                    <span>{isSequential ? "Press keys in sequence..." : "Press the required keys..."}</span>
-                </div>
-            )}
-        </div>
-        <Button variant="outline" size="sm" onClick={handleSkip}>
-            Skip <ChevronsRight className="ml-2 h-4 w-4" />
-        </Button>
-    </CardFooter>
-      <div className="flex h-full min-h-0 w-full items-center justify-center transition-colors">
-        {isVirtualKeyboardMode && (
-          <div className="h-full w-full max-w-[750px] p-1 sm:p-2">
-            <div className="h-full w-full max-h-[250px] aspect-[3/1]">
-                <VisualKeyboard 
-                    highlightedKeys={pressedKeys}
-                    onKeyClick={handleVirtualKeyClick}
-                />
+    <CardFooter className="bg-muted/50 flex items-center justify-center gap-1.5 p-2 min-h-[44px]">
+        {pressedKeys.length > 0 ? (
+            pressedKeys.map((key, index) => <KeyDisplay key={`${key}-${index}`} value={key} isMac={isMac} />)
+        ) : (
+            <div className="flex items-center justify-center gap-2 font-semibold text-muted-foreground text-sm">
+                <Keyboard className="h-5 w-5" />
+                <span>{isSequential ? "Press keys in sequence..." : "Press the required keys..."}</span>
             </div>
-          </div>
         )}
-      </div>
+    </CardFooter>
     </Card>
+    {isVirtualKeyboardMode && (
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t flex items-center justify-center py-2">
+        <div className="w-full max-w-[750px] px-4">
+          <div className="w-full max-h-[220px] aspect-[3/1]">
+            <VisualKeyboard
+              highlightedKeys={pressedKeys}
+              onKeyClick={handleVirtualKeyClick}
+            />
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

@@ -65,8 +65,14 @@ export const getPlatformKeys = (step: ChallengeStep | DrillStep, isMac: boolean)
     "general format",
     "time format",
     "strikethrough",
+    "currency",
+    "percentage",
     "create from selection",
     "name manager",
+    "toggle formulas",
+    "toggle autofilter",
+    "replace",
+    "find"
   ];
   const isCtrlException = ctrlExceptions.some(ex => description.includes(ex));
 
