@@ -284,7 +284,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: 'Recalculate Current Sheet', keys: ['shift','f9'], iconName: 'RefreshCw', initialGridState: createGridState(bigTable,0,2,0)}),
       singleStep({ description: "AutoSum", keys: ["alt", "="], iconName: "Calculator", initialGridState: createSummableGridState(), gridEffect: { action: 'AUTOSUM' } }),
       singleStep({ description: "Repeat last action (Bold)", keys: ["f4"], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'APPLY_STYLE_BOLD' },}),
-      singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState([['Amt1','Amt2','Amt3','Amt4'],['30','40','50','60']],0,1,0),gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: [['30','=Z4','50','=Q33']] },}  }),
+      singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState([['Amt1','Amt2','Amt3','Amt4'],['30','40','50','60']],0,1,0),gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: [['30','=Z4','50','=Q33']] },},warningMessage: warningSequence}),
       {
         description: "Create a table and open filter",
         initialGridState: createGridState(bigTable,0,0,0),
