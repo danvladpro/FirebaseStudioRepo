@@ -590,19 +590,12 @@ export function HomePageClient() {
                         }
 
                         return (
-                            <Card>
-                                <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
-                                    <CardTitle className="text-xl capitalize">
-                                        {level === 'Apprentice' ? '⚔️ ' : level === 'Master' ? '🥷 ' : '🏆 '}{level}
-                                    </CardTitle>
-                                    <p className="text-sm font-bold text-muted-foreground">XP: {completedXpForLevel} / {xpForLevel}</p>
-                                </CardHeader>
-                                <CardContent className="p-4 pt-4 space-y-6">
+                            <div className="space-y-8">
                                     {/* Challenges */}
                                     <div>
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider font-mono">🎯 Challenges · {challengesForLevel.length}</span>
-                                            <span className="ml-auto text-xs font-semibold text-primary">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h2 className="text-lg font-bold tracking-tight">Challenges</h2>
+                                            <span className="text-xs font-semibold text-primary">
                                                 {challengesForLevel.filter(s => stats[s.id]?.bestScore === 100).length}/{challengesForLevel.length} passed
                                             </span>
                                         </div>
@@ -706,9 +699,9 @@ export function HomePageClient() {
 
                                     {/* Drills */}
                                     {drillsForLevel.length > 0 && (
-                                        <div className="mt-6">
-                                            <div className="flex items-center gap-3 mb-3">
-                                                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider font-mono">🧠 Drills · {drillsForLevel.length}</h3>
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <h2 className="text-lg font-bold tracking-tight">Drills</h2>
                                                 <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
                                                     <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${drillsCompletePct}%` }} />
                                                 </div>
@@ -777,8 +770,7 @@ export function HomePageClient() {
                                             </div>
                                         </div>
                                     )}
-                                </CardContent>
-                            </Card>
+                            </div>
                         );
                     })()}
                 </div>
