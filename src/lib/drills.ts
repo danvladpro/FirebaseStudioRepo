@@ -186,7 +186,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   undoInsert: { description: 'Undo insert', keys: ['control', 'z'], iconName: 'Undo2' },
 
   redo: { description: 'Redo deletion', keys: ['control', 'y'], iconName: 'Redo2', gridEffect: { action: 'DELETE_CONTENT' } },
-  redoStrike: { description: 'Redo Strikethrough', keys: ['control', 'y'], iconName: 'Redo2', gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } },
+  redoStrike: { description: 'Redo', keys: ['control', 'y'], iconName: 'Redo2', gridEffect: { action: 'APPLY_STYLE_STRIKETHROUGH' } },
   save: { description: 'Save workbook', keys: ['control', 's'], iconName: 'Save' },
 
   // Filling
