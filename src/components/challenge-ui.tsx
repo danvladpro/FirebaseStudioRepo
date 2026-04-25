@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ChallengeSet, ChallengeStep, Sheet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, Circle, ChevronDown, BookOpen, MousePointerClick, ArrowLeft, ArrowUp, ArrowDown, ArrowRight, AlertTriangle } from "lucide-react";
+import { Check, CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, BookOpen, ArrowLeft, ArrowUp, ArrowDown, ArrowRight, AlertTriangle } from "lucide-react";
 import { cn, getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
@@ -32,7 +32,7 @@ interface ChallengeUIProps {
   mode: 'timed' | 'training';
 }
 
-const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
+const KeyDisplay = ({ value, isMac, small }: { value: string, isMac: boolean, small?: boolean }) => {
     const isModifier = ["control", "shift", "alt", "meta"].includes(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
@@ -53,8 +53,9 @@ const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
 
     return (
         <kbd className={cn(
-            "px-2 py-1.5 text-xs font-semibold rounded-md border-b-2 text-muted-foreground bg-muted",
-            isModifier ? "min-w-[4rem] text-center" : "",
+            "font-semibold rounded border-b-2 text-muted-foreground bg-muted",
+            small ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-1.5 text-xs",
+            isModifier && !small ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
             {displayValue}
@@ -79,10 +80,22 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const stepsContainerRef = useRef<HTMLDivElement>(null);
+  const stepRowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
+
+  useEffect(() => {
+    const container = stepsContainerRef.current;
+    const activeEl = stepRowRefs.current[currentStepIndex];
+    if (!container || !activeEl) return;
+    container.scrollTo({
+      top: Math.max(0, activeEl.offsetTop - 32),
+      behavior: 'smooth',
+    });
+  }, [currentStepIndex]);
 
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
@@ -298,18 +311,21 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
     <>
     <Card
     className={cn(
-        "w-full transform transition-all duration-500",
+        "w-full flex flex-col overflow-hidden transform transition-all duration-500",
         feedback === 'incorrect' && 'animate-shake border-destructive shadow-lg shadow-destructive/20'
     )}
     >
-    <CardHeader className="p-2 sm:p-3">
+    <CardHeader className="flex-shrink-0 p-2 sm:p-3">
         <div className="flex justify-between items-center flex-wrap gap-y-2 mb-2">
             <CardTitle className="text-base md:text-lg">{set.name}</CardTitle>
             <div className="flex items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
                 {mode === 'timed' ? (
                     <>
-                        <div className={cn("flex items-center gap-1 transition-colors", countdown <= 3 && "text-destructive")}>
-                            Remaining: <span className="font-mono text-sm font-semibold">{countdown}s</span>
+                        <div className={cn(
+                          "flex items-center gap-1.5 text-sm font-extrabold text-white px-3 py-1 rounded-full transition-colors duration-300",
+                          countdown <= 3 ? "bg-destructive" : "bg-primary"
+                        )}>
+                            ⏱ {countdown}s
                         </div>
                         <div className="flex items-center gap-1">
                             Total: <Timer className="h-4 w-4" /> <span>{elapsedTime.toFixed(1)}s</span>
@@ -332,142 +348,175 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                 </Button>
             </div>
         </div>
-        <div className="relative w-full h-4 overflow-hidden rounded-full bg-secondary">
-          <Progress value={progress} className="absolute inset-0 h-full w-full" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-xs text-primary-foreground font-semibold">
-                {isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} of {set.challenges.length}
-            </p>
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1 h-1.5 overflow-hidden rounded-full bg-secondary">
+            <Progress value={progress} className="absolute inset-0 h-full w-full" />
           </div>
+          <p className="text-[10px] font-bold text-muted-foreground whitespace-nowrap">
+            {isMultiStep ? 'Scenario' : 'Challenge'} {currentChallengeIndex + 1} / {set.challenges.length}
+          </p>
         </div>
     </CardHeader>
-    <CardContent className="grid md:grid-cols-2 gap-4 items-start p-2 sm:p-3">
-         <div className="flex flex-col gap-4 min-w-0">
-             {displayedGridState && (
-                <div className="relative">
-                    <FindReplaceDialog state={finalDialogState} isSuccess={feedback === 'correct'} />
-                    <CreateTableDialog
-                        isVisible={!!finalDialogState.createTableDialogVisible}
-                        isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
-                        range={getSelectionRangeString(displayedGridState?.sheets[displayedGridState.activeSheetIndex].selection!)}
-                    />
-                    <GoToDialog
-                        isVisible={!!finalDialogState.goToDialogVisible}
-                        reference={finalDialogState.goToDialogReference || ''}
-                        isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
-                        isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
-                    />
-                    <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
-                    <FormatCellsDialog state={finalDialogState} />
-                    <FilterDropdown state={finalDialogState} />
-                    <FillColorDropdown state={finalDialogState} />
-                    <PasteSpecialDialog state={finalDialogState} />
-                    <VisualGrid 
-                        gridState={displayedGridState} 
-                        cellStyles={displayedCellStyles}
-                        previewState={previewGridState ? {
-                            gridState: previewGridState,
-                            cellStyles: previewCellStyles,
-                        } : null}
-                        isAccentuating={isAccentuating}
-                    />
-                </div>
-            )}
-        </div>
-        <div className="flex flex-col gap-4 min-w-0">
-            <div className="flex flex-col gap-2 text-left">
-                {currentChallenge.steps.map((step, index) => {
-                    const ChallengeIcon = icons[step.iconName] as ElementType;
-                    const isCompleted = index < currentStepIndex;
-                    const isActive = index === currentStepIndex;
-                    const iconColor = cn(isCompleted ? "text-green-500" : (isActive ? (isAccentuating ? "text-green-500" : "text-primary") : "text-muted-foreground/50"));
+    <CardContent className="flex-1 overflow-hidden flex flex-col border-t pt-0">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-3">
+        <div className="grid md:grid-cols-2 gap-4 items-start">
+          <div className="flex flex-col gap-4 min-w-0">
+               {displayedGridState && (
+                  <div className="relative">
+                      <FindReplaceDialog state={finalDialogState} isSuccess={feedback === 'correct'} />
+                      <CreateTableDialog
+                          isVisible={!!finalDialogState.createTableDialogVisible}
+                          isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
+                          range={getSelectionRangeString(displayedGridState?.sheets[displayedGridState.activeSheetIndex].selection!)}
+                      />
+                      <GoToDialog
+                          isVisible={!!finalDialogState.goToDialogVisible}
+                          reference={finalDialogState.goToDialogReference || ''}
+                          isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
+                          isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
+                      />
+                      <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
+                      <FormatCellsDialog state={finalDialogState} />
+                      <FilterDropdown state={finalDialogState} />
+                      <FillColorDropdown state={finalDialogState} />
+                      <PasteSpecialDialog state={finalDialogState} />
+                      <VisualGrid
+                          gridState={displayedGridState}
+                          cellStyles={displayedCellStyles}
+                          previewState={previewGridState ? {
+                              gridState: previewGridState,
+                              cellStyles: previewCellStyles,
+                          } : null}
+                          isAccentuating={isAccentuating}
+                      />
+                  </div>
+              )}
+          </div>
+          <div className="flex flex-col gap-4 min-w-0">
+              <div
+                ref={stepsContainerRef}
+                className="flex flex-col overflow-y-auto max-h-80 pr-1"
+              >
+                  {currentChallenge.steps.map((step, index) => {
+                      const ChallengeIcon = icons[step.iconName] as ElementType;
+                      const isCompleted = index < currentStepIndex;
+                      const isActive = index === currentStepIndex;
 
-                    return (
-                    <div key={index}>
+                      return (
                         <div
-                        className={cn(
-                            "p-1.5 sm:p-2 rounded-lg transition-all",
-                            isCompleted ? "bg-green-500/10" : "bg-muted/50",
-                            isActive && feedback !== 'incorrect' && !isAccentuating && "ring-2 ring-primary",
-                            isActive && isAccentuating && "ring-2 ring-green-500",
-                            isActive && feedback === 'incorrect' && "ring-2 ring-destructive"
-                        )}
+                          key={index}
+                          ref={el => { stepRowRefs.current[index] = el; }}
+                          className="relative flex gap-2.5 py-[5px]"
                         >
-                        <div className="flex items-center gap-2 sm:gap-3">
-                            {isCompleted ? (
-                            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 flex-shrink-0" />
+                          {index < currentChallenge.steps.length - 1 && (
+                            <div className={cn(
+                              "absolute left-[10px] top-[27px] bottom-[-5px] w-0.5 rounded-full z-0",
+                              isCompleted ? "bg-primary" : "bg-border"
+                            )} />
+                          )}
+                          <div className="pt-[6px] z-10 flex-shrink-0">
+                            {isCompleted || (isActive && isAccentuating) ? (
+                              <div className="w-[22px] h-[22px] rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                                <Check className="w-3 h-3 text-white" />
+                              </div>
                             ) : (
-                            <div className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 flex items-center justify-center">
-                                <Circle className={cn("w-3 h-3 sm:w-4 sm:h-4", isActive ? (isAccentuating ? "text-green-500" : "text-primary") : "text-muted-foreground/50")} />
-                            </div>
+                              <div className={cn(
+                                "w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] font-extrabold flex-shrink-0 transition-all",
+                                isActive
+                                  ? "border-2 border-primary text-primary bg-card shadow-[0_0_0_3px_hsl(142_76%_36%_/_0.15)]"
+                                  : "bg-muted text-muted-foreground border-2 border-transparent"
+                              )}>
+                                {index + 1}
+                              </div>
                             )}
-                            {ChallengeIcon && (
-                                <ChallengeIcon className={cn("w-4 h-4 sm:w-5 sm:h-5", iconColor)} />
-                            )}
-                            <p className={cn(
-                            "flex-1 font-medium text-sm",
-                            isCompleted && "text-green-700 line-through",
-                            isActive && isAccentuating && "text-green-700",
-                            !isActive && !isCompleted && "text-muted-foreground"
-                            )}>
-                            {step.description}
-                            </p>
-                            {isActive && (
+                          </div>
+                          <div className={cn(
+                            "flex-1 p-2.5 rounded-lg z-10 transition-all",
+                            isCompleted && "bg-green-500/10 border border-green-500/30",
+                            isActive && feedback === 'incorrect' && "border-[1.5px] border-destructive",
+                            isActive && isAccentuating && "border-[1.5px] border-green-500",
+                            isActive && !feedback && !isAccentuating && "bg-card border-[1.5px] border-primary shadow-[0_2px_10px_hsl(142_76%_36%_/_0.1)]",
+                            !isCompleted && !isActive && "border border-transparent"
+                          )}>
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              {ChallengeIcon && (
+                                <ChallengeIcon className={cn(
+                                  "w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0",
+                                  isCompleted ? "text-green-500" : isActive ? (isAccentuating ? "text-green-500" : "text-primary") : "text-muted-foreground/50"
+                                )} />
+                              )}
+                              <p className={cn(
+                                "flex-1 font-medium text-sm",
+                                isCompleted && "text-green-700 line-through",
+                                isActive && isAccentuating && "text-green-700",
+                                !isActive && !isCompleted && "text-muted-foreground"
+                              )}>
+                                {step.description}
+                              </p>
+                              {isActive && (
                                 <Badge variant={step.isSequential ? 'outline' : 'secondary'} className="ml-auto text-xs">
-                                    {step.isSequential ? 'Sequence' : 'Combo'}
+                                  {step.isSequential ? 'Sequence' : 'Combo'}
                                 </Badge>
-                            )}
-                        </div>
-
-                        {isActive && step.warningMessage && (
-                            <div className="mt-1.5 flex items-start gap-1.5 rounded-md bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 px-2 py-1.5">
+                              )}
+                            </div>
+                            {isActive && step.warningMessage && (
+                              <div className="mt-1.5 flex items-start gap-1.5 rounded-md bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 px-2 py-1.5">
                                 <AlertTriangle className="h-3.5 w-3.5 text-orange-500 flex-shrink-0 mt-0.5" />
                                 <p className="text-xs text-orange-700 dark:text-orange-300 leading-snug">
-                                    {step.warningMessage}
+                                  {step.warningMessage}
                                 </p>
-                            </div>
-                        )}
-                        {isActive && feedback !== null && (
-                            <div className="flex items-center justify-center gap-2 h-6 mt-2">
-                                {feedback === 'correct' && <CheckCircle className="h-5 w-5 sm:h-6 sm:h-6 text-green-500" />}
-                                {feedback === 'incorrect' && <XCircle className="h-5 w-5 sm:h-6 sm:h-6 text-destructive" />}
-                            </div>
-                        )}
+                              </div>
+                            )}
+                            {isActive && feedback !== null && (
+                              <div className="flex items-center justify-center gap-2 h-6 mt-2">
+                                {feedback === 'correct' && <CheckCircle className="h-5 w-5 text-green-500" />}
+                                {feedback === 'incorrect' && <XCircle className="h-5 w-5 text-destructive" />}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        {index < currentChallenge.steps.length - 1 && (
-                        <div className="h-3 sm:h-4 flex justify-center">
-                            <ChevronDown className="w-4 h-4 text-muted-foreground/50" />
-                        </div>
-                        )}
-                    </div>
-                    );
-                })}
-                </div>
+                      );
+                  })}
+              </div>
+          </div>
+        </div>
+      </div>
+
+      {isVirtualKeyboardMode ? (
+        <div className="flex-shrink-0 border-t bg-muted/40 p-3">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs font-bold text-primary uppercase tracking-wide">
+              Virtual Keyboard — Click to press
+            </span>
+            <div className="flex items-center gap-1.5">
+              {pressedKeys.length > 0 ? (
+                pressedKeys.map((key, i) => <KeyDisplay key={`${key}-${i}`} value={key} isMac={isMac} small />)
+              ) : (
+                <span className="text-xs text-muted-foreground">{isSequential ? "Press keys in sequence..." : "Press the required keys..."}</span>
+              )}
             </div>
-    </CardContent>
-    <CardFooter className="bg-muted/50 flex items-center justify-center gap-1.5 p-2 min-h-[44px]">
-        {pressedKeys.length > 0 ? (
-            pressedKeys.map((key, index) => <KeyDisplay key={`${key}-${index}`} value={key} isMac={isMac} />)
-        ) : (
-            <div className="flex items-center justify-center gap-2 font-semibold text-muted-foreground text-sm">
-                <Keyboard className="h-5 w-5" />
-                <span>{isSequential ? "Press keys in sequence..." : "Press the required keys..."}</span>
-            </div>
-        )}
-    </CardFooter>
-    </Card>
-    {isVirtualKeyboardMode && (
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t flex items-center justify-center py-2">
-        <div className="w-full max-w-[750px] px-4">
-          <div className="w-full max-h-[220px] aspect-[3/1]">
+          </div>
+          <div className="max-w-[660px] mx-auto">
             <VisualKeyboard
               highlightedKeys={pressedKeys}
               onKeyClick={handleVirtualKeyClick}
             />
           </div>
         </div>
-      </div>
-    )}
+      ) : (
+        <CardFooter className="bg-muted/50 flex items-center justify-center gap-1.5 p-2 min-h-[44px] flex-shrink-0">
+            {pressedKeys.length > 0 ? (
+                pressedKeys.map((key, index) => <KeyDisplay key={`${key}-${index}`} value={key} isMac={isMac} />)
+            ) : (
+                <div className="flex items-center justify-center gap-2 font-semibold text-muted-foreground text-sm">
+                    <Keyboard className="h-5 w-5" />
+                    <span>{isSequential ? "Press keys in sequence..." : "Press the required keys..."}</span>
+                </div>
+            )}
+        </CardFooter>
+      )}
+    </CardContent>
+    </Card>
     </>
   );
 }

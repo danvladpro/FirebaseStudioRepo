@@ -151,9 +151,9 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                     <ChevronLeft />
                 </Button>
 
-                <CardContent className="py-8 px-6 md:px-8 text-center flex flex-col items-center">
-                    
-                    <div className="mb-6 w-full max-w-lg relative">
+                <CardContent className="py-5 px-6 md:px-8 text-center flex flex-col items-center">
+
+                    <div className="mb-3 w-full max-w-lg relative">
                         {initialGridState && (
                              <VisualGrid 
                                 gridState={initialDisplayGridState} 
@@ -215,11 +215,11 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                         </p>
                     )}
                     
-                    <p className="text-xl md:text-2xl font-semibold text-foreground mb-4">
+                    <p className="text-base md:text-lg font-semibold text-foreground mb-3">
                         {currentFlashcard.step.description}
                     </p>
 
-                    <div className="flex flex-col items-center justify-center gap-2 min-h-[80px] w-full">
+                    <div className="flex flex-col items-center justify-center gap-2 min-h-[60px] w-full">
                         {isAnswerShown ? (
                             <div className="flex flex-col gap-2 text-left w-full animate-in fade-in">
                                 <div className="p-2 rounded-lg bg-muted/50 flex items-center justify-between gap-4">
@@ -247,8 +247,8 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                 </Button>
             </Card>
 
-            <div className="w-full h-full max-w-[750px] mt-8">
-                <div className="w-full h-full max-h-[250px] aspect-[3/1]">
+            <div className="w-full h-full max-w-[750px] mt-4">
+                <div className="w-full h-full max-h-[190px] aspect-[3/1]">
                      <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>

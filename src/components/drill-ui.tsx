@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Drill, ALL_DRILL_STEPS, DrillStep } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { cn, getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
-import { Check, X, CheckCircle, Circle, ChevronDown, Keyboard, XCircle, MousePointerClick, ArrowLeft, ArrowUp, ArrowDown, ArrowRight, AlertTriangle } from "lucide-react";
+import { Check, CheckCircle, Keyboard, XCircle, ArrowLeft, ArrowUp, ArrowDown, ArrowRight, AlertTriangle } from "lucide-react";
 import { useAuth } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
 import { toast } from "@/hooks/use-toast";
@@ -40,7 +40,7 @@ enum RepStatus {
   Incorrect,
 }
 
-const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
+const KeyDisplay = ({ value, isMac, small }: { value: string, isMac: boolean, small?: boolean }) => {
     const isModifier = ["control", "shift", "alt", "meta"].includes(value);
     const isLetter = value.length === 1 && value.match(/[a-z]/i);
 
@@ -61,8 +61,9 @@ const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
 
     return (
         <kbd className={cn(
-            "px-2 py-1.5 text-xs font-semibold rounded-md border-b-2 text-muted-foreground bg-muted",
-            isModifier ? "min-w-[4rem] text-center" : "",
+            "font-semibold rounded border-b-2 text-muted-foreground bg-muted",
+            small ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-1.5 text-xs",
+            isModifier && !small ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
             {displayValue}
@@ -83,10 +84,23 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   const [mistakes, setMistakes] = useState(0);
   const [isMac, setIsMac] = useState(false);
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
-  
+
+  const stepsContainerRef = useRef<HTMLDivElement>(null);
+  const stepRowRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
+
+  useEffect(() => {
+    const container = stepsContainerRef.current;
+    const activeEl = stepRowRefs.current[visualStepIndex];
+    if (!container || !activeEl) return;
+    container.scrollTo({
+      top: Math.max(0, activeEl.offsetTop - 32),
+      behavior: 'smooth',
+    });
+  }, [visualStepIndex]);
 
   const activeStep = drill.steps[logicalStepIndex] ? ALL_DRILL_STEPS[drill.steps[logicalStepIndex]] : null;
   const isSequential = !!activeStep?.isSequential;
@@ -289,8 +303,8 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
 
   return (
     <>
-    <Card className="w-full max-w-5xl">
-      <CardHeader>
+    <Card className="w-full max-w-5xl flex flex-col overflow-hidden">
+      <CardHeader className="flex-shrink-0">
         <div className="flex justify-between items-start mb-4">
             <div>
                 <CardTitle>{drillNumber ? `${drillNumber}. ` : ''}{drill.name}</CardTitle>
@@ -310,127 +324,172 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                 <div
                   key={index}
                   className={cn(
-                    "h-8 w-8 rounded-md transition-all duration-300 flex items-center justify-center font-bold text-base",
-                    index === currentRep && "ring-2 ring-primary",
+                    "h-7 w-7 rounded-md flex items-center justify-center text-xs font-extrabold transition-all duration-200",
+                    index === currentRep && "ring-2 ring-primary shadow-[0_0_0_4px_hsl(142_76%_36%_/_0.15)]",
                     status === RepStatus.Pending && "bg-muted text-muted-foreground",
-                    status === RepStatus.Correct && "bg-green-500 text-white",
+                    status === RepStatus.Correct && "bg-primary text-white",
                     status === RepStatus.Incorrect && "bg-destructive text-white animate-shake"
                   )}
                 >
-                  {index + 1}
+                  {status === RepStatus.Correct ? '✓' : index + 1}
                 </div>
               ))}
             </div>
-             <div className="flex items-center gap-2">
-                <p className="text-sm font-bold text-muted-foreground">Mistakes</p>
+            <div className="flex items-center gap-2">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Mistakes</p>
                 <div className="flex items-center gap-1.5">
                     {[...Array(drill.mistakeLimit)].map((_, i) => (
-                        <div key={i} className={cn("w-5 h-5 rounded-full border", i < mistakes ? "bg-destructive" : "bg-muted")}></div>
+                        <div key={i} className={cn(
+                          "w-3 h-3 rounded-full border-[1.5px] transition-all",
+                          i < mistakes ? "bg-destructive border-destructive" : "bg-transparent border-border"
+                        )} />
                     ))}
                 </div>
+                <span className={cn("text-[10px] font-semibold", mistakes > 0 ? "text-destructive" : "text-muted-foreground")}>
+                  {mistakes}/{drill.mistakeLimit}
+                </span>
             </div>
         </div>
       </CardHeader>
-      <CardContent className="border-t pt-6 relative">
-        <div className="grid md:grid-cols-2 gap-12 items-start">
-             {displayedGridState && (
-                <div className="max-w-md mx-auto relative">
-                    <FindReplaceDialog state={finalDialogState} isSuccess={stepFeedback === 'correct'} />
-                    <CreateTableDialog
-                        isVisible={!!finalDialogState.createTableDialogVisible}
-                        isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
-                        range={getSelectionRangeString(displayedGridState?.sheets[displayedGridState.activeSheetIndex].selection!)}
-                    />
-                    <GoToDialog
-                        isVisible={!!finalDialogState.goToDialogVisible}
-                        reference={finalDialogState.goToDialogReference || ''}
-                        isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
-                        isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
-                    />
-                    <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
-                    <FormatCellsDialog state={finalDialogState} />
-                    <FilterDropdown state={finalDialogState} />
-                    <FillColorDropdown state={finalDialogState} />
-                    <PasteSpecialDialog state={finalDialogState} />
-                    <VisualGrid 
-                        gridState={displayedGridState}
-                        cellStyles={displayedCellStyles}
-                        previewState={previewGridState ? {
-                            gridState: previewGridState,
-                            cellStyles: previewCellStyles,
-                        } : null}
-                        isAccentuating={stepFeedback === 'correct'}
-                    />
-                </div>
-            )}
-            <div className={cn(!displayedGridState && "md:col-span-2")}>
-                <div className="flex flex-col gap-2">
-                    {drill.steps.map((stepId, index) => {
-                        const step = ALL_DRILL_STEPS[stepId];
-                        const Icon = icons[step.iconName];
-                        const isStepActive = index === visualStepIndex;
-                        const isStepCompleted = index < visualStepIndex;
-                        const feedbackClass = isStepActive && stepFeedback === 'incorrect' ? 'ring-2 ring-destructive' : '';
-                        const successClass = isStepActive && stepFeedback === 'correct' ? 'ring-2 ring-green-500' : '';
-                        const shortcutHint = currentRep === 0 ? formatKeysForDisplay(step, isMac) : '';
+      <CardContent className="flex-1 overflow-hidden flex flex-col border-t pt-0">
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="grid md:grid-cols-2 gap-12 items-start">
+               {displayedGridState && (
+                  <div className="max-w-md mx-auto relative">
+                      <FindReplaceDialog state={finalDialogState} isSuccess={stepFeedback === 'correct'} />
+                      <CreateTableDialog
+                          isVisible={!!finalDialogState.createTableDialogVisible}
+                          isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
+                          range={getSelectionRangeString(displayedGridState?.sheets[displayedGridState.activeSheetIndex].selection!)}
+                      />
+                      <GoToDialog
+                          isVisible={!!finalDialogState.goToDialogVisible}
+                          reference={finalDialogState.goToDialogReference || ''}
+                          isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
+                          isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
+                      />
+                      <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
+                      <FormatCellsDialog state={finalDialogState} />
+                      <FilterDropdown state={finalDialogState} />
+                      <FillColorDropdown state={finalDialogState} />
+                      <PasteSpecialDialog state={finalDialogState} />
+                      <VisualGrid
+                          gridState={displayedGridState}
+                          cellStyles={displayedCellStyles}
+                          previewState={previewGridState ? {
+                              gridState: previewGridState,
+                              cellStyles: previewCellStyles,
+                          } : null}
+                          isAccentuating={stepFeedback === 'correct'}
+                      />
+                  </div>
+              )}
+              <div className={cn(!displayedGridState && "md:col-span-2")}>
+                  <div
+                    ref={stepsContainerRef}
+                    className="flex flex-col overflow-y-auto max-h-80 pr-1"
+                  >
+                      {drill.steps.map((stepId, index) => {
+                          const step = ALL_DRILL_STEPS[stepId];
+                          const Icon = icons[step.iconName];
+                          const isStepActive = index === visualStepIndex;
+                          const isStepCompleted = index < visualStepIndex;
+                          const shortcutHint = currentRep === 0 ? formatKeysForDisplay(step, isMac) : '';
 
-
-                        return (
-                            <div key={index}>
-                                <div className={cn(
-                                    "p-4 rounded-lg transition-all",
-                                    isStepCompleted ? "bg-green-500/10" : "bg-muted/50",
-                                    isStepActive && !stepFeedback && "ring-2 ring-primary",
-                                    feedbackClass,
-                                    successClass
-                                )}>
-                                    <div className="flex items-center gap-4">
-                                        {isStepCompleted || (isStepActive && stepFeedback === 'correct') ? (
-                                            <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
-                                        ) : (
-                                            <Circle className={cn("w-4 h-4 flex-shrink-0", isStepActive ? "text-primary" : "text-muted-foreground/50")} />
-                                        )}
-                                        {Icon && <Icon className={cn("w-5 h-5", isStepActive ? "text-primary" : "text-muted-foreground")} />}
-                                        <p className={cn("flex-1 font-medium", isStepCompleted && "text-muted-foreground line-through")}>
-                                            {step.description}
-                                            {shortcutHint && (
-                                                <span className="text-muted-foreground font-normal ml-2">{shortcutHint}</span>
-                                            )}
-                                        </p>
-                                        {isStepActive && (
-                                            <Badge variant={step.isSequential ? 'outline' : 'secondary'} className="ml-auto">
-                                                {step.isSequential ? 'Sequential' : 'Combo'}
-                                            </Badge>
-                                        )}
+                          return (
+                              <div
+                                key={index}
+                                ref={el => { stepRowRefs.current[index] = el; }}
+                                className="relative flex gap-2.5 py-[5px]"
+                              >
+                                {index < drill.steps.length - 1 && (
+                                  <div className={cn(
+                                    "absolute left-[10px] top-[27px] bottom-[-5px] w-0.5 rounded-full z-0",
+                                    isStepCompleted ? "bg-primary" : "bg-border"
+                                  )} />
+                                )}
+                                <div className="pt-[6px] z-10 flex-shrink-0">
+                                  {isStepCompleted || (isStepActive && stepFeedback === 'correct') ? (
+                                    <div className="w-[22px] h-[22px] rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                                      <Check className="w-3 h-3 text-white" />
                                     </div>
-                                    {isStepActive && step.warningMessage && (
-                                        <div className="mt-2 flex items-start gap-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 px-2 py-1.5">
-                                            <AlertTriangle className="h-3.5 w-3.5 text-red-500 flex-shrink-0 mt-0.5" />
-                                            <p className="text-xs text-red-700 dark:text-red-300 leading-snug">
-                                                {step.warningMessage}
-                                            </p>
-                                        </div>
-                                    )}
+                                  ) : (
+                                    <div className={cn(
+                                      "w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] font-extrabold flex-shrink-0 transition-all",
+                                      isStepActive
+                                        ? "border-2 border-primary text-primary bg-card shadow-[0_0_0_3px_hsl(142_76%_36%_/_0.15)]"
+                                        : "bg-muted text-muted-foreground border-2 border-transparent"
+                                    )}>
+                                      {index + 1}
+                                    </div>
+                                  )}
                                 </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+                                <div className={cn(
+                                  "flex-1 p-2.5 rounded-lg z-10 transition-all",
+                                  isStepCompleted && "bg-green-500/10 border border-green-500/30",
+                                  isStepActive && stepFeedback === 'incorrect' && "border-[1.5px] border-destructive",
+                                  isStepActive && stepFeedback === 'correct' && "border-[1.5px] border-green-500",
+                                  isStepActive && !stepFeedback && "bg-card border-[1.5px] border-primary shadow-[0_2px_10px_hsl(142_76%_36%_/_0.1)]",
+                                  !isStepCompleted && !isStepActive && "border border-transparent"
+                                )}>
+                                  <div className="flex items-center gap-3">
+                                    {Icon && <Icon className={cn("w-4 h-4 flex-shrink-0", isStepActive ? "text-primary" : "text-muted-foreground")} />}
+                                    <p className={cn("flex-1 font-medium text-sm", isStepCompleted && "text-muted-foreground line-through")}>
+                                        {step.description}
+                                        {shortcutHint && (
+                                            <span className="text-muted-foreground font-normal ml-2">{shortcutHint}</span>
+                                        )}
+                                    </p>
+                                    {isStepActive && (
+                                        <Badge variant={step.isSequential ? 'outline' : 'secondary'} className="ml-auto text-xs">
+                                            {step.isSequential ? 'Sequential' : 'Combo'}
+                                        </Badge>
+                                    )}
+                                  </div>
+                                  {isStepActive && step.warningMessage && (
+                                      <div className="mt-2 flex items-start gap-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 px-2 py-1.5">
+                                          <AlertTriangle className="h-3.5 w-3.5 text-red-500 flex-shrink-0 mt-0.5" />
+                                          <p className="text-xs text-red-700 dark:text-red-300 leading-snug">
+                                              {step.warningMessage}
+                                          </p>
+                                      </div>
+                                  )}
+                                </div>
+                              </div>
+                          );
+                      })}
+                  </div>
+              </div>
+          </div>
         </div>
 
-      </CardContent>
-       <CardFooter className="bg-muted/50 h-[60px] flex items-center justify-center gap-4 p-4">
-            {stepFeedback === 'correct' && <CheckCircle className="h-8 w-8 text-green-500" />}
-            {stepFeedback === 'incorrect' && <XCircle className="h-8 w-8 text-destructive" />}
-            {stepFeedback === null && activeStep && (
-              isVirtualKeyboardMode ? (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <MousePointerClick className="h-8 w-8" />
-                  <span className="text-lg">Click the keys below</span>
-                </div>
-              ) : (
-                 <div className="flex items-center justify-center gap-2">
+        {isVirtualKeyboardMode ? (
+          <div className="flex-shrink-0 border-t bg-muted/40 p-3">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs font-bold text-primary uppercase tracking-wide">
+                Virtual Keyboard — Click to press
+              </span>
+              <div className="flex items-center gap-1.5">
+                {pressedKeys.length > 0 ? (
+                  pressedKeys.map((key, i) => <KeyDisplay key={`${key}-${i}`} value={key} isMac={isMac} small />)
+                ) : (
+                  <span className="text-xs text-muted-foreground">{isSequential ? "Press keys in sequence..." : "Press the required keys..."}</span>
+                )}
+              </div>
+            </div>
+            <div className="max-w-[660px] mx-auto">
+              <VisualKeyboard
+                highlightedKeys={pressedKeys}
+                onKeyClick={handleVirtualKeyClick}
+              />
+            </div>
+          </div>
+        ) : (
+          <CardFooter className="bg-muted/50 flex items-center justify-center gap-4 p-3 min-h-[46px] flex-shrink-0">
+              {stepFeedback === 'correct' && <CheckCircle className="h-8 w-8 text-green-500" />}
+              {stepFeedback === 'incorrect' && <XCircle className="h-8 w-8 text-destructive" />}
+              {stepFeedback === null && activeStep && (
+                <div className="flex items-center justify-center gap-2">
                     {pressedKeys.length > 0 ? (
                         pressedKeys.map((key, index) => <KeyDisplay key={`${key}-${index}`} value={key} isMac={isMac} />)
                     ) : (
@@ -440,22 +499,11 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                         </div>
                     )}
                 </div>
-              )
-            )}
-       </CardFooter>
+              )}
+          </CardFooter>
+        )}
+      </CardContent>
     </Card>
-    {isVirtualKeyboardMode && activeStep && (
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t flex items-center justify-center py-2">
-        <div className="w-full max-w-[750px] px-4">
-          <div className="w-full max-h-[220px] aspect-[3/1]">
-            <VisualKeyboard
-              highlightedKeys={pressedKeys}
-              onKeyClick={handleVirtualKeyClick}
-            />
-          </div>
-        </div>
-      </div>
-    )}
 </>
   );
 }

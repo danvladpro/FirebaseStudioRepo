@@ -49,15 +49,15 @@ export function FlashcardSetPageContent({ challengeSet }: { challengeSet: Challe
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <AppHeader />
-      <main className="flex-1 flex flex-col items-center pb-12 container pt-24">
-        <header className="w-full max-w-4xl mb-6 flex items-center justify-between">
+      <main className="flex-1 flex flex-col items-center pb-8 container pt-24">
+        <header className="w-full max-w-4xl mb-4 flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-3">
-              {Icon && <Icon className="w-8 h-8 text-primary" />}
-              <h1 className="text-3xl font-bold">{challengeSet.name}</h1>
+            <div className="flex items-center gap-2">
+              {Icon && <Icon className="w-6 h-6 text-primary" />}
+              <h1 className="text-2xl font-semibold">{challengeSet.name}</h1>
             </div>
           </div>
-           <Button asChild variant="outline">
+           <Button asChild variant="outline" size="sm">
               <Link href="/dashboard">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Dashboard
