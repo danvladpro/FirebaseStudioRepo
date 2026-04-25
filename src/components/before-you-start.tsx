@@ -11,6 +11,7 @@ type PanelId = "ctrl" | "alt" | "arrows" | "numbers" | "fn" | "special" | "nogo"
 interface Tile {
   id: PanelId;
   label: string;
+  sub: string;
   warn?: boolean;
   icon: React.ReactNode;
 }
@@ -42,13 +43,13 @@ function FourWayArrow() {
 }
 
 const TILES: Tile[] = [
-  { id: "ctrl",    icon: <span className="text-xl">⌃</span>,        label: "Ctrl / Cmd" },
-  { id: "alt",     icon: <span className="text-xl">⌥</span>,        label: "Alt Key" },
-  { id: "arrows",  icon: <FourWayArrow />,                           label: "Arrow Keys" },
-  { id: "numbers", icon: <span className="text-xl">🔢</span>,       label: "Number Keys" },
-  { id: "fn",      icon: <span className="font-mono font-black text-[13px] tracking-tight">F1-12</span>, label: "Function Keys" },
-  { id: "special", icon: <span className="text-xl">✓</span>,        label: "Esc · Enter · Tab" },
-  { id: "nogo",    icon: <span className="text-xl">🚫</span>,       label: "No-Go Shortcuts", warn: true },
+  { id: "ctrl",    icon: <span className="text-lg leading-none">⌃</span>,                                    label: "Ctrl / Cmd",       sub: "Workhorse" },
+  { id: "alt",     icon: <span className="text-lg leading-none">⌥</span>,                                    label: "Alt Key",          sub: "Two modes" },
+  { id: "arrows",  icon: <FourWayArrow />,                                                                    label: "Arrow Keys",       sub: "Navigate" },
+  { id: "numbers", icon: <span className="font-mono font-black text-[11px] tracking-tight">123</span>,       label: "Number Keys",      sub: "Formatting" },
+  { id: "fn",      icon: <span className="font-mono font-black text-[11px] tracking-tight">F1–F12</span>,   label: "Function Keys",    sub: "F1 – F12" },
+  { id: "special", icon: <span className="text-lg leading-none">↵</span>,                                    label: "Esc · Enter · Tab",sub: "Confirm & cancel" },
+  { id: "nogo",    icon: <span className="text-lg leading-none">⚠</span>,                                   label: "No-go shortcuts",  sub: "Browser risk", warn: true },
 ];
 
 // ── Shared sub-components ──
@@ -315,10 +316,13 @@ export function BeforeYouStart() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
-        <h2 className="text-xl font-bold flex items-center gap-2">🚀 Before You Start</h2>
-        <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 font-semibold text-xs">
-          7 key concepts
-        </Badge>
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-base font-bold tracking-tight">Before you start</h2>
+          <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold text-[11px]">
+            7 key concepts
+          </Badge>
+        </div>
+        <span className="text-xs text-muted-foreground">Tap a tile to expand</span>
       </CardHeader>
       <CardContent className="p-4 pt-4">
         {/* Tile grid */}
@@ -328,7 +332,7 @@ export function BeforeYouStart() {
               key={tile.id}
               onClick={() => toggle(tile.id)}
               className={cn(
-                "flex flex-col items-center justify-center gap-1.5 p-3 rounded-lg border-2 text-center transition-all duration-150 select-none cursor-pointer",
+                "flex flex-col items-center justify-center gap-1.5 py-3 px-1.5 min-h-[82px] rounded-lg border-2 text-center transition-all duration-150 select-none cursor-pointer",
                 tile.warn
                   ? activePanel === tile.id
                     ? "border-orange-500 bg-orange-50 shadow-[0_0_0_3px_rgba(249,115,22,0.2)]"
@@ -338,12 +342,17 @@ export function BeforeYouStart() {
                     : "border-border bg-muted/40 hover:border-primary hover:bg-primary/5 hover:shadow-md hover:-translate-y-0.5"
               )}
             >
-              <span className={cn(tile.warn ? "text-orange-700" : "text-foreground")}>
+              <span className={cn("leading-none", tile.warn ? "text-orange-700" : "text-foreground")}>
                 {tile.icon}
               </span>
-              <span className={cn("text-[10px] font-bold leading-tight", tile.warn ? "text-orange-700" : "text-foreground")}>
-                {tile.label}
-              </span>
+              <div>
+                <div className={cn("text-[10px] font-bold leading-tight", tile.warn ? "text-orange-700" : "text-foreground")}>
+                  {tile.label}
+                </div>
+                <div className={cn("text-[9px] mt-0.5 leading-tight", tile.warn ? "text-amber-700" : "text-muted-foreground")}>
+                  {tile.sub}
+                </div>
+              </div>
             </button>
           ))}
         </div>
