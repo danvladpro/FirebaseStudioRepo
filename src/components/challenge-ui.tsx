@@ -375,10 +375,6 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             )}
         </div>
         <div className="flex flex-col gap-4 min-w-0">
-            <div className="flex justify-center items-center gap-2">
-                {ActiveIcon && <ActiveIcon className="w-5 h-5 text-primary" />}
-                <h2 className="text-sm md:text-base font-semibold text-foreground text-center">{currentChallenge.description}</h2>
-            </div>
             <div className="flex flex-col gap-2 text-left">
                 {currentChallenge.steps.map((step, index) => {
                     const ChallengeIcon = icons[step.iconName] as ElementType;
@@ -431,18 +427,10 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                                 </p>
                             </div>
                         )}
-                        {isActive && (
+                        {isActive && feedback !== null && (
                             <div className="flex items-center justify-center gap-2 h-6 mt-2">
-                            {feedback === 'correct' && <CheckCircle className="h-5 w-5 sm:h-6 sm:h-6 text-green-500" />}
-                            {feedback === 'incorrect' && <XCircle className="h-5 w-5 sm:h-6 sm:h-6 text-destructive" />}
-                            {feedback === null && (
-                                <div className="flex items-center justify-center gap-2 font-semibold text-muted-foreground text-sm">
-                                {isVirtualKeyboardMode ? <MousePointerClick className="h-5 w-5" /> : <Keyboard className="h-5 w-5" />}
-                                <span>
-                                    {isVirtualKeyboardMode ? "Click keys below" : "Use your keyboard"}
-                                </span>
-                                </div>
-                            )}
+                                {feedback === 'correct' && <CheckCircle className="h-5 w-5 sm:h-6 sm:h-6 text-green-500" />}
+                                {feedback === 'incorrect' && <XCircle className="h-5 w-5 sm:h-6 sm:h-6 text-destructive" />}
                             </div>
                         )}
                         </div>

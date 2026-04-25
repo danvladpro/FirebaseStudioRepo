@@ -90,7 +90,6 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
 
   const activeStep = drill.steps[logicalStepIndex] ? ALL_DRILL_STEPS[drill.steps[logicalStepIndex]] : null;
   const isSequential = !!activeStep?.isSequential;
-  const activeStepWarning = activeStep?.warningMessage ?? null;
 
   const requiredKeys = useMemo(() => {
     if (!activeStep) return [];
@@ -404,6 +403,14 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                                             </Badge>
                                         )}
                                     </div>
+                                    {isStepActive && step.warningMessage && (
+                                        <div className="mt-2 flex items-start gap-1.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 px-2 py-1.5">
+                                            <AlertTriangle className="h-3.5 w-3.5 text-red-500 flex-shrink-0 mt-0.5" />
+                                            <p className="text-xs text-red-700 dark:text-red-300 leading-snug">
+                                                {step.warningMessage}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );
@@ -449,18 +456,6 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
         </div>
       </div>
     )}
-    {activeStepWarning && (
-      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40 max-w-[220px]">
-        <div className="bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 rounded-lg p-3 shadow-md">
-          <div className="flex items-start gap-2">
-            <AlertTriangle className="h-4 w-4 text-orange-500 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-orange-800 dark:text-orange-200 leading-snug">
-              {activeStepWarning}
-            </p>
-          </div>
-        </div>
-      </div>
-    )}
-    </>
+</>
   );
 }
