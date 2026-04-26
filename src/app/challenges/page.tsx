@@ -9,7 +9,7 @@ import { ChallengeSet } from "@/lib/types";
 import { usePerformanceTracker } from "@/hooks/use-performance-tracker";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as React from "react";
-import { CHALLENGE_SETS, ALL_EXAM_SETS } from "@/lib/challenges";
+import { CHALLENGE_SETS } from "@/lib/challenges";
 import { AppHeader } from "@/components/app-header";
 import { useAuth } from "@/components/auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -150,14 +150,6 @@ export default function ChallengesPage() {
           </div>
         </header>
         
-        <section className="mb-12">
-            <h2 className="text-2xl font-bold mb-4">Exams</h2>
-            <TooltipProvider>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {ALL_EXAM_SETS.map((examSet) => renderExamCard(examSet))}
-              </div>
-            </TooltipProvider>
-         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <section className="lg:col-span-2">
