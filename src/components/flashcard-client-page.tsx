@@ -221,18 +221,10 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
 
                     <div className="flex flex-col items-center justify-center gap-2 min-h-[60px] w-full">
                         {isAnswerShown ? (
-                            <div className="flex flex-col gap-2 text-left w-full animate-in fade-in">
-                                <div className="p-2 rounded-lg bg-muted/50 flex items-center justify-between gap-4">
-                                    <div className="flex items-center gap-3">
-                                        {StepIcon && <StepIcon className="w-5 h-5 text-primary" />}
-                                        <p>{currentFlashcard.step.description}</p>
-                                    </div>
-                                    <div className="flex items-center justify-center gap-1">
-                                        {stepKeys.map((key, keyIndex) => (
-                                            <KeyDisplay key={`${key}-${keyIndex}`} value={key} isMac={isMac} />
-                                        ))}
-                                    </div>
-                                </div>
+                            <div className="flex items-center justify-center gap-1 animate-in fade-in">
+                                {stepKeys.map((key, keyIndex) => (
+                                    <KeyDisplay key={`${key}-${keyIndex}`} value={key} isMac={isMac} />
+                                ))}
                             </div>
                         ) : (
                             <Button onClick={toggleAnswer} variant="outline" className="mt-2 animate-pulse-subtle">

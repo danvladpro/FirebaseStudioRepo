@@ -249,8 +249,14 @@ export function HomePageClient() {
     return nextDrillLevelDrills.findIndex(d => d.id === nextDrill.id) + 1;
   }, [nextDrill, nextDrillLevelDrills]);
 
-  // Active tab for training path
-  const [activeTrainingLevel, setActiveTrainingLevel] = React.useState<ChallengeLevel>('Apprentice');
+  // Active tab for training path — persisted across navigation
+  const [activeTrainingLevel, setActiveTrainingLevel] = React.useState<ChallengeLevel>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('dashboardActiveTab');
+      if (saved === 'Apprentice' || saved === 'Master' || saved === 'Ninja') return saved;
+    }
+    return 'Apprentice';
+  });
 
   const getDashboardTitle = () => {
     if (userProfile?.name) return `Welcome back, ${userProfile.name}!`;
@@ -491,7 +497,7 @@ export function HomePageClient() {
                                 return (
                                     <button
                                         key={level}
-                                        onClick={() => setActiveTrainingLevel(level)}
+                                        onClick={() => { setActiveTrainingLevel(level); sessionStorage.setItem('dashboardActiveTab', level); }}
                                         className={cn(
                                             "inline-flex items-center gap-2 px-4 h-9 rounded-lg text-sm font-bold transition-all",
                                             isActive

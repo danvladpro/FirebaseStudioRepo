@@ -93,13 +93,9 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   }, []);
 
   useEffect(() => {
-    const container = stepsContainerRef.current;
     const activeEl = stepRowRefs.current[visualStepIndex];
-    if (!container || !activeEl) return;
-    container.scrollTo({
-      top: Math.max(0, activeEl.offsetTop - 32),
-      behavior: 'smooth',
-    });
+    if (!activeEl) return;
+    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [visualStepIndex]);
 
   const activeStep = drill.steps[logicalStepIndex] ? ALL_DRILL_STEPS[drill.steps[logicalStepIndex]] : null;
@@ -303,7 +299,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
 
   return (
     <>
-    <Card className="w-full max-w-5xl flex flex-col overflow-hidden">
+    <Card className="w-full max-w-5xl flex flex-col overflow-hidden max-h-[90vh]">
       <CardHeader className="flex-shrink-0">
         <div className="flex justify-between items-start mb-4">
             <div>
