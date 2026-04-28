@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RefreshCw, Trophy, AlertTriangle, Linkedin, Lock, BookOpen, Download, Star } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Trophy, AlertTriangle, Linkedin, Lock, Download, Star } from 'lucide-react';
 import { ALL_CHALLENGE_SETS, CHALLENGE_SETS } from '@/lib/challenges';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
@@ -56,7 +56,6 @@ export default function ResultsDisplay() {
   const [isNewRecord, setIsNewRecord] = useState(false);
   const [isMac, setIsMac] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [recommendedModules, setRecommendedModules] = useState<ChallengeSet[]>([]);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [allItemsPassed, setAllItemsPassed] = useState(false);
 
@@ -83,7 +82,7 @@ export default function ResultsDisplay() {
   const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === setId);
   
   const totalChallenges = challengeSet?.challenges.length ?? 0;
-  const correctAnswers = totalChallenges - skippedCount;
+  const correctAnswers = Math.max(0, totalChallenges - skippedCount);
   const score = totalChallenges > 0 ? (correctAnswers / totalChallenges) * 100 : 0;
   const isPerfectScore = skippedCount === 0;
 
@@ -104,24 +103,6 @@ export default function ResultsDisplay() {
     ? skippedIndicesStr.split(',').filter(Boolean).map(i => challengeSet.challenges[parseInt(i)])
     : [];
     
-   useEffect(() => {
-    if (mode === 'timed' && !isPerfectScore && skippedChallenges.length > 0) {
-      const recommended = new Set<ChallengeSet>();
-      skippedChallenges.forEach(skippedChallenge => {
-        CHALLENGE_SETS.forEach(module => {
-            const hasMatch = module.challenges.some(
-              challenge => challenge.description === skippedChallenge.description
-            );
-            if (hasMatch) {
-              recommended.add(module);
-            }
-        });
-      });
-      setRecommendedModules(Array.from(recommended));
-    }
-  }, [challengeSet, isPerfectScore, skippedChallenges, mode]);
-
-
   useEffect(() => {
     if (!isLoaded || !setId || time === null || !user || mode !== 'timed') return;
     
@@ -247,35 +228,6 @@ export default function ResultsDisplay() {
                     </>
               </div>
             )}
-            {mode === 'timed' && recommendedModules.length > 0 && (
-              <div className="space-y-4 pt-4">
-                <Separator />
-                <div className="text-left">
-                  <h3 className="font-semibold flex items-center gap-2 justify-center text-accent mb-2">
-                    <BookOpen className="w-4 h-4" />
-                    Recommended Study
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4 text-center">
-                    Review these modules to master the shortcuts you missed.
-                  </p>
-                  <div className="space-y-2">
-                    {recommendedModules.map((module) => (
-                      <Button
-                        key={module.id}
-                        asChild
-                        variant="outline"
-                        className="w-full justify-start"
-                      >
-                        <Link href={`/challenge/${module.id}`}>
-                          {module.name}
-                        </Link>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-            
             {(mode === 'training' || (mode === 'timed' && skippedChallenges.length > 0)) && (
               <div className="space-y-4">
                 <Separator />
@@ -333,11 +285,15 @@ export default function ResultsDisplay() {
 
           </CardContent>
           <CardFooter className="flex gap-4">
-            <Button variant="outline" className="w-full" onClick={() => router.push(dashboardPath)}>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Go to Dashboard
+            <Button asChild variant="outline" className="w-full">
+              <Link href={dashboardPath}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Go to Dashboard
+              </Link>
             </Button>
-            <Button className="w-full" onClick={() => router.push(challengePath + `?mode=${mode}`)}>
-              <RefreshCw className="mr-2 h-4 w-4" /> Play Again
+            <Button asChild className="w-full">
+              <Link href={challengePath + `?mode=${mode}`}>
+                <RefreshCw className="mr-2 h-4 w-4" /> Play Again
+              </Link>
             </Button>
           </CardFooter>
         </Card>

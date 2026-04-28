@@ -270,7 +270,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   groupRows: { description: 'Group selected', keys: ['alt', 'shift', 'arrowright'], iconName: 'Group', gridEffect: { action: 'GROUP_ROWS' } },
   ungroupRows: { description: 'Ungroup rows', keys: ['alt', 'shift', 'arrowleft'], iconName: 'Ungroup', gridEffect: { action: 'UNGROUP_ROWS' } },
   openFind: { description: 'Open Find', keys: ['control', 'f'], iconName: 'Search', dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
-  findNext: { description: 'Find next result', keys: ['enter'], iconName: 'ArrowDown', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' }, gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } } },
+  findNext: { description: 'Find (Next)', keys: ['enter'], iconName: 'Search', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'findNext' }, gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } } },
   closeDialog: { description: 'Close Dialog', keys: ['esc'], iconName: 'X', dialogEffect: {action: 'HIDE'}, previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'close' } },
   openReplace: { description: 'Open Replace dialog', keys: ['control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   confirmReplace: { description: 'Confirm replacement', keys: ['enter'], iconName: 'Check', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },

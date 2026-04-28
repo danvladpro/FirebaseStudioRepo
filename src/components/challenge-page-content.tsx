@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ChallengeSet } from '@/lib/types';
 import { AppHeader } from '@/components/app-header';
 import ChallengeUI from '@/components/challenge-ui';
@@ -11,7 +12,15 @@ type ChallengeMode = 'timed' | 'training';
 
 export function ChallengePageContent({ challengeSet }: { challengeSet: ChallengeSet }) {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState<ChallengeMode | null>(null);
+
+  useEffect(() => {
+    const urlMode = searchParams.get('mode') as ChallengeMode | null;
+    if (urlMode === 'timed' || urlMode === 'training') {
+      setMode(urlMode);
+    }
+  }, [searchParams]);
 
   if (!user) {
     return (
