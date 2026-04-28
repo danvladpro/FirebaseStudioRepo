@@ -708,9 +708,6 @@ export function HomePageClient() {
                                         <div>
                                             <div className="flex items-center gap-3 mb-4">
                                                 <h2 className="text-lg font-bold tracking-tight">Drills</h2>
-                                                <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                                                    <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${drillsCompletePct}%` }} />
-                                                </div>
                                                 <span className="text-xs font-bold text-primary whitespace-nowrap">
                                                     {completedDrillsForLevel} / {drillsForLevel.length} complete
                                                 </span>

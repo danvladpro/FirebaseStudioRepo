@@ -92,22 +92,7 @@ const createSummableGridState = (): GridState => ({
   clipboard: null,
 });
 
-const createAutofitGridState = (): GridState => ({
-  sheets: [
-    {
-      name: 'Sheet1',
-      data: [
-        ['This is a very long header for column A', 'Short Header B'],
-        ['Short content', 'This content is much longer and should make the column wider'],
-        ['12345', '123'],
-        ['Another row', 'Another value']
-      ],
-      selection: { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } },
-    },
-  ],
-  activeSheetIndex: 0,
-  clipboard: null,
-});
+
 
 
 const createMultiSheetGridState = (activeSheet: number = 0): GridState => ({
@@ -286,12 +271,18 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Repeat last action (Bold)", keys: ["f4"], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'APPLY_STYLE_BOLD' },}),
       singleStep({ description: "Toggle formulas", keys: ["control", "`"], iconName: "FileCode", initialGridState: createGridState([['Amt1','Amt2','Amt3','Amt4'],['30','40','50','60']],0,1,0),gridEffect: {action: 'PASTE_MULTIPLE_VALUES',payload: { values: [['30','=Z4','50','=Q33']] },},warningMessage: warningSequence}),
       {
-        description: "Create a table and open filter",
+        description: "Create a table",
         initialGridState: createGridState(bigTable,0,0,0),
         steps: [
             {description: "Select current region", keys: ["control", "a"], iconName: "Frame" , gridEffect: { action: 'SELECT_ALL' },},
             {description: "Open Create Table dialog",keys: ["control", "t"],iconName: "Table",dialogEffect: { action: 'SHOW_CREATE_TABLE' },warningMessage: warningSequence},
-            {description: "Confirm table creation",keys: ["enter"],iconName: "Check",dialogEffect: { action: 'HIDE_CREATE_TABLE' },gridEffect: { action: 'APPLY_TABLE_FORMATTING' },previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' }},
+            {description: "Confirm table creation",keys: ["enter"],iconName: "Check",dialogEffect: { action: 'HIDE_CREATE_TABLE' },gridEffect: { action: 'APPLY_TABLE_FORMATTING' },previewDialogEffect: { action: 'HIGHLIGHT_CREATE_TABLE_OK' }}
+        ]
+      },
+      {
+        description: "Togle filter & show dropdown",
+        initialGridState: createGridState(bigTable,0,0,1),
+        steps: [
             {description: "Toggle AutoFilter",keys: ["control", "shift", "l"],iconName: "Filter", gridEffect: { action: 'TOGGLE_AUTOFILTER' }},
             {description: "Open filter dropdown",keys: ["alt", "arrowdown"],iconName: "ChevronDownSquare",dialogEffect: { action: 'SHOW_FILTER_DROPDOWN' },},
         ]
@@ -311,7 +302,6 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Insert Date", keys: ["control", ";"], iconName: "CalendarDays", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'12-Mar-2026' } }}),
       singleStep({ description: "Insert Time", keys: ["control", "shift", ";"], iconName: "Clock", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'3 PM' } }}),
       singleStep({ description: "Add a comment", keys: ["shift", "f2"], iconName: "MessageSquarePlus", initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'SHOW_COMMENT' } }),
-      singleStep({ description: "Insert line break", keys: ["alt", "enter"], iconName: "Pilcrow", initialGridState: createGridState([['=A1', '']], 0, 0, 0), gridEffect: { action: 'INSERT_LINE_BREAK_IN_FORMULA' } }),
 
 // double step 
  {

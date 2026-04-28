@@ -150,7 +150,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   refreshSheet: { description: 'Recalculate Current Sheet', keys: ['shift','f9'], iconName: 'RefreshCw' },
 
   // ------ Selection
-  selectRow: { description: 'Select row', keys: ['shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' }, warningMessage: warningSequence },
+  selectRow: { description: 'Select row', keys: ['shift', ' '], iconName: 'Rows', gridEffect: { action: 'SELECT_ROW' }},
   selectCol: { description: 'Select column', keys: ['control', ' '], iconName: 'Columns', gridEffect: { action: 'SELECT_COLUMN' }, warningMessage: warningSequence },
  
   selectCurrentRegion:  { description: 'Select All', keys: ['control', 'a'], iconName: 'Frame', gridEffect: { action: 'SELECT_ALL' } },
@@ -275,7 +275,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   openReplace: { description: 'Open Replace dialog', keys: ['control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   confirmReplace: { description: 'Confirm replacement', keys: ['enter'], iconName: 'Check', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
   replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: true, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' }, gridEffect: { action: 'PASTE_MULTIPLE_VALUES', payload: { values: [['Sales.North', 'Sales.South'], ['Profit.North', 'Profit.South']] } }  },
-  tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' }, warningMessage: "Tab is captured by the training UI here. If focus leaves the page, click the exercise area and try again." },
+  tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   openSortDialog: { description: 'Sort menu', keys: ['alt', 'a','s', 's'], iconName: 'ArrowUpDown', isSequential: true, dialogEffect: { action: 'SHOW_SORT_DIALOG' } },
@@ -317,7 +317,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Strikethrough Toggle',
     description: 'Apply strikethrough, undo it, then redo to toggle the effect.',
-    repetitions: 10, mistakeLimit: 2,
+    repetitions: 10, mistakeLimit: 3,
     initialGridState: createGridState([
       ['Strikethrough', '', ''],
       ['ABC', '', ''],
@@ -332,7 +332,7 @@ const drills: Drill[] = [
     name: 'Navigate Block Edges',
     description: 'Jump around the perimeter of a table using Control.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable,0,4,0),
     steps: ['jumpTop', 'jumpRight', 'jumpBottom', 'jumpLeft']
   },
@@ -341,7 +341,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Jump & Paste',
     description: 'Copy a value from one end of a row to the other using jump navigation.',
-    repetitions: 12, mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 3,
     initialGridState: createGridState([
       ['Copy Me', '', '', 'Paste Here'],
       ['','','',''],
@@ -355,7 +355,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Expand & Copy Range',
     description: 'Select a horizontal range of cells, copy it, and paste below.',
-    repetitions: 12,mistakeLimit: 2,
+    repetitions: 12,mistakeLimit: 3,
     initialGridState: createGridState(bigTable,0,2,0),
     steps: ['expandRight', 'expandRight', 'copySelection', 'moveDown', 'pasteData']
   },
@@ -364,7 +364,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Cycle Worksheets',
     description: 'Navigate forward and backward through worksheet tabs.',
-    repetitions: 10, mistakeLimit: 2,
+    repetitions: 10, mistakeLimit: 3,
     initialGridState: createMultiSheetGridState(0),
     steps: ['nextSheet', 'nextSheet', 'prevSheet', 'prevSheet']
   },
@@ -373,7 +373,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Cross-Sheet Copy',
     description: 'Move data across worksheets.',
-    repetitions: 15,mistakeLimit: 2,
+    repetitions: 15,mistakeLimit: 3,
     initialGridState: createMultiSheetGridState(0),
     steps: ['home','copySelection', 'nextSheet', 'pasteData']
   },
@@ -382,7 +382,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Italicize Table',
     description: 'Select the entire table and apply italic formatting to all cells.',
-    repetitions: 10, mistakeLimit: 2,
+    repetitions: 10, mistakeLimit: 3,
     initialGridState: createGridState(bigTableEmptyRow, 0, 0, 0),
     steps: ['selectDownToEdge', 'selectRightToEdge', 'italic']
   },
@@ -391,7 +391,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Clear Data Block',
     description: 'Select the entire current data region and clear its contents.',
-    repetitions: 12,mistakeLimit: 2,
+    repetitions: 12,mistakeLimit: 3,
     initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['selectCurrentRegion', 'deleteContent','undoDeleteBigTable']
   },
@@ -400,7 +400,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Transfer Block',
     description: 'Select a rectangular data block, cut it, and paste into another worksheet.',
-    repetitions: 10, mistakeLimit: 2,
+    repetitions: 10, mistakeLimit: 3,
     initialGridState: createMultiSheetGridState(0),
     steps: ['selectRightToEdge', 'extendDown', 'cut', 'nextSheet', 'pasteData']
   },
@@ -410,7 +410,7 @@ const drills: Drill[] = [
     name: 'Page Scrolling',
     description: 'Navigate through large datasets using page up and down keys.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable, 0, 2, 0, 30),
     steps: ['pageDown', 'pageUp']
   },
@@ -419,7 +419,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Highlight & Save',
     description: 'Select all data, apply bold and underline formatting, then save the workbook.',
-    repetitions: 12, mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 3,
     initialGridState: createMultiSheetGridState(0),
     steps: ['selectCurrentRegion', 'bold', 'underline', 'save']
   },
@@ -428,7 +428,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Move and Format',
     description: 'Cut a value, move it to the top of the column, paste, and apply underline and bold formatting.',
-    repetitions: 12, mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 3,
     initialGridState: createGridState([['', ''], ['', ''],['Value to Move', ''],['', ''],],0,2,0),
     steps: ['cut', 'jumpTop', 'pasteData', 'underline', 'bold']
   },
@@ -437,8 +437,8 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Start & End',
     description: 'Navigate to the first cell of the data, underline it, then to the last cell and strikethrough it.',
-    repetitions: 10, mistakeLimit: 2,
-    initialGridState: createGridState(bigTable,0,2,0),
+    repetitions: 10, mistakeLimit: 3,
+    initialGridState: createGridState(bigTable,0,2,2),
     steps: ['jumpStart', 'underline', 'jumpEnd', 'strikethrough']
   },
 
@@ -447,7 +447,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Select to End',
     description: 'Select from the current cell to the very end of the data and apply underline formatting.',
-    repetitions: 12, mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 3,
     initialGridState: createGridState(bigTableEmptyRow,0,2,0),
     steps: ['selectToEnd', 'underline']
   },
@@ -456,7 +456,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Find and Cycle Results',
     description: 'Practice finding a term and cycling through the results.',
-    repetitions: 12,mistakeLimit: 2,
+    repetitions: 12,mistakeLimit: 3,
     initialGridState: createGridState([['First', 'Line',''], ['Second', 'Line'],['Third,', 'Line']], 0, 1, 0),
     steps: ['openFind', 'typeComma','findNext', 'closeDialog']
   },
@@ -465,7 +465,7 @@ const drills: Drill[] = [
     level: 'Apprentice',
     name: 'Quick Replace',
     description: 'Learn the sequence to open Replace, enter values, and confirm.',
-    repetitions: 12, mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 3,
     initialGridState: createGridState([['Sales,North', 'Sales,South'], ['Profit,North', 'Profit,South']], 0, 0, 0),
     steps: ['openReplace', 'typeComma', 'tabToNext', 'typePeriod', 'replaceAll', 'closeDialog']
   },
@@ -477,7 +477,7 @@ const drills: Drill[] = [
     name: 'Duplicate Data',
     description: 'Select the entire data region, copy it, and paste into the next worksheet.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createMultiSheetGridState(0),
     steps: ['selectCurrentRegion', 'copySelection', 'nextSheet', 'pasteData']
   },
@@ -492,7 +492,7 @@ const drills: Drill[] = [
     level: 'Master',
     name: 'Jump Columns',
     description: 'Bold the first column, then strikethrough the last column.',
-    repetitions: 12, mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 3,
     initialGridState: createGridState(bigTable,0,2,0),
     steps: ['selectCol', 'bold', 'jumpRight', 'selectCol', 'strikethrough']
   },
@@ -503,7 +503,7 @@ const drills: Drill[] = [
     name: 'Create Table',
     description: 'Convert a selected data range into an Excel table for better data management.',
     repetitions: 14,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['selectCurrentRegion', 'createTable', 'confirmTable']
   },
@@ -512,7 +512,7 @@ const drills: Drill[] = [
     level: 'Master',
     name: 'Bold Multiple Rows',
     description: 'Select multiple rows from current position to the bottom and apply bold formatting.',
-    repetitions: 12, mistakeLimit: 2,
+    repetitions: 12, mistakeLimit: 3,
     initialGridState: createGridState(bigTableEmptyRow,0,0,2),
     steps: ['selectRow', 'selectDownToEdge', 'bold']
   },
@@ -523,7 +523,7 @@ const drills: Drill[] = [
     name: 'Copy Visible Rows',
     description: 'After hiding rows, select only visible cells and copy them to another sheet.',
     repetitions: 14,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createMultiSheetGridState(0),
     steps: [ 'hideRow','moveDown','selectCurrentRegion','selectVisible', 'copySelection', 'nextSheet', 'pasteData']
   },
@@ -533,7 +533,7 @@ const drills: Drill[] = [
     name: 'Edit Formula Reference',
     description: 'Edit a formula and make a cell reference absolute.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['jumpBottom','editFormula', 'toggleAbsRef', 'confirmFormula']
   },
@@ -543,7 +543,7 @@ const drills: Drill[] = [
     name: 'Toggle Formulas',
     description: 'Toggle to view formulas, then back to values, and clear the selected range.',
     repetitions: 8,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(formulaDrillValues, 0, 0, 0),
     steps: ['toggleFormulas', 'hideFormulas','selectRightToEdge','selectDownToEdge','cut']
   },
@@ -553,7 +553,7 @@ const drills: Drill[] = [
     name: 'AutoSum Column',
     description: 'Select a column of numbers and insert an AutoSum formula at the bottom.',
     repetitions: 14,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTableEmptyRow, 0, 2, 0),
     steps: ['jumpRight','selectDownToEdge', 'autoSum','refresh']
   },
@@ -563,7 +563,7 @@ const drills: Drill[] = [
     name: 'Repeat Formatting',
     description: 'Apply underline formatting and repeat it on adjacent cells',
     repetitions: 12,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTableEmptyRow,0,2,0),
     steps: ['underline', 'moveDown', 'repeatFormatting','selectRightToEdge','repeatFormatting']
   },
@@ -574,7 +574,7 @@ const drills: Drill[] = [
     name: 'Fill Range',
     description: 'Select a range and fill all cells with the same value',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(emptyTable,0,0,0),
     steps: ['expandRight','extendDown', 'type9', 'fillAll','addComment']
   },
@@ -584,7 +584,7 @@ const drills: Drill[] = [
     name: 'Filter Dropdown',
     description: 'Open the filter dropdown, select and deselect items, then apply the filter.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable,0,0,1),
     steps: ['openFilterDropdown', 'toggleFilterItem', 'moveToFilterItem', 'moveToFilterItem', 'toggleFilterItem', 'applyFilterSelection']
   },
@@ -594,7 +594,7 @@ const drills: Drill[] = [
     name: 'Insert Timestamp',
     description: 'Insert current time and date, then underline both entries.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(emptyTable,0,0,0),
     steps: ['insertTime', 'moveRight','insertDate','expandLeft','underline']
   },
@@ -604,7 +604,7 @@ const drills: Drill[] = [
     name: 'Go To Selection',
     description: 'Select a range and use Go To dialog to navigate precisely.',
     repetitions: 8,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['jumpStart','selectDownToEdge','openGoTo', 'confirmGoTo']
   },
@@ -614,7 +614,7 @@ const drills: Drill[] = [
     name: 'Insert Rows',
     description: 'Insert multiple rows to create space in the table.',
     repetitions: 8,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable, 0, 3, 0),
     steps: ['selectRow', 'insertRow', 'insertRow','refreshSheet']
   },
@@ -624,7 +624,7 @@ const drills: Drill[] = [
     name: 'Column Delete',
     description: 'Navigate to another sheet and delete an entire column.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createMultiSheetGridState(0),
     steps: [ 'nextSheet',	'selectCol','deleteCol']
   },
@@ -634,7 +634,7 @@ const drills: Drill[] = [
     name: 'Fill Down & hide',
     description: 'Fill cells in a column with the same value.',
     repetitions: 8,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(dirtyTable, 0, 2, 0), 
     steps: [ 'fillDown','moveDown','fillDown','moveRight','hideCol']
   },
@@ -650,7 +650,7 @@ const drills: Drill[] = [
     name: 'Center Header',
     description: 'Select the header row and center-align its contents.',
     repetitions: 12,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable, 0, 3, 0),
     steps: ['jumpTop','selectRow', 'centerAlign','autoFilter']
   },
@@ -660,7 +660,7 @@ const drills: Drill[] = [
     name: 'Kill Formulas',
     description: 'Copy a range and paste it as values to kill the formulas.',
     repetitions: 12,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable,0,0,0),
     steps: ['selectCurrentRegion', 'copySelection', 'pasteSpecial','pasteSpecialSelectValues','pasteSpecialConfirmBigTable']
   },
@@ -670,7 +670,7 @@ const drills: Drill[] = [
     name: 'Merge Headers',
     description: 'Merge and center cells to create spanning headers.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(
       [['Share','', '','Amount', ''],
       ['2025', '2026','','2025', '2026'],
@@ -684,7 +684,7 @@ const drills: Drill[] = [
     name: 'Reset Formats',
     description: 'Reset formats to general, apply date and currency formats, and bold a column.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(
       [['ID', 'DateNum','Date', 'Amount'],['1.0', '02-Mar-26', '46083','500'],['', '','', '']],0,1,1
     ),
@@ -696,7 +696,7 @@ const drills: Drill[] = [
     name: 'Apply Borders',
     description: 'Select the entire data region and apply all borders for structure.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createMultiSheetGridState(1),
     steps: ['prevSheet','selectCurrentRegion', 'applyAllBorders']
   },
@@ -706,7 +706,7 @@ const drills: Drill[] = [
     name: 'Format Columns',
     description: 'Apply percentage format to one column and general format to another.',
     repetitions: 8,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(
       [['ID', 'Date', 'Amount','Share'],['1.0', '02-Mar-26', '500','0.2'],],0,0,0
     ),
@@ -718,7 +718,7 @@ const drills: Drill[] = [
     name: 'Thick Border',
     description: 'Select a row and apply thick borders to emphasize it.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createMultiSheetGridState(0),
     steps: ['jumpEnd','selectLeftToEdge', 'applyThickBorder']
   },
@@ -728,7 +728,7 @@ const drills: Drill[] = [
     name: 'Wrap Headers',
     description: 'Center-align and wrap text in header columns for better readability.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(
       [['Long Text Here','', '','', ''],
       ['Long Text Here', '','','', ''],
@@ -743,7 +743,7 @@ const drills: Drill[] = [
     name: 'Adjust Decimals',
     description: 'Apply currency format and reduce decimal places for clean financial display.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable, 0, 1, 0),
     steps: ['jumpRight','selectDownToEdge','applyCurrency', 'decreaseDecimals', 'decreaseDecimals']
   },
@@ -754,7 +754,7 @@ const drills: Drill[] = [
     name: 'Clear Formats',
     description: 'Clear formatting from a range and reapply general format using repeat.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(dirtyTable, 0, 1, 0),
     steps: ['extendDown','clearFormatting','jumpRight','extendDown','repeatFormattingGeneral']
   },
@@ -764,7 +764,7 @@ const drills: Drill[] = [
     name: 'Open Sort Dialog',
     description: 'Italicize a range and open the sort dialog using Alt shortcuts.',
     repetitions: 8,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable, 0, 0, 0),
     steps: ['selectRow','italic','selectDownToEdge', 'openSortDialog', 'closeSortDialog']
   },
@@ -775,7 +775,7 @@ const drills: Drill[] = [
     name: 'Column Autofit',
     description: 'Select multiple columns and autofit their widths to display all data.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable,0,0,0),
     steps: ['selectCol','expandRight', 'expandRight', 'autofitColumns']
   },
@@ -785,7 +785,7 @@ const drills: Drill[] = [
     name: 'Fill Color',
     description: 'Select a range, bold it, and apply a fill color from the dropdown.',
     repetitions: 8,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable,0,1,0),
     steps: ['selectRow','extendDown','bold','openFillColor', 'moveColorHighlightRight', 'moveColorHighlightRight', 'confirmFillColor']
   },
@@ -795,7 +795,7 @@ const drills: Drill[] = [
     name: 'Group Rows',
     description: 'Group selected rows for collapsible structure, then ungroup them.',
     repetitions: 8,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable,0,2,0),
     steps: ['selectRow','extendDown', 'groupRows', 'ungroupRows']
   },
@@ -805,7 +805,7 @@ const drills: Drill[] = [
     name: 'Format Dialog',
     description: 'Clear formatting and open the Format Cells dialog to adjust settings.',
     repetitions: 10,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['clearFormatting', 'openFormatCells', 'moveDownFormatCategory', 'moveDownFormatCategory', 'confirm']
   },
@@ -815,7 +815,7 @@ const drills: Drill[] = [
     name: 'Freeze Panes',
     description: 'Select the header row, underline it, and freeze panes to keep headers visible.',
     repetitions: 8,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createGridState(bigTable, 0, 2, 0),
     steps: ['jumpTop','selectRow','underline','freezePanes']
   },
@@ -825,7 +825,7 @@ const drills: Drill[] = [
     name: 'Clean Sheet',
     description: 'Navigate to a sheet, clear all data, and remove gridlines for a clean presentation.',
     repetitions: 8,
-    mistakeLimit: 2,
+    mistakeLimit: 3,
     initialGridState: createMultiSheetGridState(1),
     steps: ['prevSheet','selectCurrentRegion','clearAll','removeGridlines']
   }
