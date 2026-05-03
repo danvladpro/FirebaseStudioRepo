@@ -518,10 +518,15 @@ export function HomePageClient() {
                         const areDrillsLockedForPremium = isPremium && !isAdmin && !areChallengesForLevelPassed;
 
                         const completedChallengesForLevel = challengesForLevel.filter(s => stats[s.id]?.bestScore === 100);
-                        const xpForLevel = challengesForLevel.reduce((acc, set) => acc + (set.level ? (XP_CONFIG[set.level] || 0) : 0), 0);
-                        const completedXpForLevel = completedChallengesForLevel.reduce((acc, set) => acc + (set.level ? (XP_CONFIG[set.level] || 0) : 0), 0);
+                        const completedDrillsForLevelList = drillsForLevel.filter(d => stats[d.id]?.bestScore === 100);
+                        const xpForLevel =
+                          challengesForLevel.reduce((acc, set) => acc + (set.level ? (XP_CONFIG[set.level] || 0) : 0), 0) +
+                          drillsForLevel.length * DRILL_XP;
+                        const completedXpForLevel =
+                          completedChallengesForLevel.reduce((acc, set) => acc + (set.level ? (XP_CONFIG[set.level] || 0) : 0), 0) +
+                          completedDrillsForLevelList.length * DRILL_XP;
 
-                        const completedDrillsForLevel = drillsForLevel.filter(d => stats[d.id]?.bestScore === 100).length;
+                        const completedDrillsForLevel = completedDrillsForLevelList.length;
                         const drillsCompletePct = drillsForLevel.length > 0 ? (completedDrillsForLevel / drillsForLevel.length) * 100 : 0;
 
                         if (isLevelLocked) {
