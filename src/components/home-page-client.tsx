@@ -810,6 +810,11 @@ export function HomePageClient() {
                                                                 <span className={cn("flex-1 text-sm font-medium truncate", isDrillPassed && "text-muted-foreground")}>
                                                                     {drill.name}
                                                                 </span>
+                                                                {!isDrillLocked && (
+                                                                    <span className="text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 rounded-full px-2 py-px whitespace-nowrap flex-shrink-0">
+                                                                        +{DRILL_XP} XP
+                                                                    </span>
+                                                                )}
                                                                 {isDrillLocked && <Lock className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />}
                                                             </div>
                                                         );
