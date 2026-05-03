@@ -16,7 +16,7 @@ import { Challenge, ChallengeSet, ChallengeStep } from '@/lib/types';
 import Confetti from 'react-confetti';
 import { updateUserPerformance } from '@/app/actions/update-user-performance';
 import { toast } from '@/hooks/use-toast';
-import { XP_CONFIG } from './home-page-client';
+import { XP_CONFIG } from '@/lib/constants';
 import Link from 'next/link';
 import { CertificateModal } from './certificate-modal';
 import Image from 'next/image';

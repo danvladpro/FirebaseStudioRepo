@@ -22,6 +22,7 @@ import Image from "next/image";
 import { CertificateModal } from "./certificate-modal";
 import { DRILL_SET, Drill } from "@/lib/drills";
 import { BeforeYouStart } from "./before-you-start";
+import { XP_CONFIG, DRILL_XP } from "@/lib/constants";
 
 const iconMap: Record<string, ElementType> = {
     ClipboardPaste,
@@ -46,15 +47,6 @@ const iconMap: Record<string, ElementType> = {
     ShieldCheck,
 };
 
-export const XP_CONFIG = {
-  General: 10,
-  Apprentice: 20,
-  Master: 40,
-  Ninja: 60,
-  Scenario: 100,
-};
-
-export const DRILL_XP = 5;
 
 const PROGRESSION_LEVELS = [
     { name: 'Rookie',     img: '/Level0.svg', icon: <Image src="/Level0.svg" alt="Rookie"     width={64} height={64} /> },

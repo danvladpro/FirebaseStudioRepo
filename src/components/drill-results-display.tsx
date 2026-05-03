@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription }
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { DRILL_SET } from '@/lib/drills';
-import { DRILL_XP } from '@/components/home-page-client';
+import { DRILL_XP } from '@/lib/constants';
 import Confetti from 'react-confetti';
 import Image from 'next/image';
 
