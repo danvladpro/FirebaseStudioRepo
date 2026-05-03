@@ -22,6 +22,7 @@ import Image from "next/image";
 import { CertificateModal } from "./certificate-modal";
 import { DRILL_SET, Drill } from "@/lib/drills";
 import { BeforeYouStart } from "./before-you-start";
+import { XP_CONFIG, DRILL_XP } from "@/lib/constants";
 
 const iconMap: Record<string, ElementType> = {
     ClipboardPaste,
@@ -46,13 +47,6 @@ const iconMap: Record<string, ElementType> = {
     ShieldCheck,
 };
 
-export const XP_CONFIG = {
-  General: 10,
-  Apprentice: 20,
-  Master: 40,
-  Ninja: 60,
-  Scenario: 100,
-};
 
 const PROGRESSION_LEVELS = [
     { name: 'Rookie',     img: '/Level0.svg', icon: <Image src="/Level0.svg" alt="Rookie"     width={64} height={64} /> },
@@ -148,18 +142,17 @@ export function HomePageClient() {
   const isNinjaLockedForPremium = !isAdmin && !levelCompletion.Master;
 
   const totalXP = React.useMemo(() => {
-    const allCompletedIds = new Set([
-        ...CHALLENGE_SETS.filter(set => stats[set.id]?.bestScore === 100).map(set => set.id),
-        ...DRILL_SET.drills.filter(drill => stats[drill.id]?.bestScore === 100).map(drill => drill.id)
-    ]);
-    
     let xp = 0;
     CHALLENGE_SETS.forEach(set => {
-        if(allCompletedIds.has(set.id) && set.level && XP_CONFIG[set.level]) {
-            xp += XP_CONFIG[set.level];
-        }
+      if (stats[set.id]?.bestScore === 100 && set.level && XP_CONFIG[set.level]) {
+        xp += XP_CONFIG[set.level];
+      }
     });
-
+    DRILL_SET.drills.forEach(drill => {
+      if (stats[drill.id]?.bestScore === 100) {
+        xp += DRILL_XP;
+      }
+    });
     return xp;
   }, [stats]);
   
@@ -217,9 +210,13 @@ export function HomePageClient() {
       nextUserLevelName === 'Apprentice' ? ['Apprentice'] :
       nextUserLevelName === 'Master'     ? ['Apprentice', 'Master'] :
                                            ['Apprentice', 'Master', 'Ninja'];
-    return CHALLENGE_SETS
+    const challengeXP = CHALLENGE_SETS
       .filter(c => levelsToInclude.includes(c.level as ChallengeLevel))
       .reduce((acc, set) => acc + (set.level ? (XP_CONFIG[set.level] || 0) : 0), 0);
+    const drillXP = DRILL_SET.drills
+      .filter(d => levelsToInclude.includes(d.level as ChallengeLevel))
+      .length * DRILL_XP;
+    return challengeXP + drillXP;
   }, [nextUserLevelName]);
 
   const xpProgressPct = React.useMemo(() => {
@@ -286,28 +283,6 @@ export function HomePageClient() {
             <p className="text-muted-foreground text-sm">{getDashboardSubtitle()}</p>
           </div>
 
-          {/* Right: Next Up / Resume card */}
-          {nextDrill && (
-            <div className="flex items-center gap-4 px-5 py-4 rounded-xl border border-emerald-300 bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-200 shadow-sm min-w-[320px]">
-              <div className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center shadow-md flex-shrink-0">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-0.5">
-                  Next up
-                </p>
-                <p className="font-extrabold text-base tracking-tight truncate">{nextDrill.name}</p>
-                <p className="text-xs text-emerald-700 opacity-80">
-                  Drill {nextDrillIndex} of {nextDrillLevelDrills.length} · {nextDrill.level}
-                </p>
-              </div>
-              <Button asChild size="sm" className="flex-shrink-0 font-bold shadow-sm">
-                <Link href={`/drills/${nextDrill.id}`}>
-                  Start <ArrowRight className="w-3.5 h-3.5 ml-1" />
-                </Link>
-              </Button>
-            </div>
-          )}
         </header>
         
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8">
@@ -535,10 +510,15 @@ export function HomePageClient() {
                         const areDrillsLockedForPremium = isPremium && !isAdmin && !areChallengesForLevelPassed;
 
                         const completedChallengesForLevel = challengesForLevel.filter(s => stats[s.id]?.bestScore === 100);
-                        const xpForLevel = challengesForLevel.reduce((acc, set) => acc + (set.level ? (XP_CONFIG[set.level] || 0) : 0), 0);
-                        const completedXpForLevel = completedChallengesForLevel.reduce((acc, set) => acc + (set.level ? (XP_CONFIG[set.level] || 0) : 0), 0);
+                        const completedDrillsForLevelList = drillsForLevel.filter(d => stats[d.id]?.bestScore === 100);
+                        const xpForLevel =
+                          challengesForLevel.reduce((acc, set) => acc + (set.level ? (XP_CONFIG[set.level] || 0) : 0), 0) +
+                          drillsForLevel.length * DRILL_XP;
+                        const completedXpForLevel =
+                          completedChallengesForLevel.reduce((acc, set) => acc + (set.level ? (XP_CONFIG[set.level] || 0) : 0), 0) +
+                          completedDrillsForLevelList.length * DRILL_XP;
 
-                        const completedDrillsForLevel = drillsForLevel.filter(d => stats[d.id]?.bestScore === 100).length;
+                        const completedDrillsForLevel = completedDrillsForLevelList.length;
                         const drillsCompletePct = drillsForLevel.length > 0 ? (completedDrillsForLevel / drillsForLevel.length) * 100 : 0;
 
                         if (isLevelLocked) {
@@ -595,8 +575,85 @@ export function HomePageClient() {
                             );
                         }
 
+                        const isCurrentLevelCompleted = levelCompletion[level as keyof typeof levelCompletion] ?? false;
+                        const nextLevelName: ChallengeLevel | null = level === 'Apprentice' ? 'Master' : level === 'Master' ? 'Ninja' : null;
+                        const nextIncompleteChallenge = challengesForLevel.find(c => stats[c.id]?.bestScore !== 100);
+                        const nextIncompleteDrill = drillsForLevel.find(d => stats[d.id]?.bestScore !== 100);
+                        const nextItem = nextIncompleteChallenge || nextIncompleteDrill;
+                        const nextItemHref = nextIncompleteChallenge
+                            ? `/challenge/${nextIncompleteChallenge.id}`
+                            : nextIncompleteDrill
+                                ? `/drills/${nextIncompleteDrill.id}`
+                                : null;
+
                         return (
                             <div className="space-y-8">
+                                    <p className="text-sm font-bold text-muted-foreground">
+                                      XP: {completedXpForLevel} / {xpForLevel}
+                                    </p>
+                                    {/* Next Up */}
+                                    {isLoaded && (() => {
+                                        if (allItemsPassed) {
+                                            return (
+                                                <div className="flex items-center gap-4 px-5 py-4 rounded-xl border border-emerald-400 bg-gradient-to-br from-emerald-100 via-teal-100 to-emerald-200 shadow-sm w-fit min-w-[320px]">
+                                                    <div className="w-11 h-11 rounded-xl bg-emerald-600 flex items-center justify-center shadow-md flex-shrink-0">
+                                                        <Trophy className="w-5 h-5 text-white" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-0.5">Training Complete!</p>
+                                                        <p className="font-extrabold text-base tracking-tight">You&apos;ve fully completed the training plan!</p>
+                                                        <p className="text-xs text-emerald-700 opacity-80">Claim your well-deserved Certificate of Mastery.</p>
+                                                    </div>
+                                                    <Button size="sm" className="flex-shrink-0 font-bold shadow-sm bg-emerald-600 hover:bg-emerald-700" onClick={() => setIsCertificateModalOpen(true)}>
+                                                        <Trophy className="w-3.5 h-3.5 mr-1" /> Claim Certificate
+                                                    </Button>
+                                                </div>
+                                            );
+                                        }
+
+                                        if (isCurrentLevelCompleted && nextLevelName) {
+                                            return (
+                                                <div className="flex items-center gap-4 px-5 py-4 rounded-xl border border-amber-300 bg-gradient-to-br from-amber-50 via-amber-100 to-orange-100 shadow-sm w-fit min-w-[320px]">
+                                                    <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center shadow-md flex-shrink-0">
+                                                        <Star className="w-5 h-5 text-white" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-0.5">Level Complete!</p>
+                                                        <p className="font-extrabold text-base tracking-tight">You&apos;ve completed {level}!</p>
+                                                        <p className="text-xs text-amber-700 opacity-80">Go to the <strong>{nextLevelName}</strong> level — it&apos;s still not 100% done!</p>
+                                                    </div>
+                                                    <Button size="sm" className="flex-shrink-0 font-bold shadow-sm bg-amber-500 hover:bg-amber-600 text-white" onClick={() => { setActiveTrainingLevel(nextLevelName); sessionStorage.setItem('dashboardActiveTab', nextLevelName); }}>
+                                                        {nextLevelName} <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                                                    </Button>
+                                                </div>
+                                            );
+                                        }
+
+                                        if (!isCurrentLevelCompleted && nextItem && nextItemHref) {
+                                            return (
+                                                <div className="flex items-center gap-4 px-5 py-4 rounded-xl border border-emerald-300 bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-200 shadow-sm w-fit min-w-[320px]">
+                                                    <div className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center shadow-md flex-shrink-0">
+                                                        <Zap className="w-5 h-5 text-white" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-0.5">Next Up</p>
+                                                        <p className="font-extrabold text-base tracking-tight truncate">{nextItem.name}</p>
+                                                        <p className="text-xs text-emerald-700 opacity-80">
+                                                            {nextIncompleteChallenge ? 'Challenge' : 'Drill'} · {level}
+                                                        </p>
+                                                    </div>
+                                                    <Button asChild size="sm" className="flex-shrink-0 font-bold shadow-sm">
+                                                        <Link href={nextItemHref}>
+                                                            Start <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                                                        </Link>
+                                                    </Button>
+                                                </div>
+                                            );
+                                        }
+
+                                        return null;
+                                    })()}
+
                                     {/* Challenges */}
                                     <div>
                                         <div className="flex items-center justify-between mb-4">
@@ -708,9 +765,6 @@ export function HomePageClient() {
                                         <div>
                                             <div className="flex items-center gap-3 mb-4">
                                                 <h2 className="text-lg font-bold tracking-tight">Drills</h2>
-                                                <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                                                    <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${drillsCompletePct}%` }} />
-                                                </div>
                                                 <span className="text-xs font-bold text-primary whitespace-nowrap">
                                                     {completedDrillsForLevel} / {drillsForLevel.length} complete
                                                 </span>
@@ -748,6 +802,11 @@ export function HomePageClient() {
                                                                 <span className={cn("flex-1 text-sm font-medium truncate", isDrillPassed && "text-muted-foreground")}>
                                                                     {drill.name}
                                                                 </span>
+                                                                {!isDrillLocked && (
+                                                                    <span className="text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 rounded-full px-2 py-px whitespace-nowrap flex-shrink-0">
+                                                                        +{DRILL_XP} XP
+                                                                    </span>
+                                                                )}
                                                                 {isDrillLocked && <Lock className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />}
                                                             </div>
                                                         );

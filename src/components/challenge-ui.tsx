@@ -176,6 +176,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   });
 
   const handleSkip = useCallback(() => {
+    if (skippedIndices.includes(currentChallengeIndex)) return;
     const newSkippedIndices = [...skippedIndices, currentChallengeIndex];
     setSkippedIndices(newSkippedIndices);
     

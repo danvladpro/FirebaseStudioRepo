@@ -17,7 +17,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ModeToggle } from './mode-toggle';
 import { cn } from '@/lib/utils';
 import { Crown, Settings, Clock, LifeBuoy, HelpCircle } from 'lucide-react';
 import React from 'react';
@@ -96,7 +95,6 @@ export function AppHeader() {
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <ModeToggle />
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

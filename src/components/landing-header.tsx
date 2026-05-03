@@ -4,7 +4,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
-import { ModeToggle } from "./mode-toggle";
 import { useAuth } from "./auth-provider";
 import React, { Suspense } from "react";
 import {
@@ -94,7 +93,6 @@ function HeaderContent() {
                         </nav>
                     </div>
                     <div className="flex items-center gap-4">
-                        <ModeToggle />
                         {user ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
