@@ -596,6 +596,9 @@ export function HomePageClient() {
 
                         return (
                             <div className="space-y-8">
+                                    <p className="text-sm font-bold text-muted-foreground">
+                                      XP: {completedXpForLevel} / {xpForLevel}
+                                    </p>
                                     {/* Next Up */}
                                     {isLoaded && (() => {
                                         if (allItemsPassed) {
