@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription }
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { DRILL_SET } from '@/lib/drills';
+import { DRILL_XP } from '@/components/home-page-client';
 import Confetti from 'react-confetti';
 import Image from 'next/image';
 
@@ -63,6 +64,10 @@ export default function DrillResultsDisplay() {
              <p className="text-muted-foreground">
                 Fantastic work! You've strengthened your muscle memory for this flow.
             </p>
+            <div className="flex items-center justify-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-6 py-4">
+              <span className="text-2xl font-extrabold text-amber-700">+{DRILL_XP} XP</span>
+              <span className="text-sm text-amber-800 font-medium">Earned</span>
+            </div>
           </CardContent>
           <CardFooter className="flex gap-4">
             <Button variant="outline" className="w-full" onClick={() => router.push(dashboardPath)}>
