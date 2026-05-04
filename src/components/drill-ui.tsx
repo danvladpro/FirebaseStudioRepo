@@ -62,7 +62,7 @@ const KeyDisplay = ({ value, isMac, small }: { value: string, isMac: boolean, sm
     return (
         <kbd className={cn(
             "font-semibold rounded border-b-2 text-muted-foreground bg-muted",
-            small ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-1.5 text-xs",
+            small ? "px-2 py-1 text-xs" : "px-2 py-1.5 text-xs",
             isModifier && !small ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
@@ -92,6 +92,17 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
 
+  // Prefetch results page bundle so navigation is instant when drill ends
+  useEffect(() => {
+    router.prefetch('/drill-results');
+  }, [router]);
+
+  // Preload celebration SVG so it renders immediately on the results page
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = '/NinjaCelebrate.svg';
+  }, []);
+
   useEffect(() => {
     const activeEl = stepRowRefs.current[visualStepIndex];
     if (!activeEl) return;
@@ -106,18 +117,16 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
     return getPlatformKeys(activeStep, isMac);
   }, [activeStep, isMac]);
 
-  const finishDrill = useCallback(async () => {
+  const finishDrill = useCallback(() => {
     setLogicalStepIndex(drill.steps.length);
     if (user) {
-      try {
-        await updateUserPerformance({ uid: user.uid, setId: drill.id, time: 0, score: 100 });
-      } catch (error: any) {
+      updateUserPerformance({ uid: user.uid, setId: drill.id, time: 0, score: 100 }).catch(() => {
         toast({
           title: "Error Saving Progress",
           description: "Could not save your drill completion. Your progress may not be tracked.",
           variant: "destructive",
         });
-      }
+      });
     }
     router.push(`/drill-results?drillId=${drill.id}&drillNumber=${drillNumber}`);
   }, [drill.id, router, user, drill.steps.length, drillNumber]);
@@ -461,11 +470,11 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
 
         {isVirtualKeyboardMode ? (
           <div className="flex-shrink-0 border-t bg-muted/40 p-3">
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex justify-between items-center mb-2 min-h-[28px]">
               <span className="text-xs font-bold text-primary uppercase tracking-wide">
                 Virtual Keyboard — Click to press
               </span>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 min-h-[28px]">
                 {pressedKeys.length > 0 ? (
                   pressedKeys.map((key, i) => <KeyDisplay key={`${key}-${i}`} value={key} isMac={isMac} small />)
                 ) : (
