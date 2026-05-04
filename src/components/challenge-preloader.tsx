@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ChallengeSet } from "@/lib/types";
 import * as icons from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -16,6 +17,7 @@ interface ChallengePreloaderProps {
 }
 
 export function ChallengePreloader({ challengeSet, onStart }: ChallengePreloaderProps) {
+    const router = useRouter();
     const [status, setStatus] = useState("Preparing challenge...");
     const [isLoading, setIsLoading] = useState(true);
 
@@ -35,7 +37,10 @@ export function ChallengePreloader({ challengeSet, onStart }: ChallengePreloader
 
                 setStatus(`Loading ${iconNames.size} assets...`);
 
-                // Simulate loading time
+                // Prefetch results assets during the loading window
+                router.prefetch('/results');
+                const img = new window.Image();
+                img.src = '/NinjaCelebrate.svg';
                 await new Promise(resolve => setTimeout(resolve, 750));
 
                 if (isMounted) {
