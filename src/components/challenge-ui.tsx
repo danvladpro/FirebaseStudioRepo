@@ -54,7 +54,7 @@ const KeyDisplay = ({ value, isMac, small }: { value: string, isMac: boolean, sm
     return (
         <kbd className={cn(
             "font-semibold rounded border-b-2 text-muted-foreground bg-muted",
-            small ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-1.5 text-xs",
+            small ? "px-2 py-1 text-xs" : "px-2 py-1.5 text-xs",
             isModifier && !small ? "min-w-[4rem] text-center" : "",
             isLetter ? "uppercase" : ""
         )}>
@@ -86,6 +86,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   useEffect(() => {
     setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
   }, []);
+
+  // Prefetch results page bundle so navigation is instant when challenge ends
+  useEffect(() => {
+    router.prefetch('/results');
+  }, [router]);
 
   useEffect(() => {
     const container = stepsContainerRef.current;
@@ -485,11 +490,11 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
       {isVirtualKeyboardMode ? (
         <div className="flex-shrink-0 border-t bg-muted/40 p-3">
-          <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between items-center mb-2 min-h-[28px]">
             <span className="text-xs font-bold text-primary uppercase tracking-wide">
               Virtual Keyboard — Click to press
             </span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 min-h-[28px]">
               {pressedKeys.length > 0 ? (
                 pressedKeys.map((key, i) => <KeyDisplay key={`${key}-${i}`} value={key} isMac={isMac} small />)
               ) : (
