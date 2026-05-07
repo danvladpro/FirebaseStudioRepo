@@ -64,7 +64,26 @@ Add `<PasteSpecialDialog state={displayDialogState} />` to `src/app/drills/[id]/
 | `src/components/challenge-ui.tsx` | Same pattern as drill-ui. |
 | `src/app/drills/[id]/page.tsx` | Add `PasteSpecialDialog` import + JSX in preview panel. |
 
-Dialog component files (`find-replace-dialog.tsx`, `sort-dialog.tsx`, etc.) — **no changes**.
+Dialog component files — **compact treatment applied to all 6**:
+
+| Dialog | Width: current → compact | Padding changes |
+|--------|--------------------------|-----------------|
+| `find-replace-dialog.tsx` | 380px → 300px | header `p-2 pl-4` → `p-1.5 pl-2.5`; tab triggers smaller; body `p-4` → `p-2.5`; footer `p-4` → `py-1.5 px-2.5`; inputs `h-10` → `h-7 text-xs` |
+| `sort-dialog.tsx` | 480px → 380px | header `p-4` → `p-1.5 pl-2.5`; body `p-4 space-y-4` → `p-2.5 space-y-2`; footer `p-4` → `py-1.5 px-2.5`; select triggers smaller; level buttons `size="sm"` kept |
+| `format-cells-dialog.tsx` | 520px → 400px | header `p-2 pl-4` → `p-1.5 pl-2.5`; body `p-4` → `p-2.5`; footer `p-4` → `py-1.5 px-2.5`; category items `py-1 px-2 text-sm` → `py-0.5 px-1.5 text-xs`; inputs `h-7 text-xs` |
+| `go-to-dialog.tsx` | 380px → 300px | header `p-4` → `p-1.5 pl-2.5`; body `p-4 space-y-4` → `p-2.5 space-y-2`; footer `p-4` → `py-1.5 px-2.5`; input `h-7 text-xs` |
+| `create-table-dialog.tsx` | 380px → 300px | header `p-4` → `p-1.5 pl-2.5`; body `p-4 space-y-4` → `p-2.5 space-y-2`; footer `p-4` → `py-1.5 px-2.5`; input `h-7 text-xs` |
+| `paste-special-dialog.tsx` | 420px → 300px | header already compact; body `p-2` → `p-2.5`; section labels (`Paste`, `Operation`) → `text-xs uppercase font-bold tracking-wide text-muted-foreground`; radio items `py-0.5` gap `space-y-0` → tighter; footer `p-2` → `py-1.5 px-2.5` |
+
+**Compact rules applied consistently across all dialogs:**
+- Title font: `text-sm font-medium` (unchanged, already small on most)
+- Header padding: `p-1.5 pl-2.5` (or `p-1.5 px-2.5` where no left-align needed)
+- Body padding: `p-2.5`
+- Body spacing: `space-y-2` (was `space-y-4`)
+- Footer padding: `py-1.5 px-2.5`
+- All `Input` components: add `h-7 text-xs`
+- All `Button` components: keep `size="sm"` (already set)
+- z-index: bump from `z-20` → `z-30` on the outer Card of each dialog
 
 ---
 
