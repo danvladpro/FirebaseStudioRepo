@@ -356,28 +356,30 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
             </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-1 overflow-hidden flex flex-col border-t pt-0">
+      <CardContent className="flex-1 relative flex flex-col border-t pt-0">
+        <FindReplaceDialog state={finalDialogState} isSuccess={stepFeedback === 'correct'} />
+        {displayedGridState && (
+            <CreateTableDialog
+                isVisible={!!finalDialogState.createTableDialogVisible}
+                isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
+                range={getSelectionRangeString(displayedGridState.sheets[displayedGridState.activeSheetIndex].selection!)}
+            />
+        )}
+        <GoToDialog
+            isVisible={!!finalDialogState.goToDialogVisible}
+            reference={finalDialogState.goToDialogReference || ''}
+            isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
+            isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
+        />
+        <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
+        <FormatCellsDialog state={finalDialogState} />
+        <FilterDropdown state={finalDialogState} />
+        <FillColorDropdown state={finalDialogState} />
+        <PasteSpecialDialog state={finalDialogState} />
         <div className="flex-1 overflow-y-auto p-6">
           <div className="grid md:grid-cols-2 gap-12 items-start">
                {displayedGridState && (
-                  <div className="max-w-md mx-auto relative">
-                      <FindReplaceDialog state={finalDialogState} isSuccess={stepFeedback === 'correct'} />
-                      <CreateTableDialog
-                          isVisible={!!finalDialogState.createTableDialogVisible}
-                          isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
-                          range={getSelectionRangeString(displayedGridState?.sheets[displayedGridState.activeSheetIndex].selection!)}
-                      />
-                      <GoToDialog
-                          isVisible={!!finalDialogState.goToDialogVisible}
-                          reference={finalDialogState.goToDialogReference || ''}
-                          isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
-                          isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
-                      />
-                      <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
-                      <FormatCellsDialog state={finalDialogState} />
-                      <FilterDropdown state={finalDialogState} />
-                      <FillColorDropdown state={finalDialogState} />
-                      <PasteSpecialDialog state={finalDialogState} />
+                  <div className="max-w-md mx-auto">
                       <VisualGrid
                           gridState={displayedGridState}
                           cellStyles={displayedCellStyles}
