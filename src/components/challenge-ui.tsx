@@ -364,25 +364,29 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         </div>
     </CardHeader>
     <CardContent className="flex-1 relative flex flex-col border-t pt-0">
-      <FindReplaceDialog state={finalDialogState} isSuccess={feedback === 'correct'} />
-      {displayedGridState && (
-          <CreateTableDialog
-              isVisible={!!finalDialogState.createTableDialogVisible}
-              isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
-              range={getSelectionRangeString(displayedGridState.sheets[displayedGridState.activeSheetIndex].selection!)}
+      <div className="absolute inset-y-0 left-0 right-0 md:right-1/2 pointer-events-none">
+        <div className="relative w-full h-full pointer-events-auto">
+          <FindReplaceDialog state={finalDialogState} isSuccess={feedback === 'correct'} />
+          {displayedGridState && (
+              <CreateTableDialog
+                  isVisible={!!finalDialogState.createTableDialogVisible}
+                  isHighlighted={finalDialogState.createTableDialogHighlightedButton === 'ok'}
+                  range={getSelectionRangeString(displayedGridState.sheets[displayedGridState.activeSheetIndex].selection!)}
+              />
+          )}
+          <GoToDialog
+              isVisible={!!finalDialogState.goToDialogVisible}
+              reference={finalDialogState.goToDialogReference || ''}
+              isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
+              isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
           />
-      )}
-      <GoToDialog
-          isVisible={!!finalDialogState.goToDialogVisible}
-          reference={finalDialogState.goToDialogReference || ''}
-          isOkHighlighted={finalDialogState.goToDialogHighlightedButton === 'ok'}
-          isInputHighlighted={!!finalDialogState.goToDialogHighlightedInput}
-      />
-      <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
-      <FormatCellsDialog state={finalDialogState} />
-      <FilterDropdown state={finalDialogState} />
-      <FillColorDropdown state={finalDialogState} />
-      <PasteSpecialDialog state={finalDialogState} />
+          <SortDialog isVisible={!!finalDialogState.sortDialogVisible} />
+          <FormatCellsDialog state={finalDialogState} />
+          <FilterDropdown state={finalDialogState} />
+          <FillColorDropdown state={finalDialogState} />
+          <PasteSpecialDialog state={finalDialogState} />
+        </div>
+      </div>
       <div className="flex-1 overflow-y-auto p-2 sm:p-3">
         <div className="grid md:grid-cols-2 gap-4 items-start">
           <div className="flex flex-col gap-4 min-w-0">
