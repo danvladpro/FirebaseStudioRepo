@@ -16,7 +16,7 @@ export function SortDialog({ isVisible }: SortDialogProps) {
   }
 
   return (
-    <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] bg-background shadow-2xl z-30 border">
+    <Card className="absolute top-8 left-1/2 -translate-x-1/2 w-[380px] bg-background shadow-2xl z-30 border">
       <CardHeader className="p-1.5 pl-2.5 border-b">
         <CardTitle className="text-sm font-medium">Sort</CardTitle>
       </CardHeader>

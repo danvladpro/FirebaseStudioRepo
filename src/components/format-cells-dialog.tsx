@@ -29,7 +29,7 @@ export function FormatCellsDialog({ state }: FormatCellsDialogProps) {
   const highlightedCategoryIndex = state.formatCellsDialogHighlightedCategoryIndex ?? 0;
 
   return (
-    <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] bg-background shadow-2xl z-30 border">
+    <Card className="absolute top-8 left-1/2 -translate-x-1/2 w-[400px] bg-background shadow-2xl z-30 border">
       <CardHeader className="flex flex-row items-center justify-between p-2 pl-4 bg-muted/50 rounded-t-lg border-b">
         <CardTitle className="text-sm font-medium">Format Cells</CardTitle>
         <Button variant="ghost" size="icon" className="h-6 w-6">

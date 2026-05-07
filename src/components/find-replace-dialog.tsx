@@ -44,7 +44,7 @@ export function FindReplaceDialog({ state, isSuccess = false }: FindReplaceDialo
   };
 
   return (
-    <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] bg-background shadow-2xl z-30 border">
+    <Card className="absolute top-8 left-1/2 -translate-x-1/2 w-[360px] bg-background shadow-2xl z-30 border">
       <CardHeader className="flex flex-row items-center justify-between p-2 pl-4 bg-muted/50 rounded-t-lg border-b cursor-move">
         <CardTitle className="text-sm font-medium">Find and Replace</CardTitle>
         <Button variant="ghost" size="icon" className={cn('h-6 w-6', getButtonClass('close'))}>
