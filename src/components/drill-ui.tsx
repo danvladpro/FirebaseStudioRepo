@@ -387,6 +387,9 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                           } : null}
                           isAccentuating={stepFeedback === 'correct'}
                       />
+                      {(finalDialogState.isVisible || finalDialogState.createTableDialogVisible || finalDialogState.goToDialogVisible || finalDialogState.sortDialogVisible || finalDialogState.formatCellsDialogVisible || finalDialogState.filterDropdownVisible || finalDialogState.fillColorDropdownVisible || finalDialogState.pasteSpecialDialogVisible) && (
+                        <div className="absolute inset-0 bg-background/60 rounded pointer-events-none z-10" />
+                      )}
                   </div>
               )}
               <div className={cn(!displayedGridState && "md:col-span-2")}>

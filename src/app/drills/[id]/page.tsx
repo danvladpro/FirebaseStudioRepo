@@ -25,6 +25,7 @@ import { FilterDropdown } from "@/components/filter-dropdown";
 import { SortDialog } from "@/components/sort-dialog";
 import { FormatCellsDialog } from "@/components/format-cells-dialog";
 import { FillColorDropdown } from "@/components/fill-color-dropdown";
+import { PasteSpecialDialog } from "@/components/paste-special-dialog";
 
 
 export default function DrillPage({ params }: { params: { id: string } }) {
@@ -140,6 +141,7 @@ export default function DrillPage({ params }: { params: { id: string } }) {
                                   <FormatCellsDialog state={displayDialogState} />
                                   <FilterDropdown state={displayDialogState} />
                                   <FillColorDropdown state={displayDialogState} />
+                                  <PasteSpecialDialog state={displayDialogState} />
                                   <VisualGrid
                                      gridState={initialDisplayGridState}
                                      cellStyles={initialDisplayCellStyles}

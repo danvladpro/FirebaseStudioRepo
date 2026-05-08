@@ -20,23 +20,23 @@ export function CreateTableDialog({ isVisible, range, isHighlighted }: CreateTab
   }
 
   return (
-    <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] bg-background shadow-2xl z-20 border">
-      <CardHeader className="p-4 border-b">
-        <CardTitle className="text-base font-semibold">Create Table</CardTitle>
+    <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] bg-background shadow-2xl z-30 border">
+      <CardHeader className="p-1.5 pl-2.5 border-b">
+        <CardTitle className="text-sm font-medium">Create Table</CardTitle>
       </CardHeader>
-      <CardContent className="p-4 space-y-4">
-        <div className="grid w-full items-center gap-1.5">
-          <Label htmlFor="table-range">Where is the data for your table?</Label>
-          <Input type="text" id="table-range" value={range} readOnly className="bg-muted/30" />
+      <CardContent className="p-2.5 space-y-2">
+        <div className="grid w-full items-center gap-1">
+          <Label htmlFor="table-range" className="text-xs">Where is the data for your table?</Label>
+          <Input type="text" id="table-range" value={range} readOnly className="h-7 text-xs bg-muted/30" />
         </div>
         <div className="flex items-center space-x-2">
             <Checkbox id="has-headers" defaultChecked />
-            <Label htmlFor="has-headers" className='font-normal'>My table has headers</Label>
+            <Label htmlFor="has-headers" className='font-normal text-xs'>My table has headers</Label>
         </div>
       </CardContent>
-      <CardFooter className="p-4 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
-        <Button variant="outline" size="sm">Cancel</Button>
-        <Button variant="default" size="sm" className={cn(isHighlighted && 'ring-2 ring-accent')}>
+      <CardFooter className="py-1.5 px-2.5 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
+        <Button variant="outline" size="sm" className="h-6 px-2 text-xs">Cancel</Button>
+        <Button variant="default" size="sm" className={cn('h-6 px-2 text-xs', isHighlighted && 'ring-2 ring-accent')}>
             OK
         </Button>
       </CardFooter>

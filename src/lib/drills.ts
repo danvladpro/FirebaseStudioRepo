@@ -173,9 +173,9 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   pasteWelcome: { description: 'Paste', keys: ['control', 'v'], iconName: 'ClipboardPaste', gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Welcome' } } },
   
   pasteSpecial: { description: 'Paste values', keys: ['control', 'alt', 'v'], iconName: 'ClipboardSignature' , dialogEffect: { action: 'SHOW_PASTE_SPECIAL_DIALOG' } },
-  pasteSpecialSelectValues: { description: "Select 'Values' to paste", keys: ["v"], isSequential: true, iconName: "Baseline", dialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Values' } },
-  pasteSpecialConfirm: { description: "Confirm Paste Special", keys: ["enter"], iconName: "Check", dialogEffect: { action: 'HIDE_PASTE_SPECIAL_DIALOG' }, gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Pasted Value' } } },
-  pasteSpecialConfirmBigTable: { description: "Confirm Paste Special", keys: ["enter"], iconName: "Check", dialogEffect: { action: 'HIDE_PASTE_SPECIAL_DIALOG' }, gridEffect: { action: 'PASTE_MULTIPLE_VALUES', payload: { value: bigTable } } },
+  pasteSpecialSelectValues: { description: "Select 'Values' to paste", keys: ["v"], isSequential: true, iconName: "Baseline", previewDialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Values' }, dialogEffect: { action: 'SELECT_PASTE_SPECIAL_OPTION', payload: 'Values' } },
+  pasteSpecialConfirm: { description: "Confirm Paste Special", keys: ["enter"], iconName: "Check", previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'ok' }, dialogEffect: { action: 'HIDE_PASTE_SPECIAL_DIALOG' }, gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Pasted Value' } } },
+  pasteSpecialConfirmBigTable: { description: "Confirm Paste Special", keys: ["enter"], iconName: "Check", previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'ok' }, dialogEffect: { action: 'HIDE_PASTE_SPECIAL_DIALOG' }, gridEffect: { action: 'PASTE_MULTIPLE_VALUES', payload: { value: bigTable } } },
 
   cut: { description: 'Cut value', keys: ['control', 'x'], iconName: 'Scissors', gridEffect: { action: 'CUT' } },
   deleteContent: { description: 'Delete content', keys: ['delete'], iconName: 'Trash2', gridEffect: { action: 'DELETE_CONTENT' } },
@@ -275,7 +275,7 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   openReplace: { description: 'Open Replace dialog', keys: ['control', 'h'], iconName: 'Replace', dialogEffect: { action: 'SHOW', payload: { activeTab: 'replace' } }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   confirmReplace: { description: 'Confirm replacement', keys: ['enter'], iconName: 'Check', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replace' } },
   replaceAll: { description: 'Replace All', keys: ['alt','a'], isSequential: true, iconName: 'CheckCheck', previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'replaceAll' }, gridEffect: { action: 'PASTE_MULTIPLE_VALUES', payload: { values: [['Sales.North', 'Sales.South'], ['Profit.North', 'Profit.South']] } }  },
-  tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
+  tabToNext: { description: 'Tab to next field', keys: ['tab'], iconName: 'ArrowRight', previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' }, dialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   typeComma: { description: 'Type comma for "Find what"', keys: [','], iconName: 'Type', dialogEffect: { action: 'SET_FIND_VALUE', payload: ',' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'find' } },
   typePeriod: { description: 'Type period for "Replace with"', keys: ['.'], iconName: 'Type', dialogEffect: { action: 'SET_REPLACE_VALUE', payload: '.' }, previewDialogEffect: { action: 'HIGHLIGHT_INPUT', payload: 'replace' } },
   openSortDialog: { description: 'Sort menu', keys: ['alt', 'a','s', 's'], iconName: 'ArrowUpDown', isSequential: true, dialogEffect: { action: 'SHOW_SORT_DIALOG' } },
@@ -466,7 +466,7 @@ const drills: Drill[] = [
     name: 'Quick Replace',
     description: 'Learn the sequence to open Replace, enter values, and confirm.',
     repetitions: 12, mistakeLimit: 3,
-    initialGridState: createGridState([['Sales,North', 'Sales,South'], ['Profit,North', 'Profit,South']], 0, 0, 0),
+    initialGridState: createGridState([['Sales,North', 'Sales,South'], ['Profit,North', 'Profit,South'],['',''],['','']], 0, 0, 0),
     steps: ['openReplace', 'typeComma', 'tabToNext', 'typePeriod', 'replaceAll', 'closeDialog']
   },
 

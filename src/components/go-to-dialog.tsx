@@ -20,32 +20,32 @@ export function GoToDialog({ isVisible, reference, isOkHighlighted, isInputHighl
   }
 
   return (
-    <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] bg-background shadow-2xl z-20 border">
-      <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
-        <CardTitle className="text-base font-semibold">Go To</CardTitle>
+    <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] bg-background shadow-2xl z-30 border">
+      <CardHeader className="flex flex-row items-center justify-between p-1.5 pl-2.5 border-b">
+        <CardTitle className="text-sm font-medium">Go To</CardTitle>
         <Button variant="ghost" size="icon" className="h-6 w-6">
             <X className="h-4 w-4" />
         </Button>
       </CardHeader>
-      <CardContent className="p-4 space-y-4">
-        <div className="grid w-full items-center gap-1.5">
-          <Label htmlFor="goto-reference">Reference:</Label>
-          <Input 
-            type="text" 
-            id="goto-reference" 
-            value={reference} 
-            readOnly 
-            className={cn(isInputHighlighted && 'ring-2 ring-accent', 'bg-muted/30')} 
+      <CardContent className="p-2.5 space-y-2">
+        <div className="grid w-full items-center gap-1">
+          <Label htmlFor="goto-reference" className="text-xs">Reference:</Label>
+          <Input
+            type="text"
+            id="goto-reference"
+            value={reference}
+            readOnly
+            className={cn('h-7 text-xs', isInputHighlighted && 'ring-2 ring-accent', 'bg-muted/30')}
           />
         </div>
       </CardContent>
-      <CardFooter className="p-4 flex justify-between items-center border-t bg-muted/50 rounded-b-lg">
-        <Button variant="outline" size="sm">Special...</Button>
+      <CardFooter className="py-1.5 px-2.5 flex justify-between items-center border-t bg-muted/50 rounded-b-lg">
+        <Button variant="outline" size="sm" className="h-6 px-2 text-xs">Special...</Button>
         <div className="flex gap-2">
-            <Button variant="default" size="sm" className={cn(isOkHighlighted && 'ring-2 ring-accent')}>
+            <Button variant="default" size="sm" className={cn('h-6 px-2 text-xs', isOkHighlighted && 'ring-2 ring-accent')}>
                 OK
             </Button>
-            <Button variant="outline" size="sm">Cancel</Button>
+            <Button variant="outline" size="sm" className="h-6 px-2 text-xs">Cancel</Button>
         </div>
       </CardFooter>
     </Card>

@@ -16,43 +16,43 @@ export function SortDialog({ isVisible }: SortDialogProps) {
   }
 
   return (
-    <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] bg-background shadow-2xl z-20 border">
-      <CardHeader className="p-4 border-b">
-        <CardTitle className="text-base font-semibold">Sort</CardTitle>
+    <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] bg-background shadow-2xl z-30 border">
+      <CardHeader className="p-1.5 pl-2.5 border-b">
+        <CardTitle className="text-sm font-medium">Sort</CardTitle>
       </CardHeader>
-      <CardContent className="p-4 space-y-4">
+      <CardContent className="p-2.5 space-y-2">
         <div className="flex items-center justify-end space-x-2">
             <Checkbox id="has-headers" defaultChecked />
-            <Label htmlFor="has-headers" className='font-normal'>My data has headers</Label>
+            <Label htmlFor="has-headers" className='font-normal text-xs'>My data has headers</Label>
         </div>
-        <div className="border p-2 rounded-md space-y-2">
-            <div className="grid grid-cols-[auto_1fr_1fr_1fr] items-center gap-2">
-                <Label className="text-sm text-right">Sort by</Label>
+        <div className="border p-1.5 rounded-md space-y-1.5">
+            <div className="grid grid-cols-[auto_1fr_1fr_1fr] items-center gap-1.5">
+                <Label className="text-xs text-right">Sort by</Label>
                 <Select>
-                    <SelectTrigger><SelectValue placeholder="Column A" /></SelectTrigger>
+                    <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Column A" /></SelectTrigger>
                     <SelectContent><SelectItem value="A">Column A</SelectItem></SelectContent>
                 </Select>
                 <Select>
-                    <SelectTrigger><SelectValue placeholder="Cell Values" /></SelectTrigger>
+                    <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Cell Values" /></SelectTrigger>
                     <SelectContent><SelectItem value="values">Cell Values</SelectItem></SelectContent>
                 </Select>
                 <Select>
-                    <SelectTrigger><SelectValue placeholder="A to Z" /></SelectTrigger>
+                    <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="A to Z" /></SelectTrigger>
                     <SelectContent><SelectItem value="az">A to Z</SelectItem></SelectContent>
                 </Select>
             </div>
         </div>
-        <div className="flex gap-2">
-            <Button variant="outline" size="sm">Add Level</Button>
-            <Button variant="outline" size="sm">Delete Level</Button>
-            <Button variant="outline" size="sm">Copy Level</Button>
+        <div className="flex gap-1.5">
+            <Button variant="outline" size="sm" className="h-6 px-2 text-xs">Add Level</Button>
+            <Button variant="outline" size="sm" className="h-6 px-2 text-xs">Delete Level</Button>
+            <Button variant="outline" size="sm" className="h-6 px-2 text-xs">Copy Level</Button>
         </div>
       </CardContent>
-      <CardFooter className="p-4 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
-        <Button variant="outline" size="sm">Options...</Button>
+      <CardFooter className="py-1.5 px-2.5 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
+        <Button variant="outline" size="sm" className="h-6 px-2 text-xs">Options...</Button>
         <div className="flex-grow" />
-        <Button variant="default" size="sm">OK</Button>
-        <Button variant="outline" size="sm">Cancel</Button>
+        <Button variant="default" size="sm" className="h-6 px-2 text-xs">OK</Button>
+        <Button variant="outline" size="sm" className="h-6 px-2 text-xs">Cancel</Button>
       </CardFooter>
     </Card>
   );
