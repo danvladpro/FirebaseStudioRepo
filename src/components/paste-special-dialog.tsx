@@ -23,6 +23,7 @@ export function PasteSpecialDialog({ state }: PasteSpecialDialogProps) {
   }
 
   const activeOption = state.pasteSpecialDialogHighlightedOption || 'All';
+  const selectedOption = state.pasteSpecialDialogSelectedOption || 'All';
 
   return (
     <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] bg-background shadow-2xl z-30 border">
@@ -35,7 +36,7 @@ export function PasteSpecialDialog({ state }: PasteSpecialDialogProps) {
       <CardContent className="p-1.5 flex gap-2">
         <div className="flex-1">
             <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-0.5">Paste</h4>
-            <RadioGroup value={activeOption} className="space-y-0">
+            <RadioGroup value={selectedOption} className="space-y-0">
             {pasteOptions.map(option => (
                 <div key={option} className={cn("flex items-center space-x-1.5 py-px rounded-sm", activeOption === option && "bg-accent text-accent-foreground")}>
                     <RadioGroupItem value={option} id={`paste-${option}`} className="h-3 w-3" />
@@ -74,7 +75,7 @@ export function PasteSpecialDialog({ state }: PasteSpecialDialogProps) {
         </div>
       </CardContent>
       <CardFooter className="py-1.5 px-2.5 flex justify-end gap-2 border-t bg-muted/50 rounded-b-lg">
-        <Button variant="default" size="sm" className="h-6 px-2 text-xs">OK</Button>
+        <Button variant="default" size="sm" className={cn('h-6 px-2 text-xs', state.highlightedButton === 'ok' && 'ring-2 ring-accent')}>OK</Button>
         <Button variant="outline" size="sm" className="h-6 px-2 text-xs">Cancel</Button>
       </CardFooter>
     </Card>

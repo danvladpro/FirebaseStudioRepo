@@ -197,13 +197,19 @@ export const applyDialogEffect = (
         case 'SHOW_PASTE_SPECIAL_DIALOG':
             newState.pasteSpecialDialogVisible = true;
             newState.pasteSpecialDialogHighlightedOption = 'All';
+            newState.pasteSpecialDialogSelectedOption = 'All';
             break;
         case 'HIDE_PASTE_SPECIAL_DIALOG':
             newState.pasteSpecialDialogVisible = false;
             newState.pasteSpecialDialogHighlightedOption = null;
+            newState.pasteSpecialDialogSelectedOption = null;
             break;
         case 'MOVE_PASTE_SPECIAL_HIGHLIGHT':
             newState.pasteSpecialDialogHighlightedOption = effect.payload;
+            break;
+        case 'SELECT_PASTE_SPECIAL_OPTION':
+            newState.pasteSpecialDialogHighlightedOption = effect.payload;
+            newState.pasteSpecialDialogSelectedOption = effect.payload;
             break;
     }
     return newState;

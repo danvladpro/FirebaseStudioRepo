@@ -1,5 +1,5 @@
 
-import { ChallengeSet, ChallengeLevel, Challenge, GridState } from "./types";
+import { ChallengeSet, Challenge, GridState } from "./types";
 
 const singleStep = (challenge: Omit<Challenge, 'steps'> & { warningMessage?: string }): Challenge => ({
     ...challenge,
@@ -380,10 +380,10 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         initialGridState: createGridState(bigTable, 0, 2, 0),
         steps: [
           { description: "Open Paste Special dialog", keys: ["control", "alt", "v"], iconName: "ClipboardSignature", dialogEffect: { action: 'SHOW_PASTE_SPECIAL_DIALOG' } },
-          { description: "Select 'Formulas' to paste", keys: ["f"], isSequential: true, iconName: "Baseline", dialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Formulas' } },
-          { description: "Select 'Formats' to paste", keys: ["t"], isSequential: true, iconName: "Baseline", dialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Formats' } },
-          { description: "Select 'Values' to paste", keys: ["v"], isSequential: true, iconName: "Baseline", dialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Values' } },
-          { description: "Confirm Paste Special", keys: ["enter"], iconName: "Check", dialogEffect: { action: 'HIDE_PASTE_SPECIAL_DIALOG' }, gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Pasted Value' } } }
+          { description: "Select 'Formulas' to paste", keys: ["f"], isSequential: true, iconName: "Baseline", previewDialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Formulas' }, dialogEffect: { action: 'SELECT_PASTE_SPECIAL_OPTION', payload: 'Formulas' } },
+          { description: "Select 'Formats' to paste", keys: ["t"], isSequential: true, iconName: "Baseline", previewDialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Formats' }, dialogEffect: { action: 'SELECT_PASTE_SPECIAL_OPTION', payload: 'Formats' } },
+          { description: "Select 'Values' to paste", keys: ["v"], isSequential: true, iconName: "Baseline", previewDialogEffect: { action: 'MOVE_PASTE_SPECIAL_HIGHLIGHT', payload: 'Values' }, dialogEffect: { action: 'SELECT_PASTE_SPECIAL_OPTION', payload: 'Values' } },
+          { description: "Confirm Paste Special", keys: ["enter"], iconName: "Check", previewDialogEffect: { action: 'HIGHLIGHT_BUTTON', payload: 'ok' }, dialogEffect: { action: 'HIDE_PASTE_SPECIAL_DIALOG' }, gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value: 'Pasted Value' } } }
         ]
       },
       singleStep({ description: "Toggle Gridlines", keys: ["alt", "w", "v", "g"], iconName: "Grid3X3", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'TOGGLE_GRIDLINES' } }),

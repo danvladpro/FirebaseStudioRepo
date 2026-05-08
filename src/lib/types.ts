@@ -107,7 +107,7 @@ export interface FindReplaceDialogState {
   activeTab: 'find' | 'replace';
   findValue: string;
   replaceValue: string;
-  highlightedButton?: 'findNext' | 'replace' | 'replaceAll' | 'close' | null;
+  highlightedButton?: 'findNext' | 'replace' | 'replaceAll' | 'close' | 'ok' | null;
   highlightedInput?: 'find' | 'replace' | null;
   createTableDialogVisible?: boolean;
   createTableDialogHighlightedButton?: 'ok' | null;
@@ -126,6 +126,7 @@ export interface FindReplaceDialogState {
   fillColorDropdownHighlightedColor?: string | null;
   pasteSpecialDialogVisible?: boolean;
   pasteSpecialDialogHighlightedOption?: string | null;
+  pasteSpecialDialogSelectedOption?: string | null;
 }
 
 export type DialogEffectAction = 
@@ -159,7 +160,8 @@ export type DialogEffectAction =
   | 'MOVE_FILL_COLOR_HIGHLIGHT'
   | 'SHOW_PASTE_SPECIAL_DIALOG'
   | 'HIDE_PASTE_SPECIAL_DIALOG'
-  | 'MOVE_PASTE_SPECIAL_HIGHLIGHT';
+  | 'MOVE_PASTE_SPECIAL_HIGHLIGHT'
+  | 'SELECT_PASTE_SPECIAL_OPTION';
 
 export interface DialogEffect {
     action: DialogEffectAction;
