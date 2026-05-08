@@ -466,7 +466,7 @@ const drills: Drill[] = [
     name: 'Quick Replace',
     description: 'Learn the sequence to open Replace, enter values, and confirm.',
     repetitions: 12, mistakeLimit: 3,
-    initialGridState: createGridState([['Sales,North', 'Sales,South'], ['Profit,North', 'Profit,South']], 0, 0, 0),
+    initialGridState: createGridState([['Sales,North', 'Sales,South'], ['Profit,North', 'Profit,South'],['',''],['','']], 0, 0, 0),
     steps: ['openReplace', 'typeComma', 'tabToNext', 'typePeriod', 'replaceAll', 'closeDialog']
   },
 

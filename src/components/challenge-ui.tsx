@@ -395,6 +395,9 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                           } : null}
                           isAccentuating={isAccentuating}
                       />
+                      {(finalDialogState.isVisible || finalDialogState.createTableDialogVisible || finalDialogState.goToDialogVisible || finalDialogState.sortDialogVisible || finalDialogState.formatCellsDialogVisible || finalDialogState.filterDropdownVisible || finalDialogState.fillColorDropdownVisible || finalDialogState.pasteSpecialDialogVisible) && (
+                        <div className="absolute inset-0 bg-background/60 rounded pointer-events-none z-10" />
+                      )}
                   </div>
               )}
           </div>
