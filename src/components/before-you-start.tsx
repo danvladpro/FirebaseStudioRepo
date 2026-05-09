@@ -1,374 +1,488 @@
 "use client";
 
 import * as React from "react";
-import { X } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 
-type PanelId = "ctrl" | "alt" | "arrows" | "numbers" | "fn" | "special" | "nogo";
+type TabId = "nogo" | "ctrl" | "alt" | "arrows" | "numbers" | "fn" | "special";
+type AnimMode = "combo" | "sequence";
 
-interface Tile {
-  id: PanelId;
+interface Example {
+  keys: string[];
+  mode: AnimMode;
+  action: string;
+}
+
+interface Section {
   label: string;
-  sub: string;
-  warn?: boolean;
-  icon: React.ReactNode;
+  use: React.ReactNode;
+  examples: Example[];
 }
 
-function FourWayArrow() {
-  return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(3, 12px)",
-        gridTemplateRows: "repeat(3, 12px)",
-        fontSize: "13px",
-        lineHeight: 1,
-        textAlign: "center",
-        color: "currentColor",
-      }}
-    >
-      <span />
-      <span>↑</span>
-      <span />
-      <span>←</span>
-      <span style={{ fontSize: "7px", color: "#cbd5e1" }}>·</span>
-      <span>→</span>
-      <span />
-      <span>↓</span>
-      <span />
-    </div>
-  );
+interface NogoRow {
+  keys: string[];
+  browser: string;
+  excel: string;
 }
 
-const TILES: Tile[] = [
-  { id: "ctrl",    icon: <span className="text-lg leading-none">⌃</span>,                                    label: "Ctrl / Cmd",       sub: "Workhorse" },
-  { id: "alt",     icon: <span className="text-lg leading-none">⌥</span>,                                    label: "Alt Key",          sub: "Two modes" },
-  { id: "arrows",  icon: <FourWayArrow />,                                                                    label: "Arrow Keys",       sub: "Navigate" },
-  { id: "numbers", icon: <span className="font-mono font-black text-[11px] tracking-tight">123</span>,       label: "Number Keys",      sub: "Formatting" },
-  { id: "fn",      icon: <span className="font-mono font-black text-[11px] tracking-tight">F1–F12</span>,   label: "Function Keys",    sub: "F1 – F12" },
-  { id: "special", icon: <span className="text-lg leading-none">↵</span>,                                    label: "Esc · Enter · Tab",sub: "Confirm & cancel" },
-  { id: "nogo",    icon: <span className="text-lg leading-none">⚠</span>,                                   label: "No-go shortcuts",  sub: "Browser risk", warn: true },
-];
-
-// ── Shared sub-components ──
-
-function PanelShell({
-  icon,
-  title,
-  subtitle,
-  warn,
-  onClose,
-  children,
-}: {
-  icon: React.ReactNode;
+interface TabData {
+  id: TabId;
+  label: string;
   title: string;
-  subtitle: string;
-  warn?: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
+  sub: React.ReactNode;
+  sections?: Section[];
+  nogo?: NogoRow[];
+}
+
+// ── Sub-components ──
+
+function Kbd({ children, size = "sm" }: { children: React.ReactNode; size?: "sm" | "md" }) {
+  const d = size === "sm" ? { px: 6, h: 20, fs: 10.5 } : { px: 7, h: 24, fs: 11.5 };
   return (
-    <div className={cn("rounded-lg border overflow-hidden", warn ? "border-amber-300 bg-amber-50/50" : "border-border bg-muted/20")}>
-      <div className={cn("flex items-start gap-3 p-3 border-b", warn ? "border-amber-300 bg-amber-50" : "border-border bg-card")}>
-        <span className="text-lg leading-none mt-0.5 flex-shrink-0">{icon}</span>
-        <div className="flex-1 min-w-0">
-          <p className={cn("font-bold text-sm", warn && "text-orange-800")}>{title}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
-        </div>
-        <button onClick={onClose} className="text-muted-foreground hover:text-foreground flex-shrink-0 mt-0.5" aria-label="Close panel">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-      <div className="p-4 space-y-4">{children}</div>
-    </div>
+    <span style={{
+      display: "inline-flex", alignItems: "center", justifyContent: "center",
+      minWidth: d.h, height: d.h, padding: `0 ${d.px}px`,
+      borderRadius: 5, fontFamily: "ui-monospace, monospace",
+      fontSize: d.fs, fontWeight: 600,
+      border: "1px solid hsl(var(--border))", background: "white",
+      color: "hsl(var(--foreground))", boxShadow: "0 1px 0 hsl(var(--border))",
+      lineHeight: 1, whiteSpace: "nowrap" as const,
+    }}>{children}</span>
   );
 }
 
-function GroupLabel({ children }: { children: React.ReactNode }) {
+function AKbd({ children, active = false }: { children: React.ReactNode; active?: boolean }) {
   return (
-    <div className="flex items-center gap-2 mb-2.5">
-      <span className="bg-emerald-100 border border-emerald-300 text-emerald-800 font-black text-[10px] uppercase tracking-widest px-2 py-0.5 rounded whitespace-nowrap">
-        {children}
+    <span style={{
+      display: "inline-flex", alignItems: "center", justifyContent: "center",
+      minWidth: 20, height: 20, padding: "0 6px",
+      borderRadius: 5, fontFamily: "ui-monospace, monospace",
+      fontSize: 10.5, fontWeight: 600,
+      border: `1px solid ${active ? "hsl(142 76% 36%)" : "hsl(var(--border))"}`,
+      background: active ? "hsl(142 76% 36%)" : "white",
+      color: active ? "white" : "hsl(var(--foreground))",
+      boxShadow: active ? "0 0 0 3px rgba(22,163,74,0.2)" : "0 1px 0 hsl(var(--border))",
+      transform: active ? "scale(1.07) translateY(-1px)" : "scale(1) translateY(0px)",
+      lineHeight: 1, whiteSpace: "nowrap" as const,
+      transition: "background 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease",
+    }}>{children}</span>
+  );
+}
+
+function useExAnimation(mode: AnimMode, keyCount: number) {
+  const [phase, setPhase] = React.useState(-1);
+  React.useEffect(() => {
+    let raf: number;
+    let last = -2;
+    const tick = () => {
+      const now = performance.now();
+      let p: number;
+      if (mode === "sequence") {
+        const KEY = 520, PAUSE = 1100;
+        const cycle = KEY * keyCount + PAUSE;
+        const t = now % cycle;
+        p = t < KEY * keyCount ? Math.floor(t / KEY) : -1;
+      } else {
+        const t = now % 2300;
+        p = t < 320 ? 0 : -1;
+      }
+      if (p !== last) { last = p; setPhase(p); }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [mode, keyCount]);
+  return phase;
+}
+
+function AnimExRow({ ex }: { ex: Example }) {
+  const isSeq = ex.mode === "sequence";
+  const phase = useExAnimation(ex.mode, ex.keys.length);
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
+      <span style={{
+        fontFamily: "ui-monospace, monospace", fontSize: 9, fontWeight: 700,
+        letterSpacing: "0.1em", textTransform: "uppercase" as const,
+        color: "hsl(var(--muted-foreground))", flexShrink: 0,
+      }}>e.g.</span>
+      <span style={{
+        display: "inline-flex", alignItems: "center", gap: isSeq ? 4 : 3,
+        ...(isSeq ? {
+          padding: "2px 6px", borderRadius: 6,
+          background: "rgba(22,163,74,0.08)",
+          border: "1px dashed rgba(22,163,74,0.30)",
+        } : {}),
+      }}>
+        {ex.keys.map((k, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && (isSeq
+              ? (
+                <svg width={10} height={10} viewBox="0 0 10 10" aria-hidden
+                     style={{ color: "hsl(var(--muted-foreground))", flexShrink: 0, opacity: phase >= i ? 1 : 0.3, transition: "opacity 150ms" }}>
+                  <path d="M2 5h5M5 3l2 2-2 2" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )
+              : <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 11, fontFamily: "ui-monospace, monospace", fontWeight: 500 }}>+</span>
+            )}
+            <AKbd active={isSeq ? phase === i : phase === 0}>{k}</AKbd>
+          </React.Fragment>
+        ))}
       </span>
-      <span className="flex-1 h-px bg-border" />
+      <span style={{ color: "hsl(var(--muted-foreground))", fontFamily: "ui-monospace, monospace", fontSize: 11, flexShrink: 0 }}>→</span>
+      <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 12.5 }}>{ex.action}</span>
     </div>
   );
 }
 
-function ExampleGroup({ label, children }: { label: string; children: React.ReactNode }) {
+function NoGoKeys({ keys }: { keys: string[] }) {
   return (
-    <div className="mb-4 last:mb-0">
-      <GroupLabel>{label}</GroupLabel>
-      <div className="flex flex-wrap gap-1.5">{children}</div>
-    </div>
-  );
-}
-
-function Chip({ keys, action }: { keys: (string | React.ReactNode)[]; action: string }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border bg-card text-xs font-medium text-foreground">
-      {keys.map((k, i) => (
-        <kbd key={i} className="font-mono font-black text-[10px] bg-slate-800 text-slate-50 px-1.5 py-0.5 rounded">
-          {k}
-        </kbd>
-      ))}
-      <span className="text-muted-foreground text-[10px]">→</span>
-      <span className="text-foreground">{action}</span>
+    <span style={{ position: "relative", display: "inline-flex" }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+        {keys.map((k, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && (
+              <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 11, fontFamily: "ui-monospace, monospace", fontWeight: 500 }}>+</span>
+            )}
+            <Kbd size="sm">{k}</Kbd>
+          </React.Fragment>
+        ))}
+      </span>
+      <span style={{ position: "absolute", left: -2, right: -2, top: "50%", height: 1.5, background: "hsl(10 60% 50%)", opacity: 0.45, pointerEvents: "none" as const }} />
     </span>
   );
 }
 
-function TipBox({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex gap-2 items-start p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 leading-relaxed mt-1">
-      <span className="flex-shrink-0 mt-0.5">💡</span>
-      <span>{children}</span>
-    </div>
-  );
-}
+// ── Data ──
+// No-go is first so it's always the default tab on dashboard load.
 
-function NoGoCard({ shortcut, browserEffect, excelMeaning }: { shortcut: string; browserEffect: React.ReactNode; excelMeaning: string }) {
-  return (
-    <div className="flex rounded-lg border-[1.5px] border-red-200 bg-red-50 overflow-hidden">
-      <div className="w-1.5 bg-red-500 flex-shrink-0" />
-      <div className="p-2.5 flex-1">
-        <p className="text-sm font-black text-red-800 mb-1">
-          <kbd className="font-mono font-bold text-[11px] bg-red-600 text-white px-1.5 py-0.5 rounded mr-1">{shortcut}</kbd>
-        </p>
-        <div className="flex items-baseline gap-1.5 text-xs mt-1">
-          <span className="font-black text-[9px] uppercase tracking-wider bg-red-100 text-red-700 px-1.5 py-0.5 rounded flex-shrink-0">Browser</span>
-          <span className="text-foreground">{browserEffect}</span>
-        </div>
-        <div className="flex items-baseline gap-1.5 text-xs mt-1">
-          <span className="font-black text-[9px] uppercase tracking-wider bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded flex-shrink-0">In Excel</span>
-          <span className="text-muted-foreground">{excelMeaning}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Panel content per tile ──
-
-function PanelContent({ id, onClose }: { id: PanelId; onClose: () => void }) {
-  switch (id) {
-    case "ctrl":
-      return (
-        <PanelShell icon="⌃" title="Ctrl (Windows) / Cmd ⌘ (Mac)" subtitle="The workhorse modifier — nearly every shortcut starts here" onClose={onClose}>
-          <ExampleGroup label="Navigation">
-            <Chip keys={["Ctrl", "→"]} action="Jump to data edge in any direction" />
-            <Chip keys={["Ctrl", "Home"]} action="Jump to cell A1" />
-            <Chip keys={["Ctrl", "End"]} action="Jump to last used cell" />
-          </ExampleGroup>
-          <ExampleGroup label="Formatting">
-            <Chip keys={["Ctrl", "1"]} action="Open Format Cells dialog" />
-            <Chip keys={["Ctrl", "B"]} action="Bold" />
-          </ExampleGroup>
-          <ExampleGroup label="Everything Else">
-            <Chip keys={["Ctrl", "C"]} action="Copy" />
-            <Chip keys={["Ctrl", "Z"]} action="Undo" />
-            <Chip keys={["Ctrl", "Shift", "L"]} action="Toggle AutoFilter" />
-          </ExampleGroup>
-          <TipBox>On Mac, swap <strong>Ctrl</strong> for <strong>Cmd ⌘</strong> in almost every shortcut. Option ⌥ replaces Alt.</TipBox>
-        </PanelShell>
-      );
-
-    case "alt":
-      return (
-        <PanelShell icon="⌥" title="Alt Key — Two Modes, One Key" subtitle="Alt can walk through the ribbon step-by-step OR fire a direct shortcut" onClose={onClose}>
-          <ExampleGroup label="Ribbon Shortcuts — press one key at a time (Sequential)">
-            <Chip keys={["Alt", "then H", "then B"]} action="Add cell border" />
-            <Chip keys={["Alt", "then H", "then H"]} action="Highlight color" />
-            <Chip keys={["Alt", "then N", "then V"]} action="Insert PivotTable" />
-          </ExampleGroup>
-          <ExampleGroup label="Regular Shortcut Combos — hold Alt + press">
-            <Chip keys={["Alt", "="]} action="AutoSum" />
-            <Chip keys={["Alt", "Enter"]} action="New line inside cell" />
-            <Chip keys={["Alt", "F1"]} action="Insert chart" />
-          </ExampleGroup>
-          <ExampleGroup label="Opening Dropdowns">
-            <Chip keys={["Alt", "↓"]} action="Open dropdown / AutoFilter list in selected cell" />
-          </ExampleGroup>
-          <TipBox>
-            For ribbon shortcuts: press <strong>Alt alone first</strong> (release it), then tap letters one by one — do <em>not</em> hold them together. Key tips appear on the ribbon. Only works when you&apos;re <strong>not editing a cell</strong> — press Escape first if needed.
-          </TipBox>
-        </PanelShell>
-      );
-
-    case "arrows":
-      return (
-        <PanelShell icon={<FourWayArrow />} title="Arrow Keys — Navigation Powerhouse" subtitle="Alone, with Shift, or with Ctrl — each combination does something different" onClose={onClose}>
-          <ExampleGroup label="Basic Movement">
-            <Chip keys={["↑↓←→"]} action="Move one cell in any direction" />
-          </ExampleGroup>
-          <ExampleGroup label="Jump to Data Edge">
-            <Chip keys={["Ctrl", "→"]} action="Jump to last filled cell in that direction" />
-          </ExampleGroup>
-          <ExampleGroup label="Extend Selection">
-            <Chip keys={["Shift", "↑↓←→"]} action="Grow selection one cell at a time" />
-            <Chip keys={["Ctrl", "Shift", "↓"]} action="Extend selection to data edge" />
-          </ExampleGroup>
-          <ExampleGroup label="Navigate Menus & Dialogs">
-            <Chip keys={["↑↓"]} action="Move through dropdown options or list items" />
-            <Chip keys={["←→"]} action="Switch between tabs or expand/collapse options" />
-          </ExampleGroup>
-          <TipBox><strong>Ctrl+Shift+Arrow</strong> is essential for selecting entire columns of financial data instantly — no mouse needed.</TipBox>
-        </PanelShell>
-      );
-
-    case "numbers":
-      return (
-        <PanelShell icon="🔢" title="Number Keys — Mostly Formatting" subtitle="In shortcut combos, numbers almost always apply cell formatting" onClose={onClose}>
-          <ExampleGroup label="Formatting Shortcuts">
-            <Chip keys={["Ctrl", "1"]} action="Open Format Cells dialog" />
-            <Chip keys={["Ctrl", "Shift", "4"]} action="Currency format ($)" />
-            <Chip keys={["Ctrl", "Shift", "5"]} action="Percentage format (%)" />
-          </ExampleGroup>
-          <TipBox>If a shortcut challenge uses a number key, it&apos;s almost certainly formatting — think currency, percentage, or opening the Format Cells dialog.</TipBox>
-        </PanelShell>
-      );
-
-    case "fn":
-      return (
-        <PanelShell
-          icon={<span className="font-mono font-black text-[13px] tracking-tight">F1-12</span>}
-          title="Function Keys — Alone or in Combination"
-          subtitle="F1–F12 have specific Excel roles, and they multiply when paired with Shift, Ctrl, or Alt"
-          onClose={onClose}
-        >
-          <ExampleGroup label="Standalone">
-            <Chip keys={["F2"]} action="Edit active cell" />
-            <Chip keys={["F4"]} action="Repeat last action / toggle $A$1 reference" />
-            <Chip keys={["F9"]} action="Recalculate all formulas" />
-            <Chip keys={["F11"]} action="Create chart on new sheet" />
-          </ExampleGroup>
-          <ExampleGroup label="In Combination">
-            <Chip keys={["Shift", "F9"]} action="Recalculate active sheet only" />
-            <Chip keys={["Ctrl", "F2"]} action="Print Preview" />
-            <Chip keys={["Alt", "F1"]} action="Insert embedded chart" />
-            <Chip keys={["Shift", "F11"]} action="Insert new worksheet" />
-          </ExampleGroup>
-          <TipBox>On laptops, you may need to press <strong>Fn</strong> first to activate F-keys — check if your laptop uses F-keys or media keys by default.</TipBox>
-        </PanelShell>
-      );
-
-    case "special":
-      return (
-        <PanelShell icon="✓" title="Esc · Enter · Tab — Confirm, Exit & Navigate" subtitle="These keys control dialog windows, cell editing, and movement after data entry" onClose={onClose}>
-          <ExampleGroup label="Within Dialog Windows">
-            <Chip keys={["Tab"]} action="Move to the next field" />
-            <Chip keys={["Shift", "Tab"]} action="Move to the previous field" />
-            <Chip keys={["Enter"]} action="Confirm and apply dialog settings" />
-            <Chip keys={["Esc"]} action="Cancel and close without saving" />
-          </ExampleGroup>
-          <ExampleGroup label="Within Spreadsheet">
-            <Chip keys={["Enter"]} action="Confirm cell entry and move one row down" />
-            <Chip keys={["Tab"]} action="Confirm entry and move one cell right" />
-            <Chip keys={["Esc"]} action="Cancel cell edit and discard changes" />
-            <Chip keys={["Alt", "Enter"]} action="Add a new line within the same cell" />
-          </ExampleGroup>
-          <TipBox>Inside any dialog: use <strong>Tab / Shift+Tab</strong> to move between fields, <strong>Enter</strong> to confirm, and <strong>Esc</strong> to cancel without saving.</TipBox>
-        </PanelShell>
-      );
-
-    case "nogo":
-      return (
-        <PanelShell icon="🚫" title="No-Go Shortcuts — These Affect Your Browser!" subtitle="You're using Excel Ninja in a browser. These shortcuts trigger browser actions — not Excel." warn onClose={onClose}>
-          <div className="space-y-2">
-            <NoGoCard shortcut="Ctrl + W" browserEffect={<>Closes your tab — <strong>you lose all progress</strong></>} excelMeaning="Closes the current workbook" />
-            <NoGoCard shortcut="Ctrl + T" browserEffect="Opens a new browser tab" excelMeaning="Creates a table from your selected range" />
-            <NoGoCard shortcut="Ctrl + N" browserEffect="Opens a new browser window" excelMeaning="Creates a new workbook" />
-            <NoGoCard shortcut="F5" browserEffect={<>Reloads the page — <strong>you lose all progress</strong></>} excelMeaning="Opens the Go To dialog" />
-            <NoGoCard shortcut="Ctrl + R" browserEffect={<>Reloads the page — <strong>you lose all progress</strong></>} excelMeaning="Fill Right — copies the leftmost cell rightward" />
-          </div>
-          <div className="flex gap-2 items-start p-3 mt-2 bg-red-50 border-2 border-red-300 rounded-lg text-xs text-red-900 leading-relaxed">
-            <span className="flex-shrink-0 mt-0.5">⚠️</span>
-            <span>
-              You&apos;re using Excel Ninja in a browser. Shortcuts like Ctrl+W will trigger browser actions, not Excel ones — and you could{" "}
-              <strong className="text-red-600 uppercase tracking-wide">lose your progress</strong>. The tab system you see is part of the app — it&apos;s not a real Excel window.
-            </span>
-          </div>
-        </PanelShell>
-      );
-  }
-}
+const BYS_DATA: TabData[] = [
+  {
+    id: "nogo",
+    label: "No-go shortcuts",
+    title: "These hit your browser, not Excel",
+    sub: (
+      <>
+        You&apos;re using Excel Ninja in a browser. These combos are claimed by the browser before
+        Excel sees them — the tabs you see are part of the app, so{" "}
+        <Kbd size="sm">Ctrl</Kbd>&thinsp;+&thinsp;<Kbd size="sm">W</Kbd> will close the whole thing.
+      </>
+    ),
+    nogo: [
+      { keys: ["Ctrl", "W"], browser: "Closes the tab — you lose progress",  excel: "Closes the workbook" },
+      { keys: ["Ctrl", "T"], browser: "Opens a new browser tab",              excel: "Creates a table from selection" },
+      { keys: ["Ctrl", "N"], browser: "Opens a new browser window",           excel: "Creates a new workbook" },
+      { keys: ["F5"],        browser: "Reloads the page — you lose progress", excel: "Opens the Go To dialog" },
+      { keys: ["Ctrl", "R"], browser: "Reloads the page — you lose progress", excel: "Fill Right" },
+    ],
+  },
+  {
+    id: "ctrl",
+    label: "Ctrl / Cmd",
+    title: "The workhorse modifier",
+    sub: (
+      <>
+        Nearly every shortcut starts here. On Mac, swap <Kbd size="sm">Ctrl</Kbd> for{" "}
+        <Kbd size="sm">Cmd ⌘</Kbd>; <Kbd size="sm">Option ⌥</Kbd> replaces{" "}
+        <Kbd size="sm">Alt</Kbd>.
+      </>
+    ),
+    sections: [
+      {
+        label: "Navigation",
+        use: "Move fast through large sheets without ever touching the mouse.",
+        examples: [{ keys: ["Ctrl", "→"], mode: "combo", action: "Jump to data edge" }],
+      },
+      {
+        label: "Formatting",
+        use: "Open formatting controls and apply common styles instantly.",
+        examples: [{ keys: ["Ctrl", "1"], mode: "combo", action: "Format Cells dialog" }],
+      },
+      {
+        label: "Everything else",
+        use: "The fundamentals you already know from every other app.",
+        examples: [{ keys: ["Ctrl", "Z"], mode: "combo", action: "Undo" }],
+      },
+    ],
+  },
+  {
+    id: "alt",
+    label: "Alt key",
+    title: "Two modes, one key",
+    sub: (
+      <>
+        Press <Kbd size="sm">Alt</Kbd> alone first for ribbon mode — release, then tap letters one
+        by one. Or hold <Kbd size="sm">Alt</Kbd> with another key for a direct combo.
+      </>
+    ),
+    sections: [
+      {
+        label: "Ribbon mode",
+        use: (
+          <>
+            Press <Kbd size="sm">Alt</Kbd> and Excel overlays the next letter to press on every
+            ribbon button — no memorisation needed, just follow the cues.
+          </>
+        ),
+        examples: [{ keys: ["Alt", "H", "B"], mode: "sequence", action: "Add cell border" }],
+      },
+      {
+        label: "Direct combos",
+        use: "A handful of high-value combos worth knowing — held together, not in sequence.",
+        examples: [{ keys: ["Alt", "="], mode: "combo", action: "AutoSum" }],
+      },
+    ],
+  },
+  {
+    id: "arrows",
+    label: "Arrow keys",
+    title: "Navigation powerhouse",
+    sub: (
+      <>
+        Arrow keys alone, with <Kbd size="sm">⇧</Kbd>, or with{" "}
+        <Kbd size="sm">Ctrl</Kbd> — each combination does something different.
+      </>
+    ),
+    sections: [
+      {
+        label: "Move",
+        use: "Cell-by-cell or jump-to-edge — two speeds for the same direction.",
+        examples: [{ keys: ["Ctrl", "→"], mode: "combo", action: "Jump to last filled cell" }],
+      },
+      {
+        label: "Expand selection",
+        use: "Build selections without dragging — essential for large data ranges.",
+        examples: [{ keys: ["⇧", "↓"], mode: "combo", action: "Extend selection one cell down" }],
+      },
+    ],
+  },
+  {
+    id: "numbers",
+    label: "Number keys",
+    title: "Mostly formatting",
+    sub: "If a shortcut combo includes a number key, it's almost always applying a cell format.",
+    sections: [
+      {
+        label: "Formatting",
+        use: "Currency, percentages, dates — formatted with a single combo, no dialog needed.",
+        examples: [{ keys: ["Ctrl", "⇧", "5"], mode: "combo", action: "Apply percentage format" }],
+      },
+    ],
+  },
+  {
+    id: "fn",
+    label: "Function keys",
+    title: "F1 – F12",
+    sub: (
+      <>
+        F1–F12 each have specific Excel roles. On laptops, hold{" "}
+        <Kbd size="sm">Fn</Kbd> first if media keys are the default.
+      </>
+    ),
+    sections: [
+      {
+        label: "Standalone",
+        use: "Single-key power moves: edit a cell, repeat the last action, recalculate.",
+        examples: [{ keys: ["F4"], mode: "combo", action: "Repeat last action / toggle $A$1" }],
+      },
+      {
+        label: "Combo",
+        use: (
+          <>
+            F-keys paired with <Kbd size="sm">⇧</Kbd> or <Kbd size="sm">Ctrl</Kbd> — print
+            preview, new sheet, partial recalculate.
+          </>
+        ),
+        examples: [{ keys: ["⇧", "F11"], mode: "combo", action: "Insert new worksheet" }],
+      },
+    ],
+  },
+  {
+    id: "special",
+    label: "Esc · Enter · Tab",
+    title: "Confirm, cancel & navigate",
+    sub: (
+      <>
+        <Kbd size="sm">Esc</Kbd> cancels, <Kbd size="sm">↵</Kbd> confirms,{" "}
+        <Kbd size="sm">Tab</Kbd> moves — they behave slightly differently inside a dialog vs. the
+        spreadsheet.
+      </>
+    ),
+    sections: [
+      {
+        label: "In dialogs",
+        use: "Navigate every field and confirm or cancel — without ever reaching for the mouse.",
+        examples: [{ keys: ["Tab"], mode: "combo", action: "Move to next field" }],
+      },
+      {
+        label: "In the spreadsheet",
+        use: "The key you press to confirm an entry decides where the cursor goes next.",
+        examples: [{ keys: ["Tab"], mode: "combo", action: "Confirm entry, move 1 cell right" }],
+      },
+    ],
+  },
+];
 
 // ── Main component ──
 
 export function BeforeYouStart() {
-  const [activePanel, setActivePanel] = React.useState<PanelId | null>(null);
-
-  function toggle(id: PanelId) {
-    setActivePanel(prev => (prev === id ? null : id));
-  }
-
-  React.useEffect(() => {
-    if (!activePanel) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActivePanel(null);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activePanel]);
+  const [active, setActive] = React.useState<TabId>("nogo");
+  const item = BYS_DATA.find(d => d.id === active)!;
+  const isNogo = item.id === "nogo";
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
-        <div className="flex items-center gap-2.5">
-          <h2 className="text-base font-bold tracking-tight">Before you start</h2>
-          <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold text-[11px]">
-            7 key concepts
-          </Badge>
-        </div>
-        <span className="text-xs text-muted-foreground">Tap a tile to expand</span>
-      </CardHeader>
-      <CardContent className="p-4 pt-4">
-        {/* Tile grid */}
-        <div className="grid grid-cols-7 gap-2">
-          {TILES.map((tile) => (
-            <button
-              key={tile.id}
-              onClick={() => toggle(tile.id)}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1.5 py-3 px-1.5 min-h-[82px] rounded-lg border-2 text-center transition-all duration-150 select-none cursor-pointer",
-                tile.warn
-                  ? activePanel === tile.id
-                    ? "border-orange-500 bg-orange-50 shadow-[0_0_0_3px_rgba(249,115,22,0.2)]"
-                    : "border-amber-300 bg-amber-50 hover:border-orange-400 hover:shadow-md hover:-translate-y-0.5"
-                  : activePanel === tile.id
-                    ? "border-primary bg-primary/10 shadow-[0_0_0_3px_rgba(22,163,74,0.15)]"
-                    : "border-border bg-muted/40 hover:border-primary hover:bg-primary/5 hover:shadow-md hover:-translate-y-0.5"
-              )}
-            >
-              <span className={cn("leading-none", tile.warn ? "text-orange-700" : "text-foreground")}>
-                {tile.icon}
-              </span>
-              <div>
-                <div className={cn("text-[10px] font-bold leading-tight", tile.warn ? "text-orange-700" : "text-foreground")}>
-                  {tile.label}
-                </div>
-                <div className={cn("text-[9px] mt-0.5 leading-tight", tile.warn ? "text-amber-700" : "text-muted-foreground")}>
-                  {tile.sub}
-                </div>
-              </div>
-            </button>
-          ))}
+      <CardHeader className="p-4 pb-0 border-b-0">
+        {/* Title row */}
+        <div className="flex items-baseline justify-between gap-4 mb-4">
+          <h2 className="text-xl font-bold tracking-tight">Before you start</h2>
+          <span className="text-xs text-muted-foreground flex items-center gap-1.5 flex-shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+            7 keys you&apos;ll see everywhere
+          </span>
         </div>
 
-        {/* Expand panel */}
-        <div
-          style={{
-            maxHeight: activePanel ? "700px" : "0px",
-            opacity: activePanel ? 1 : 0,
-            overflow: "hidden",
-            transition: "max-height 0.3s ease, opacity 0.25s ease",
-            marginTop: activePanel ? "14px" : "0px",
-          }}
-        >
-          {activePanel && <PanelContent id={activePanel} onClose={() => setActivePanel(null)} />}
+        {/* Tab strip */}
+        <div role="tablist" className="flex flex-wrap border-b border-border">
+          {BYS_DATA.map((d, i) => {
+            const isActive = active === d.id;
+            return (
+              <button
+                key={d.id}
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActive(d.id)}
+                style={{
+                  position: "relative",
+                  background: "transparent",
+                  border: "none",
+                  padding: `10px ${i === 0 ? "13px 10px 0" : "13px"}`,
+                  paddingLeft: i === 0 ? 0 : undefined,
+                  fontFamily: "inherit",
+                  color: isActive ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  lineHeight: 1,
+                  transition: "color 120ms",
+                }}
+              >
+                {isActive && (
+                  <span style={{
+                    position: "absolute",
+                    left: i === 0 ? 0 : 8,
+                    right: 8,
+                    bottom: -1,
+                    height: 2,
+                    background: "hsl(142 76% 36%)",
+                    borderRadius: 2,
+                    zIndex: 1,
+                  }} />
+                )}
+                <span style={{
+                  fontFamily: "ui-monospace, monospace",
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: isActive ? "hsl(142 76% 36%)" : "hsl(var(--muted-foreground))",
+                  marginRight: 6,
+                  fontVariantNumeric: "tabular-nums",
+                }}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                {d.label}
+                {d.id === "nogo" && (
+                  <span style={{
+                    display: "inline-block", width: 5, height: 5, borderRadius: "50%",
+                    background: "hsl(10 75% 55%)", marginLeft: 6, verticalAlign: "middle",
+                  }} />
+                )}
+              </button>
+            );
+          })}
         </div>
+      </CardHeader>
+
+      <CardContent className="p-6">
+        <article>
+          <h3 className="text-2xl font-bold tracking-tight mb-2">{item.title}</h3>
+          <p className="text-sm leading-relaxed text-muted-foreground mb-6 max-w-prose">{item.sub}</p>
+
+          {/* Category cards — all tabs except no-go */}
+          {!isNogo && item.sections && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
+              {item.sections.map((g, gi) => (
+                <div key={gi} style={{
+                  position: "relative",
+                  padding: "18px 18px 16px 22px",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: 12,
+                  background: "hsl(var(--card))",
+                  display: "flex", flexDirection: "column", gap: 10,
+                }}>
+                  {/* left accent bar */}
+                  <span style={{
+                    position: "absolute", left: 0, top: 18, bottom: 18, width: 3,
+                    background: "hsl(142 76% 36%)", borderRadius: "0 3px 3px 0", opacity: 0.8,
+                  }} />
+                  <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                    <span style={{
+                      display: "inline-flex", alignItems: "center", justifyContent: "center",
+                      width: 22, height: 22, borderRadius: 6,
+                      background: "hsl(142 76% 95%)", color: "hsl(142 76% 25%)",
+                      fontFamily: "ui-monospace, monospace", fontSize: 10, fontWeight: 700,
+                      flexShrink: 0,
+                    }}>
+                      {String(gi + 1).padStart(2, "0")}
+                    </span>
+                    <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: "-0.015em" }}>{g.label}</span>
+                  </div>
+                  <div style={{ fontSize: 13.5, lineHeight: 1.5, opacity: 0.78 }}>{g.use}</div>
+                  <div style={{ marginTop: "auto", paddingTop: 10, borderTop: "1px dashed hsl(var(--border))", display: "flex", flexDirection: "column", gap: 7 }}>
+                    {g.examples.map((ex, ei) => (
+                      <AnimExRow key={ei} ex={ex} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* No-go table */}
+          {isNogo && item.nogo && (
+            <div style={{ border: "1px solid hsl(var(--border))", borderRadius: 12, overflow: "hidden", background: "hsl(var(--card))" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, tableLayout: "auto" }}>
+                <thead>
+                  <tr>
+                    {["Shortcut", "In your browser", "In Excel"].map((h, hi) => (
+                      <th key={h} style={{
+                        fontFamily: "ui-monospace, monospace", fontSize: 10.5, fontWeight: 700,
+                        letterSpacing: "0.1em", textTransform: "uppercase",
+                        color: "hsl(var(--muted-foreground))", textAlign: "left",
+                        padding: `14px ${hi === 2 ? 22 : 18}px 12px ${hi === 0 ? 22 : 18}px`,
+                        borderBottom: "1px solid hsl(var(--border))",
+                      }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {item.nogo.map((n, i) => (
+                    <tr key={i} style={{ borderBottom: i < item.nogo!.length - 1 ? "1px dashed hsl(var(--border))" : "none" }}>
+                      <td style={{ padding: "14px 18px 14px 22px", whiteSpace: "nowrap", verticalAlign: "middle" }}>
+                        <NoGoKeys keys={n.keys} />
+                      </td>
+                      <td style={{ padding: "14px 18px", lineHeight: 1.45, verticalAlign: "middle", color: "hsl(10 55% 40%)" }}>
+                        {n.browser}
+                      </td>
+                      <td style={{ padding: "14px 22px 14px 18px", lineHeight: 1.45, verticalAlign: "middle", color: "hsl(var(--muted-foreground))" }}>
+                        {n.excel}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </article>
       </CardContent>
     </Card>
   );
