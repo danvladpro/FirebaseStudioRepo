@@ -588,24 +588,20 @@ export function HomePageClient() {
 
                         return (
                             <div className="space-y-8">
-                                    <p className="text-sm font-bold text-muted-foreground">
-                                      XP: {completedXpForLevel} / {xpForLevel}
-                                    </p>
-                                    {/* Next Up */}
                                     {isLoaded && (() => {
                                         if (allItemsPassed) {
                                             return (
-                                                <div className="flex items-center gap-4 px-5 py-4 rounded-xl border border-emerald-400 bg-gradient-to-br from-emerald-100 via-teal-100 to-emerald-200 shadow-sm w-fit min-w-[320px]">
-                                                    <div className="w-11 h-11 rounded-xl bg-emerald-600 flex items-center justify-center shadow-md flex-shrink-0">
-                                                        <Trophy className="w-5 h-5 text-white" />
+                                                <div className="flex items-center gap-[18px] px-[22px] py-[18px] rounded-xl border border-emerald-100 bg-green-50 w-full">
+                                                    <div className="w-11 h-11 rounded-xl bg-white border border-emerald-100 flex items-center justify-center flex-shrink-0">
+                                                        <Trophy className="w-5 h-5 text-primary" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-0.5">Training Complete!</p>
-                                                        <p className="font-extrabold text-base tracking-tight">You&apos;ve fully completed the training plan!</p>
-                                                        <p className="text-xs text-emerald-700 opacity-80">Claim your well-deserved Certificate of Mastery.</p>
+                                                        <p className="text-[10.5px] font-bold text-primary uppercase tracking-[0.07em] mb-0.5">Training Complete!</p>
+                                                        <p className="font-extrabold text-[17px] tracking-tight leading-tight mb-0.5">You&apos;ve fully completed the training plan!</p>
+                                                        <p className="text-xs text-muted-foreground">Claim your well-deserved Certificate of Mastery.</p>
                                                     </div>
-                                                    <Button size="sm" className="flex-shrink-0 font-bold shadow-sm bg-emerald-600 hover:bg-emerald-700" onClick={() => setIsCertificateModalOpen(true)}>
-                                                        <Trophy className="w-3.5 h-3.5 mr-1" /> Claim Certificate
+                                                    <Button size="sm" className="flex-shrink-0 font-bold bg-primary hover:bg-primary/90 text-white" onClick={() => setIsCertificateModalOpen(true)}>
+                                                        <Trophy className="w-3.5 h-3.5 mr-1.5" /> Claim Certificate
                                                     </Button>
                                                 </div>
                                             );
@@ -613,17 +609,17 @@ export function HomePageClient() {
 
                                         if (isCurrentLevelCompleted && nextLevelName) {
                                             return (
-                                                <div className="flex items-center gap-4 px-5 py-4 rounded-xl border border-amber-300 bg-gradient-to-br from-amber-50 via-amber-100 to-orange-100 shadow-sm w-fit min-w-[320px]">
-                                                    <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center shadow-md flex-shrink-0">
-                                                        <Star className="w-5 h-5 text-white" />
+                                                <div className="flex items-center gap-[18px] px-[22px] py-[18px] rounded-xl border border-amber-100 bg-amber-50 w-full">
+                                                    <div className="w-11 h-11 rounded-xl bg-white border border-amber-100 flex items-center justify-center flex-shrink-0">
+                                                        <Star className="w-5 h-5 text-amber-500" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-[10px] font-bold text-amber-800 uppercase tracking-widest mb-0.5">Level Complete!</p>
-                                                        <p className="font-extrabold text-base tracking-tight">You&apos;ve completed {level}!</p>
-                                                        <p className="text-xs text-amber-700 opacity-80">Go to the <strong>{nextLevelName}</strong> level — it&apos;s still not 100% done!</p>
+                                                        <p className="text-[10.5px] font-bold text-amber-600 uppercase tracking-[0.07em] mb-0.5">Level Complete!</p>
+                                                        <p className="font-extrabold text-[17px] tracking-tight leading-tight mb-0.5">You&apos;ve completed {level}!</p>
+                                                        <p className="text-xs text-muted-foreground">Go to the <strong>{nextLevelName}</strong> level — it&apos;s still not 100% done!</p>
                                                     </div>
-                                                    <Button size="sm" className="flex-shrink-0 font-bold shadow-sm bg-amber-500 hover:bg-amber-600 text-white" onClick={() => { setActiveTrainingLevel(nextLevelName); sessionStorage.setItem('dashboardActiveTab', nextLevelName); }}>
-                                                        {nextLevelName} <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                                                    <Button size="sm" className="flex-shrink-0 font-bold bg-amber-500 hover:bg-amber-600 text-white" onClick={() => { setActiveTrainingLevel(nextLevelName); sessionStorage.setItem('dashboardActiveTab', nextLevelName); }}>
+                                                        {nextLevelName} <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                                                     </Button>
                                                 </div>
                                             );
@@ -631,20 +627,20 @@ export function HomePageClient() {
 
                                         if (!isCurrentLevelCompleted && nextItem && nextItemHref) {
                                             return (
-                                                <div className="flex items-center gap-4 px-5 py-4 rounded-xl border border-emerald-300 bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-200 shadow-sm w-fit min-w-[320px]">
-                                                    <div className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center shadow-md flex-shrink-0">
-                                                        <Zap className="w-5 h-5 text-white" />
+                                                <div className="flex items-center gap-[18px] px-[22px] py-[18px] rounded-xl border border-emerald-100 bg-green-50 w-full">
+                                                    <div className="w-11 h-11 rounded-xl bg-white border border-emerald-100 flex items-center justify-center flex-shrink-0">
+                                                        <Zap className="w-5 h-5 text-primary" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-0.5">Next Up</p>
-                                                        <p className="font-extrabold text-base tracking-tight truncate">{nextItem.name}</p>
-                                                        <p className="text-xs text-emerald-700 opacity-80">
+                                                        <p className="text-[10.5px] font-bold text-primary uppercase tracking-[0.07em] mb-0.5">Next up</p>
+                                                        <p className="font-extrabold text-[17px] tracking-tight leading-tight mb-0.5 truncate">{nextItem.name}</p>
+                                                        <p className="text-xs text-muted-foreground">
                                                             {nextIncompleteChallenge ? 'Challenge' : 'Drill'} · {level}
                                                         </p>
                                                     </div>
-                                                    <Button asChild size="sm" className="flex-shrink-0 font-bold shadow-sm">
+                                                    <Button asChild size="sm" className="flex-shrink-0 font-bold bg-primary hover:bg-primary/90 text-white">
                                                         <Link href={nextItemHref}>
-                                                            Start <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                                                            Start <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                                                         </Link>
                                                     </Button>
                                                 </div>
