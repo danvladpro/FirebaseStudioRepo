@@ -5,12 +5,14 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
+import { Checkbox } from "./ui/checkbox";
 import { Check, Loader2, Sparkles, Star, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "./auth-provider";
 import { toast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
 import { STRIPE_PRICES } from "@/lib/stripe-prices";
+import { LegalSheet } from "./legal-sheet";
 
 interface PremiumModalProps {
     isOpen: boolean;
@@ -20,6 +22,8 @@ interface PremiumModalProps {
 export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
     const [selectedPlan, setSelectedPlan] = useState<"one-week" | "lifetime">("lifetime");
     const [isLoading, setIsLoading] = useState(false);
+    const [termsAgreed, setTermsAgreed] = useState(false);
+    const [legalSheetOpen, setLegalSheetOpen] = useState(false);
     const { user } = useAuth();
 
     const handleCheckout = async () => {
@@ -72,6 +76,7 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
     };
 
     return (
+    <>
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
@@ -128,8 +133,31 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
                         </li>
                     </ul>
                 </div>
-                <div className="mt-6">
-                    <Button onClick={handleCheckout} className="w-full" size="lg" disabled={isLoading}>
+                <div className="mt-6 space-y-4">
+                    <div className="flex items-start gap-3">
+                        <Checkbox
+                            id="terms-agreed"
+                            checked={termsAgreed}
+                            onCheckedChange={(checked) => setTermsAgreed(checked === true)}
+                            className="mt-0.5"
+                        />
+                        <label htmlFor="terms-agreed" className="text-sm text-muted-foreground leading-snug cursor-pointer">
+                            I have read and agree to the{" "}
+                            <button
+                                type="button"
+                                onClick={() => setLegalSheetOpen(true)}
+                                className="underline text-foreground hover:text-primary transition-colors"
+                            >
+                                Terms &amp; Conditions and Privacy Policy
+                            </button>
+                        </label>
+                    </div>
+                    <Button
+                        onClick={handleCheckout}
+                        className="w-full"
+                        size="lg"
+                        disabled={isLoading || !termsAgreed}
+                    >
                         {isLoading ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
@@ -140,5 +168,8 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
                 </div>
             </DialogContent>
         </Dialog>
+
+        <LegalSheet isOpen={legalSheetOpen} onOpenChange={setLegalSheetOpen} />
+    </>
     );
 }
