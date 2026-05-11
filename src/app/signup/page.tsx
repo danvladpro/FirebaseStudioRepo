@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import Link from 'next/link';
@@ -19,6 +19,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -32,23 +33,37 @@ export default function SignupPage() {
       });
       return;
     }
+    if (password.length < 8) {
+      toast({
+        title: "Signup Failed",
+        description: "Password must be at least 8 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Create a user document in Firestore
+      await sendEmailVerification(user);
+
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         name: user.email?.split('@')[0] || 'User',
+        emailVerified: false,
       });
 
-      router.push('/survey');
+      sessionStorage.setItem('verifyEmailCooldownExpiry', String(Date.now() + 60_000));
+      router.push('/verify-email');
     } catch (error: any) {
-       toast({
+      toast({
         title: "Signup Failed",
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,8 +114,8 @@ export default function SignupPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full">
-              Create Account
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Creating account...' : 'Create Account'}
             </Button>
           </form>
         </CardContent>
