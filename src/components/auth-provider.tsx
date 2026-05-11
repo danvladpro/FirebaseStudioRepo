@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (loading) return;
 
-    const publicPages = ['/', '/login', '/signup', '/verify', '/auth-action'];
+    const publicPages = ['/', '/login', '/signup', '/verify', '/auth-action', '/checkout/success', '/checkout/cancel'];
     const isPublicPage = publicPages.includes(pathname);
     const isAuthPage = pathname === '/login' || pathname === '/signup';
 
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Rule 3: verified user sitting on /verify-email → move them along
     if (user && user.emailVerified && pathname === '/verify-email') {
-      router.push('/survey');
+      router.push('/dashboard');
       return;
     }
 
