@@ -227,6 +227,7 @@ export interface Subscription {
 export interface UserProfile {
   email: string;
   name?: string;
+  emailVerified?: boolean;
   subscription?: Subscription;
   performance?: UserStats;
   masteryCertificateId?: string | null;
