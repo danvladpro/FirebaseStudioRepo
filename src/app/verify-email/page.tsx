@@ -51,7 +51,7 @@ export default function VerifyEmailPage() {
     try {
       await user.reload();
       if (auth.currentUser?.emailVerified) {
-        router.push('/survey');
+        router.push('/dashboard');
       } else {
         toast({
           title: "Not verified yet",
@@ -73,15 +73,21 @@ export default function VerifyEmailPage() {
       sessionStorage.setItem(COOLDOWN_KEY, String(expiry));
       setCooldown(COOLDOWN_SECONDS);
       toast({ title: "Verification email sent", description: "Check your inbox." });
-    } catch (error: any) {
-      toast({ title: "Failed to resend", description: error.message, variant: "destructive" });
+    } catch (error) {
+      toast({ title: "Failed to resend", description: (error as Error).message, variant: "destructive" });
     }
   };
 
   const handleDifferentEmail = async () => {
-    await signOut(auth);
-    router.push('/signup');
+    try {
+      await signOut(auth);
+      router.push('/signup');
+    } catch {
+      toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
+    }
   };
+
+  if (!user) return null;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
