@@ -63,13 +63,6 @@ export default function AuthActionClient() {
         .then(async () => {
           await auth.currentUser?.reload();
           setPageState('verify-success');
-          setTimeout(() => {
-            if (auth.currentUser) {
-              router.push('/survey');
-            } else {
-              router.push('/login?verified=true');
-            }
-          }, 2000);
         })
         .catch((err: unknown) => {
           const code = (err as { code?: string }).code;
@@ -97,10 +90,22 @@ export default function AuthActionClient() {
     setPageState('unknown-mode');
   }, [mode, oobCode, router]);
 
+  useEffect(() => {
+    if (pageState !== 'verify-success') return;
+    const tid = setTimeout(() => {
+      router.push(auth.currentUser ? '/survey' : '/login?verified=true');
+    }, 2000);
+    return () => clearTimeout(tid);
+  }, [pageState, router]);
+
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       toast({ title: "Passwords don't match", variant: "destructive" });
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast({ title: "Password too short", description: "Use at least 8 characters.", variant: "destructive" });
       return;
     }
     if (!oobCode) return;
@@ -109,7 +114,13 @@ export default function AuthActionClient() {
       await confirmPasswordReset(auth, oobCode, newPassword);
       setPageState('reset-success');
     } catch (error: unknown) {
-      toast({ title: "Reset failed", description: (error as Error).message, variant: "destructive" });
+      const code = (error as { code?: string }).code;
+      if (code === 'auth/expired-action-code' || code === 'auth/invalid-action-code') {
+        setErrorMessage('This reset link has expired. Please request a new one.');
+        setPageState('reset-error');
+      } else {
+        toast({ title: "Reset failed", description: (error as Error).message, variant: "destructive" });
+      }
     } finally {
       setSubmitting(false);
     }
