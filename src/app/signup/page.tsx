@@ -33,6 +33,14 @@ export default function SignupPage() {
       });
       return;
     }
+    if (password.length < 8) {
+      toast({
+        title: "Signup Failed",
+        description: "Password must be at least 8 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -46,6 +54,7 @@ export default function SignupPage() {
         emailVerified: false,
       });
 
+      sessionStorage.setItem('verifyEmailCooldownExpiry', String(Date.now() + 60_000));
       router.push('/verify-email');
     } catch (error: any) {
       toast({

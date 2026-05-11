@@ -51,7 +51,7 @@ export default function VerifyEmailPage() {
     try {
       await user.reload();
       if (auth.currentUser?.emailVerified) {
-        router.push('/dashboard');
+        router.push('/survey');
       } else {
         toast({
           title: "Not verified yet",
