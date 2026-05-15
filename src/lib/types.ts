@@ -224,10 +224,18 @@ export interface Subscription {
 }
 
 
+export interface UserSurvey {
+  excelLevel: 'Never used' | 'Beginner' | 'Intermediate' | 'Advanced';
+  seniority: 'Intern' | 'Junior' | 'Associate' | 'Senior' | 'Manager' | 'Director' | 'C-Level';
+  field: 'Finance' | 'Marketing' | 'Analytics' | 'Sales' | 'Research' | 'Business' | 'Other';
+  missingKeys?: string[];
+}
+
 export interface UserProfile {
   email: string;
   name?: string;
   emailVerified?: boolean;
+  survey?: UserSurvey;
   subscription?: Subscription;
   performance?: UserStats;
   masteryCertificateId?: string | null;

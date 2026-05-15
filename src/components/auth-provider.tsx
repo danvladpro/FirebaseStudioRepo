@@ -77,6 +77,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    // Rule 2.5: verified user who hasn't completed the survey → /survey
+    if (user && user.emailVerified && !userProfile?.survey && pathname !== '/survey') {
+      router.push('/survey');
+      return;
+    }
+
     // Rule 3: verified user sitting on /verify-email → move them along
     if (user && user.emailVerified && pathname === '/verify-email') {
       router.push('/dashboard');
@@ -96,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // Rule 6: all other cases → render children (no redirect)
-  }, [user, loading, pathname, router]);
+  }, [user, userProfile, loading, pathname, router]);
 
   return (
     <AuthContext.Provider value={{ user, userProfile, isPremium, loading }}>
