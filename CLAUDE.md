@@ -250,10 +250,19 @@ NEXT_PUBLIC_APP_URL          # e.g. http://localhost:9002
 
 ---
 
-## Development Branch
+## Premium / Free Tier Access
 
-Active feature branch: `claude/add-claude-md-qa-agent-ZUVys`  
-All changes must be committed and pushed to this branch.
+The free tier exposes exactly two items, identified by hardcoded IDs:
+- **Free challenge**: `id: 'free-trial'` (`src/lib/challenges.ts`)
+- **Free drill**: `id: 'strikethrough-undo'` (`src/lib/drills.ts`)
+
+Locking logic is in `src/components/home-page-client.tsx` — `isChallengeLocked` (challenge cards) and the `nextIncompleteChallenge` / `nextIncompleteDrill` filters for the "Next Up" banner.
+
+**Go Premium button** — always use `variant="premium"` on the shadcn `Button`. Never use an inline `style` gradient. The `premium` variant (`src/components/ui/button.tsx`) applies `from-pink-500 via-red-500 to-yellow-500`.
+
+**`BeforeYouStart` component** (`src/components/before-you-start.tsx`) accepts:
+- `isPremium?: boolean` — blurs the content panel and shows a lock overlay when `false`
+- `onUpgradeClick?: () => void` — wire to `setIsPremiumModalOpen(true)` from the parent
 
 ---
 

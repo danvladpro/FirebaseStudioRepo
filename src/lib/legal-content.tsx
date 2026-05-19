@@ -5,16 +5,17 @@ export function LegalContent() {
       {/* ── TERMS & CONDITIONS ── */}
       <section>
         <h2 className="text-lg font-bold mb-4 pb-2 border-b">Terms &amp; Conditions</h2>
-        <p className="text-xs text-muted-foreground mb-6">Last updated: May 11, 2026</p>
+        <p className="text-xs text-muted-foreground mb-6">Last updated: 14 May 2026</p>
 
         <div className="space-y-6">
 
           <div>
             <h3 className="font-semibold mb-2">1. Acceptance of Terms</h3>
             <p>
-              By accessing or using Excel Ninja ("the Service"), you agree to be bound by
-              these Terms &amp; Conditions ("Terms"). If you do not agree, please do not use
-              the Service.
+              By creating an account or completing a purchase, you confirm that you have
+              read and agree to these Terms &amp; Conditions ("Terms") and our Privacy
+              Policy. If you do not agree, please do not use Excel Ninja ("the Service").
+              You must be at least 13 years old to use the Service.
             </p>
           </div>
 
@@ -129,16 +130,43 @@ export function LegalContent() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">7. Payment and Refunds</h3>
+            <h3 className="font-semibold mb-2">7. Payment and Pricing</h3>
             <p>
-              Payments are processed by Stripe, Inc. By completing a purchase you agree to
-              Stripe's terms of service. Refunds are handled through Stripe's standard
-              refund process. We do not process manual refunds outside of that process.
+              Your contract for the Service is with us. Payment is processed on our behalf
+              by Stripe, Inc. By submitting payment information you authorise Stripe to
+              charge the amount shown at checkout. All prices are displayed in the currency
+              indicated at checkout and are inclusive of any applicable VAT (BTW) unless
+              stated otherwise. We do not store your card details.
             </p>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">8. User Conduct</h3>
+            <h3 className="font-semibold mb-2">8. Right of Withdrawal (Consumers)</h3>
+            <p className="mb-2">
+              If you are a consumer resident in the European Union, you have a statutory
+              right to withdraw from your purchase within 14 days of contract conclusion,
+              without giving any reason, in accordance with Article 6:230o of the Dutch
+              Civil Code.
+            </p>
+            <p className="mb-2">
+              <span className="font-medium">Waiver for immediate access.</span>{" "}
+              Excel Ninja is a digital service provided immediately upon purchase. At
+              checkout you may expressly request immediate performance and acknowledge that
+              by doing so you lose your right of withdrawal once performance has begun. If
+              you tick this acknowledgement at checkout, your 14-day withdrawal right ends
+              when access is granted.
+            </p>
+            <p>
+              If you have not waived the withdrawal right and wish to withdraw within the
+              14-day period, contact us at{" "}
+              <span className="font-medium">[contact@excelninja.app]</span> with your order
+              reference. We will refund the full amount paid within 14 days of receiving
+              your notice, using the same payment method.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-2">9. User Conduct</h3>
             <p className="mb-2">You agree not to:</p>
             <ul className="space-y-1 list-disc pl-5">
               <li>Scrape, copy, or extract content from the Service by automated means</li>
@@ -152,34 +180,80 @@ export function LegalContent() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">9. Termination</h3>
+            <h3 className="font-semibold mb-2">10. Suspension and Termination</h3>
+            <p className="mb-2">
+              If we reasonably believe you have breached these Terms, we will normally
+              first contact you and give you an opportunity to correct the issue. We may
+              suspend or terminate your account immediately, without prior notice, only
+              in the case of a serious breach — for example, automated scraping,
+              reverse-engineering, fraudulent payment, or other unlawful use of the Service.
+            </p>
             <p>
-              We reserve the right to suspend or terminate your account at any time if we
-              reasonably believe you have violated these Terms, without prior notice and
-              without refund.
+              If we terminate your account for a reason that is not a serious breach, and
+              you have an active paid subscription, we will refund the unused portion of
+              your subscription on a pro-rata basis. We may also terminate accounts that
+              have been inactive for an extended period after giving you reasonable notice.
             </p>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">10. Governing Law</h3>
+            <h3 className="font-semibold mb-2">11. Limitation of Liability</h3>
+            <p>
+              To the maximum extent permitted by law, our total cumulative liability arising
+              out of or in connection with these Terms or your use of the Service shall not
+              exceed the total amount you have paid us for the Service in the twelve (12)
+              months preceding the event giving rise to the claim. We are not liable for
+              indirect, incidental, special, consequential, or punitive damages, or for loss
+              of profits, revenue, data, or goodwill. Nothing in these Terms limits or
+              excludes our liability for fraud, gross negligence, wilful misconduct, death
+              or personal injury caused by our negligence, or any other liability that
+              cannot be excluded or limited under mandatory applicable law.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-2">12. Governing Law and Jurisdiction</h3>
             <p>
               These Terms are governed by the laws of the Netherlands. Any dispute arising
-              from these Terms or your use of the Service shall be submitted to the exclusive
-              jurisdiction of the competent courts in the Netherlands.
+              from these Terms or your use of the Service shall be submitted to the
+              competent courts in the Netherlands. Nothing in this clause deprives a
+              consumer of the protection afforded by the mandatory provisions of the law of
+              their country of habitual residence, nor of their right to bring proceedings
+              before the courts of that country where allowed under applicable law.
             </p>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">11. Changes to These Terms</h3>
+            <h3 className="font-semibold mb-2">13. Online Dispute Resolution</h3>
+            <p>
+              The European Commission provides an online dispute resolution platform,
+              available at{" "}
+              <a
+                href="https://ec.europa.eu/consumers/odr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                ec.europa.eu/consumers/odr
+              </a>
+              . We are not obliged to participate in dispute resolution proceedings before a
+              consumer arbitration board.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-2">14. Changes to These Terms</h3>
             <p>
               We may update these Terms from time to time. The date at the top of this
-              section indicates when they were last updated. Continued use of the Service
-              after changes are posted constitutes your acceptance of the revised Terms.
+              section indicates when they were last updated. If a change materially affects
+              your rights, we will notify you by email or in-app before it takes effect.
+              Continued use of the Service after that date constitutes your acceptance of
+              the revised Terms.
             </p>
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">12. Contact</h3>
+            <h3 className="font-semibold mb-2">15. Contact</h3>
             <p>
               For questions about these Terms, contact us at:{" "}
               <span className="font-medium">[contact@excelninja.app]</span>
@@ -194,22 +268,35 @@ export function LegalContent() {
         <h2 className="text-lg font-bold mb-4 pb-2 border-b">
           Privacy Policy &amp; Cookie Notice
         </h2>
-        <p className="text-xs text-muted-foreground mb-6">Last updated: May 11, 2026</p>
+        <p className="text-xs text-muted-foreground mb-6">Last updated: 14 May 2026</p>
 
         <div className="space-y-6">
 
           <div>
             <h3 className="font-semibold mb-2">1. Who We Are</h3>
             <p>
-              Excel Ninja is operated by <span className="font-medium">[Your Name]</span>,
-              a sole trader (<em>eenmanszaak</em>) registered in the Netherlands, with
-              registered address at{" "}
-              <span className="font-medium">[Your Address, City, Netherlands]</span>. We
-              are the data controller for personal data collected through this Service.
+              Excel Ninja is operated by{" "}
+              <span className="font-medium">[Your full legal name]</span>, a sole trader
+              (<em>eenmanszaak</em>) registered in the Netherlands.
             </p>
+            <ul className="mt-2 space-y-1 list-none pl-0">
+              <li>
+                <span className="font-medium">KvK (Chamber of Commerce) number:</span>{" "}
+                <span className="font-medium">[KvK number]</span>
+              </li>
+              <li>
+                <span className="font-medium">BTW-id (VAT identification):</span>{" "}
+                <span className="font-medium">[NL000000000B00]</span>
+              </li>
+              <li>
+                <span className="font-medium">Contact email:</span>{" "}
+                <span className="font-medium">[contact@excelninja.app]</span>
+              </li>
+            </ul>
             <p className="mt-2">
-              For privacy-related matters, contact us at:{" "}
-              <span className="font-medium">[privacy@excelninja.app]</span>
+              We are the data controller for personal data collected through the Service.
+              For privacy-related matters, contact us at{" "}
+              <span className="font-medium">[privacy@excelninja.app]</span>.
             </p>
           </div>
 
@@ -240,8 +327,8 @@ export function LegalContent() {
               </li>
               <li>
                 <span className="font-medium">Technical data.</span>{" "}
-                Browser type, operating system, and IP address, collected automatically
-                when you visit the Service.
+                Browser type, operating system, and IP address (anonymised where used for
+                analytics), collected automatically when you visit the Service.
               </li>
             </ul>
           </div>
@@ -270,22 +357,29 @@ export function LegalContent() {
 
           <div>
             <h3 className="font-semibold mb-2">4. Who We Share Your Data With</h3>
+            <p className="mb-2">
+              We use the following processors. Each is bound by a data processing agreement
+              and processes your data only on our instructions.
+            </p>
             <ul className="space-y-2 list-none pl-0">
               <li>
-                <span className="font-medium">Stripe.</span>{" "}
-                Your payment information is processed by Stripe, Inc. Stripe is responsible
-                for the security of payment data under its own privacy policy.
+                <span className="font-medium">Stripe, Inc. (United States).</span>{" "}
+                Processes your payment to deliver the Service. Stripe is certified under the
+                EU-US Data Privacy Framework; transfers also rely on Standard Contractual
+                Clauses.
               </li>
               <li>
-                <span className="font-medium">Google Analytics.</span>{" "}
-                We use Google Analytics to collect anonymised usage statistics. Google may
-                process data outside the EEA under appropriate safeguards (Standard
-                Contractual Clauses).
+                <span className="font-medium">Google Firebase (Google LLC, United States).</span>{" "}
+                Provides authentication and database hosting. Google is certified under the
+                EU-US Data Privacy Framework; transfers also rely on Standard Contractual
+                Clauses.
               </li>
               <li>
-                <span className="font-medium">Google Firebase.</span>{" "}
-                Our authentication and database infrastructure is provided by Google
-                Firebase.
+                <span className="font-medium">Google Analytics (Google LLC, United States).</span>{" "}
+                If you consent to analytics cookies, we use Google Analytics with IP
+                anonymisation enabled and advertising features disabled, solely to
+                understand aggregate use of the Service. Same transfer safeguards as above
+                apply.
               </li>
               <li>
                 We do <span className="font-medium">not</span> sell your personal data to
@@ -300,7 +394,8 @@ export function LegalContent() {
               We retain your personal data for as long as your account is active. If you
               request deletion of your account, we will delete your personal data within 30
               days of receiving the request, except where retention is required by law (for
-              example, transaction records for tax purposes).
+              example, transaction records, which we retain for 7 years to comply with Dutch
+              tax obligations).
             </p>
           </div>
 
@@ -323,6 +418,10 @@ export function LegalContent() {
                 ("right to be forgotten")
               </li>
               <li>
+                <span className="font-medium">Restriction</span> — ask us to limit how we
+                process your data in certain circumstances
+              </li>
+              <li>
                 <span className="font-medium">Portability</span> — receive your data in a
                 structured, portable format
               </li>
@@ -340,7 +439,15 @@ export function LegalContent() {
               <span className="font-medium">[privacy@excelninja.app]</span>. You also have
               the right to lodge a complaint with the Dutch Data Protection Authority
               (Autoriteit Persoonsgegevens) at{" "}
-              <span className="font-medium">autoriteitpersoonsgegevens.nl</span>.
+              <a
+                href="https://autoriteitpersoonsgegevens.nl"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                autoriteitpersoonsgegevens.nl
+              </a>
+              .
             </p>
           </div>
 
@@ -355,9 +462,10 @@ export function LegalContent() {
               </li>
               <li>
                 <span className="font-medium">Analytics cookies.</span>{" "}
-                Used by Google Analytics to understand how visitors use the Service. These
-                are only placed with your consent, which you can provide or withdraw via the
-                cookie consent banner.
+                Used by Google Analytics (configured with IP anonymisation and without
+                advertising features) to understand how visitors use the Service. These are
+                only placed with your consent, which you can provide or withdraw via the
+                cookie banner or the cookie settings link.
               </li>
               <li>
                 We do <span className="font-medium">not</span> use advertising, tracking,
