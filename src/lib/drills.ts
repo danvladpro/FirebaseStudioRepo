@@ -121,6 +121,7 @@ const createMultiSheetGridState = (activeSheetIndex: number = 0): GridState => (
   clipboard: null,
 });
 
+
 // This is the new centralized repository of all possible drill steps.
 export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   // ----- Navigation
