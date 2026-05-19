@@ -212,6 +212,19 @@ Open a GitHub issue with:
 
 ## Environment Variables
 
+### Firebase Console Setup (required for email verification + password reset)
+
+After deploying, configure the action URL in Firebase Console → **Authentication** → **Templates**:
+
+| Template | Action URL |
+|---|---|
+| Email address verification | `https://<your-domain>/auth-action` |
+| Password reset | `https://<your-domain>/auth-action` |
+
+For local development, set both to `http://localhost:9002/auth-action`.
+
+Without this, verification and reset emails link to Firebase's default hosted page instead of the app.
+
 ```
 # Firebase (client)
 NEXT_PUBLIC_FIREBASE_API_KEY
@@ -237,10 +250,19 @@ NEXT_PUBLIC_APP_URL          # e.g. http://localhost:9002
 
 ---
 
-## Development Branch
+## Premium / Free Tier Access
 
-Active feature branch: `claude/add-claude-md-qa-agent-ZUVys`  
-All changes must be committed and pushed to this branch.
+The free tier exposes exactly two items, identified by hardcoded IDs:
+- **Free challenge**: `id: 'free-trial'` (`src/lib/challenges.ts`)
+- **Free drill**: `id: 'strikethrough-undo'` (`src/lib/drills.ts`)
+
+Locking logic is in `src/components/home-page-client.tsx` — `isChallengeLocked` (challenge cards) and the `nextIncompleteChallenge` / `nextIncompleteDrill` filters for the "Next Up" banner.
+
+**Go Premium button** — always use `variant="premium"` on the shadcn `Button`. Never use an inline `style` gradient. The `premium` variant (`src/components/ui/button.tsx`) applies `from-pink-500 via-red-500 to-yellow-500`.
+
+**`BeforeYouStart` component** (`src/components/before-you-start.tsx`) accepts:
+- `isPremium?: boolean` — blurs the content panel and shows a lock overlay when `false`
+- `onUpgradeClick?: () => void` — wire to `setIsPremiumModalOpen(true)` from the parent
 
 ---
 
@@ -268,3 +290,7 @@ There is no jest/vitest/playwright. Verification = `npm run typecheck` + dev ser
 - **Challenge realism** — every new challenge or drill scenario must be grounded in a real-world Excel use case (see Agent 5 / Content rules above).
 - **Platform parity** — Windows shortcuts are primary; macOS equivalents must be documented in the same challenge definition.
 - **Blue is off-palette** — never use `bg-blue-*` / `text-blue-*` for UI elements. Tip boxes and info callouts use `bg-emerald-50 border-emerald-200 text-emerald-800`.
+- **`previewDialogEffect` vs `dialogEffect`** — `previewDialogEffect` is what the UI shows *before* the key is pressed (the hint state); `dialogEffect` is what gets committed *after* success. Always set both on challenge steps that involve dialog interaction.
+- **Paste Special selection** — use `SELECT_PASTE_SPECIAL_OPTION` (sets both highlight + radio state) in `dialogEffect`, and `MOVE_PASTE_SPECIAL_HIGHLIGHT` in `previewDialogEffect`. Never use MOVE in dialogEffect for paste-special steps.
+- **Dialog sizing** — dialogs are constrained to the grid column. Standard widths: find-replace `w-360`, sort `w-380`, format-cells `w-400`, go-to / create-table / paste-special `w-300`. All top-aligned at `top-8`, all `z-30`.
+- **Dialog render locations** — any new dialog component must be added to all three render locations: `drill-ui.tsx`, `challenge-ui.tsx`, and `drills/[id]/page.tsx` (drill preview).

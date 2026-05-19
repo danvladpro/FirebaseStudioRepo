@@ -139,6 +139,19 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
   // ==========================================
   // LEVEL 1: APPRENTICE (Warp Speed)
   // ==========================================
+    {
+    id: "free-trial",
+    name: "Free Trial",
+    description: "Example of the shorcuts",
+    level: "Apprentice",
+    category: "General",
+    iconName: "DollarSign",
+    challenges: [
+      singleStep({ description: "Bold", keys: ["control", "b"], iconName: "Bold", gridEffect: { action: 'APPLY_STYLE_BOLD' }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({description: "Open Find dialog",keys: ["control", "f"],iconName: "Search",dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } }, initialGridState: createGridState(bigTable,0,2,0) }),
+      singleStep({ description: "Center align", keys: ["alt", "h", "a", "c"], iconName: "AlignCenter", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } }),
+    ],
+  },
   {
     id: "daily-basics",
     name: "Daily Basics",

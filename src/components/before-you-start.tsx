@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
 
 type TabId = "nogo" | "ctrl" | "alt" | "arrows" | "numbers" | "fn" | "special";
 type AnimMode = "combo" | "sequence";
@@ -323,7 +325,7 @@ const BYS_DATA: TabData[] = [
 
 // ── Main component ──
 
-export function BeforeYouStart() {
+export function BeforeYouStart({ isPremium = false, onUpgradeClick }: { isPremium?: boolean; onUpgradeClick?: () => void }) {
   const [active, setActive] = React.useState<TabId>("nogo");
   const item = BYS_DATA.find(d => d.id === active)!;
   const isNogo = item.id === "nogo";
@@ -400,7 +402,8 @@ export function BeforeYouStart() {
         </div>
       </CardHeader>
 
-      <CardContent className="p-6">
+      <div className="relative">
+      <CardContent className={`p-6${!isPremium ? " pointer-events-none select-none" : ""}`} style={!isPremium ? { filter: "blur(3px)", opacity: 0.55 } : undefined}>
         <article>
           <h3 className="text-2xl font-bold tracking-tight mb-2">{item.title}</h3>
           <p className="text-sm leading-relaxed text-muted-foreground mb-6 max-w-prose">{item.sub}</p>
@@ -484,6 +487,23 @@ export function BeforeYouStart() {
           )}
         </article>
       </CardContent>
+      {!isPremium && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/70 backdrop-blur-[2px] rounded-b-xl">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <p className="text-sm font-semibold text-foreground">Upgrade to access learning material</p>
+          <p className="text-xs text-muted-foreground">Premium members get full access to all guides.</p>
+          <Button
+            variant="premium"
+            className="font-bold shadow-lg mt-1"
+            onClick={onUpgradeClick}
+          >
+            <Sparkles className="mr-2 h-4 w-4" /> Go Premium
+          </Button>
+        </div>
+      )}
+      </div>
     </Card>
   );
 }

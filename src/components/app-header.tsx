@@ -18,17 +18,19 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { Crown, Settings, Clock, LifeBuoy, HelpCircle } from 'lucide-react';
+import { Crown, Settings, Clock, LifeBuoy, HelpCircle, ScrollText } from 'lucide-react';
 import React from 'react';
 import { EditProfileModal } from './edit-profile-modal';
 import { differenceInDays, formatDistanceToNow } from 'date-fns';
 import { SupportModal } from './support-modal';
+import { LegalSheet } from './legal-sheet';
 
 export function AppHeader() {
   const { user, userProfile, isPremium } = useAuth();
   const router = useRouter();
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = React.useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = React.useState(false);
+  const [isLegalSheetOpen, setIsLegalSheetOpen] = React.useState(false);
 
 
   const handleLogout = async () => {
@@ -76,6 +78,7 @@ export function AppHeader() {
     <>
       <EditProfileModal isOpen={isEditProfileModalOpen} onOpenChange={setIsEditProfileModalOpen} />
       <SupportModal isOpen={isSupportModalOpen} onOpenChange={setIsSupportModalOpen} />
+      <LegalSheet isOpen={isLegalSheetOpen} onOpenChange={setIsLegalSheetOpen} />
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-6">
@@ -144,6 +147,10 @@ export function AppHeader() {
                   <DropdownMenuItem onSelect={() => setIsSupportModalOpen(true)}>
                     <LifeBuoy className="mr-2 h-4 w-4" />
                     Contact Support
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setIsLegalSheetOpen(true)}>
+                    <ScrollText className="mr-2 h-4 w-4" />
+                    Terms &amp; Privacy
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>

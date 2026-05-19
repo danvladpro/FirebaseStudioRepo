@@ -457,7 +457,7 @@ export function HomePageClient() {
                 </Card>
             </aside>
             <section className="space-y-8">
-                <BeforeYouStart />
+                <BeforeYouStart isPremium={isPremium} onUpgradeClick={() => setIsPremiumModalOpen(true)} />
                 {/* Training path tab interface */}
                 <div>
                     {/* Tab header */}
@@ -564,7 +564,7 @@ export function HomePageClient() {
                                         {!isPremium && (
                                             <Button
                                                 className="font-bold shadow-lg"
-                                                style={{ background: 'linear-gradient(135deg, #7c3aed, #059669)' }}
+                                                variant="premium"
                                                 onClick={() => setIsPremiumModalOpen(true)}
                                             >
                                                 <Sparkles className="mr-2 h-4 w-4" /> Go Premium to unlock early
@@ -577,8 +577,14 @@ export function HomePageClient() {
 
                         const isCurrentLevelCompleted = levelCompletion[level as keyof typeof levelCompletion] ?? false;
                         const nextLevelName: ChallengeLevel | null = level === 'Apprentice' ? 'Master' : level === 'Master' ? 'Ninja' : null;
-                        const nextIncompleteChallenge = challengesForLevel.find(c => stats[c.id]?.bestScore !== 100);
-                        const nextIncompleteDrill = drillsForLevel.find(d => stats[d.id]?.bestScore !== 100);
+                        const nextIncompleteChallenge = challengesForLevel.find(c => {
+                            if (!isPremium && !isAdmin && c.id !== 'free-trial') return false;
+                            return stats[c.id]?.bestScore !== 100;
+                        });
+                        const nextIncompleteDrill = drillsForLevel.find(d => {
+                            if (!isPremium && !isAdmin && d.id !== 'strikethrough-undo') return false;
+                            return stats[d.id]?.bestScore !== 100;
+                        });
                         const nextItem = nextIncompleteChallenge || nextIncompleteDrill;
                         const nextItemHref = nextIncompleteChallenge
                             ? `/challenge/${nextIncompleteChallenge.id}`
@@ -647,6 +653,29 @@ export function HomePageClient() {
                                             );
                                         }
 
+                                        if (!isPremium && !isAdmin) {
+                                            return (
+                                                <div className="flex items-center gap-[18px] px-[22px] py-[18px] rounded-xl border border-amber-100 bg-amber-50 w-full">
+                                                    <div className="w-11 h-11 rounded-xl bg-white border border-amber-100 flex items-center justify-center flex-shrink-0">
+                                                        <Lock className="w-5 h-5 text-amber-500" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-[10.5px] font-bold text-amber-600 uppercase tracking-[0.07em] mb-0.5">Free content complete</p>
+                                                        <p className="font-extrabold text-[17px] tracking-tight leading-tight mb-0.5">You&apos;ve finished the free items!</p>
+                                                        <p className="text-xs text-muted-foreground">Upgrade to unlock all challenges, drills &amp; guides.</p>
+                                                    </div>
+                                                    <Button
+                                                        size="sm"
+                                                        className="flex-shrink-0 font-bold shadow-md"
+                                                        variant="premium"
+                                                        onClick={() => setIsPremiumModalOpen(true)}
+                                                    >
+                                                        <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Go Premium
+                                                    </Button>
+                                                </div>
+                                            );
+                                        }
+
                                         return null;
                                     })()}
 
@@ -665,7 +694,7 @@ export function HomePageClient() {
                                                 const isCompleted = bestScore === 100;
                                                 const isStarted = bestScore !== undefined && bestScore !== null && bestScore < 100;
                                                 const SetIcon = iconMap[set.iconName];
-                                                const isChallengeLocked = !isPremium && !isAdmin && set.id !== 'rapid-selection';
+                                                const isChallengeLocked = !isPremium && !isAdmin && set.id !== 'free-trial';
 
                                                 const actionLabel = isCompleted ? "Rechallenge" : isStarted ? "Retry" : "Begin";
 

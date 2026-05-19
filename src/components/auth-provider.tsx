@@ -61,18 +61,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (loading) return;
 
-    const publicPages = ['/', '/login', '/signup', '/verify'];
+    const publicPages = ['/', '/login', '/signup', '/verify', '/auth-action', '/checkout/success', '/checkout/cancel'];
     const isPublicPage = publicPages.includes(pathname);
     const isAuthPage = pathname === '/login' || pathname === '/signup';
 
+    // Rule 1: no user on protected page → login
     if (!user && !isPublicPage) {
       router.push('/login');
+      return;
     }
-    
-    if (user && isAuthPage) {
+
+    // Rule 2: unverified user trying to access anything except /verify-email and public pages
+    if (user && !user.emailVerified && pathname !== '/verify-email' && !isPublicPage) {
+      router.push('/verify-email');
+      return;
+    }
+
+    // Rule 2.5: verified user who hasn't completed the survey → /survey
+    if (user && user.emailVerified && !userProfile?.survey && pathname !== '/survey') {
+      router.push('/survey');
+      return;
+    }
+
+    // Rule 3: verified user sitting on /verify-email → move them along
+    if (user && user.emailVerified && pathname === '/verify-email') {
       router.push('/dashboard');
+      return;
     }
-  }, [user, loading, pathname, router]);
+
+    // Rule 4: logged-in verified user on /login or /signup → dashboard
+    if (user && user.emailVerified && isAuthPage) {
+      router.push('/dashboard');
+      return;
+    }
+
+    // Rule 5: logged-in UNverified user on /login or /signup → verify-email
+    if (user && !user.emailVerified && isAuthPage) {
+      router.push('/verify-email');
+      return;
+    }
+
+    // Rule 6: all other cases → render children (no redirect)
+  }, [user, userProfile, loading, pathname, router]);
 
   return (
     <AuthContext.Provider value={{ user, userProfile, isPremium, loading }}>
