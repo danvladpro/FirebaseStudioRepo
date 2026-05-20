@@ -153,7 +153,7 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
 
                 <CardContent className="py-5 px-6 md:px-8 text-center flex flex-col items-center">
 
-                    <div className="mb-3 w-full max-w-lg relative">
+                    <div className="mb-3 w-full max-w-lg relative text-left">
                         {initialGridState && (
                              <VisualGrid 
                                 gridState={initialDisplayGridState} 
