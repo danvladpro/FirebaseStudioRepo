@@ -1,12 +1,6 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'placehold.co', pathname: '/**' },
@@ -27,7 +21,7 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  devtools: true,
+  devtools: process.env.NODE_ENV === 'development',
 };
 
 export default nextConfig;

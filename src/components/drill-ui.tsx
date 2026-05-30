@@ -120,7 +120,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   const finishDrill = useCallback(() => {
     setLogicalStepIndex(drill.steps.length);
     if (user) {
-      updateUserPerformance({ uid: user.uid, setId: drill.id, time: 0, score: 100 }).catch(() => {
+      user.getIdToken().then(token => updateUserPerformance({ firebaseToken: token, setId: drill.id, time: 0, score: 100 })).catch(() => {
         toast({
           title: "Error Saving Progress",
           description: "Could not save your drill completion. Your progress may not be tracked.",
@@ -399,7 +399,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                   >
                       {drill.steps.map((stepId, index) => {
                           const step = ALL_DRILL_STEPS[stepId];
-                          const Icon = icons[step.iconName];
+                          const Icon = icons[step.iconName as keyof typeof icons] as React.ElementType | undefined;
                           const isStepActive = index === visualStepIndex;
                           const isStepCompleted = index < visualStepIndex;
                           const shortcutHint = currentRep === 0 ? formatKeysForDisplay(step, isMac) : '';

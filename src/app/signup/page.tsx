@@ -4,8 +4,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { auth } from '@/lib/firebase';
+import { createUserProfile } from '@/app/actions/create-user-profile';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,20 +48,24 @@ export default function SignupPage() {
 
       await sendEmailVerification(user);
 
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        name: user.email?.split('@')[0] || 'User',
-        emailVerified: false,
-      });
+      const token = await user.getIdToken();
+      await createUserProfile(token, user.email ?? '');
 
       sessionStorage.setItem('verifyEmailCooldownExpiry', String(Date.now() + 60_000));
       router.push('/verify-email');
     } catch (error: any) {
-      toast({
-        title: "Signup Failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      const code: string = error?.code ?? '';
+      let description = "Signup failed. Please try again.";
+      if (code === 'auth/email-already-in-use') {
+        description = "An account with this email already exists.";
+      } else if (code === 'auth/invalid-email') {
+        description = "Please enter a valid email address.";
+      } else if (code === 'auth/weak-password') {
+        description = "Password must be at least 6 characters.";
+      } else if (code === 'auth/network-request-failed') {
+        description = "Network error. Check your connection and try again.";
+      }
+      toast({ title: "Signup Failed", description, variant: "destructive" });
     } finally {
       setLoading(false);
     }

@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       setLoading(true);
       if (user) {
+        document.cookie = 'auth-present=1; path=/; SameSite=Strict';
         setUser(user);
         const userDocRef = doc(db, 'users', user.uid);
         const unsubscribeSnapshot = onSnapshot(userDocRef, (docSnap) => {
@@ -49,6 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
         return () => unsubscribeSnapshot();
       } else {
+        document.cookie = 'auth-present=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
         setUser(null);
         setUserProfile(null);
         setLoading(false);

@@ -597,81 +597,125 @@ export function HomePageClient() {
                                     {isLoaded && (() => {
                                         if (allItemsPassed) {
                                             return (
-                                                <div className="flex items-center gap-[18px] px-[22px] py-[18px] rounded-xl border border-emerald-100 bg-green-50 w-full">
-                                                    <div className="w-11 h-11 rounded-xl bg-white border border-emerald-100 flex items-center justify-center flex-shrink-0">
-                                                        <Trophy className="w-5 h-5 text-primary" />
+                                                <div className="grid grid-cols-[210px_1fr] rounded-xl overflow-hidden border border-emerald-200 shadow-sm">
+                                                    <div className="bg-primary px-[22px] py-6 flex flex-col justify-between gap-4 relative overflow-hidden">
+                                                        <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/[0.07] pointer-events-none" />
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-white/65 uppercase tracking-[0.1em] mb-1">Training Complete!</p>
+                                                            <p className="text-[19px] font-black text-white leading-tight tracking-tight">You&apos;ve mastered everything!</p>
+                                                        </div>
+                                                        <Button size="sm" className="self-start bg-white text-primary hover:bg-emerald-50 font-bold shadow-sm" onClick={() => setIsCertificateModalOpen(true)}>
+                                                            <Trophy className="w-3.5 h-3.5 mr-1.5" /> Claim Certificate
+                                                        </Button>
                                                     </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-[10.5px] font-bold text-primary uppercase tracking-[0.07em] mb-0.5">Training Complete!</p>
-                                                        <p className="font-extrabold text-[17px] tracking-tight leading-tight mb-0.5">You&apos;ve fully completed the training plan!</p>
-                                                        <p className="text-xs text-muted-foreground">Claim your well-deserved Certificate of Mastery.</p>
+                                                    <div className="bg-white px-6 py-5 flex flex-col justify-center gap-3">
+                                                        <p className="text-sm text-muted-foreground leading-relaxed">Claim your well-deserved Certificate of Mastery — you&apos;ve passed every challenge and drill.</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-emerald-50 border border-emerald-100 text-emerald-800">🏆 All levels complete</span>
+                                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-amber-50 border border-amber-200 text-amber-800">🎓 Certificate unlocked</span>
+                                                        </div>
                                                     </div>
-                                                    <Button size="sm" className="flex-shrink-0 font-bold bg-primary hover:bg-primary/90 text-white" onClick={() => setIsCertificateModalOpen(true)}>
-                                                        <Trophy className="w-3.5 h-3.5 mr-1.5" /> Claim Certificate
-                                                    </Button>
                                                 </div>
                                             );
                                         }
 
                                         if (isCurrentLevelCompleted && nextLevelName) {
                                             return (
-                                                <div className="flex items-center gap-[18px] px-[22px] py-[18px] rounded-xl border border-amber-100 bg-amber-50 w-full">
-                                                    <div className="w-11 h-11 rounded-xl bg-white border border-amber-100 flex items-center justify-center flex-shrink-0">
-                                                        <Star className="w-5 h-5 text-amber-500" />
+                                                <div className="grid grid-cols-[210px_1fr] rounded-xl overflow-hidden border border-amber-200 shadow-sm">
+                                                    <div className="bg-amber-500 px-[22px] py-6 flex flex-col justify-between gap-4 relative overflow-hidden">
+                                                        <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/[0.07] pointer-events-none" />
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-white/65 uppercase tracking-[0.1em] mb-1">Level Complete!</p>
+                                                            <p className="text-[19px] font-black text-white leading-tight tracking-tight">You&apos;ve completed {level}!</p>
+                                                        </div>
+                                                        <Button size="sm" className="self-start bg-white text-amber-600 hover:bg-amber-50 font-bold shadow-sm" onClick={() => { setActiveTrainingLevel(nextLevelName); sessionStorage.setItem('dashboardActiveTab', nextLevelName); }}>
+                                                            {nextLevelName} <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                                                        </Button>
                                                     </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-[10.5px] font-bold text-amber-600 uppercase tracking-[0.07em] mb-0.5">Level Complete!</p>
-                                                        <p className="font-extrabold text-[17px] tracking-tight leading-tight mb-0.5">You&apos;ve completed {level}!</p>
-                                                        <p className="text-xs text-muted-foreground">Go to the <strong>{nextLevelName}</strong> level — it&apos;s still not 100% done!</p>
+                                                    <div className="bg-white px-6 py-5 flex flex-col justify-center gap-3">
+                                                        <p className="text-sm text-muted-foreground leading-relaxed">Go to the <strong className="text-foreground">{nextLevelName}</strong> level — it&apos;s still not 100% done!</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-amber-50 border border-amber-200 text-amber-800">⚔️ {level} complete</span>
+                                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-emerald-50 border border-emerald-100 text-emerald-800">{nextLevelName} up next</span>
+                                                        </div>
+                                                        <div className="flex flex-col gap-1.5">
+                                                            <div className="flex justify-between text-xs text-muted-foreground font-semibold">
+                                                                <span>Level progress</span>
+                                                                <strong className="text-foreground">{completedDrillsForLevel} / {drillsForLevel.length} drills</strong>
+                                                            </div>
+                                                            <div className="h-[5px] bg-amber-50 border border-amber-100 rounded-full overflow-hidden">
+                                                                <div className="h-full rounded-full" style={{ width: `${drillsCompletePct}%`, background: 'linear-gradient(to right, #f59e0b, #fbbf24)' }} />
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <Button size="sm" className="flex-shrink-0 font-bold bg-amber-500 hover:bg-amber-600 text-white" onClick={() => { setActiveTrainingLevel(nextLevelName); sessionStorage.setItem('dashboardActiveTab', nextLevelName); }}>
-                                                        {nextLevelName} <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                                                    </Button>
                                                 </div>
                                             );
                                         }
 
                                         if (!isCurrentLevelCompleted && nextItem && nextItemHref) {
+                                            const xpReward = nextIncompleteChallenge
+                                                ? (XP_CONFIG[level as ChallengeLevel] || 0)
+                                                : DRILL_XP;
                                             return (
-                                                <div className="flex items-center gap-[18px] px-[22px] py-[18px] rounded-xl border border-emerald-100 bg-green-50 w-full">
-                                                    <div className="w-11 h-11 rounded-xl bg-white border border-emerald-100 flex items-center justify-center flex-shrink-0">
-                                                        <Zap className="w-5 h-5 text-primary" />
+                                                <div className="grid grid-cols-[210px_1fr] rounded-xl overflow-hidden border border-emerald-200 shadow-sm">
+                                                    <div className="bg-primary px-[22px] py-6 flex flex-col justify-between gap-4 relative overflow-hidden">
+                                                        <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/[0.07] pointer-events-none" />
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-white/65 uppercase tracking-[0.1em] mb-1">Next up</p>
+                                                            <p className="text-[19px] font-black text-white leading-tight tracking-tight">{nextItem.name}</p>
+                                                        </div>
+                                                        <Button asChild size="sm" className="self-start bg-white text-primary hover:bg-emerald-50 font-bold shadow-sm">
+                                                            <Link href={nextItemHref}>Start <ArrowRight className="w-3.5 h-3.5 ml-1.5" /></Link>
+                                                        </Button>
                                                     </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-[10.5px] font-bold text-primary uppercase tracking-[0.07em] mb-0.5">Next up</p>
-                                                        <p className="font-extrabold text-[17px] tracking-tight leading-tight mb-0.5 truncate">{nextItem.name}</p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {nextIncompleteChallenge ? 'Challenge' : 'Drill'} · {level}
-                                                        </p>
+                                                    <div className="bg-white px-6 py-5 flex flex-col gap-3">
+                                                        {(nextIncompleteChallenge?.description || nextIncompleteDrill?.description) && (
+                                                            <p className="text-sm text-muted-foreground leading-relaxed">{nextIncompleteChallenge?.description ?? nextIncompleteDrill?.description}</p>
+                                                        )}
+                                                        <div className="flex flex-col gap-2.5 mt-auto">
+                                                            <div className="flex flex-wrap gap-2">
+                                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-emerald-50 border border-emerald-100 text-emerald-800">
+                                                                    <Zap className="w-3 h-3" /> {nextIncompleteChallenge ? 'Challenge' : 'Drill'}
+                                                                </span>
+                                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-emerald-50 border border-emerald-100 text-emerald-800">{level}</span>
+                                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-amber-50 border border-amber-200 text-amber-800">+{xpReward} XP</span>
+                                                            </div>
+                                                            <div className="flex flex-col gap-1.5">
+                                                                <div className="flex justify-between text-xs text-muted-foreground font-semibold">
+                                                                    <span>Level progress</span>
+                                                                    <strong className="text-foreground">{completedDrillsForLevel} / {drillsForLevel.length} drills</strong>
+                                                                </div>
+                                                                <div className="h-[5px] bg-emerald-50 border border-emerald-100 rounded-full overflow-hidden">
+                                                                    <div className="h-full rounded-full" style={{ width: `${drillsCompletePct}%`, background: 'linear-gradient(to right, #059669, #34d399)' }} />
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <Button asChild size="sm" className="flex-shrink-0 font-bold bg-primary hover:bg-primary/90 text-white">
-                                                        <Link href={nextItemHref}>
-                                                            Start <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                                                        </Link>
-                                                    </Button>
                                                 </div>
                                             );
                                         }
 
                                         if (!isPremium && !isAdmin) {
                                             return (
-                                                <div className="flex items-center gap-[18px] px-[22px] py-[18px] rounded-xl border border-amber-100 bg-amber-50 w-full">
-                                                    <div className="w-11 h-11 rounded-xl bg-white border border-amber-100 flex items-center justify-center flex-shrink-0">
-                                                        <Lock className="w-5 h-5 text-amber-500" />
+                                                <div className="grid grid-cols-[210px_1fr] rounded-xl overflow-hidden border border-amber-200 shadow-sm">
+                                                    <div className="bg-amber-500 px-[22px] py-6 flex flex-col justify-between gap-4 relative overflow-hidden">
+                                                        <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/[0.07] pointer-events-none" />
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-white/65 uppercase tracking-[0.1em] mb-1">Free content complete</p>
+                                                            <p className="text-[19px] font-black text-white leading-tight tracking-tight">You&apos;ve finished the free items!</p>
+                                                        </div>
+                                                        <Button size="sm" variant="premium" className="self-start font-bold shadow-sm" onClick={() => setIsPremiumModalOpen(true)}>
+                                                            <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Go Premium
+                                                        </Button>
                                                     </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-[10.5px] font-bold text-amber-600 uppercase tracking-[0.07em] mb-0.5">Free content complete</p>
-                                                        <p className="font-extrabold text-[17px] tracking-tight leading-tight mb-0.5">You&apos;ve finished the free items!</p>
-                                                        <p className="text-xs text-muted-foreground">Upgrade to unlock all challenges, drills &amp; guides.</p>
+                                                    <div className="bg-white px-6 py-5 flex flex-col justify-center gap-3">
+                                                        <p className="text-sm text-muted-foreground leading-relaxed">Upgrade to unlock all challenges, drills &amp; guides.</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11.5px] font-bold bg-amber-50 border border-amber-200 text-amber-800">
+                                                                <Lock className="w-3 h-3" /> Premium content locked
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    <Button
-                                                        size="sm"
-                                                        className="flex-shrink-0 font-bold shadow-md"
-                                                        variant="premium"
-                                                        onClick={() => setIsPremiumModalOpen(true)}
-                                                    >
-                                                        <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Go Premium
-                                                    </Button>
                                                 </div>
                                             );
                                         }

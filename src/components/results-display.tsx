@@ -108,7 +108,7 @@ export default function ResultsDisplay() {
     
     const updatePerformance = async () => {
       try {
-        const result = await updateUserPerformance({ uid: user.uid, setId, time, score });
+        const result = await updateUserPerformance({ firebaseToken: await user.getIdToken(), setId, time, score });
         if (result.newBest) {
           setIsNewRecord(true);
         }

@@ -41,11 +41,21 @@ function LoginContent() {
         router.push('/dashboard');
       }
     } catch (error: any) {
-      toast({
-        title: "Login Failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      const code: string = error?.code ?? '';
+      let description = "Login failed. Please try again.";
+      if (
+        code === 'auth/invalid-credential' ||
+        code === 'auth/user-not-found' ||
+        code === 'auth/wrong-password' ||
+        code === 'auth/invalid-email'
+      ) {
+        description = "Invalid email or password.";
+      } else if (code === 'auth/too-many-requests') {
+        description = "Too many failed attempts. Please wait a moment and try again.";
+      } else if (code === 'auth/network-request-failed') {
+        description = "Network error. Check your connection and try again.";
+      }
+      toast({ title: "Login Failed", description, variant: "destructive" });
     } finally {
       setLoading(false);
     }
