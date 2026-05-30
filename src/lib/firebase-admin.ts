@@ -1,18 +1,27 @@
-
+import 'server-only';
 import admin from 'firebase-admin';
 
-const serviceAccount = JSON.parse(
-    process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string
-);
+let adminDb: ReturnType<typeof admin.firestore>;
+let adminAuth: ReturnType<typeof admin.auth>;
 
 try {
+    if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+        throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set');
+    }
+
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+
     if (!admin.apps.length) {
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
         });
     }
-} catch (error: any) {
-    console.error('Firebase admin initialization error', error.stack);
+
+    adminDb = admin.firestore();
+    adminAuth = admin.auth();
+} catch (error) {
+    console.error('Firebase admin initialization error:', error);
+    throw error;
 }
 
-export const adminDb = admin.firestore();
+export { adminDb, adminAuth };
