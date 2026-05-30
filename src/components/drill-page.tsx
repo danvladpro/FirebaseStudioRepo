@@ -123,7 +123,10 @@ export default function DrillPage({ params }: { params: { id: string } }) {
                                   <CreateTableDialog
                                     isVisible={!!displayDialogState.createTableDialogVisible}
                                     isHighlighted={displayDialogState.createTableDialogHighlightedButton === 'ok'}
-                                    range={getSelectionRangeString(initialDisplayGridState?.sheets[initialDisplayGridState.activeSheetIndex]?.selection)}
+                                    range={getSelectionRangeString(
+                                        initialDisplayGridState?.sheets[initialDisplayGridState.activeSheetIndex]?.selection ??
+                                        { activeCell: { row: 0, col: 0 }, anchorCell: { row: 0, col: 0 } }
+                                    )}
                                   />
                                   <GoToDialog
                                     isVisible={!!displayDialogState.goToDialogVisible}

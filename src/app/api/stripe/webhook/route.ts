@@ -4,7 +4,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { addDays } from 'date-fns';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-09-30.clover' as any,
+  apiVersion: '2024-06-20',
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (err: any) {
     console.error(`❌ Webhook signature verification failed: ${err.message}`);
-    return NextResponse.json({ error: `Webhook error: ${err.message}` }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid webhook payload' }, { status: 400 });
   }
 
   try {

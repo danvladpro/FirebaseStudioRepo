@@ -399,7 +399,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                   >
                       {drill.steps.map((stepId, index) => {
                           const step = ALL_DRILL_STEPS[stepId];
-                          const Icon = icons[step.iconName];
+                          const Icon = icons[step.iconName as keyof typeof icons] as React.ElementType | undefined;
                           const isStepActive = index === visualStepIndex;
                           const isStepCompleted = index < visualStepIndex;
                           const shortcutHint = currentRep === 0 ? formatKeysForDisplay(step, isMac) : '';
