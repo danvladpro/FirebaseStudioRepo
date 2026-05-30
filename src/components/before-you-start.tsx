@@ -327,31 +327,55 @@ const BYS_DATA: TabData[] = [
 
 export function BeforeYouStart({ isPremium = false, onUpgradeClick }: { isPremium?: boolean; onUpgradeClick?: () => void }) {
   const [active, setActive] = React.useState<TabId>("nogo");
+  const [isOpen, setIsOpen] = React.useState(false);
   const item = BYS_DATA.find(d => d.id === active)!;
   const isNogo = item.id === "nogo";
+
+  function handleTabClick(id: TabId) {
+    if (!isOpen) {
+      setActive(id);
+      setIsOpen(true);
+    } else if (active === id) {
+      setIsOpen(false);
+    } else {
+      setActive(id);
+    }
+  }
 
   return (
     <Card>
       <CardHeader className="p-4 pb-0 border-b-0">
         {/* Title row */}
-        <div className="flex items-baseline justify-between gap-4 mb-4">
+        <button
+          onClick={() => setIsOpen(o => !o)}
+          className="flex items-center justify-between gap-4 mb-4 w-full text-left"
+          style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+        >
           <h2 className="text-xl font-bold tracking-tight">Before you start</h2>
           <span className="text-xs text-muted-foreground flex items-center gap-1.5 flex-shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
             7 keys you&apos;ll see everywhere
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ marginLeft: 4, transition: "transform 200ms", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
+              <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </span>
-        </div>
+        </button>
+
+        {/* Collapsed / expanded hint */}
+        <p className="text-xs text-muted-foreground mb-3 -mt-1">
+          {isOpen ? "Press the active tab to collapse." : "Select a tab below to explore the guide."}
+        </p>
 
         {/* Tab strip */}
         <div role="tablist" className="flex flex-wrap border-b border-border">
           {BYS_DATA.map((d, i) => {
-            const isActive = active === d.id;
+            const isActive = active === d.id && isOpen;
             return (
               <button
                 key={d.id}
                 role="tab"
                 aria-selected={isActive}
-                onClick={() => setActive(d.id)}
+                onClick={() => handleTabClick(d.id)}
                 style={{
                   position: "relative",
                   background: "transparent",
@@ -367,7 +391,7 @@ export function BeforeYouStart({ isPremium = false, onUpgradeClick }: { isPremiu
                   transition: "color 120ms",
                 }}
               >
-                {isActive && (
+                {isActive && isOpen && (
                   <span style={{
                     position: "absolute",
                     left: i === 0 ? 0 : 8,
@@ -383,7 +407,7 @@ export function BeforeYouStart({ isPremium = false, onUpgradeClick }: { isPremiu
                   fontFamily: "ui-monospace, monospace",
                   fontSize: 10,
                   fontWeight: 600,
-                  color: isActive ? "hsl(142 76% 36%)" : "hsl(var(--muted-foreground))",
+                  color: isActive && isOpen ? "hsl(142 76% 36%)" : "hsl(var(--muted-foreground))",
                   marginRight: 6,
                   fontVariantNumeric: "tabular-nums",
                 }}>
@@ -402,6 +426,7 @@ export function BeforeYouStart({ isPremium = false, onUpgradeClick }: { isPremiu
         </div>
       </CardHeader>
 
+      <div style={{ overflow: "hidden", maxHeight: isOpen ? 800 : 0, transition: "max-height 280ms ease" }}>
       <div className="relative">
       <CardContent className={`p-6${!isPremium ? " pointer-events-none select-none" : ""}`} style={!isPremium ? { filter: "blur(3px)", opacity: 0.55 } : undefined}>
         <article>
@@ -503,6 +528,7 @@ export function BeforeYouStart({ isPremium = false, onUpgradeClick }: { isPremiu
           </Button>
         </div>
       )}
+      </div>
       </div>
     </Card>
   );
