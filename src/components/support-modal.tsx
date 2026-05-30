@@ -53,7 +53,7 @@ export function SupportModal({ isOpen, onOpenChange }: SupportModalProps) {
         setIsLoading(true);
         try {
             await submitSupportTicket({
-                uid: user.uid,
+                firebaseToken: await user.getIdToken(),
                 email: user.email!,
                 category,
                 topic,

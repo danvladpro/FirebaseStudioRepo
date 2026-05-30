@@ -1,21 +1,21 @@
 
 'use server';
 
-import { adminDb } from '@/lib/firebase-admin';
+import { adminDb, adminAuth } from '@/lib/firebase-admin';
 import { PerformanceRecord } from '@/lib/types';
 import { z } from 'zod';
 import { CHALLENGE_SETS } from '@/lib/challenges';
 import { DRILL_SET } from '@/lib/drills';
 
 const UpdateUserPerformanceSchema = z.object({
-    uid: z.string(),
+    firebaseToken: z.string(),
     setId: z.string(),
     time: z.number(),
     score: z.number(),
 });
 
-const generateCertificateId = (uid: string) => {
-    return `${uid}-mastery-${new Date().getTime()}`;
+const generateCertificateId = () => {
+    return `cert-${crypto.randomUUID()}`;
 };
 
 export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerformanceSchema>) {
@@ -25,12 +25,21 @@ export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerf
         throw new Error(validation.error.errors.map(e => e.message).join(', '));
     }
 
-    const { uid, setId, time, score } = validation.data;
+    const { firebaseToken, setId, time, score } = validation.data;
+
+    let uid: string;
+    try {
+        const decoded = await adminAuth.verifyIdToken(firebaseToken);
+        uid = decoded.uid;
+    } catch {
+        throw new Error("Authentication failed. Please log in again.");
+    }
+
     const userDocRef = adminDb.collection('users').doc(uid);
 
     try {
         let isNewBest = false;
-        
+
         await adminDb.runTransaction(async (transaction) => {
             const userDoc = await transaction.get(userDocRef);
 
@@ -40,7 +49,7 @@ export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerf
 
             const userData = userDoc.data();
             const currentPerformance = userData?.performance?.[setId] as PerformanceRecord | undefined;
-            
+
             const newBestScore = Math.max(currentPerformance?.bestScore ?? 0, score);
 
             let newBestTime = currentPerformance?.bestTime ?? null;
@@ -50,7 +59,7 @@ export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerf
                     isNewBest = true;
                 }
             }
-            
+
             const newPerformanceRecord: PerformanceRecord = {
                 bestTime: newBestTime,
                 bestScore: newBestScore,
@@ -60,10 +69,9 @@ export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerf
             transaction.update(userDocRef, {
                 [`performance.${setId}`]: newPerformanceRecord
             });
-            
-            // Check for Mastery Certificate after updating performance
+
             const updatedPerformance = { ...userData?.performance, [setId]: newPerformanceRecord };
-                
+
             const allChallengeIds = CHALLENGE_SETS.map(c => c.id);
             const allDrillIds = DRILL_SET.drills.map(d => d.id);
             const allRequiredIds = [...allChallengeIds, ...allDrillIds];
@@ -73,13 +81,13 @@ export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerf
             });
 
             if (allItemsPassed && !userData?.masteryCertificateId) {
-                const certificateId = generateCertificateId(uid);
+                const certificateId = generateCertificateId();
                 transaction.update(userDocRef, {
                     masteryCertificateId: certificateId
                 });
             }
         });
-        
+
         return { success: true, newBest: isNewBest };
 
     } catch (error) {

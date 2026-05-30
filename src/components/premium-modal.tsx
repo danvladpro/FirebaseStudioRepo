@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "./auth-provider";
 import { toast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
-import { STRIPE_PRICES } from "@/lib/stripe-prices";
 import { LegalSheet } from "./legal-sheet";
 
 interface PremiumModalProps {
@@ -39,18 +38,8 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
         setIsLoading(true);
 
         try {
-            const priceId = selectedPlan === 'one-week' 
-                ? STRIPE_PRICES.oneWeek 
-                : STRIPE_PRICES.lifetime;
-
-            if (!priceId) {
-                throw new Error("Stripe price ID is not configured.");
-            }
-
             const result = await createCheckoutSession({
-                priceId: priceId,
-                userId: user.uid,
-                userEmail: user.email,
+                firebaseToken: await user.getIdToken(),
                 plan: selectedPlan,
             });
 
@@ -59,10 +48,13 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
             }
 
             if (!result.url) {
-                 throw new Error("Could not create a checkout session URL.");
+                throw new Error("Could not create a checkout session URL.");
             }
-            
-            // Redirect to the checkout URL provided by the server
+
+            if (!result.url.startsWith('https://checkout.stripe.com')) {
+                throw new Error("Unexpected redirect URL.");
+            }
+
             window.location.href = result.url;
 
         } catch (error: any) {

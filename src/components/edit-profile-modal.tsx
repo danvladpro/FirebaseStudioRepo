@@ -52,7 +52,7 @@ export function EditProfileModal({ isOpen, onOpenChange }: EditProfileModalProps
 
         setIsLoading(true);
         try {
-            await updateUserProfile({ uid: user.uid, name, missingKeys });
+            await updateUserProfile({ firebaseToken: await user.getIdToken(), name, missingKeys });
             toast({ title: "Success", description: "Your profile has been updated." });
             onOpenChange(false);
         } catch (error: any) {

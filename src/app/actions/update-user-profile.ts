@@ -1,12 +1,12 @@
 
 'use server';
 
-import { adminDb } from '@/lib/firebase-admin';
+import { adminDb, adminAuth } from '@/lib/firebase-admin';
 import { z } from 'zod';
 
 const UpdateUserProfileSchema = z.object({
-    uid: z.string(),
-    name: z.string().min(1, "Name cannot be empty."),
+    firebaseToken: z.string(),
+    name: z.string().min(1, "Name cannot be empty.").max(100),
     missingKeys: z.array(z.string()).optional(),
 });
 
@@ -17,16 +17,24 @@ export async function updateUserProfile(input: z.infer<typeof UpdateUserProfileS
         throw new Error(validation.error.errors.map(e => e.message).join(', '));
     }
 
-    const { uid, name, missingKeys } = validation.data;
+    const { firebaseToken, name, missingKeys } = validation.data;
+
+    let uid: string;
+    try {
+        const decoded = await adminAuth.verifyIdToken(firebaseToken);
+        uid = decoded.uid;
+    } catch {
+        throw new Error("Authentication failed. Please log in again.");
+    }
 
     try {
         const userDocRef = adminDb.collection('users').doc(uid);
-        
+
         const dataToUpdate: { name: string; missingKeys?: string[] } = { name };
         if (missingKeys !== undefined) {
             dataToUpdate.missingKeys = missingKeys;
         }
-        
+
         await userDocRef.update(dataToUpdate);
 
         return { success: true };

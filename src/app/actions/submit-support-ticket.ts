@@ -1,16 +1,16 @@
 
 'use server';
 
-import { adminDb } from '@/lib/firebase-admin';
+import { adminDb, adminAuth } from '@/lib/firebase-admin';
 import { z } from 'zod';
 import { FieldValue } from 'firebase-admin/firestore';
 
 const SubmitSupportTicketSchema = z.object({
-    uid: z.string(),
+    firebaseToken: z.string(),
     email: z.string().email(),
-    category: z.string().min(1),
-    topic: z.string().min(1),
-    body: z.string().min(1),
+    category: z.string().min(1).max(100),
+    topic: z.string().min(1).max(200),
+    body: z.string().min(1).max(500),
 });
 
 export async function submitSupportTicket(input: z.infer<typeof SubmitSupportTicketSchema>) {
@@ -20,11 +20,19 @@ export async function submitSupportTicket(input: z.infer<typeof SubmitSupportTic
         throw new Error(validation.error.errors.map(e => e.message).join(', '));
     }
 
-    const { uid, email, category, topic, body } = validation.data;
+    const { firebaseToken, email, category, topic, body } = validation.data;
+
+    let uid: string;
+    try {
+        const decoded = await adminAuth.verifyIdToken(firebaseToken);
+        uid = decoded.uid;
+    } catch {
+        throw new Error("Authentication failed. Please log in again.");
+    }
 
     try {
         const ticketRef = adminDb.collection('supportTickets').doc();
-        
+
         await ticketRef.set({
             uid,
             email,
