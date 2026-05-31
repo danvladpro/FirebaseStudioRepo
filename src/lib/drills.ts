@@ -4,6 +4,7 @@ import { ChallengeLevel, GridEffect, GridState, DialogEffect, FindReplaceDialogS
 export interface DrillStep {
   description: string;
   keys: string[];
+  macKeys?: string[];
   isSequential?: boolean;
   iconName: keyof typeof import("lucide-react");
   gridEffect?: GridEffect;
@@ -140,8 +141,8 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   jumpStart: { description: 'Go to Start', keys: ['control', 'home'], iconName: 'ArrowUpLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } } },
   jumpEnd: { description: 'Go to End', keys: ['control', 'end'], iconName: 'ArrowDownRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } },
   // Jumping sheets/pages
-  nextSheet: { description: 'Next worksheet', keys: ['control', 'pagedown'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
-  prevSheet: { description: 'Previous worksheet', keys: ['control', 'pageup'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
+  nextSheet: { description: 'Next worksheet', keys: ['control', 'pagedown'], macKeys: ['alt', 'arrowright'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
+  prevSheet: { description: 'Previous worksheet', keys: ['control', 'pageup'], macKeys: ['alt', 'arrowleft'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
   pageDown: { description: 'Page down', keys: ['pagedown'], iconName: 'ArrowDownToLine', gridEffect: { action: 'SCROLL_PAGE_DOWN' } },
   pageUp: { description: 'Page up', keys: ['pageup'], iconName: 'ArrowUpToLine', gridEffect: { action: 'SCROLL_PAGE_UP' } },
   // other

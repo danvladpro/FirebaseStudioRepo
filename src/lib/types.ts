@@ -172,6 +172,7 @@ export interface DialogEffect {
 export interface ChallengeStep {
   description: string;
   keys: string[];
+  macKeys?: string[];
   iconName: keyof typeof import("lucide-react");
   isSequential?: boolean;
   gridEffect?: GridEffect;
@@ -183,6 +184,7 @@ export interface ChallengeStep {
 export interface Challenge {
   description: string;
   keys?: string[]; // Optional for multi-step
+  macKeys?: string[];
   iconName?: keyof typeof import("lucide-react"); // Optional for multi-step
   isSequential?: boolean; // Optional for multi-step
   steps: ChallengeStep[];
