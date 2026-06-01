@@ -5,7 +5,7 @@ import { useState, ElementType, useEffect, useMemo } from "react";
 import { Challenge, ChallengeSet, GridState, ChallengeStep } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
-import { ChevronLeft, ChevronRight, Eye, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VisualKeyboard } from "./visual-keyboard";
 import * as icons from "lucide-react";
@@ -27,35 +27,7 @@ import { FilterDropdown } from "./filter-dropdown";
 import { PasteSpecialDialog } from "./paste-special-dialog";
 
 
-const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
-    const isModifier = ["control", "shift", "alt", "meta"].includes(value);
-    const isLetter = value.length === 1 && value.match(/[a-z]/i);
-
-    const keyDisplayMap: Record<string, string | JSX.Element> = {
-        'esc': 'Esc', 'backspace': 'Backspace', 'delete': 'Del', 'tab': 'Tab',
-        'capslock': 'Caps Lock', 'enter': 'Enter', 'return': 'Return', 'shift': 'Shift',
-        'control': '⌃', 'meta': '⌘', 'alt': '⌥', ' ': 'Space', 'fn': 'fn',
-        'insert': 'Ins', 'home': 'Home', 'pageup': 'PgUp', 'end': 'End', 'pagedown': 'PgDn',
-        'arrowup': <ArrowUp size={14} />, 'arrowdown': <ArrowDown size={14} />,
-        'arrowleft': <icons.ArrowLeft size={14} />, 'arrowright': <ArrowRight size={14} />,
-    };
-
-    const windowsKeyDisplayMap: Record<string, string | JSX.Element> = {
-        ...keyDisplayMap, 'control': 'Ctrl', 'meta': 'Win', 'alt': 'Alt', 'delete': 'Del'
-    };
-
-    const displayValue = isMac ? (keyDisplayMap[value] || value.toUpperCase()) : (windowsKeyDisplayMap[value] || value.toUpperCase());
-
-    return (
-        <kbd className={cn(
-            "px-2 py-1.5 text-xs font-semibold rounded-md border-b-2 text-muted-foreground bg-muted",
-            isModifier ? "min-w-[3rem] text-center" : "",
-            isLetter ? "uppercase" : ""
-        )}>
-            {displayValue}
-        </kbd>
-    );
-};
+import { KeyDisplay } from "./key-display";
 
 interface FlashcardItem {
   parentChallengeDescription: string;

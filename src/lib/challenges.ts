@@ -6,6 +6,7 @@ const singleStep = (challenge: Omit<Challenge, 'steps'> & { warningMessage?: str
     steps: [{
       description: challenge.description,
       keys: challenge.keys!,
+      macKeys: challenge.macKeys,
       iconName: challenge.iconName!,
       isSequential: challenge.isSequential,
       gridEffect: challenge.gridEffect,
@@ -187,8 +188,8 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
       singleStep({ description: "Jump to beginning of row", keys: ["home"], iconName: "Home", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'home' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
       singleStep({ description: "Jump to top-left (A1)", keys: ["control", "home"], iconName: "PanelTopOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } }, initialGridState: createGridState(leanTable, 0, 2, 3) }),
       singleStep({ description: "Jump to last used cell", keys: ["control", "end"], iconName: "PanelBottomOpen", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } }, initialGridState: createGridState(leanTable, 0, 0, 1, 0) }),
-      singleStep({ description: "Go to next worksheet", keys: ["control", "pagedown"], iconName: "ArrowRightToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } }, initialGridState: createMultiSheetGridState(0) }),
-      singleStep({ description: "Go to previous worksheet", keys: ["control", "pageup"], iconName: "ArrowLeftToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } }, initialGridState: createMultiSheetGridState(1) }),
+      singleStep({ description: "Go to next worksheet", keys: ["control", "pagedown"], macKeys: ["alt", "arrowright"], iconName: "ArrowRightToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } }, initialGridState: createMultiSheetGridState(0) }),
+      singleStep({ description: "Go to previous worksheet", keys: ["control", "pageup"], macKeys: ["alt", "arrowleft"], iconName: "ArrowLeftToLine", gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } }, initialGridState: createMultiSheetGridState(1) }),
       {
         description: "Open 'Go To' dialog",initialGridState: createGridState(bigTable, 0, 2, 0),
         steps: [

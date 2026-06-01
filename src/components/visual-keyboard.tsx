@@ -2,8 +2,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from "lucide-react";
 import { useEffect, useState } from "react";
+import { keyDisplayMap, windowsKeyDisplayMap } from "./key-display";
 
 interface VisualKeyboardProps {
   highlightedKeys?: string[];
@@ -32,39 +32,6 @@ const specialKeysLayout: (string[])[] = [
     ['insert', 'home', 'pageup'],
     ['delete', 'end', 'pagedown'],
 ];
-
-const keyDisplayMap: Record<string, string | JSX.Element> = {
-    'esc': 'Esc',
-    'backspace': 'Backspace',
-    'delete': 'Del',
-    'tab': 'Tab',
-    'capslock': 'Caps Lock',
-    'enter': 'Enter',
-    'return': 'Return',
-    'shift': 'Shift',
-    'control': '⌃',
-    'meta': '⌘',
-    'alt': '⌥',
-    ' ': 'Space',
-    'fn': 'fn',
-    'insert': 'Ins',
-    'home': 'Home',
-    'pageup': 'PgUp',
-    'end': 'End',
-    'pagedown': 'PgDn',
-    'arrowup': <ArrowUp size={14} />,
-    'arrowdown': <ArrowDown size={14} />,
-    'arrowleft': <ArrowLeft size={14} />,
-    'arrowright': <ArrowRight size={14} />,
-};
-
-const windowsKeyDisplayMap: Record<string, string | JSX.Element> = {
-    ...keyDisplayMap,
-    'control': 'Ctrl',
-    'meta': 'Win',
-    'alt': 'Alt',
-    'delete': 'Del'
-};
 
 const keyWidths: Record<string, string> = {
     'backspace': 'flex-[2.2]',

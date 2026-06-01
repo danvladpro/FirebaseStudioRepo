@@ -23,29 +23,7 @@ import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { DRILL_SET } from '@/lib/drills';
 
-const KeyDisplay = ({ value, isMac }: { value: string, isMac: boolean }) => {
-    const isModifier = ["Control", "Shift", "Alt", "Meta"].includes(value);
-    const isLetter = value.length === 1 && value.match(/[a-z]/i);
-
-    const displayMap: Record<string, string> = {
-        'Control': isMac ? '⌃' : 'Ctrl',
-        'Meta': isMac ? '⌘' : 'Win',
-        'Alt': isMac ? '⌥' : 'Alt',
-        ' ': 'Space'
-    };
-    
-    const displayValue = displayMap[value] || value;
-
-    return (
-        <kbd className={cn(
-            "px-1.5 py-1 text-xs font-semibold text-muted-foreground bg-muted rounded-md border-b-2",
-            isModifier ? "min-w-[3rem] text-center" : "",
-            isLetter ? "uppercase" : ""
-        )}>
-            {displayValue}
-        </kbd>
-    );
-};
+import { KeyDisplay } from './key-display';
 
 export default function ResultsDisplay() {
   const router = useRouter();
@@ -91,13 +69,6 @@ export default function ResultsDisplay() {
   const masteryCertificateId = userProfile?.masteryCertificateId;
   const xpEarned = (isPerfectScore && challengeSet?.level && mode === 'timed') ? XP_CONFIG[challengeSet.level] : 0;
   const showXp = xpEarned > 0 && previousBestScore !== 100;
-
-  const getOsKeys = (step: ChallengeStep, isMac: boolean) => {
-    const capitalizedModifiers: Record<string, string> = {
-        'control': 'Control', 'meta': 'Meta', 'shift': 'Shift', 'alt': 'Alt',
-    };
-    return getPlatformKeys(step, isMac).map(k => capitalizedModifiers[k] ?? k);
-  }
 
   const skippedChallenges = skippedIndicesStr && challengeSet
     ? skippedIndicesStr.split(',').filter(Boolean).map(i => challengeSet.challenges[parseInt(i)])
@@ -255,7 +226,7 @@ export default function ResultsDisplay() {
                                       <li key={stepIndex} className="flex justify-between items-center">
                                         <span>- {step.description}</span>
                                         <div className="flex items-center gap-1.5">
-                                          {getOsKeys(step, isMac).map((key, keyIndex) => (
+                                          {getPlatformKeys(step, isMac).map((key, keyIndex) => (
                                             <KeyDisplay key={keyIndex} value={key} isMac={isMac} />
                                           ))}
                                         </div>
@@ -269,7 +240,7 @@ export default function ResultsDisplay() {
                                   <div className="flex items-center gap-4 flex-shrink-0">
                                     {isSkipped && <Badge variant="destructive">Skipped</Badge>}
                                     <div className="flex items-center gap-1.5">
-                                      {challenge.steps[0] && getOsKeys(challenge.steps[0], isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
+                                      {challenge.steps[0] && getPlatformKeys(challenge.steps[0], isMac).map((key, keyIndex) => <KeyDisplay key={keyIndex} value={key} isMac={isMac} />)}
                                     </div>
                                   </div>
                                 </div>

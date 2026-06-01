@@ -51,6 +51,11 @@ export const getPlatformKeys = (step: ChallengeStep | DrillStep, isMac: boolean)
     return keys.map(k => k.toLowerCase());
   }
 
+  // Explicit per-step Mac override wins over all heuristics below.
+  if (step.macKeys && step.macKeys.length > 0) {
+    return step.macKeys.map(k => k.toLowerCase());
+  }
+
   // Mac specific full overrides
   if (description.includes("autosum")) {
     return ["alt", "meta", "="];
