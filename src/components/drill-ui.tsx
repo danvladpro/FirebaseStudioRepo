@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Drill, ALL_DRILL_STEPS, DrillStep } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { cn, getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
-import { Check, CheckCircle, Keyboard, XCircle, ArrowLeft, ArrowUp, ArrowDown, ArrowRight, AlertTriangle } from "lucide-react";
+import { Check, CheckCircle, Keyboard, XCircle, ArrowLeft, AlertTriangle } from "lucide-react";
 import { useAuth } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
 import { toast } from "@/hooks/use-toast";
@@ -28,6 +28,7 @@ import { FormatCellsDialog } from "./format-cells-dialog";
 import { FillColorDropdown } from "./fill-color-dropdown";
 import { useShortcutEngine } from "@/hooks/use-shortcut-engine";
 import { PasteSpecialDialog } from "./paste-special-dialog";
+import { KeyDisplay } from "./key-display";
 
 interface DrillUIProps {
   drill: Drill;
@@ -39,37 +40,6 @@ enum RepStatus {
   Correct,
   Incorrect,
 }
-
-const KeyDisplay = ({ value, isMac, small }: { value: string, isMac: boolean, small?: boolean }) => {
-    const isModifier = ["control", "shift", "alt", "meta"].includes(value);
-    const isLetter = value.length === 1 && value.match(/[a-z]/i);
-
-     const keyDisplayMap: Record<string, string | JSX.Element> = {
-        'esc': 'Esc', 'backspace': 'Backspace', 'delete': 'Del', 'tab': 'Tab',
-        'capslock': 'Caps Lock', 'enter': 'Enter', 'return': 'Return', 'shift': 'Shift',
-        'control': '⌃', 'meta': '⌘', 'alt': '⌥', ' ': 'Space', 'fn': 'fn',
-        'insert': 'Ins', 'home': 'Home', 'pageup': 'PgUp', 'end': 'End', 'pagedown': 'PgDn',
-        'arrowup': <ArrowUp size={14} />, 'arrowdown': <ArrowDown size={14} />,
-        'arrowleft': <ArrowLeft size={14} />, 'arrowright': <ArrowRight size={14} />,
-    };
-
-    const windowsKeyDisplayMap: Record<string, string | JSX.Element> = {
-        ...keyDisplayMap, 'control': 'Ctrl', 'meta': 'Win', 'alt': 'Alt', 'delete': 'Del'
-    };
-
-    const displayValue = isMac ? (keyDisplayMap[value] || value.toUpperCase()) : (windowsKeyDisplayMap[value] || value.toUpperCase());
-
-    return (
-        <kbd className={cn(
-            "font-semibold rounded border-b-2 text-muted-foreground bg-muted",
-            small ? "px-2 py-1 text-xs" : "px-2 py-1.5 text-xs",
-            isModifier && !small ? "min-w-[4rem] text-center" : "",
-            isLetter ? "uppercase" : ""
-        )}>
-            {displayValue}
-        </kbd>
-    );
-};
 
 export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   const router = useRouter();
@@ -479,7 +449,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
               </span>
               <div className="flex items-center gap-1.5 min-h-[28px]">
                 {pressedKeys.length > 0 ? (
-                  pressedKeys.map((key, i) => <KeyDisplay key={`${key}-${i}`} value={key} isMac={isMac} small />)
+                  pressedKeys.map((key, i) => <KeyDisplay key={`${key}-${i}`} value={key} isMac={isMac} />)
                 ) : (
                   <span className="text-xs text-muted-foreground">{isSequential ? "Press keys in sequence..." : "Press the required keys..."}</span>
                 )}
