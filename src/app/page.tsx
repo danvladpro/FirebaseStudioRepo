@@ -1,23 +1,15 @@
-
-import { LandingBenefits } from "@/components/landing-benefits";
-import { LandingFeatures } from "@/components/landing-features";
-import { LandingFooter } from "@/components/landing-footer";
-import { LandingHeader } from "@/components/landing-header";
-import { LandingHero } from "@/components/landing-hero";
-import { LandingPricing } from "@/components/landing-pricing";
-
+import { LandingNav } from "@/components/landing/landing-nav";
+import { LandingContent } from "@/components/landing/landing-content";
+import { inter, interTight, jetbrainsMono } from "@/components/landing/fonts";
+import styles from "@/components/landing/landing.module.css";
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-[100dvh]">
-      <LandingHeader />
-      <main className="flex-1">
-        <LandingHero />
-        <LandingFeatures />
-        <LandingBenefits />
-        <LandingPricing />
+    <div className={`${inter.variable} ${interTight.variable} ${jetbrainsMono.variable} ${styles.page}`}>
+      <LandingNav />
+      <main>
+        <LandingContent />
       </main>
-      <LandingFooter />
     </div>
   );
 }
