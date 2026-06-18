@@ -10,7 +10,7 @@ import { ALL_CHALLENGE_SETS, CHALLENGE_SETS } from '@/lib/challenges';
 import { usePerformanceTracker } from '@/hooks/use-performance-tracker';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from './ui/separator';
-import { useAuth } from './auth-provider';
+import { useAuth, useIsMac } from './auth-provider';
 import { cn, getPlatformKeys } from '@/lib/utils';
 import { Challenge, ChallengeSet, ChallengeStep } from '@/lib/types';
 import Confetti from 'react-confetti';
@@ -32,15 +32,10 @@ export default function ResultsDisplay() {
   const { user, userProfile } = useAuth();
   
   const [isNewRecord, setIsNewRecord] = useState(false);
-  const [isMac, setIsMac] = useState(false);
+  const isMac = useIsMac();
   const [showConfetti, setShowConfetti] = useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [allItemsPassed, setAllItemsPassed] = useState(false);
-
-
-  useEffect(() => {
-    setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
-  }, []);
   
   const setId = searchParams.get('setId');
   const timeStr = searchParams.get('time');

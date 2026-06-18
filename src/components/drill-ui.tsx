@@ -5,9 +5,9 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Drill, ALL_DRILL_STEPS, DrillStep } from "@/lib/drills";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { cn, getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
+import { cn, getPlatformKeySets, isStepWindowsOnly, resolveIsSequential, MAC_ABSENT_KEYS, getSelectionRangeString } from "@/lib/utils";
 import { Check, CheckCircle, Keyboard, XCircle, ArrowLeft, AlertTriangle } from "lucide-react";
-import { useAuth } from "./auth-provider";
+import { useAuth, useIsMac } from "./auth-provider";
 import { updateUserPerformance } from "@/app/actions/update-user-performance";
 import { toast } from "@/hooks/use-toast";
 import { Separator } from "./ui/separator";
@@ -52,15 +52,11 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
 
   const [stepFeedback, setStepFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [mistakes, setMistakes] = useState(0);
-  const [isMac, setIsMac] = useState(false);
+  const isMac = useIsMac();
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
 
   const stepsContainerRef = useRef<HTMLDivElement>(null);
   const stepRowRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
-  }, []);
 
   // Prefetch results page bundle so navigation is instant when drill ends
   useEffect(() => {
@@ -80,12 +76,15 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   }, [visualStepIndex]);
 
   const activeStep = drill.steps[logicalStepIndex] ? ALL_DRILL_STEPS[drill.steps[logicalStepIndex]] : null;
-  const isSequential = !!activeStep?.isSequential;
+  const isSequential = activeStep ? resolveIsSequential(activeStep, isMac) : false;
 
-  const requiredKeys = useMemo(() => {
+  const requiredKeySets = useMemo(() => {
     if (!activeStep) return [];
-    return getPlatformKeys(activeStep, isMac);
+    return getPlatformKeySets(activeStep, isMac);
   }, [activeStep, isMac]);
+  // First acceptable combination — used for the key-cap display and the
+  // virtual-keyboard heuristics below.
+  const requiredKeys = requiredKeySets[0] ?? [];
 
   const finishDrill = useCallback(() => {
     setLogicalStepIndex(drill.steps.length);
@@ -175,7 +174,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   }, [currentRep, drill.mistakeLimit, mistakes, resetDrill, stepFeedback]);
   
   const { pressedKeys, handleVirtualKeyClick } = useShortcutEngine({
-      requiredKeys,
+      requiredKeySets,
       isSequential,
       onSuccess: handleStepSuccess,
       onIncorrect: handleIncorrect,
@@ -220,6 +219,13 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
         return;
     }
 
+    // On Mac, surface the on-screen keyboard for keys Mac keyboards lack a cap
+    // for (Home/End/PgUp/PgDn/Insert).
+    if (isMac && requiredKeys.some(k => MAC_ABSENT_KEYS.includes(k))) {
+        setIsVirtualKeyboardMode(true);
+        return;
+    }
+
     if (!userProfile?.missingKeys) {
         setIsVirtualKeyboardMode(false);
         return;
@@ -246,9 +252,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
   ) : { gridState: null, cellStyles: {} };
   
   const formatKeysForDisplay = (step: DrillStep, isMac: boolean): string => {
-    const keysToDisplay = getPlatformKeys(step, isMac);
-
-    const displayKeys = keysToDisplay.map(key => {
+    const formatKey = (key: string): string => {
         const k = key.toLowerCase();
 
         switch(k) {
@@ -272,8 +276,12 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
             case ' ': return 'Space';
             default: return key.toUpperCase();
         }
-    });
-    return `(${displayKeys.join(' + ')})`;
+    };
+
+    // Show every acceptable alternative, e.g. "(⌘ + Shift + F  or  Ctrl + Shift + L)".
+    const alternatives = getPlatformKeySets(step, isMac)
+        .map(set => set.map(formatKey).join(' + '));
+    return `(${alternatives.join('  or  ')})`;
   };
 
   return (
@@ -419,8 +427,8 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                                         )}
                                     </p>
                                     {isStepActive && (
-                                        <Badge variant={step.isSequential ? 'outline' : 'secondary'} className="ml-auto text-xs">
-                                            {step.isSequential ? 'Sequential' : 'Combo'}
+                                        <Badge variant={resolveIsSequential(step, isMac) ? 'outline' : 'secondary'} className="ml-auto text-xs">
+                                            {resolveIsSequential(step, isMac) ? 'Sequential' : 'Combo'}
                                         </Badge>
                                     )}
                                   </div>
@@ -429,6 +437,16 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
                                           <AlertTriangle className="h-3.5 w-3.5 text-red-500 flex-shrink-0 mt-0.5" />
                                           <p className="text-xs text-red-700 dark:text-red-300 leading-snug">
                                               {step.warningMessage}
+                                          </p>
+                                      </div>
+                                  )}
+                                  {isStepActive && isStepWindowsOnly(step, isMac) && (
+                                      <div className="mt-2 flex items-start gap-1.5 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-2 py-1.5">
+                                          <AlertTriangle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+                                          <p className="text-xs text-amber-700 dark:text-amber-300 leading-snug">
+                                              Windows-only shortcut — no Mac equivalent. Use the Windows keys shown
+                                              (press <span className="font-semibold">⌥ Option</span> where it says Alt);
+                                              click the on-screen keyboard for any key your Mac lacks.
                                           </p>
                                       </div>
                                   )}
@@ -459,6 +477,7 @@ export function DrillUI({ drill, drillNumber }: DrillUIProps) {
               <VisualKeyboard
                 highlightedKeys={pressedKeys}
                 onKeyClick={handleVirtualKeyClick}
+                isMac={isMac}
               />
             </div>
           </div>

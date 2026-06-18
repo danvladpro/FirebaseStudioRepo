@@ -47,6 +47,15 @@ src/
     drill-ui.tsx        # Drill runner UI
     flashcard-client-page.tsx
     *-dialog.tsx        # Simulated Excel dialogs (Find/Replace, Format Cells, Sort…)
+    app-header.tsx      # Dashboard/app header (signed-in pages)
+    user-menu.tsx       # Shared signed-in avatar dropdown (used by app-header + landing nav)
+    logo.tsx            # Shared brand logo (Keyboard icon + "Excel Ninja")
+    landing/            # Marketing landing page (/) — see "Landing Page" section
+      landing.module.css   # Scoped CSS module (all rules under .page)
+      fonts.ts             # next/font (Inter, Inter Tight, JetBrains Mono) as CSS vars
+      landing-nav.tsx      # Auth-aware top nav
+      landing-content.tsx  # Hero, features, levels, benefits, pricing, footer
+      landing-hero-cta.tsx # Auth-aware primary hero CTA
   hooks/
     use-shortcut-engine.ts   # Keyboard capture + combo / sequence matching
     use-performance-tracker.ts
@@ -266,6 +275,24 @@ Locking logic is in `src/components/home-page-client.tsx` — `isChallengeLocked
 
 ---
 
+## Landing Page (`/`)
+
+The marketing landing page (`src/app/page.tsx`) is a faithful build of the **"Excel Ninja Landing Page v4"** design (a Claude Design HTML/CSS handoff). All of its code lives in `src/components/landing/`.
+
+- **Scoped styles, not Tailwind.** The whole design is ported verbatim into `landing.module.css`, a CSS Module where **every rule is nested under `.page`** so it never leaks into the rest of the app. Tag selectors (`section`, `h1 em`, etc.) are written as `.page section`. Do **not** add landing styles to `globals.css`, and do not convert this to Tailwind utilities — edit the module.
+  - JSX references classes via a `cx(...keys)` helper (`keys.map(k => styles[k]).join(' ')`), since CSS-Module class names are hashed.
+- **Fonts are scoped.** `fonts.ts` loads Inter / Inter Tight / JetBrains Mono via `next/font` and exposes them as `--font-sans` / `--font-display` / `--font-mono`. The variable classes + `styles.page` are applied on the wrapper `<div>` in `page.tsx` only — global app typography is untouched. Don't move these into `layout.tsx`.
+- **Auth-aware bits** are isolated client components so the page stays mostly server-rendered:
+  - `landing-nav.tsx` — signed out: Sign In / Sign Up Free buttons; signed in: renders the shared `<UserMenu />`.
+  - `landing-hero-cta.tsx` — signed out: "Start Free — No Card Needed" → `/signup`; signed in: "Go to Dashboard" → `/dashboard`. Wrapped in `<Suspense>` with the signed-out variant as fallback.
+- **Shared header pieces (keep dashboard + landing in sync):**
+  - `user-menu.tsx` is the single source of truth for the signed-in avatar dropdown. Both `app-header.tsx` (dashboard/app pages) and `landing-nav.tsx` render it — edit it once, both update.
+  - Use the shared `logo.tsx` component for the brand mark in any header (don't reinvent a logo).
+- **Section anchors:** `#features`, `#benefits` (For Individuals), `#benefits-companies` (For Companies), `#pricing`. Nav and footer links rely on these ids.
+- Images come from `public/` (`/Level0-3.svg`, `/GirlNinja.svg`, `/allNinjasNobackground.svg`) via plain `<img>`.
+
+> Source design bundle copy in chats lands under `testingfunctionality/project/Excel Ninja Landing Page v4.html`; other HTML files in that bundle (dashboard redesigns, flashcard layouts, etc.) are **not yet implemented**.
+
 ## Common Commands
 
 ```bash
@@ -294,3 +321,4 @@ There is no jest/vitest/playwright. Verification = `npm run typecheck` + dev ser
 - **Paste Special selection** — use `SELECT_PASTE_SPECIAL_OPTION` (sets both highlight + radio state) in `dialogEffect`, and `MOVE_PASTE_SPECIAL_HIGHLIGHT` in `previewDialogEffect`. Never use MOVE in dialogEffect for paste-special steps.
 - **Dialog sizing** — dialogs are constrained to the grid column. Standard widths: find-replace `w-360`, sort `w-380`, format-cells `w-400`, go-to / create-table / paste-special `w-300`. All top-aligned at `top-8`, all `z-30`.
 - **Dialog render locations** — any new dialog component must be added to all three render locations: `drill-ui.tsx`, `challenge-ui.tsx`, and `drills/[id]/page.tsx` (drill preview).
+- **Key-cap rendering** — use the shared `KeyDisplay` component and the `keyDisplayMap` / `windowsKeyDisplayMap` tables from `src/components/key-display.tsx`. Never redefine a local `KeyDisplay` or copy the maps (`visual-keyboard.tsx` imports the maps from there too). Keys passed in must be canonical lowercase from `getPlatformKeys()` — don't re-capitalize.

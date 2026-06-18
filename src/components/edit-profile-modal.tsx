@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { updateUserProfile } from "@/app/actions/update-user-profile";
 import { Checkbox } from "./ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 interface EditProfileModalProps {
     isOpen: boolean;
@@ -24,12 +25,17 @@ export function EditProfileModal({ isOpen, onOpenChange }: EditProfileModalProps
     const { toast } = useToast();
     const [name, setName] = useState('');
     const [missingKeys, setMissingKeys] = useState<string[]>([]);
+    const [platform, setPlatform] = useState<'mac' | 'windows'>('windows');
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (userProfile) {
             setName(userProfile.name || '');
             setMissingKeys(userProfile.missingKeys || []);
+            setPlatform(
+                userProfile.platform
+                    ?? (typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('mac') ? 'mac' : 'windows')
+            );
         }
     }, [userProfile, isOpen]);
 
@@ -52,7 +58,7 @@ export function EditProfileModal({ isOpen, onOpenChange }: EditProfileModalProps
 
         setIsLoading(true);
         try {
-            await updateUserProfile({ firebaseToken: await user.getIdToken(), name, missingKeys });
+            await updateUserProfile({ firebaseToken: await user.getIdToken(), name, missingKeys, platform });
             toast({ title: "Success", description: "Your profile has been updated." });
             onOpenChange(false);
         } catch (error: any) {
@@ -93,6 +99,27 @@ export function EditProfileModal({ isOpen, onOpenChange }: EditProfileModalProps
                             className="col-span-3"
                             disabled
                         />
+                    </div>
+                    <div className="grid grid-cols-4 items-start gap-4">
+                        <Label className="text-right pt-2">
+                            Keyboard
+                        </Label>
+                        <div className="col-span-3">
+                            <RadioGroup
+                                value={platform}
+                                onValueChange={(value) => setPlatform(value as 'mac' | 'windows')}
+                                className="flex gap-4"
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="windows" id="platform-windows" />
+                                    <Label htmlFor="platform-windows" className="font-normal cursor-pointer">Windows (Ctrl / Alt)</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="mac" id="platform-mac" />
+                                    <Label htmlFor="platform-mac" className="font-normal cursor-pointer">Mac (⌘ / ⌥)</Label>
+                                </div>
+                            </RadioGroup>
+                        </div>
                     </div>
                     <div className="grid grid-cols-4 items-start gap-4">
                         <Label className="text-right pt-2">
