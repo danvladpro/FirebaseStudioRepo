@@ -7,12 +7,12 @@ import { ChallengeSet, ChallengeStep, Sheet } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Check, CheckCircle, XCircle, Timer, Keyboard, ChevronsRight, BookOpen, ArrowLeft, AlertTriangle } from "lucide-react";
-import { cn, getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
+import { cn, getPlatformKeySets, isStepWindowsOnly, resolveIsSequential, MAC_ABSENT_KEYS, getSelectionRangeString } from "@/lib/utils";
 import { Button } from "./ui/button";
 import * as icons from "lucide-react";
 import { VisualGrid } from "./visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
-import { useAuth } from "./auth-provider";
+import { useAuth, useIsMac } from "./auth-provider";
 import { VisualKeyboard } from "./visual-keyboard";
 import Link from "next/link";
 import { FindReplaceDialog } from "./find-replace-dialog";
@@ -46,17 +46,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   const [skippedIndices, setSkippedIndices] = useState<number[]>([]);
   
   const [countdown, setCountdown] = useState(8);
-  const [isMac, setIsMac] = useState(false);
+  const isMac = useIsMac();
   const [isVirtualKeyboardMode, setIsVirtualKeyboardMode] = useState(false);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const stepsContainerRef = useRef<HTMLDivElement>(null);
   const stepRowRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
-  }, []);
 
   // Prefetch results page bundle so navigation is instant when challenge ends
   useEffect(() => {
@@ -75,12 +71,15 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
 
   const currentChallenge = set.challenges[currentChallengeIndex];
   const currentStep = currentChallenge?.steps[currentStepIndex];
-  const isSequential = !!currentStep?.isSequential;
+  const isSequential = currentStep ? resolveIsSequential(currentStep, isMac) : false;
   
-  const requiredKeys = useMemo(() => {
+  const requiredKeySets = useMemo(() => {
       if (!currentStep) return [];
-      return getPlatformKeys(currentStep, isMac);
+      return getPlatformKeySets(currentStep, isMac);
   }, [currentStep, isMac]);
+  // First acceptable combination — used for the key-cap display and the
+  // virtual-keyboard heuristics below.
+  const requiredKeys = requiredKeySets[0] ?? [];
 
   const finishChallenge = useCallback((finalSkippedIndices?: number[]) => {
     const indicesToUse = finalSkippedIndices || skippedIndices;
@@ -143,7 +142,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
   }, [feedback]);
 
   const { pressedKeys, handleVirtualKeyClick } = useShortcutEngine({
-      requiredKeys,
+      requiredKeySets,
       isSequential,
       onSuccess: advanceStepOrChallenge,
       onIncorrect: handleIncorrect,
@@ -212,6 +211,13 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
         return;
     }
      if (requiredKeysForStepSet.size === 3 && hasModifier && hasV && requiredKeysForStepSet.has('alt')) {
+        setIsVirtualKeyboardMode(true);
+        return;
+    }
+
+    // On Mac, surface the on-screen keyboard when the step needs a key that
+    // most Mac keyboards lack a dedicated cap for (Home/End/PgUp/PgDn/Insert).
+    if (isMac && requiredKeys.some(k => MAC_ABSENT_KEYS.includes(k))) {
         setIsVirtualKeyboardMode(true);
         return;
     }
@@ -434,8 +440,8 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                                 {step.description}
                               </p>
                               {isActive && (
-                                <Badge variant={step.isSequential ? 'outline' : 'secondary'} className="ml-auto text-xs">
-                                  {step.isSequential ? 'Sequence' : 'Combo'}
+                                <Badge variant={resolveIsSequential(step, isMac) ? 'outline' : 'secondary'} className="ml-auto text-xs">
+                                  {resolveIsSequential(step, isMac) ? 'Sequence' : 'Combo'}
                                 </Badge>
                               )}
                             </div>
@@ -444,6 +450,16 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
                                 <AlertTriangle className="h-3.5 w-3.5 text-orange-500 flex-shrink-0 mt-0.5" />
                                 <p className="text-xs text-orange-700 dark:text-orange-300 leading-snug">
                                   {step.warningMessage}
+                                </p>
+                              </div>
+                            )}
+                            {isActive && isStepWindowsOnly(step, isMac) && (
+                              <div className="mt-1.5 flex items-start gap-1.5 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-2 py-1.5">
+                                <AlertTriangle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+                                <p className="text-xs text-amber-700 dark:text-amber-300 leading-snug">
+                                  Windows-only shortcut — no Mac equivalent. Use the Windows keys shown
+                                  (press <span className="font-semibold">⌥ Option</span> where it says Alt);
+                                  click the on-screen keyboard for any key your Mac lacks.
                                 </p>
                               </div>
                             )}
@@ -480,6 +496,7 @@ export default function ChallengeUI({ set, mode }: ChallengeUIProps) {
             <VisualKeyboard
               highlightedKeys={pressedKeys}
               onKeyClick={handleVirtualKeyClick}
+              isMac={isMac}
             />
           </div>
         </div>

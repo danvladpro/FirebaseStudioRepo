@@ -28,7 +28,7 @@ export function LandingContent() {
               <em>Think in shortcuts.</em>
             </h1>
             <p className={styles["hero-sub"]}>
-              Learn shortcuts through real-life Excel drills — built into your keyboard, not memorized.
+              Learn shortcuts through real-life Excel drills.
             </p>
             <div className={styles["hero-ctas"]}>
               <HeroPrimaryCta />
@@ -45,7 +45,7 @@ export function LandingContent() {
                 <span>+</span>
               </div>
               <p className={styles["hero-proof-text"]}>
-                <strong>Many data &amp; finance professionals</strong> choose us to level up their game!
+                <strong>Many data and finance professionals</strong> choose us to level up their game!
               </p>
             </div>
           </div>
@@ -223,7 +223,6 @@ export function LandingContent() {
                 <img src="/Level0.svg" alt="Rookie ninja" />
               </div>
               <span className={styles["level-name"]}>Rookie</span>
-              <span className={styles["level-xp"]}>0 XP</span>
             </div>
             <div className={styles["level-step"]}>
               <div className={styles["level-orb"]}>
@@ -231,25 +230,20 @@ export function LandingContent() {
                 <img src="/Level1.svg" alt="Apprentice ninja" />
               </div>
               <span className={styles["level-name"]}>Apprentice</span>
-              <span className={styles["level-xp"]}>500 XP</span>
             </div>
             <div className={styles["level-step"]}>
               <div className={cx("level-orb", "active")}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/Level2.svg" alt="Warrior ninja" />
+                <img src="/Level2.svg" alt="Master ninja" />
               </div>
-              <span className={cx("level-name", "active")}>Warrior</span>
-              <span className={styles["level-xp"]} style={{ color: "var(--green-400)" }}>
-                1,500 XP
-              </span>
+              <span className={cx("level-name", "active")}>Master</span>
             </div>
             <div className={styles["level-step"]}>
               <div className={styles["level-orb"]}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/Level3.svg" alt="Expert ninja" />
+                <img src="/Level3.svg" alt="Excel Ninja" />
               </div>
-              <span className={styles["level-name"]}>Expert</span>
-              <span className={styles["level-xp"]}>3,000 XP</span>
+              <span className={styles["level-name"]}>Ninja</span>
             </div>
           </div>
         </div>
@@ -287,7 +281,7 @@ export function LandingContent() {
                     <Check />
                   </span>
                   <span>
-                    <strong>Stand out in interviews</strong> — Show off your with your certificate of achievement &amp; how quickly you can get your job done.
+                    <strong>Stand out in interviews</strong> — Show off your certificate of achievement and how quickly you can get your job done.
                   </span>
                 </li>
                 <li>
@@ -342,7 +336,7 @@ export function LandingContent() {
               </div>
               <h2>Increase output of your team</h2>
               <p>
-                Keyboard-proficient employees complete tasks up to 50 % faster and make fewer data-entry errors — a measurable return on a
+                Keyboard-proficient employees complete everyday tasks noticeably faster and make fewer data-entry errors — a measurable return on a
                 small training investment.
               </p>
               <ul className={styles["check-list"]}>
@@ -351,7 +345,7 @@ export function LandingContent() {
                     <Check />
                   </span>
                   <span>
-                    <strong>50% faster task completion</strong> across teams with keyboard-first habits.
+                    <strong>Faster task completion</strong> across teams with keyboard-first habits.
                   </span>
                 </li>
                 <li>
@@ -367,14 +361,14 @@ export function LandingContent() {
                     <Check />
                   </span>
                   <span>
-                    <strong>Custom team dashboards</strong> to track progress and verify certification.
+                    <strong>Faster project delivery</strong> — your team spends time thinking, not hunting through menus.
                   </span>
                 </li>
               </ul>
               <div className={styles["stat-pills"]}>
                 <div className={styles["stat-pill"]}>
-                  <div className={styles["stat-pill-num"]}>50% Faster</div>
-                  <div className={styles["stat-pill-lbl"]}>faster task completion</div>
+                  <div className={styles["stat-pill-num"]}>Faster</div>
+                  <div className={styles["stat-pill-lbl"]}>everyday task completion</div>
                 </div>
                 <div className={styles["stat-pill"]}>
                   <div className={styles["stat-pill-num"]}>↓ errors</div>
@@ -410,7 +404,7 @@ export function LandingContent() {
               </div>
               <ul className={styles["pricing-features"]}>
                 <li>
-                  <span className={styles["pf-check"]}><Check /></span> All challenges &amp; flashcards
+                  <span className={styles["pf-check"]}><Check /></span> All challenges and flashcards
                 </li>
                 <li>
                   <span className={styles["pf-check"]}><Check /></span> Performance tracking
@@ -439,7 +433,7 @@ export function LandingContent() {
               </div>
               <ul className={styles["pricing-features"]}>
                 <li>
-                  <span className={styles["pf-check"]}><Check /></span> All challenges &amp; flashcards
+                  <span className={styles["pf-check"]}><Check /></span> All challenges and flashcards
                 </li>
                 <li>
                   <span className={styles["pf-check"]}><Check /></span> Performance tracking
@@ -455,9 +449,9 @@ export function LandingContent() {
 
             {/* Corporate */}
             <div className={styles["pricing-card"]}>
-              <div className={styles["pricing-label"]}>Teams &amp; Enterprise</div>
+              <div className={styles["pricing-label"]}>Teams and Enterprise</div>
               <h3>Corporate</h3>
-              <p className={styles["pricing-desc"]}>Equip your whole team. Custom billing and admin dashboard included.</p>
+              <p className={styles["pricing-desc"]}>Equip your whole team. Custom billing and volume pricing included.</p>
               <div className={styles["pricing-price"]}>
                 <span className={styles["price-amount"]} style={{ fontSize: "1.75rem", letterSpacing: "-0.02em" }}>
                   Let&apos;s talk

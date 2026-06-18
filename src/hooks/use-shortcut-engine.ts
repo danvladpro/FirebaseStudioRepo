@@ -69,7 +69,9 @@ const isKnownKey = (normalizedKey: string): boolean => {
 
 
 interface ShortcutEngineProps {
-    requiredKeys: string[];
+    // Acceptable key combinations — pressing ANY one counts as correct.
+    // A single combo is passed as a one-element list, e.g. [['control','c']].
+    requiredKeySets: string[][];
     isSequential: boolean;
     onSuccess: () => void;
     onIncorrect: () => void;
@@ -78,7 +80,7 @@ interface ShortcutEngineProps {
 }
 
 export const useShortcutEngine = ({
-    requiredKeys,
+    requiredKeySets,
     isSequential,
     onSuccess,
     onIncorrect,
@@ -98,7 +100,7 @@ export const useShortcutEngine = ({
         setSequence([]);
         incorrectLockRef.current = false;
         pressedCodesRef.current.clear();
-    }, [requiredKeys, isSequential]);
+    }, [requiredKeySets, isSequential]);
 
     // Clear pressed keys when disabled (e.g. after correct answer) to prevent
     // stuck modifier keys on macOS — Option/Alt keyup can fire while the
@@ -189,7 +191,7 @@ export const useShortcutEngine = ({
             window.removeEventListener("keyup", handleKeyUp, { capture: true });
             window.removeEventListener('blur', handleBlur);
         };
-    }, [isDisabled, isSequential, isMac, requiredKeys]);
+    }, [isDisabled, isSequential, isMac, requiredKeySets]);
 
     // Logic to check for success
     useEffect(() => {
@@ -198,33 +200,43 @@ export const useShortcutEngine = ({
         if (isSequential) {
             if (sequence.length === 0) return;
 
-            // Check if the current sequence matches the beginning of the required sequence
-            for (let i = 0; i < sequence.length; i++) {
-                if (sequence[i] !== requiredKeys[i]) {
-                    handleIncorrect();
-                    setSequence([]);
-                    return;
-                }
+            // The sequence is valid so far only if it's a prefix of SOME alternative.
+            const isPrefixOfSome = requiredKeySets.some(set =>
+                sequence.every((k, i) => k === set[i]));
+            if (!isPrefixOfSome) {
+                handleIncorrect();
+                setSequence([]);
+                return;
             }
 
-            // If the sequence is a complete match
-            if (sequence.length === requiredKeys.length) {
+            // Success when the sequence fully equals ANY alternative.
+            const isCompleteMatch = requiredKeySets.some(set =>
+                set.length === sequence.length && set.every((k, i) => k === sequence[i]));
+            if (isCompleteMatch) {
                 onSuccess();
             }
         } else { // Combo logic
             if (pressedKeys.size === 0) return;
 
-            const requiredSet = new Set(requiredKeys);
-            if (pressedKeys.size === requiredSet.size) {
-                if ([...requiredSet].every(k => pressedKeys.has(k))) {
-                    onSuccess();
-                } else {
-                    // Same key count but wrong keys — trigger error feedback and clear
-                    handleIncorrect();
-                }
+            // Success when pressed keys exactly match ANY alternative.
+            const matchesSome = requiredKeySets.some(set =>
+                set.length === pressedKeys.size && set.every(k => pressedKeys.has(k)));
+            if (matchesSome) {
+                onSuccess();
+                return;
+            }
+
+            // Still building only if the pressed keys are a subset of some
+            // alternative (handles mixed-size alternatives like Ctrl+G / F5 —
+            // pressing Control mustn't fail just because a 1-key alternative
+            // exists). Otherwise it's a wrong combination.
+            const isSubsetOfSome = requiredKeySets.some(set =>
+                [...pressedKeys].every(k => set.includes(k)));
+            if (!isSubsetOfSome) {
+                handleIncorrect();
             }
         }
-    }, [pressedKeys, sequence, isSequential, requiredKeys, isDisabled, onSuccess, handleIncorrect]);
+    }, [pressedKeys, sequence, isSequential, requiredKeySets, isDisabled, onSuccess, handleIncorrect]);
 
     // Virtual keyboard handler
     const handleVirtualKeyClick = (key: string) => {

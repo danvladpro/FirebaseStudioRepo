@@ -61,6 +61,8 @@ export function HomePageClient() {
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = React.useState(false);
   const isAdmin = userProfile?.preview === true;
+  const primerCompleted = userProfile?.primerCompleted === true;
+  const trainingLocked = !isAdmin && !primerCompleted;
 
   const SCROLL_POSITION_KEY = 'dashboardScrollPosition';
 
@@ -457,8 +459,45 @@ export function HomePageClient() {
                 </Card>
             </aside>
             <section className="space-y-8">
-                <BeforeYouStart isPremium={isPremium} onUpgradeClick={() => setIsPremiumModalOpen(true)} />
-                {/* Training path tab interface */}
+                <BeforeYouStart primerCompleted={primerCompleted} />
+                {/* Training path tab interface — gated behind the Before-you-start primer */}
+                {trainingLocked ? (
+                <div className="relative">
+                    {/* Blurred peek of the training path */}
+                    <div className="pointer-events-none select-none" style={{ filter: 'blur(3px)', opacity: 0.55 }}>
+                        <div className="flex items-center justify-between mb-5">
+                            <h2 className="text-xl font-bold tracking-tight">Training path</h2>
+                            <div className="flex gap-1 p-1 bg-muted rounded-xl border border-border">
+                                {(['Apprentice', 'Master', 'Ninja'] as ChallengeLevel[]).map(level => (
+                                    <span key={level} className="inline-flex items-center gap-2 px-4 h-9 rounded-lg text-sm font-bold text-muted-foreground">
+                                        <span>{level === 'Apprentice' ? '⚔️' : level === 'Master' ? '🥷' : '🏆'}</span>
+                                        <span>{level}</span>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                        <Card>
+                            <CardContent className="p-4 space-y-3">
+                                <div className="grid sm:grid-cols-2 gap-4">
+                                    {[0, 1, 2, 3].map(i => <div key={i} className="h-24 rounded-lg border bg-muted/30" />)}
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 mt-4">
+                                    {[0, 1, 2, 3, 4, 5].map(i => <div key={i} className="h-10 rounded-lg border bg-muted/30" />)}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                    {/* Overlay */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/70 backdrop-blur-[2px] rounded-xl text-center px-4">
+                        <Lock className="w-7 h-7 text-muted-foreground" />
+                        <h3 className="text-xl font-extrabold tracking-tight">Finish “Before you start” first</h3>
+                        <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
+                            Open the keyboard primer above and read each section. Once you complete it, your challenges &amp; drills unlock.
+                        </p>
+                    </div>
+                </div>
+                ) : (
+                /* Training path tab interface */
                 <div>
                     {/* Tab header */}
                     <div className="flex items-center justify-between mb-5">
@@ -908,6 +947,7 @@ export function HomePageClient() {
                         );
                     })()}
                 </div>
+                )}
             </section>
         </div>
       </main>

@@ -172,7 +172,12 @@ export interface DialogEffect {
 export interface ChallengeStep {
   description: string;
   keys: string[];
-  macKeys?: string[];
+  // A single Mac combo (e.g. ['meta','c']) OR a list of acceptable alternatives
+  // (e.g. [['control','g'],['f5']] — pressing any one counts as correct).
+  macKeys?: string[] | string[][];
+  // No Mac equivalent. On Mac the step still uses its Windows `keys` (Option
+  // stands in for Alt) but shows a "Windows-only" call-out.
+  windowsOnly?: boolean;
   iconName: keyof typeof import("lucide-react");
   isSequential?: boolean;
   gridEffect?: GridEffect;
@@ -184,7 +189,8 @@ export interface ChallengeStep {
 export interface Challenge {
   description: string;
   keys?: string[]; // Optional for multi-step
-  macKeys?: string[];
+  macKeys?: string[] | string[][];
+  windowsOnly?: boolean;
   iconName?: keyof typeof import("lucide-react"); // Optional for multi-step
   isSequential?: boolean; // Optional for multi-step
   steps: ChallengeStep[];
@@ -242,7 +248,11 @@ export interface UserProfile {
   performance?: UserStats;
   masteryCertificateId?: string | null;
   missingKeys?: string[];
+  // User's keyboard platform. Drives Mac vs Windows shortcuts and the on-screen
+  // keyboard. When unset, the app falls back to user-agent detection.
+  platform?: 'mac' | 'windows';
   preview?: boolean;
+  primerCompleted?: boolean;
 }
 
     

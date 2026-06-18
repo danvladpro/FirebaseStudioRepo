@@ -1,19 +1,18 @@
 
 "use client";
 
-import { useState, ElementType, useEffect, useMemo } from "react";
+import { useState, ElementType, useMemo } from "react";
 import { Challenge, ChallengeSet, GridState, ChallengeStep } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { VisualKeyboard } from "./visual-keyboard";
 import * as icons from "lucide-react";
-import { useAuth } from "./auth-provider";
+import { useAuth, useIsMac } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { VisualGrid } from "./visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
-import { getPlatformKeys, getSelectionRangeString } from "@/lib/utils";
+import { getPlatformKeySets, isStepWindowsOnly, getSelectionRangeString } from "@/lib/utils";
 import { calculateDialogStateForStep } from "@/lib/dialog-engine";
 
 // Dialog imports
@@ -43,12 +42,8 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnswerShown, setIsAnswerShown] = useState(false);
     const { isPremium } = useAuth();
-    const [isMac, setIsMac] = useState(false);
+    const isMac = useIsMac();
 
-    useEffect(() => {
-        setIsMac(navigator.userAgent.toLowerCase().includes('mac'));
-    }, []);
-    
     const isLimited = !isPremium;
     
     const flashcards = useMemo((): FlashcardItem[] => {
@@ -109,7 +104,27 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
         );
     }
     
-    const stepKeys = getPlatformKeys(currentFlashcard.step, isMac);
+    // Display-only: on Mac, Home/End/PageUp/PageDown are pressed as Fn + arrow.
+    // The engine still matches the canonical key at runtime — this expansion is
+    // purely so the flashcard keyboard/text show the real chord. Windows unchanged.
+    const MAC_NAV_DISPLAY: Record<string, string[]> = {
+        home: ['fn', 'arrowleft'],
+        end: ['fn', 'arrowright'],
+        pageup: ['fn', 'arrowup'],
+        pagedown: ['fn', 'arrowdown'],
+    };
+    const stepIsWindowsOnly = isStepWindowsOnly(currentFlashcard.step, isMac);
+
+    // On Mac, Home/End/PageUp/PageDown are normally shown as their Fn+arrow chord.
+    // For Windows-only steps we skip that and show the literal Home/End/PgUp/PgDn
+    // keys — the step is already flagged Windows-only, so the Fn chord just adds noise.
+    const expandForDisplay = (set: string[]) =>
+        isMac && !stepIsWindowsOnly ? set.flatMap(k => MAC_NAV_DISPLAY[k] ?? [k]) : set;
+
+    // Every acceptable combo for this card, shown side-by-side ("or") in the text
+    // row and colour-coded on the keyboard (1st = green, 2nd = yellow).
+    const displayAlternatives = getPlatformKeySets(currentFlashcard.step, isMac).map(expandForDisplay);
+
     const StepIcon = icons[currentFlashcard.step.iconName] as ElementType;
 
     return (
@@ -193,10 +208,24 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
 
                     <div className="flex flex-col items-center justify-center gap-2 min-h-[60px] w-full">
                         {isAnswerShown ? (
-                            <div className="flex items-center justify-center gap-1 animate-in fade-in">
-                                {stepKeys.map((key, keyIndex) => (
-                                    <KeyDisplay key={`${key}-${keyIndex}`} value={key} isMac={isMac} />
-                                ))}
+                            <div className="flex flex-col items-center gap-1.5 animate-in fade-in">
+                                <div className="flex items-center justify-center gap-2 flex-wrap">
+                                    {displayAlternatives.map((alt, altIndex) => (
+                                        <div key={altIndex} className="flex items-center gap-1">
+                                            {altIndex > 0 && (
+                                                <span className="text-xs font-normal text-muted-foreground mr-1">or</span>
+                                            )}
+                                            {alt.map((key, keyIndex) => (
+                                                <KeyDisplay key={`${key}-${keyIndex}`} value={key} isMac={isMac} />
+                                            ))}
+                                        </div>
+                                    ))}
+                                </div>
+                                {stepIsWindowsOnly && (
+                                    <p className="text-xs font-medium text-amber-600">
+                                        Windows-only — no Mac equivalent (⌥ Option replaces Alt)
+                                    </p>
+                                )}
                             </div>
                         ) : (
                             <Button onClick={toggleAnswer} variant="outline" className="mt-2 animate-pulse-subtle">
@@ -216,7 +245,7 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                      <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                 <VisualKeyboard highlightedKeys={isAnswerShown ? stepKeys : []} />
+                                 <VisualKeyboard highlightedKeySets={isAnswerShown ? displayAlternatives : []} isMac={isMac} />
                             </TooltipTrigger>
                             {!isAnswerShown && (
                                 <TooltipContent>

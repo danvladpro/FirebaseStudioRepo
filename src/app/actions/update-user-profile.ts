@@ -8,6 +8,7 @@ const UpdateUserProfileSchema = z.object({
     firebaseToken: z.string(),
     name: z.string().min(1, "Name cannot be empty.").max(100),
     missingKeys: z.array(z.string()).optional(),
+    platform: z.enum(['mac', 'windows']).optional(),
 });
 
 export async function updateUserProfile(input: z.infer<typeof UpdateUserProfileSchema>) {
@@ -17,7 +18,7 @@ export async function updateUserProfile(input: z.infer<typeof UpdateUserProfileS
         throw new Error(validation.error.errors.map(e => e.message).join(', '));
     }
 
-    const { firebaseToken, name, missingKeys } = validation.data;
+    const { firebaseToken, name, missingKeys, platform } = validation.data;
 
     let uid: string;
     try {
@@ -30,9 +31,12 @@ export async function updateUserProfile(input: z.infer<typeof UpdateUserProfileS
     try {
         const userDocRef = adminDb.collection('users').doc(uid);
 
-        const dataToUpdate: { name: string; missingKeys?: string[] } = { name };
+        const dataToUpdate: { name: string; missingKeys?: string[]; platform?: 'mac' | 'windows' } = { name };
         if (missingKeys !== undefined) {
             dataToUpdate.missingKeys = missingKeys;
+        }
+        if (platform !== undefined) {
+            dataToUpdate.platform = platform;
         }
 
         await userDocRef.update(dataToUpdate);

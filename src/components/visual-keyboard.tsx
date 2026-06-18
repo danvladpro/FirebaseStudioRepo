@@ -7,8 +7,21 @@ import { keyDisplayMap, windowsKeyDisplayMap } from "./key-display";
 
 interface VisualKeyboardProps {
   highlightedKeys?: string[];
+  // Alternative key combinations, each highlighted in its own colour (1st green,
+  // 2nd yellow). Takes precedence over `highlightedKeys` when provided.
+  highlightedKeySets?: string[][];
   onKeyClick?: (key: string) => void;
+  // Effective platform from the caller (the user's saved preference). When
+  // omitted, falls back to user-agent detection.
+  isMac?: boolean;
 }
+
+// Highlight colour per alternative index: 1st = green (primary/emerald), 2nd = yellow.
+const HIGHLIGHT_COLORS = [
+    "bg-primary text-primary-foreground border-primary/70",
+    "bg-yellow-400 text-yellow-950 border-yellow-500/70",
+    "bg-orange-400 text-orange-950 border-orange-500/70",
+];
 
 const windowsLayout: (string[])[] = [
     ['esc', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12'],
@@ -47,12 +60,7 @@ const keyWidths: Record<string, string> = {
     'fn': 'flex-[1.2]'
 };
 
-let isMac = false;
-if (typeof window !== 'undefined') {
-  isMac = navigator.userAgent.toLowerCase().includes('mac');
-}
-
-const normalizeKey = (key: string) => {
+const normalizeKey = (key: string, isMac: boolean) => {
     const lowerKey = key.toLowerCase();
     if (['control', 'ctrl'].includes(lowerKey)) return 'control';
     if (['meta', 'command', 'cmd', 'win'].includes(lowerKey)) return 'meta';
@@ -71,21 +79,40 @@ const normalizeKey = (key: string) => {
 };
 
 
-export function VisualKeyboard({ highlightedKeys = [], onKeyClick }: VisualKeyboardProps) {
+export function VisualKeyboard({ highlightedKeys = [], highlightedKeySets, onKeyClick, isMac: isMacProp }: VisualKeyboardProps) {
     const [isClient, setIsClient] = useState(false);
+    const [navIsMac, setNavIsMac] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
-        isMac = navigator.userAgent.toLowerCase().includes('mac');
+        setNavIsMac(navigator.userAgent.toLowerCase().includes('mac'));
     }, []);
 
+    const isMac = isMacProp ?? navIsMac;
     const layout = isMac ? macLayout : windowsLayout;
     const displayMap = isMac ? keyDisplayMap : windowsKeyDisplayMap;
 
-    const normalizedHighlights = new Set(highlightedKeys.map(normalizeKey));
+    // Per-alternative highlight: each set's keys get that set's colour (first set
+    // wins when a key appears in several). Falls back to the single-colour
+    // `highlightedKeys` path when no sets are supplied.
+    const useSets = (highlightedKeySets?.length ?? 0) > 0;
+    const normalizedSets = (highlightedKeySets ?? []).map(set => new Set(set.map(k => normalizeKey(k, isMac))));
+    const normalizedHighlights = new Set(highlightedKeys.map(k => normalizeKey(k, isMac)));
+
+    const colorIndexForKey = (key: string): number => {
+        if (useSets) {
+            for (let i = 0; i < normalizedSets.length; i++) {
+                if (normalizedSets[i].has(key)) return i;
+            }
+            return -1;
+        }
+        return normalizedHighlights.has(key) ? 0 : -1;
+    };
 
     const renderKey = (key: string, isSpecialLayout = false) => {
-        const isHighlighted = normalizedHighlights.has(key);
+        const colorIndex = colorIndexForKey(key);
+        const isHighlighted = colorIndex >= 0;
+        const highlightClass = HIGHLIGHT_COLORS[Math.min(colorIndex, HIGHLIGHT_COLORS.length - 1)] ?? HIGHLIGHT_COLORS[0];
         const flexClass = keyWidths[key] || 'flex-1';
         const display = displayMap[key] || key.toUpperCase();
         const isClickable = !!onKeyClick;
@@ -98,7 +125,7 @@ export function VisualKeyboard({ highlightedKeys = [], onKeyClick }: VisualKeybo
                     "h-full rounded-md flex items-center justify-center text-xs font-medium border-b-2",
                     "transition-colors duration-200",
                     isHighlighted
-                        ? "bg-primary text-primary-foreground border-primary/70"
+                        ? highlightClass
                         : "bg-background/60 text-foreground border-border/70",
                     isClickable && "cursor-pointer hover:bg-primary/80 hover:border-primary/60 active:translate-y-px",
                     flexClass

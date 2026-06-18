@@ -45,6 +45,13 @@ const surveySteps = [
     type: 'radio',
   },
   {
+    id: 'platform',
+    title: 'Your Keyboard',
+    description: 'Which keyboard do you use? This sets whether we show Mac (⌘ / ⌥) or Windows (Ctrl / Alt) shortcuts. You can change it later in Settings.',
+    options: ['Windows', 'Mac'],
+    type: 'radio',
+  },
+  {
     id: 'missingKeys',
     title: 'Keyboard Configuration',
     description: 'Select any keys that are NOT on your keyboard. This will help us tailor challenges for you.',
@@ -86,9 +93,13 @@ export default function SurveyPage() {
           return "Not Detected";
       };
       
+      const os = getOS();
+      // Pre-select the keyboard platform from the detected OS (user can change it).
+      setSurveyData(prev => (prev.platform ? prev : { ...prev, platform: os === 'MacOS' ? 'Mac' : 'Windows' }));
+
       getCountry().then(country => {
           setAnalyticsData({
-              os: getOS(),
+              os,
               browser: getBrowser(),
               country,
           });
@@ -142,11 +153,12 @@ export default function SurveyPage() {
     }
     try {
       const userDocRef = doc(db, 'users', user.uid);
-      const { name, ...restOfSurveyData } = surveyData;
+      const { name, platform, ...restOfSurveyData } = surveyData;
       await updateDoc(userDocRef, {
         name: name as string,
         survey: restOfSurveyData,
         missingKeys: surveyData.missingKeys || [],
+        platform: platform === 'Mac' ? 'mac' : 'windows',
         analytics: analyticsData
       });
       router.push('/dashboard');

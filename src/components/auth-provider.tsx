@@ -114,3 +114,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+
+// Effective keyboard platform: the user's saved preference wins; otherwise fall
+// back to user-agent detection. Single source of truth for "is this a Mac?".
+export const useIsMac = (): boolean => {
+  const { userProfile } = useAuth();
+  const [navIsMac, setNavIsMac] = useState(false);
+  useEffect(() => {
+    setNavIsMac(typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('mac'));
+  }, []);
+  if (userProfile?.platform) return userProfile.platform === 'mac';
+  return navIsMac;
+};
