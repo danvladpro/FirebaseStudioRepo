@@ -428,9 +428,6 @@ export function HomePageClient() {
                                             </span>
                                         </div>
                                     </div>
-                                    <p className="text-xs text-center text-muted-foreground mb-3">
-                                        {completedItems} of {totalItems} items
-                                    </p>
                                     {allItemsPassed ? (
                                         <Button
                                             className="w-full bg-emerald-600 hover:bg-emerald-700 font-bold"

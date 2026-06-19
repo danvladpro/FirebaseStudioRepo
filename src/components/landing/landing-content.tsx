@@ -295,9 +295,9 @@ export function LandingContent() {
               </ul>
               <div className={styles["stat-pills"]}>
                 <div className={styles["stat-pill"]}>
-                  <div className={styles["stat-pill-num"]}>82% of desk jobs</div>
+                  <div className={styles["stat-pill-num"]}>Most office jobs</div>
                   <div className={styles["stat-pill-lbl"]} style={{ fontSize: "13px" }}>
-                    require Excel
+                    involve spreadsheets
                   </div>
                 </div>
                 <div className={styles["stat-pill"]}>
