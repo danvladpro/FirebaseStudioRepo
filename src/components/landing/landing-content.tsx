@@ -393,42 +393,13 @@ export function LandingContent() {
             </p>
           </div>
           <div className={styles["pricing-grid"]}>
-            {/* Lifetime */}
-            <div className={styles["pricing-card"]} id="plan-lifetime">
-              <div className={styles["pricing-label"]}>One-time</div>
-              <h3>Lifetime Access</h3>
-              <p className={styles["pricing-desc"]}>Pay once, use forever. Includes all future content updates.</p>
-              <div className={styles["pricing-price"]}>
-                <span className={styles["price-amount"]}>$17</span>
-                <span className={styles["price-period"]}>/ lifetime</span>
-              </div>
-              <ul className={styles["pricing-features"]}>
-                <li>
-                  <span className={styles["pf-check"]}><Check /></span> All challenges and flashcards
-                </li>
-                <li>
-                  <span className={styles["pf-check"]}><Check /></span> Performance tracking
-                </li>
-                <li>
-                  <span className={styles["pf-check"]}><Check /></span> Shareable certificate
-                </li>
-                <li>
-                  <span className={styles["pf-check"]}><Check /></span> Lifetime content updates
-                </li>
-              </ul>
-              <Link href="/signup" className={cx("pricing-cta", "cta-border")}>
-                Get Lifetime Access
-              </Link>
-            </div>
-
-            {/* 1 Week (featured) */}
-            <div className={cx("pricing-card", "featured")} id="plan-week">
-              <span className={styles["featured-badge"]}>Most Popular</span>
+            {/* 1 Week */}
+            <div className={styles["pricing-card"]} id="plan-week">
               <div className={styles["pricing-label"]}>Short-term</div>
               <h3>1-Week Access</h3>
               <p className={styles["pricing-desc"]}>Perfect for a focused sprint before an interview or deadline.</p>
               <div className={styles["pricing-price"]}>
-                <span className={styles["price-amount"]}>$10</span>
+                <span className={styles["price-amount"]}>€9.99</span>
                 <span className={styles["price-period"]}>/ 7 days</span>
               </div>
               <ul className={styles["pricing-features"]}>
@@ -442,8 +413,37 @@ export function LandingContent() {
                   <span className={styles["pf-check"]}><Check /></span> 7 days full access
                 </li>
               </ul>
-              <Link href="/signup" className={cx("pricing-cta", "cta-green")}>
+              <Link href="/signup" className={cx("pricing-cta", "cta-border")}>
                 Get 7-Day Access
+              </Link>
+            </div>
+
+            {/* 1 Month (featured) */}
+            <div className={cx("pricing-card", "featured")} id="plan-month">
+              <span className={styles["featured-badge"]}>Most Popular</span>
+              <div className={styles["pricing-label"]}>Best value</div>
+              <h3>1-Month Access</h3>
+              <p className={styles["pricing-desc"]}>The sweet spot — enough time to build real muscle memory and earn your certificate.</p>
+              <div className={styles["pricing-price"]}>
+                <span className={styles["price-amount"]}>€14.99</span>
+                <span className={styles["price-period"]}>/ month</span>
+              </div>
+              <ul className={styles["pricing-features"]}>
+                <li>
+                  <span className={styles["pf-check"]}><Check /></span> All challenges and flashcards
+                </li>
+                <li>
+                  <span className={styles["pf-check"]}><Check /></span> Performance tracking
+                </li>
+                <li>
+                  <span className={styles["pf-check"]}><Check /></span> Shareable certificate
+                </li>
+                <li>
+                  <span className={styles["pf-check"]}><Check /></span> 30 days full access
+                </li>
+              </ul>
+              <Link href="/signup" className={cx("pricing-cta", "cta-green")}>
+                Get 1-Month Access
               </Link>
             </div>
 

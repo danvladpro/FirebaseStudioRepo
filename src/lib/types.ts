@@ -224,7 +224,9 @@ export interface UserStats {
 }
 
 export interface Subscription {
-  type: 'one-week' | 'lifetime' | 'weekly';
+  // 'one-month' and 'one-week' are the current paid plans.
+  // 'lifetime' / 'weekly' are retained for legacy users who purchased them.
+  type: 'one-week' | 'one-month' | 'lifetime' | 'weekly';
   status: 'active' | 'inactive';
   expiresAt: string | null; // ISO date string or null for lifetime
   stripeCustomerId?: string | null;
