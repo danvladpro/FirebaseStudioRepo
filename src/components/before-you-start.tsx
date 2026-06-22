@@ -16,6 +16,7 @@ interface Example {
   keys: string[];
   mode: AnimMode;
   action: string;
+  visual?: VisualSpec;
 }
 
 interface Section {
@@ -23,6 +24,14 @@ interface Section {
   use: React.ReactNode;
   examples: Example[];
 }
+
+type Stage = "idle" | "pressed" | "result";
+type GridEffect = "jump-right" | "step-right" | "cell-bold" | "cell-format" | "autosum";
+type DialogVisualEffect = "option-down" | "tab-fields";
+type VisualSpec =
+  | { kind: "grid"; effect: GridEffect }
+  | { kind: "dialog"; effect: DialogVisualEffect }
+  | { kind: "ribbon" };
 
 interface NogoRow {
   keys: string[];
@@ -108,35 +117,49 @@ function AKbd({ children, active = false }: { children: React.ReactNode; active?
   );
 }
 
-function useExAnimation(mode: AnimMode, keyCount: number) {
-  const [phase, setPhase] = React.useState(-1);
+function useExAnimation(mode: AnimMode, keyCount: number): { keyPhase: number; stage: Stage } {
+  const [state, setState] = React.useState<{ keyPhase: number; stage: Stage }>({ keyPhase: -1, stage: "idle" });
   React.useEffect(() => {
-    let raf: number;
-    let last = -2;
+    // Respect reduced-motion: show the finished outcome, no looping.
+    const reduce = typeof window !== "undefined"
+      && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      setState(mode === "sequence"
+        ? { keyPhase: keyCount - 1, stage: "result" }
+        : { keyPhase: -1, stage: "result" });
+      return;
+    }
+    let raf = 0;
+    let last = "";
     const tick = () => {
       const now = performance.now();
-      let p: number;
+      let keyPhase: number;
+      let stage: Stage;
       if (mode === "sequence") {
         const KEY = 520, PAUSE = 1100;
         const cycle = KEY * keyCount + PAUSE;
         const t = now % cycle;
-        p = t < KEY * keyCount ? Math.floor(t / KEY) : -1;
+        keyPhase = t < KEY * keyCount ? Math.floor(t / KEY) : -1;
+        stage = keyPhase >= 0 ? "pressed" : "result";
       } else {
-        const t = now % 2300;
-        p = t < 320 ? 0 : -1;
+        const CYCLE = 2300, PRESS = 320, RESULT_END = 1820;
+        const t = now % CYCLE;
+        keyPhase = t < PRESS ? 0 : -1;
+        stage = t < PRESS ? "pressed" : t < RESULT_END ? "result" : "idle";
       }
-      if (p !== last) { last = p; setPhase(p); }
+      const sig = `${keyPhase}/${stage}`;
+      if (sig !== last) { last = sig; setState({ keyPhase, stage }); }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [mode, keyCount]);
-  return phase;
+  return state;
 }
 
 function AnimExRow({ ex }: { ex: Example }) {
   const isSeq = ex.mode === "sequence";
-  const phase = useExAnimation(ex.mode, ex.keys.length);
+  const { keyPhase } = useExAnimation(ex.mode, ex.keys.length);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
       <span style={{
@@ -157,13 +180,13 @@ function AnimExRow({ ex }: { ex: Example }) {
             {i > 0 && (isSeq
               ? (
                 <svg width={10} height={10} viewBox="0 0 10 10" aria-hidden
-                     style={{ color: "hsl(var(--muted-foreground))", flexShrink: 0, opacity: phase >= i ? 1 : 0.3, transition: "opacity 150ms" }}>
+                     style={{ color: "hsl(var(--muted-foreground))", flexShrink: 0, opacity: keyPhase >= i ? 1 : 0.3, transition: "opacity 150ms" }}>
                   <path d="M2 5h5M5 3l2 2-2 2" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               )
               : <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 11, fontFamily: "ui-monospace, monospace", fontWeight: 500 }}>+</span>
             )}
-            <AKbd active={isSeq ? phase === i : phase === 0}>{k}</AKbd>
+            <AKbd active={isSeq ? keyPhase === i : keyPhase === 0}>{k}</AKbd>
           </React.Fragment>
         ))}
       </span>
