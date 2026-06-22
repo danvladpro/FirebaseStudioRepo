@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { adminDb } from '@/lib/firebase-admin';
-import { addDays } from 'date-fns';
+import { addDays, addMonths } from 'date-fns';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-06-20',
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.firebaseUID;
-        const plan = session.metadata?.plan; // 'one-week' or 'lifetime'
+        const plan = session.metadata?.plan; // 'one-week' or 'one-month'
         const customerId =
           typeof session.customer === 'string'
             ? session.customer
@@ -47,12 +47,14 @@ export async function POST(req: NextRequest) {
         let expiresAt: string | null = null;
         if (plan === 'one-week') {
           expiresAt = addDays(new Date(), 7).toISOString();
+        } else if (plan === 'one-month') {
+          expiresAt = addMonths(new Date(), 1).toISOString();
         }
 
         await userDocRef.update(
           {
             subscription: {
-              type: plan === 'one-week' ? 'one-week' : 'lifetime',
+              type: plan,
               status: 'active',
               expiresAt,
               stripeCustomerId: customerId ?? null,

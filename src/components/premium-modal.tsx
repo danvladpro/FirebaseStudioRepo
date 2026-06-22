@@ -19,7 +19,7 @@ interface PremiumModalProps {
 }
 
 export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
-    const [selectedPlan, setSelectedPlan] = useState<"one-week" | "lifetime">("lifetime");
+    const [selectedPlan, setSelectedPlan] = useState<"one-week" | "one-month">("one-month");
     const [isLoading, setIsLoading] = useState(false);
     const [termsAgreed, setTermsAgreed] = useState(false);
     const [legalSheetOpen, setLegalSheetOpen] = useState(false);
@@ -88,19 +88,22 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
                         <CardContent className="p-6 text-center">
                             <Zap className="w-10 h-10 mx-auto text-primary mb-4" />
                             <h3 className="text-xl font-bold">1 Week Access</h3>
-                            <p className="text-3xl font-bold mt-2">$10</p>
+                            <p className="text-3xl font-bold mt-2">€9.99</p>
                             <p className="text-xs text-muted-foreground mt-1">7 days full access</p>
                         </CardContent>
                     </Card>
                      <Card
-                        className={cn("cursor-pointer", selectedPlan === 'lifetime' && "border-primary ring-2 ring-primary")}
-                        onClick={() => setSelectedPlan('lifetime')}
+                        className={cn("relative cursor-pointer", selectedPlan === 'one-month' && "border-primary ring-2 ring-primary")}
+                        onClick={() => setSelectedPlan('one-month')}
                     >
+                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
+                            Most Popular
+                        </span>
                         <CardContent className="p-6 text-center">
                             <Star className="w-10 h-10 mx-auto text-primary mb-4" />
-                            <h3 className="text-xl font-bold">Lifetime</h3>
-                            <p className="text-3xl font-bold mt-2">$17</p>
-                            <p className="text-xs text-muted-foreground mt-1">One-time payment</p>
+                            <h3 className="text-xl font-bold">1 Month Access</h3>
+                            <p className="text-3xl font-bold mt-2">€14.99</p>
+                            <p className="text-xs text-muted-foreground mt-1">30 days full access</p>
                         </CardContent>
                     </Card>
                 </div>

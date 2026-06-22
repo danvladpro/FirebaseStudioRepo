@@ -52,6 +52,7 @@ export function UserMenu() {
   const getPremiumStatusText = () => {
     if (!isPremium || !userProfile?.subscription) return null;
 
+    // Legacy lifetime users (plan no longer sold) keep their permanent badge.
     if (userProfile.subscription.type === 'lifetime') {
       return (
         <span className='text-xs font-semibold bg-yellow-400/20 text-yellow-600 px-2 py-0.5 rounded-md flex items-center gap-1'>
@@ -63,8 +64,10 @@ export function UserMenu() {
 
     if (userProfile.subscription.expiresAt) {
       const daysLeft = differenceInDays(new Date(userProfile.subscription.expiresAt), new Date());
-      const distance = formatDistanceToNow(new Date(userProfile.subscription.expiresAt));
+
+      // Final week: switch to an orange "expires soon" warning.
       if (daysLeft < 7) {
+        const distance = formatDistanceToNow(new Date(userProfile.subscription.expiresAt));
         return (
           <span className='text-xs font-semibold bg-orange-400/20 text-orange-600 px-2 py-0.5 rounded-md flex items-center gap-1'>
             <Clock className="w-3 h-3" />
@@ -72,6 +75,14 @@ export function UserMenu() {
           </span>
         );
       }
+
+      // Otherwise always show remaining days with the premium badge.
+      return (
+        <span className='text-xs font-semibold bg-emerald-400/20 text-emerald-700 px-2 py-0.5 rounded-md flex items-center gap-1'>
+          <Crown className="w-3 h-3" />
+          {daysLeft} days left
+        </span>
+      );
     }
     return null;
   };

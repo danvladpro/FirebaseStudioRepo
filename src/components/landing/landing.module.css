@@ -168,6 +168,12 @@
 .ss-active { box-shadow: inset 0 0 0 2px var(--green-600); font-weight: 700; color: var(--green-700); background: var(--green-50); position: relative; }
 .ss-sel { background: rgba(16,185,129,0.12); box-shadow: inset 1px 0 0 var(--green-500), inset -1px 0 0 var(--green-500); }
 .ss-sel-end { box-shadow: inset 1px 0 0 var(--green-500), inset -1px 0 0 var(--green-500), inset 0 -2px 0 var(--green-500); }
+.ss-ghost { font-style: italic; font-family: var(--font-display), cursive; text-align: right; font-size: 0.58rem; color: transparent; animation: ss-ghost-fade 3.2s ease-in-out infinite; }
+@keyframes ss-ghost-fade {
+  0%, 48% { color: transparent; }
+  50%, 88% { color: rgba(5,150,105,0.85); }
+  100% { color: transparent; }
+}
 .ss-tabs { display: flex; gap: 2px; margin-top: 6px; padding-top: 5px; border-top: 1px solid #e8edeb; }
 .ss-tab { font-size: 0.58rem; padding: 2px 9px; color: #94a3b8; border-bottom: 2px solid transparent; font-weight: 600; }
 .ss-tab-on { color: var(--green-700); border-bottom-color: var(--green-600); }
@@ -179,7 +185,12 @@
 .kkey { min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 600; font-family: var(--font-mono), monospace; color: #64748b; background: #f1f5f3; border: 1px solid #dbe3e0; border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; }
 .kkey-wide { min-width: 34px; }
 .kkey-space { min-width: 64px; background: #f8fafc; }
-.kkey-lit { color: #fff; background: var(--green-600); border-color: var(--green-700); box-shadow: 0 0 12px rgba(16,185,129,0.45); }
+.kkey-lit { color: #fff; background: var(--green-600); border-color: var(--green-700); box-shadow: 0 0 12px rgba(16,185,129,0.45); animation: kkey-pulse 3.2s ease-in-out infinite; }
+@keyframes kkey-pulse {
+  0%, 48% { color: #64748b; background: #f1f5f3; border-color: #dbe3e0; box-shadow: none; }
+  50%, 88% { color: #fff; background: var(--green-600); border-color: var(--green-700); box-shadow: 0 0 12px rgba(16,185,129,0.45); }
+  100% { color: #64748b; background: #f1f5f3; border-color: #dbe3e0; box-shadow: none; }
+}
 .kbd-press { font-size: 0.8rem; color: #475569; }
 .kbd-press strong { color: var(--green-700); font-weight: 700; }
 .floating-badge {

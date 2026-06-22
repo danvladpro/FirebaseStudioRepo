@@ -6,7 +6,7 @@ import { adminAuth } from '@/lib/firebase-admin';
 
 const CreateCheckoutSessionInputSchema = z.object({
   firebaseToken: z.string(),
-  plan: z.enum(['one-week', 'lifetime']),
+  plan: z.enum(['one-week', 'one-month']),
 });
 
 export type CreateCheckoutSessionInput = z.infer<typeof CreateCheckoutSessionInputSchema>;
@@ -15,9 +15,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-06-20',
 });
 
-const PRICE_IDS: Record<'one-week' | 'lifetime', string | undefined> = {
+const PRICE_IDS: Record<'one-week' | 'one-month', string | undefined> = {
   'one-week': process.env.STRIPE_ONE_WEEK_PRICE_ID,
-  'lifetime': process.env.STRIPE_LIFETIME_PRICE_ID,
+  'one-month': process.env.STRIPE_ONE_MONTH_PRICE_ID,
 };
 
 export async function createCheckoutSession(input: CreateCheckoutSessionInput) {

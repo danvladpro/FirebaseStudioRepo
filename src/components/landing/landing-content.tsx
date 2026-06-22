@@ -23,9 +23,9 @@ export function LandingContent() {
               Excel Shortcuts Training
             </div>
             <h1>
-              Stop hunting menus.
+              Learn Excel Shorcuts.
               <br />
-              <em>Think in shortcuts.</em>
+              <em>Stop wasting time</em>
             </h1>
             <p className={styles["hero-sub"]}>
               Learn shortcuts through real-life Excel drills.
@@ -99,21 +99,21 @@ export function LandingContent() {
                       <td className={styles["ss-cell"]}>South</td>
                       <td className={cx("ss-cell", "ss-num")}>85</td>
                       <td className={cx("ss-cell", "ss-num")}>110</td>
-                      <td className={cx("ss-cell", "ss-sel")} />
+                      <td className={cx("ss-cell", "ss-sel", "ss-ghost")}>=SUM(B3:C3)</td>
                     </tr>
                     <tr>
                       <td className={styles["ss-rowh"]}>4</td>
                       <td className={styles["ss-cell"]}>East</td>
                       <td className={cx("ss-cell", "ss-num")}>140</td>
                       <td className={cx("ss-cell", "ss-num")}>75</td>
-                      <td className={cx("ss-cell", "ss-sel")} />
+                      <td className={cx("ss-cell", "ss-sel", "ss-ghost")}>=SUM(B4:C4)</td>
                     </tr>
                     <tr>
                       <td className={styles["ss-rowh"]}>5</td>
                       <td className={styles["ss-cell"]}>West</td>
                       <td className={cx("ss-cell", "ss-num")}>60</td>
                       <td className={cx("ss-cell", "ss-num")}>130</td>
-                      <td className={cx("ss-cell", "ss-sel", "ss-sel-end")} />
+                      <td className={cx("ss-cell", "ss-sel", "ss-sel-end", "ss-ghost")}>=SUM(B5:C5)</td>
                     </tr>
                   </tbody>
                 </table>
@@ -270,43 +270,23 @@ export function LandingContent() {
               <h2>Work faster with fever mistakes</h2>
               <p>Master shortcuts and reclaim that lost time for real analysis — working faster, with sharper focus and fewer mistakes.</p>
               <ul className={styles["check-list"]}>
-                <li style={{ fontWeight: 600 }}>
+                <li>
                   <span className={styles["check-icon"]}>
                     <Check />
                   </span>
-                  <span>Save days of useless clicking — you are faster without your mouse or trackpad</span>
+                  <span>
+                     <strong>Become Faster and More Efficient</strong> —  the most important, you are quicker without your mouse or trackpad
+                  </span>
                 </li>
                 <li>
                   <span className={styles["check-icon"]}>
                     <Check />
                   </span>
                   <span>
-                    <strong>Stand out in interviews</strong> — Show off your certificate of achievement and how quickly you can get your job done.
-                  </span>
-                </li>
-                <li>
-                  <span className={styles["check-icon"]}>
-                    <Check />
-                  </span>
-                  <span>
-                    <strong>Stay in flow to deliver before the deadline</strong> — muscle memory removes the mental friction of task-switching.
+                    <strong>Earn Certificate</strong> — Show off your certificate of achievement and how quickly you can get your job done.
                   </span>
                 </li>
               </ul>
-              <div className={styles["stat-pills"]}>
-                <div className={styles["stat-pill"]}>
-                  <div className={styles["stat-pill-num"]}>82% of desk jobs</div>
-                  <div className={styles["stat-pill-lbl"]} style={{ fontSize: "13px" }}>
-                    require Excel
-                  </div>
-                </div>
-                <div className={styles["stat-pill"]}>
-                  <div className={styles["stat-pill-num"]}>Earn Certificate</div>
-                  <div className={styles["stat-pill-lbl"]} style={{ fontSize: "13px" }}>
-                    to showcase your skills
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -365,18 +345,6 @@ export function LandingContent() {
                   </span>
                 </li>
               </ul>
-              <div className={styles["stat-pills"]}>
-                <div className={styles["stat-pill"]}>
-                  <div className={styles["stat-pill-num"]}>Faster</div>
-                  <div className={styles["stat-pill-lbl"]}>everyday task completion</div>
-                </div>
-                <div className={styles["stat-pill"]}>
-                  <div className={styles["stat-pill-num"]}>↓ errors</div>
-                  <div className={styles["stat-pill-lbl"]} style={{ fontSize: "13px" }}>
-                    data quality improves
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -393,42 +361,13 @@ export function LandingContent() {
             </p>
           </div>
           <div className={styles["pricing-grid"]}>
-            {/* Lifetime */}
-            <div className={styles["pricing-card"]} id="plan-lifetime">
-              <div className={styles["pricing-label"]}>One-time</div>
-              <h3>Lifetime Access</h3>
-              <p className={styles["pricing-desc"]}>Pay once, use forever. Includes all future content updates.</p>
-              <div className={styles["pricing-price"]}>
-                <span className={styles["price-amount"]}>$17</span>
-                <span className={styles["price-period"]}>/ lifetime</span>
-              </div>
-              <ul className={styles["pricing-features"]}>
-                <li>
-                  <span className={styles["pf-check"]}><Check /></span> All challenges and flashcards
-                </li>
-                <li>
-                  <span className={styles["pf-check"]}><Check /></span> Performance tracking
-                </li>
-                <li>
-                  <span className={styles["pf-check"]}><Check /></span> Shareable certificate
-                </li>
-                <li>
-                  <span className={styles["pf-check"]}><Check /></span> Lifetime content updates
-                </li>
-              </ul>
-              <Link href="/signup" className={cx("pricing-cta", "cta-border")}>
-                Get Lifetime Access
-              </Link>
-            </div>
-
-            {/* 1 Week (featured) */}
-            <div className={cx("pricing-card", "featured")} id="plan-week">
-              <span className={styles["featured-badge"]}>Most Popular</span>
+            {/* 1 Week */}
+            <div className={styles["pricing-card"]} id="plan-week">
               <div className={styles["pricing-label"]}>Short-term</div>
               <h3>1-Week Access</h3>
               <p className={styles["pricing-desc"]}>Perfect for a focused sprint before an interview or deadline.</p>
               <div className={styles["pricing-price"]}>
-                <span className={styles["price-amount"]}>$10</span>
+                <span className={styles["price-amount"]}>€9.99</span>
                 <span className={styles["price-period"]}>/ 7 days</span>
               </div>
               <ul className={styles["pricing-features"]}>
@@ -442,8 +381,37 @@ export function LandingContent() {
                   <span className={styles["pf-check"]}><Check /></span> 7 days full access
                 </li>
               </ul>
-              <Link href="/signup" className={cx("pricing-cta", "cta-green")}>
+              <Link href="/signup" className={cx("pricing-cta", "cta-border")}>
                 Get 7-Day Access
+              </Link>
+            </div>
+
+            {/* 1 Month (featured) */}
+            <div className={cx("pricing-card", "featured")} id="plan-month">
+              <span className={styles["featured-badge"]}>Most Popular</span>
+              <div className={styles["pricing-label"]}>Best value</div>
+              <h3>1-Month Access</h3>
+              <p className={styles["pricing-desc"]}>The sweet spot — enough time to build real muscle memory and earn your certificate.</p>
+              <div className={styles["pricing-price"]}>
+                <span className={styles["price-amount"]}>€14.99</span>
+                <span className={styles["price-period"]}>/ month</span>
+              </div>
+              <ul className={styles["pricing-features"]}>
+                <li>
+                  <span className={styles["pf-check"]}><Check /></span> All challenges and flashcards
+                </li>
+                <li>
+                  <span className={styles["pf-check"]}><Check /></span> Performance tracking
+                </li>
+                <li>
+                  <span className={styles["pf-check"]}><Check /></span> Shareable certificate
+                </li>
+                <li>
+                  <span className={styles["pf-check"]}><Check /></span> 30 days full access
+                </li>
+              </ul>
+              <Link href="/signup" className={cx("pricing-cta", "cta-green")}>
+                Get 1-Month Access
               </Link>
             </div>
 
