@@ -196,6 +196,77 @@ function AnimExRow({ ex }: { ex: Example }) {
   );
 }
 
+function MiniGrid({ effect, stage }: { effect: GridEffect; stage: Stage }) {
+  const result = stage === "result";
+  const CW = 36, CH = 20, HH = 16, RHW = 18;
+  const cols = effect === "jump-right" ? ["A", "B", "C", "D"]
+    : effect === "step-right" ? ["A", "B", "C"]
+    : ["A", "B"];
+  const nRows = effect === "autosum" ? 3 : 2;
+  const gridW = RHW + cols.length * CW;
+  const gridH = HH + nRows * CH;
+
+  const selCol = effect === "jump-right" ? (result ? cols.length - 1 : 0)
+    : effect === "step-right" ? (result ? 1 : 0)
+    : 0;
+  const selRow = effect === "autosum" ? 2 : 0;
+
+  const cellOf = (c: number, r: number): { t: string; bold?: boolean; accent?: boolean } => {
+    if (effect === "cell-bold" && c === 0 && r === 0) return { t: "Q1", bold: result };
+    if (effect === "cell-format" && c === 0 && r === 0) return { t: result ? "50%" : "0.5" };
+    if (effect === "autosum" && c === 0) {
+      if (r === 0) return { t: "10" };
+      if (r === 1) return { t: "20" };
+      if (r === 2) return { t: result ? "30" : "", accent: true, bold: true };
+    }
+    return { t: "" };
+  };
+
+  const headerCell = (active: boolean): React.CSSProperties => ({
+    display: "grid", placeItems: "center", fontSize: 9, fontWeight: 700,
+    color: active ? C.primaryFg : "hsl(var(--muted-foreground))",
+    background: active ? C.primarySoft : "hsl(var(--muted))",
+    borderRight: "1px solid hsl(var(--border))", borderBottom: "1px solid hsl(var(--border))",
+    transition: "background 250ms, color 250ms",
+  });
+
+  return (
+    <div style={{ position: "relative", width: gridW, height: gridH, borderRadius: 6, overflow: "hidden", border: "1px solid hsl(var(--border))", background: "white", fontFamily: "ui-monospace, monospace" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, height: HH, display: "flex" }}>
+        <div style={{ ...headerCell(false), width: RHW, height: HH }} />
+        {cols.map((c, i) => (
+          <div key={c} style={{ ...headerCell(selCol === i), width: CW, height: HH }}>{c}</div>
+        ))}
+      </div>
+      {Array.from({ length: nRows }).map((_, r) => (
+        <React.Fragment key={r}>
+          <div style={{ ...headerCell(selRow === r), position: "absolute", top: HH + r * CH, left: 0, width: RHW, height: CH }}>{r + 1}</div>
+          {cols.map((_, c) => {
+            const ct = cellOf(c, r);
+            return (
+              <div key={c} style={{
+                position: "absolute", top: HH + r * CH, left: RHW + c * CW, width: CW, height: CH,
+                display: "grid", placeItems: "center", fontSize: 10,
+                fontWeight: ct.bold ? 800 : 500,
+                color: ct.accent ? C.primaryFg : "hsl(var(--foreground))",
+                borderRight: "1px solid hsl(var(--border))", borderBottom: "1px solid hsl(var(--border))",
+                transition: "font-weight 200ms",
+              }}>{ct.t}</div>
+            );
+          })}
+        </React.Fragment>
+      ))}
+      <div style={{
+        position: "absolute", top: HH + selRow * CH, left: RHW, width: CW, height: CH,
+        transform: `translateX(${selCol * CW}px)`,
+        border: `2px solid ${C.primary}`, background: "rgba(22,163,74,0.12)",
+        boxSizing: "border-box", pointerEvents: "none",
+        transition: "transform 350ms cubic-bezier(0.5,0,0.2,1)",
+      }} />
+    </div>
+  );
+}
+
 function NoGoKeys({ keys }: { keys: string[] }) {
   return (
     <span style={{ position: "relative", display: "inline-flex" }}>
