@@ -267,6 +267,50 @@ function MiniGrid({ effect, stage }: { effect: GridEffect; stage: Stage }) {
   );
 }
 
+function MiniDialog({ effect, stage }: { effect: DialogVisualEffect; stage: Stage }) {
+  const result = stage === "result";
+  const W = 156, ROW_H = 18, TITLE_H = 18, PAD = 8, GAP = 4;
+  const isOpt = effect === "option-down";
+  const rows = isOpt
+    ? ["Equals", "Does not equal", "Greater than"]
+    : ["Find what", "Replace with", "Within"];
+  const focus = result ? 1 : 0;
+
+  return (
+    <div style={{ width: W, borderRadius: 6, overflow: "hidden", border: "1px solid hsl(var(--border))", background: "white", boxShadow: "0 2px 6px rgba(0,0,0,0.08)" }}>
+      <div style={{ height: TITLE_H, display: "flex", alignItems: "center", padding: "0 8px", background: "hsl(var(--muted))", borderBottom: "1px solid hsl(var(--border))", fontSize: 9, fontWeight: 700, color: "hsl(var(--muted-foreground))" }}>
+        {isOpt ? "Filter" : "Find & Replace"}
+      </div>
+      <div style={{ padding: PAD, display: "flex", flexDirection: "column", gap: GAP }}>
+        {rows.map((label, i) => {
+          const active = focus === i;
+          const base: React.CSSProperties = {
+            height: ROW_H, display: "flex", alignItems: "center", padding: "0 6px",
+            borderRadius: 4, fontSize: 9.5, boxSizing: "border-box",
+            transition: "background 250ms, color 250ms, border-color 250ms, box-shadow 250ms",
+          };
+          const styled: React.CSSProperties = isOpt
+            ? { ...base, background: active ? C.primary : "transparent", color: active ? "white" : "hsl(var(--foreground))" }
+            : { ...base, border: `1.5px solid ${active ? C.primary : "hsl(var(--border))"}`,
+                background: active ? "rgba(22,163,74,0.06)" : "white",
+                boxShadow: active ? "0 0 0 2px rgba(22,163,74,0.18)" : "none",
+                color: "hsl(var(--foreground))" };
+          return (
+            <div key={i} style={styled}>
+              {isOpt && (
+                <span style={{ position: "relative", width: 9, height: 9, borderRadius: "50%", marginRight: 6, flexShrink: 0, border: `1.5px solid ${active ? "white" : "hsl(var(--muted-foreground))"}` }}>
+                  {active && <span style={{ position: "absolute", inset: 2, borderRadius: "50%", background: "white" }} />}
+                </span>
+              )}
+              {label}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function NoGoKeys({ keys }: { keys: string[] }) {
   return (
     <span style={{ position: "relative", display: "inline-flex" }}>
