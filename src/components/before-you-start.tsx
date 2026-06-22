@@ -311,6 +311,85 @@ function MiniDialog({ effect, stage }: { effect: DialogVisualEffect; stage: Stag
   );
 }
 
+function KeyTip({ children }: { children: React.ReactNode }) {
+  return (
+    <span style={{
+      position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)",
+      minWidth: 13, height: 13, padding: "0 2px", borderRadius: 3,
+      background: C.amberSoft, border: `1px solid ${C.amberBorder}`, color: C.amberFg,
+      fontSize: 8.5, fontWeight: 800, fontFamily: "ui-monospace, monospace",
+      display: "grid", placeItems: "center", lineHeight: 1,
+      boxShadow: "0 1px 2px rgba(0,0,0,0.12)", zIndex: 2,
+    }}>{children}</span>
+  );
+}
+
+function BorderGlyph({ color }: { color: string }) {
+  return (
+    <svg width={12} height={12} viewBox="0 0 16 16" aria-hidden>
+      <rect x="2" y="2" width="12" height="12" fill="none" stroke={color} strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+function MiniRibbon({ keyPhase }: { keyPhase: number }) {
+  const homeActive = keyPhase === 1 || keyPhase === 2 || keyPhase === -1;
+  const borderActive = keyPhase === 2 || keyPhase === -1;
+  const cellBordered = keyPhase === 2 || keyPhase === -1;
+  const tipH = keyPhase === 0;
+  const tipB = keyPhase === 1;
+  const tabs = ["File", "Home", "Insert", "Data"];
+
+  return (
+    <div style={{ width: "100%", borderRadius: 8, overflow: "hidden", border: "1px solid hsl(var(--border))", background: "white" }}>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 2, padding: "4px 6px 0", background: "hsl(var(--muted))", borderBottom: `2px solid ${C.primary}` }}>
+        {tabs.map(t => {
+          const isHome = t === "Home";
+          const active = isHome && homeActive;
+          return (
+            <span key={t} style={{
+              position: "relative", padding: "4px 10px", fontSize: 10,
+              fontWeight: active ? 700 : 500, borderRadius: "5px 5px 0 0",
+              background: active ? "white" : "transparent",
+              color: active ? C.primaryFg : "hsl(var(--muted-foreground))",
+              border: active ? "1px solid hsl(var(--border))" : "1px solid transparent",
+              borderBottom: active ? "1px solid white" : "1px solid transparent",
+              marginBottom: -1, transition: "background 200ms, color 200ms",
+            }}>
+              {t}
+              {isHome && tipH && <KeyTip>H</KeyTip>}
+            </span>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: 8 }}>
+        <div style={{ display: "flex", gap: 6 }}>
+          {["B", "I"].map(b => (
+            <span key={b} style={{ width: 22, height: 22, borderRadius: 4, display: "grid", placeItems: "center", border: "1px solid hsl(var(--border))", fontSize: 11, fontWeight: 700, color: "hsl(var(--muted-foreground))", background: "white" }}>{b}</span>
+          ))}
+          <span style={{
+            position: "relative", width: 26, height: 22, borderRadius: 4, display: "grid", placeItems: "center",
+            border: `1px solid ${borderActive ? C.primary : "hsl(var(--border))"}`,
+            background: borderActive ? C.primary : "white",
+            boxShadow: borderActive ? "0 0 0 3px rgba(22,163,74,0.2)" : "none",
+            transition: "background 200ms, border-color 200ms, box-shadow 200ms",
+          }}>
+            <BorderGlyph color={borderActive ? "white" : "hsl(var(--muted-foreground))"} />
+            {tipB && <KeyTip>B</KeyTip>}
+          </span>
+        </div>
+        <span style={{ color: "hsl(var(--muted-foreground))", fontFamily: "ui-monospace, monospace", fontSize: 12 }}>→</span>
+        <span style={{
+          width: 30, height: 22, display: "grid", placeItems: "center", fontSize: 10, fontWeight: 600,
+          fontFamily: "ui-monospace, monospace", background: "white",
+          border: cellBordered ? `2px solid ${C.primary}` : "1px dashed hsl(var(--border))",
+          transition: "border 200ms",
+        }}>A1</span>
+      </div>
+    </div>
+  );
+}
+
 function NoGoKeys({ keys }: { keys: string[] }) {
   return (
     <span style={{ position: "relative", display: "inline-flex" }}>
