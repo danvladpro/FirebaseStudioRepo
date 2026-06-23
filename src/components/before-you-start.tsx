@@ -157,11 +157,18 @@ function useExAnimation(mode: AnimMode, keyCount: number): { keyPhase: number; s
   return state;
 }
 
+function MiniVisual({ spec, keyPhase, stage }: { spec: VisualSpec; keyPhase: number; stage: Stage }) {
+  if (spec.kind === "grid") return <MiniGrid effect={spec.effect} stage={stage} />;
+  if (spec.kind === "dialog") return <MiniDialog effect={spec.effect} stage={stage} />;
+  return <MiniRibbon keyPhase={keyPhase} />;
+}
+
 function AnimExRow({ ex }: { ex: Example }) {
   const isSeq = ex.mode === "sequence";
-  const { keyPhase } = useExAnimation(ex.mode, ex.keys.length);
+  const { keyPhase, stage } = useExAnimation(ex.mode, ex.keys.length);
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
       <span style={{
         fontFamily: "ui-monospace, monospace", fontSize: 9, fontWeight: 700,
         letterSpacing: "0.1em", textTransform: "uppercase" as const,
@@ -192,6 +199,8 @@ function AnimExRow({ ex }: { ex: Example }) {
       </span>
       <span style={{ color: "hsl(var(--muted-foreground))", fontFamily: "ui-monospace, monospace", fontSize: 11, flexShrink: 0 }}>→</span>
       <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 12.5 }}>{ex.action}</span>
+      </div>
+      {ex.visual && <MiniVisual spec={ex.visual} keyPhase={keyPhase} stage={stage} />}
     </div>
   );
 }
@@ -466,9 +475,12 @@ function MacSwaps({ rows }: { rows: MacSwap[] }) {
 function SectionCards({ sections }: { sections: Section[] }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
-      {sections.map((g, gi) => (
+      {sections.map((g, gi) => {
+        const hasRibbon = g.examples.some(e => e.visual?.kind === "ribbon");
+        return (
         <div key={gi} style={{
           position: "relative",
+          gridColumn: hasRibbon ? "1 / -1" : undefined,
           padding: "18px 18px 16px 22px",
           border: "1px solid hsl(var(--border))",
           borderRadius: 12,
@@ -495,7 +507,8 @@ function SectionCards({ sections }: { sections: Section[] }) {
             {g.examples.map((ex, ei) => <AnimExRow key={ei} ex={ex} />)}
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -560,12 +573,12 @@ const BYS_DATA: ItemData[] = [
       {
         label: "Navigation",
         use: "Move fast through large sheets without ever touching the mouse.",
-        examples: [{ keys: ["Ctrl", "→"], mode: "combo", action: "Jump to data edge" }],
+        examples: [{ keys: ["Ctrl", "→"], mode: "combo", action: "Jump to data edge", visual: { kind: "grid", effect: "jump-right" } }],
       },
       {
         label: "Formatting",
-        use: "Open formatting controls and apply common styles instantly.",
-        examples: [{ keys: ["Ctrl", "1"], mode: "combo", action: "Format Cells dialog" }],
+        use: "Apply the most common styles instantly, without opening a single menu.",
+        examples: [{ keys: ["Ctrl", "B"], mode: "combo", action: "Bold", visual: { kind: "grid", effect: "cell-bold" } }],
       },
       {
         label: "Everything else",
@@ -596,12 +609,12 @@ const BYS_DATA: ItemData[] = [
             ribbon button — no memorisation needed, just follow the cues.
           </>
         ),
-        examples: [{ keys: ["Alt", "H", "B"], mode: "sequence", action: "Add cell border" }],
+        examples: [{ keys: ["Alt", "H", "B"], mode: "sequence", action: "Add cell border", visual: { kind: "ribbon" } }],
       },
       {
         label: "Direct combos",
         use: "A handful of high-value combos worth knowing — held together, not in sequence.",
-        examples: [{ keys: ["Alt", "="], mode: "combo", action: "AutoSum" }],
+        examples: [{ keys: ["Alt", "="], mode: "combo", action: "AutoSum", visual: { kind: "grid", effect: "autosum" } }],
       },
     ],
   },
@@ -621,12 +634,12 @@ const BYS_DATA: ItemData[] = [
       {
         label: "Move around the worksheet",
         use: "Cell-by-cell or jump-to-edge — two speeds for the same direction.",
-        examples: [{ keys: ["Ctrl", "→"], mode: "combo", action: "Jump to last cell" }],
+        examples: [{ keys: ["Ctrl", "→"], mode: "combo", action: "Jump to last cell", visual: { kind: "grid", effect: "jump-right" } }],
       },
       {
         label: "Move in menu's & dialog windows",
         use: "This works everywhere: color picker, filter menu, etc...",
-        examples: [{ keys: ["↓"], mode: "combo", action: "Moving down to the next option" }],
+        examples: [{ keys: ["↓"], mode: "combo", action: "Move down to the next option", visual: { kind: "dialog", effect: "option-down" } }],
       },
     ],
   },
@@ -641,7 +654,7 @@ const BYS_DATA: ItemData[] = [
       {
         label: "Formatting",
         use: "Currency, percentages, dates — formatted with a single combo, no dialog needed.",
-        examples: [{ keys: ["Ctrl", "⇧", "5"], mode: "combo", action: "Apply percentage format" }],
+        examples: [{ keys: ["Ctrl", "⇧", "5"], mode: "combo", action: "Apply percentage format", visual: { kind: "grid", effect: "cell-format" } }],
       },
     ],
   },
@@ -691,12 +704,12 @@ const BYS_DATA: ItemData[] = [
       {
         label: "In dialogs",
         use: "Navigate every field and confirm or cancel — without ever reaching for the mouse.",
-        examples: [{ keys: ["Tab"], mode: "combo", action: "Move to next field" }],
+        examples: [{ keys: ["Tab"], mode: "combo", action: "Move to next field", visual: { kind: "dialog", effect: "tab-fields" } }],
       },
       {
         label: "In the spreadsheet",
         use: "The key you press to confirm an entry decides where the cursor goes next.",
-        examples: [{ keys: ["Tab"], mode: "combo", action: "Confirm entry, move 1 cell right" }],
+        examples: [{ keys: ["Tab"], mode: "combo", action: "Confirm entry, move 1 cell right", visual: { kind: "grid", effect: "step-right" } }],
       },
     ],
   },
