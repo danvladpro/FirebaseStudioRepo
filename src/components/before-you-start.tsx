@@ -80,17 +80,19 @@ function Kbd({ children, size = "sm" }: { children: React.ReactNode; size?: "sm"
   );
 }
 
-function AKbd({ children, active = false }: { children: React.ReactNode; active?: boolean }) {
+function AKbd({ children, active = false, danger = false }: { children: React.ReactNode; active?: boolean; danger?: boolean }) {
+  const accent = danger ? "hsl(0 72% 50%)" : C.primary;
+  const glow = danger ? "rgba(220,38,38,0.22)" : "rgba(22,163,74,0.2)";
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", justifyContent: "center",
       minWidth: 20, height: 20, padding: "0 6px",
       borderRadius: 5, fontFamily: "ui-monospace, monospace",
       fontSize: 10.5, fontWeight: 600,
-      border: `1px solid ${active ? C.primary : "hsl(var(--border))"}`,
-      background: active ? C.primary : "white",
+      border: `1px solid ${active ? accent : "hsl(var(--border))"}`,
+      background: active ? accent : "white",
       color: active ? "white" : "hsl(var(--foreground))",
-      boxShadow: active ? "0 0 0 3px rgba(22,163,74,0.2)" : "0 1px 0 hsl(var(--border))",
+      boxShadow: active ? `0 0 0 3px ${glow}` : "0 1px 0 hsl(var(--border))",
       transform: active ? "scale(1.07) translateY(-1px)" : "scale(1) translateY(0px)",
       lineHeight: 1, whiteSpace: "nowrap" as const,
       transition: "background 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease",
@@ -403,6 +405,8 @@ function MiniRibbon({ keyPhase }: { keyPhase: number }) {
 }
 
 function NoGoKeys({ keys }: { keys: string[] }) {
+  const { keyPhase } = useExAnimation("combo", keys.length);
+  const flash = keyPhase === 0;
   return (
     <span style={{ position: "relative", display: "inline-flex" }}>
       <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
@@ -411,7 +415,7 @@ function NoGoKeys({ keys }: { keys: string[] }) {
             {i > 0 && (
               <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 11, fontFamily: "ui-monospace, monospace", fontWeight: 500 }}>+</span>
             )}
-            <Kbd size="sm">{k}</Kbd>
+            <AKbd active={flash} danger>{k}</AKbd>
           </React.Fragment>
         ))}
       </span>
