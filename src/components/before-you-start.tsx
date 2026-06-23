@@ -724,8 +724,8 @@ const BYS_DATA: ItemData[] = [
           </>
         ),
         examples: [
-          { keys: ["Alt", "H", "A", "C"], mode: "sequence", action: "Center align (Ribbon)", outcome: "fail" },
-          { keys: ["⌘", "⇧", "T"], mode: "combo", action: "AutoSum", visual: { kind: "grid", effect: "autosum" } },
+          { keys: ["Alt", "H", "M", "C"], mode: "sequence", action: "Merge & Center (Ribbon)", outcome: "fail" },
+          { keys: ["⌥", "→"], mode: "combo", action: "Next worksheet" },
         ],
       },
       {
