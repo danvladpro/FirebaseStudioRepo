@@ -17,6 +17,7 @@ interface Example {
   mode: AnimMode;
   action: string;
   visual?: VisualSpec;
+  outcome?: "fail";
 }
 
 interface Section {
@@ -26,7 +27,7 @@ interface Section {
 }
 
 type Stage = "idle" | "pressed" | "result";
-type GridEffect = "jump-right" | "step-right" | "cell-bold" | "cell-format" | "autosum";
+type GridEffect = "jump-right" | "jump-left" | "step-right" | "cell-bold" | "cell-format" | "cell-absref" | "autosum";
 type DialogVisualEffect = "option-down" | "tab-fields";
 type VisualSpec =
   | { kind: "grid"; effect: GridEffect }
@@ -39,12 +40,6 @@ interface NogoRow {
   excel: string;
 }
 
-interface MacSwap {
-  win: string[];
-  mac: string[];
-  note: string;
-}
-
 interface ItemData {
   id: ItemId;
   glyph: string;
@@ -55,7 +50,6 @@ interface ItemData {
   warn?: boolean;
   sections?: Section[];
   nogo?: NogoRow[];
-  mac?: { swaps: MacSwap[]; examples: Example[] };
 }
 
 // ── Palette (matches the app's emerald theme) ──
@@ -83,19 +77,6 @@ function Kbd({ children, size = "sm" }: { children: React.ReactNode; size?: "sm"
       color: "hsl(var(--foreground))", boxShadow: "0 1px 0 hsl(var(--border))",
       lineHeight: 1, whiteSpace: "nowrap" as const,
     }}>{children}</span>
-  );
-}
-
-function KbdCombo({ keys }: { keys: string[] }) {
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-      {keys.map((k, i) => (
-        <React.Fragment key={i}>
-          {i > 0 && <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 11, fontFamily: "ui-monospace, monospace", fontWeight: 500 }}>+</span>}
-          <Kbd size="sm">{k}</Kbd>
-        </React.Fragment>
-      ))}
-    </span>
   );
 }
 
@@ -166,6 +147,8 @@ function MiniVisual({ spec, keyPhase, stage }: { spec: VisualSpec; keyPhase: num
 function AnimExRow({ ex }: { ex: Example }) {
   const isSeq = ex.mode === "sequence";
   const { keyPhase, stage } = useExAnimation(ex.mode, ex.keys.length);
+  const isFail = ex.outcome === "fail";
+  const failed = isFail && stage === "result";
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" as const }}>
@@ -181,6 +164,7 @@ function AnimExRow({ ex }: { ex: Example }) {
           background: "rgba(22,163,74,0.08)",
           border: "1px dashed rgba(22,163,74,0.30)",
         } : {}),
+        opacity: failed ? 0.5 : 1, transition: "opacity 200ms",
       }}>
         {ex.keys.map((k, i) => (
           <React.Fragment key={i}>
@@ -197,8 +181,25 @@ function AnimExRow({ ex }: { ex: Example }) {
           </React.Fragment>
         ))}
       </span>
-      <span style={{ color: "hsl(var(--muted-foreground))", fontFamily: "ui-monospace, monospace", fontSize: 11, flexShrink: 0 }}>→</span>
-      <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 12.5 }}>{ex.action}</span>
+      {isFail ? (
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+          <span style={{
+            width: 15, height: 15, borderRadius: "50%", flexShrink: 0,
+            background: "hsl(0 72% 50%)", color: "white",
+            display: "grid", placeItems: "center", fontSize: 9.5, fontWeight: 800, lineHeight: 1,
+            transform: failed ? "scale(1)" : "scale(0)",
+            transition: "transform 220ms cubic-bezier(0.5,1.6,0.5,1)",
+          }}>✕</span>
+          <span style={{ fontSize: 12.5, color: "hsl(0 55% 42%)" }}>
+            {ex.action} <span style={{ opacity: 0.7 }}>· not on Mac</span>
+          </span>
+        </span>
+      ) : (
+        <>
+          <span style={{ color: "hsl(var(--muted-foreground))", fontFamily: "ui-monospace, monospace", fontSize: 11, flexShrink: 0 }}>→</span>
+          <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 12.5 }}>{ex.action}</span>
+        </>
+      )}
       </div>
       {ex.visual && <MiniVisual spec={ex.visual} keyPhase={keyPhase} stage={stage} />}
     </div>
@@ -208,7 +209,7 @@ function AnimExRow({ ex }: { ex: Example }) {
 function MiniGrid({ effect, stage }: { effect: GridEffect; stage: Stage }) {
   const result = stage === "result";
   const CW = 36, CH = 20, HH = 16, RHW = 18;
-  const cols = effect === "jump-right" ? ["A", "B", "C", "D"]
+  const cols = (effect === "jump-right" || effect === "jump-left") ? ["A", "B", "C", "D"]
     : effect === "step-right" ? ["A", "B", "C"]
     : ["A", "B"];
   const nRows = effect === "autosum" ? 3 : 2;
@@ -216,6 +217,7 @@ function MiniGrid({ effect, stage }: { effect: GridEffect; stage: Stage }) {
   const gridH = HH + nRows * CH;
 
   const selCol = effect === "jump-right" ? (result ? cols.length - 1 : 0)
+    : effect === "jump-left" ? (result ? 0 : cols.length - 1)
     : effect === "step-right" ? (result ? 1 : 0)
     : 0;
   const selRow = effect === "autosum" ? 2 : 0;
@@ -223,6 +225,7 @@ function MiniGrid({ effect, stage }: { effect: GridEffect; stage: Stage }) {
   const cellOf = (c: number, r: number): { t: string; bold?: boolean; accent?: boolean } => {
     if (effect === "cell-bold" && c === 0 && r === 0) return { t: "Q1", bold: result };
     if (effect === "cell-format" && c === 0 && r === 0) return { t: result ? "50%" : "0.5" };
+    if (effect === "cell-absref" && c === 0 && r === 0) return { t: result ? "$A$1" : "A1", accent: result };
     if (effect === "autosum" && c === 0) {
       if (r === 0) return { t: "10" };
       if (r === 1) return { t: "20" };
@@ -450,27 +453,6 @@ function GlyphChip({ g, warn, size = 34 }: { g: string; warn?: boolean; size?: n
   );
 }
 
-// Mac platform-swap rows: Windows keys → Mac keys + what it does.
-function MacSwaps({ rows }: { rows: MacSwap[] }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      {rows.map((r, i) => (
-        <div key={i} style={{
-          display: "flex", alignItems: "center", gap: 12, padding: "11px 14px",
-          border: "1px solid hsl(var(--border))", borderRadius: 10, background: "hsl(var(--card))", flexWrap: "wrap",
-        }}>
-          <span style={{ fontSize: 9, fontWeight: 700, fontFamily: "ui-monospace, monospace", letterSpacing: "0.08em", color: "hsl(var(--muted-foreground))", width: 42 }}>WIN</span>
-          <KbdCombo keys={r.win} />
-          <span style={{ color: "hsl(var(--muted-foreground))", fontFamily: "ui-monospace, monospace" }}>→</span>
-          <span style={{ fontSize: 9, fontWeight: 700, fontFamily: "ui-monospace, monospace", letterSpacing: "0.08em", color: C.primaryFg, width: 34 }}>MAC</span>
-          <KbdCombo keys={r.mac} />
-          <span style={{ marginLeft: "auto", fontSize: 12.5, color: "hsl(var(--muted-foreground))" }}>{r.note}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 // Category cards — reuses the user's existing per-section content.
 function SectionCards({ sections }: { sections: Section[] }) {
   return (
@@ -565,8 +547,8 @@ const BYS_DATA: ItemData[] = [
     sub: (
       <>
         Nearly every shortcut starts here.  <br></br>
-        On Mac, swap <Kbd>Ctrl</Kbd> for{" "}
-        <Kbd>Cmd ⌘</Kbd>.
+        On Mac, <Kbd>Cmd ⌘</Kbd> does the same job — and <Kbd>Ctrl</Kbd> usually
+        works too.
       </>
     ),
     sections: [
@@ -717,20 +699,55 @@ const BYS_DATA: ItemData[] = [
     id: "mac",
     glyph: "⌘",
     label: "Mac shortcuts",
-    hint: "Same moves, three swaps",
-    title: "Same moves, three swaps",
-    sub: "Your muscle memory carries straight over to a Mac — just swap the modifier keys. Only a handful of Excel-for-Mac combos differ outright.",
-    mac: {
-      swaps: [
-        { win: ["Ctrl"], mac: ["⌘"], note: "The everyday modifier — Cmd does Ctrl's job" },
-        { win: ["Alt"], mac: ["⌥"], note: "Option replaces Alt in every combo" },
-        { win: ["F2"], mac: ["⌃", "U"], note: "Edit the active cell" },
-      ],
-      examples: [
-        { keys: ["⌘", "→"], mode: "combo", action: "Jump to the data edge" },
-        { keys: ["⌘", "1"], mode: "combo", action: "Open Format Cells" },
-      ],
-    },
+    hint: "Mostly the same — with gaps",
+    title: "On a Mac: mostly the same, with gaps",
+    sub: "Most of your muscle memory carries straight over. But a few things behave differently on Excel for Mac — these are the ones to watch.",
+    sections: [
+      {
+        label: "Ctrl & Cmd",
+        use: (
+          <>
+            Most <Kbd>Ctrl</Kbd> shortcuts work on Mac with <em>either</em>{" "}
+            <Kbd>Ctrl</Kbd> or <Kbd>Cmd ⌘</Kbd> — Excel maps both. A few have no
+            Mac equivalent or change outright; drill those in Flashcards.
+          </>
+        ),
+        examples: [{ keys: ["⌘", "→"], mode: "combo", action: "Jump to data edge", visual: { kind: "grid", effect: "jump-right" } }],
+      },
+      {
+        label: "Alt & the Ribbon",
+        use: (
+          <>
+            <Kbd>Alt</Kbd> becomes <Kbd>⌥</Kbd>, but Ribbon mode (<Kbd>Alt</Kbd>{" "}
+            then letters) doesn&apos;t exist in Excel for Mac. A few direct combos
+            carry over — most don&apos;t.
+          </>
+        ),
+        examples: [
+          { keys: ["Alt", "H", "A", "C"], mode: "sequence", action: "Center align (Ribbon)", outcome: "fail" },
+          { keys: ["⌘", "⇧", "T"], mode: "combo", action: "AutoSum", visual: { kind: "grid", effect: "autosum" } },
+        ],
+      },
+      {
+        label: "Fn for navigation",
+        use: (
+          <>
+            <Kbd>Home</Kbd>, <Kbd>Page Up</Kbd> and <Kbd>Page Down</Kbd> need{" "}
+            <Kbd>Fn</Kbd> on a Mac and work fine on their own — but not bundled
+            into complex selection combos.
+          </>
+        ),
+        examples: [
+          { keys: ["Fn", "←"], mode: "combo", action: "Home — jump to column A", visual: { kind: "grid", effect: "jump-left" } },
+          { keys: ["Ctrl", "⇧", "Home"], mode: "combo", action: "Select to A1", outcome: "fail" },
+        ],
+      },
+      {
+        label: "Remapped keys",
+        use: "A few are simply different keys. The classic: toggling absolute references ($A$1) while editing a formula.",
+        examples: [{ keys: ["⌘", "T"], mode: "combo", action: "Toggle $A$1 (F4 on Windows)", visual: { kind: "grid", effect: "cell-absref" } }],
+      },
+    ],
   },
   {
     id: "nogo",
@@ -872,14 +889,6 @@ function PrimerModal({
             <p style={{ fontSize: 13.5, color: item.warn ? C.amberFg : "hsl(var(--foreground))", lineHeight: 1.6, marginBottom: 16, opacity: item.warn ? 1 : 0.85 }}>{item.sub}</p>
 
             {item.nogo ? <NoGoTable rows={item.nogo} />
-              : item.mac ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  <MacSwaps rows={item.mac.swaps} />
-                  <div style={{ display: "flex", flexDirection: "column", gap: 9, padding: "14px 16px", border: "1px solid hsl(var(--border))", borderRadius: 10, background: C.primarySoft }}>
-                    {item.mac.examples.map((ex, i) => <AnimExRow key={i} ex={ex} />)}
-                  </div>
-                </div>
-              )
               : item.sections ? <SectionCards sections={item.sections} />
               : null}
           </div>
