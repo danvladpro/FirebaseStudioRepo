@@ -20,8 +20,6 @@ const nextConfig: NextConfig = {
 
     return config;
   },
-
-  devtools: process.env.NODE_ENV === 'development',
 };
 
 export default nextConfig;

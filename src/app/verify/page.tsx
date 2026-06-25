@@ -62,8 +62,8 @@ async function verifyCertificate(id: string): Promise<VerificationResult> {
 }
 
 
-export default async function VerifyPage({ searchParams }: { searchParams: { id: string } }) {
-    const { id } = searchParams;
+export default async function VerifyPage({ searchParams }: { searchParams: Promise<{ id: string }> }) {
+    const { id } = await searchParams;
 
     if (!id) {
         notFound();

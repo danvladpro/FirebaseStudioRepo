@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { AppHeader } from "@/components/app-header";
 import { DrillUI } from "@/components/drill-ui";
 import { DRILL_SET, ALL_DRILL_STEPS } from "@/lib/drills";
@@ -28,14 +28,15 @@ import { FillColorDropdown } from "@/components/fill-color-dropdown";
 import { PasteSpecialDialog } from "@/components/paste-special-dialog";
 
 
-export default function DrillPage({ params }: { params: { id: string } }) {
+export default function DrillPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
   const [isStarted, setIsStarted] = useState(false);
   const [animationStep, setAnimationStep] = useState(-1);
   
-  const drill = DRILL_SET.drills.find(d => d.id === params.id);
+  const drill = DRILL_SET.drills.find(d => d.id === id);
   const drillNumber = searchParams.get('drillNumber');
 
   useEffect(() => {

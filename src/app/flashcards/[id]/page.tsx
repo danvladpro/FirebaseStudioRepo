@@ -7,8 +7,9 @@ import { Suspense } from 'react';
 import { FlashcardSetPageContent } from '@/components/flashcard-set-page-content';
 
 
-export default function FlashcardSetPage({ params }: { params: { id: string } }) {
-  const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === params.id) as ChallengeSet | undefined;
+export default async function FlashcardSetPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const challengeSet = ALL_CHALLENGE_SETS.find(set => set.id === id) as ChallengeSet | undefined;
 
   if (!challengeSet) {
     notFound();
