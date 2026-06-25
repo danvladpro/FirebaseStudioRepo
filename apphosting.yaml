@@ -8,3 +8,81 @@ runConfig:
 build:
   - sh: npm install
   - sh: npm run build
+
+# Environment variables for the App Hosting backend.
+#
+#   - NEXT_PUBLIC_* values are inlined into the JS bundle by `next build`, so they
+#     MUST have BUILD availability or they resolve to undefined at build time
+#     (that's what was baking http://localhost:9002 into the Stripe cancel_url).
+#     These ship to the browser, so they are not secret — plain values are fine.
+#   - Server-only secrets are stored in Secret Manager and referenced by name.
+#     Create each one with:  firebase apphosting:secrets:set <NAME>
+#
+# NOTE: this file does NOT affect local dev. Locally, `.env` is still used.
+env:
+  # --- Public config (build-time + runtime) -------------------------------
+  - variable: NEXT_PUBLIC_APP_URL
+    value: https://studio--studio-7892987648-351fe.us-central1.hosted.app
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyCQ04HPJy6ZJAYAIWRp3Pyj9JzYiA_zn0c
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: studio-7892987648-351fe.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: studio-7892987648-351fe
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: studio-7892987648-351fe.firebasestorage.app
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: 477632953392
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:477632953392:web:35f17d200d4a3cb5bfc1f5
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+    value: pk_test_51SIzPG1NkaH9ToJzQknuIWXpmdLW2kUshIHiTfW0MSsWJdTwu0Ano3ZiOHm3ZBNK8SM4S9mjbMOZj1KdAL2WJ2zL00wgH1gHYu
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # --- Non-secret server config (runtime) ---------------------------------
+  # Stripe price IDs are not sensitive; plain values keep them visible in config.
+  - variable: STRIPE_ONE_WEEK_PRICE_ID
+    value: price_1TkL7d1NkaH9ToJzYEvjEm5I
+
+  - variable: STRIPE_ONE_MONTH_PRICE_ID
+    value: price_1TkL9V1NkaH9ToJzk1BhDsdo
+
+  # --- Secrets (Secret Manager, runtime only) -----------------------------
+  - variable: FIREBASE_SERVICE_ACCOUNT_KEY
+    secret: FIREBASE_SERVICE_ACCOUNT_KEY
+
+  - variable: STRIPE_SECRET_KEY
+    secret: STRIPE_SECRET_KEY
+
+  - variable: STRIPE_WEBHOOK_SECRET
+    secret: STRIPE_WEBHOOK_SECRET
