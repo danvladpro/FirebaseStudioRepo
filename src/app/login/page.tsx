@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Logo } from '@/components/logo';
 import { ArrowLeft } from 'lucide-react';
 import { ForgotPasswordModal } from '@/components/forgot-password-modal';
 
@@ -72,8 +71,7 @@ function LoginContent() {
         </Button>
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
-            <Logo />
-            <CardTitle className="mt-4">Welcome Back</CardTitle>
+            <CardTitle>Welcome Back</CardTitle>
             <CardDescription>Enter your credentials to access your account</CardDescription>
           </CardHeader>
           <CardContent>

@@ -12,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Logo } from '@/components/logo';
 import { ArrowLeft } from 'lucide-react';
 
 export default function SignupPage() {
@@ -81,8 +80,7 @@ export default function SignupPage() {
       </Button>
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-            <Logo />
-            <CardTitle className="mt-4">Create an Account</CardTitle>
+            <CardTitle>Create an Account</CardTitle>
             <CardDescription>Start your journey to becoming an Excel Ninja</CardDescription>
         </CardHeader>
         <CardContent>
