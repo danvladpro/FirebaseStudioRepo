@@ -354,6 +354,19 @@ function MiniRibbon({ keyPhase }: { keyPhase: number }) {
   const tipB = keyPhase === 1;
   const tabs = ["File", "Home", "Insert", "Data"];
 
+  // Tiny spreadsheet rendered under the ribbon; the border lands on A1.
+  const CW = 30, CH = 18, HH = 14, RHW = 16;
+  const cols = ["A", "B", "C"];
+  const nRows = 2;
+  const gridW = RHW + cols.length * CW;
+  const gridH = HH + nRows * CH;
+  const hc: React.CSSProperties = {
+    display: "grid", placeItems: "center", fontSize: 8, fontWeight: 700,
+    fontFamily: "ui-monospace, monospace", color: "hsl(var(--muted-foreground))",
+    background: "hsl(var(--muted))",
+    borderRight: "1px solid hsl(var(--border))", borderBottom: "1px solid hsl(var(--border))",
+  };
+
   return (
     <div style={{ width: "100%", borderRadius: 8, overflow: "hidden", border: "1px solid hsl(var(--border))", background: "white" }}>
       <div style={{ display: "flex", alignItems: "flex-end", gap: 2, padding: "4px 6px 0", background: "hsl(var(--muted))", borderBottom: `2px solid ${C.primary}` }}>
@@ -376,29 +389,45 @@ function MiniRibbon({ keyPhase }: { keyPhase: number }) {
           );
         })}
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: 8 }}>
-        <div style={{ display: "flex", gap: 6 }}>
-          {["B", "I"].map(b => (
-            <span key={b} style={{ width: 22, height: 22, borderRadius: 4, display: "grid", placeItems: "center", border: "1px solid hsl(var(--border))", fontSize: 11, fontWeight: 700, color: "hsl(var(--muted-foreground))", background: "white" }}>{b}</span>
-          ))}
-          <span style={{
-            position: "relative", width: 26, height: 22, borderRadius: 4, display: "grid", placeItems: "center",
-            border: `1px solid ${borderActive ? C.primary : "hsl(var(--border))"}`,
-            background: borderActive ? C.primary : "white",
-            boxShadow: borderActive ? "0 0 0 3px rgba(22,163,74,0.2)" : "none",
-            transition: "background 200ms, border-color 200ms, box-shadow 200ms",
-          }}>
-            <BorderGlyph color={borderActive ? "white" : "hsl(var(--muted-foreground))"} />
-            {tipB && <KeyTip>B</KeyTip>}
-          </span>
-        </div>
-        <span style={{ color: "hsl(var(--muted-foreground))", fontFamily: "ui-monospace, monospace", fontSize: 12 }}>→</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 8px 6px" }}>
+        {["B", "I"].map(b => (
+          <span key={b} style={{ width: 22, height: 22, borderRadius: 4, display: "grid", placeItems: "center", border: "1px solid hsl(var(--border))", fontSize: 11, fontWeight: 700, color: "hsl(var(--muted-foreground))", background: "white" }}>{b}</span>
+        ))}
         <span style={{
-          width: 30, height: 22, display: "grid", placeItems: "center", fontSize: 10, fontWeight: 600,
-          fontFamily: "ui-monospace, monospace", background: "white",
-          border: cellBordered ? `2px solid ${C.primary}` : "1px dashed hsl(var(--border))",
-          transition: "border 200ms",
-        }}>A1</span>
+          position: "relative", width: 26, height: 22, borderRadius: 4, display: "grid", placeItems: "center",
+          border: `1px solid ${borderActive ? C.primary : "hsl(var(--border))"}`,
+          background: borderActive ? C.primary : "white",
+          boxShadow: borderActive ? "0 0 0 3px rgba(22,163,74,0.2)" : "none",
+          transition: "background 200ms, border-color 200ms, box-shadow 200ms",
+        }}>
+          <BorderGlyph color={borderActive ? "white" : "hsl(var(--muted-foreground))"} />
+          {tipB && <KeyTip>B</KeyTip>}
+        </span>
+      </div>
+      {/* tiny spreadsheet underneath — the border lands here in black (green = selection) */}
+      <div style={{ display: "flex", justifyContent: "center", padding: "0 8px 10px" }}>
+        <div style={{ position: "relative", width: gridW, height: gridH, border: "1px solid hsl(var(--border))", borderRadius: 4, overflow: "hidden", background: "white" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, height: HH, display: "flex" }}>
+            <div style={{ ...hc, width: RHW, height: HH }} />
+            {cols.map(c => <div key={c} style={{ ...hc, width: CW, height: HH }}>{c}</div>)}
+          </div>
+          {Array.from({ length: nRows }).map((_, r) => (
+            <React.Fragment key={r}>
+              <div style={{ ...hc, position: "absolute", top: HH + r * CH, left: 0, width: RHW, height: CH }}>{r + 1}</div>
+              {cols.map((_, c) => (
+                <div key={c} style={{
+                  position: "absolute", top: HH + r * CH, left: RHW + c * CW, width: CW, height: CH,
+                  borderRight: "1px solid hsl(var(--border))", borderBottom: "1px solid hsl(var(--border))",
+                }} />
+              ))}
+            </React.Fragment>
+          ))}
+          <div style={{
+            position: "absolute", top: HH, left: RHW, width: CW, height: CH,
+            border: "2px solid hsl(var(--foreground))", boxSizing: "border-box", pointerEvents: "none",
+            opacity: cellBordered ? 1 : 0, transition: "opacity 200ms",
+          }} />
+        </div>
       </div>
     </div>
   );
