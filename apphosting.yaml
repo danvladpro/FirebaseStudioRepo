@@ -22,7 +22,7 @@ build:
 env:
   # --- Public config (build-time + runtime) -------------------------------
   - variable: NEXT_PUBLIC_APP_URL
-    value: https://ninjashortcuts.com/
+    value: https://ninjashortcuts.com
     availability:
       - BUILD
       - RUNTIME
