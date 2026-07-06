@@ -12,7 +12,7 @@ import { useAuth, useIsMac } from "./auth-provider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { VisualGrid } from "./visual-grid";
 import { calculateGridStateForStep } from "@/lib/grid-engine";
-import { getPlatformKeySets, isStepWindowsOnly, getSelectionRangeString } from "@/lib/utils";
+import { getPlatformKeySets, isStepWindowsOnly, getSelectionRangeString, resolveIsSequential } from "@/lib/utils";
 import { calculateDialogStateForStep } from "@/lib/dialog-engine";
 
 // Dialog imports
@@ -114,6 +114,7 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
         pagedown: ['fn', 'arrowdown'],
     };
     const stepIsWindowsOnly = isStepWindowsOnly(currentFlashcard.step, isMac);
+    const stepIsSequential = resolveIsSequential(currentFlashcard.step, isMac);
 
     // On Mac, Home/End/PageUp/PageDown are normally shown as their Fn+arrow chord.
     // For Windows-only steps we skip that and show the literal Home/End/PgUp/PgDn
@@ -216,7 +217,12 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                                                 <span className="text-xs font-normal text-muted-foreground mr-1">or</span>
                                             )}
                                             {alt.map((key, keyIndex) => (
-                                                <KeyDisplay key={`${key}-${keyIndex}`} value={key} isMac={isMac} />
+                                                <div key={`${key}-${keyIndex}`} className="flex items-center gap-1">
+                                                    {stepIsSequential && keyIndex > 0 && (
+                                                        <span className="text-muted-foreground text-xs mx-0.5">→</span>
+                                                    )}
+                                                    <KeyDisplay value={key} isMac={isMac} />
+                                                </div>
                                             ))}
                                         </div>
                                     ))}
@@ -224,6 +230,11 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                                 {stepIsWindowsOnly && (
                                     <p className="text-xs font-medium text-amber-600">
                                         Windows-only — no Mac equivalent (⌥ Option replaces Alt)
+                                    </p>
+                                )}
+                                {stepIsSequential && (
+                                    <p className="text-xs font-medium text-emerald-700">
+                                        Ribbon shortcut — press one key after another
                                     </p>
                                 )}
                             </div>
@@ -245,7 +256,11 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
                      <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                 <VisualKeyboard highlightedKeySets={isAnswerShown ? displayAlternatives : []} isMac={isMac} />
+                                 <VisualKeyboard
+                                    highlightedKeySets={isAnswerShown ? displayAlternatives : []}
+                                    sequenceKeys={isAnswerShown && stepIsSequential ? displayAlternatives[0] : undefined}
+                                    isMac={isMac}
+                                 />
                             </TooltipTrigger>
                             {!isAnswerShown && (
                                 <TooltipContent>
