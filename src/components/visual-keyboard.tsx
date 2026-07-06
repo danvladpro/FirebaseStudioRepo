@@ -10,6 +10,10 @@ interface VisualKeyboardProps {
   // Alternative key combinations, each highlighted in its own colour (1st green,
   // 2nd yellow). Takes precedence over `highlightedKeys` when provided.
   highlightedKeySets?: string[][];
+  // Ordered keys of a sequential (ribbon) shortcut, e.g. ['alt','h','b'] or
+  // ['alt','w','f','f']. When set, caps show a 1-based position badge. Display
+  // only — does not affect highlighting (pass highlightedKeySets for colour).
+  sequenceKeys?: string[];
   onKeyClick?: (key: string) => void;
   // Effective platform from the caller (the user's saved preference). When
   // omitted, falls back to user-agent detection.
@@ -79,7 +83,7 @@ const normalizeKey = (key: string, isMac: boolean) => {
 };
 
 
-export function VisualKeyboard({ highlightedKeys = [], highlightedKeySets, onKeyClick, isMac: isMacProp }: VisualKeyboardProps) {
+export function VisualKeyboard({ highlightedKeys = [], highlightedKeySets, sequenceKeys, onKeyClick, isMac: isMacProp }: VisualKeyboardProps) {
     const [isClient, setIsClient] = useState(false);
     const [navIsMac, setNavIsMac] = useState(false);
 
@@ -99,6 +103,16 @@ export function VisualKeyboard({ highlightedKeys = [], highlightedKeySets, onKey
     const normalizedSets = (highlightedKeySets ?? []).map(set => new Set(set.map(k => normalizeKey(k, isMac))));
     const normalizedHighlights = new Set(highlightedKeys.map(k => normalizeKey(k, isMac)));
 
+    // Normalised key -> 1-based positions in the sequence (repeats accumulate,
+    // e.g. ['alt','w','f','f'] gives 'f' => [3, 4]).
+    const sequencePositions = new Map<string, number[]>();
+    (sequenceKeys ?? []).forEach((k, i) => {
+        const nk = normalizeKey(k, isMac);
+        const arr = sequencePositions.get(nk) ?? [];
+        arr.push(i + 1);
+        sequencePositions.set(nk, arr);
+    });
+
     const colorIndexForKey = (key: string): number => {
         if (useSets) {
             for (let i = 0; i < normalizedSets.length; i++) {
@@ -117,12 +131,14 @@ export function VisualKeyboard({ highlightedKeys = [], highlightedKeySets, onKey
         const display = displayMap[key] || key.toUpperCase();
         const isClickable = !!onKeyClick;
 
+        const badgePositions = sequencePositions.get(key);
+
         return (
             <div
                 key={key}
                 onClick={isClickable ? () => onKeyClick(key) : undefined}
                 className={cn(
-                    "h-full rounded-md flex items-center justify-center text-xs font-medium border-b-2",
+                    "relative h-full rounded-md flex items-center justify-center text-xs font-medium border-b-2",
                     "transition-colors duration-200",
                     isHighlighted
                         ? highlightClass
@@ -132,6 +148,11 @@ export function VisualKeyboard({ highlightedKeys = [], highlightedKeySets, onKey
                 )}
             >
                 <span className="px-0.5 whitespace-nowrap">{display}</span>
+                {badgePositions && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[14px] h-[14px] px-0.5 rounded-full bg-emerald-700 text-white text-[9px] font-bold leading-[14px] text-center shadow-sm">
+                        {badgePositions.join(',')}
+                    </span>
+                )}
             </div>
         );
     };
