@@ -147,7 +147,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     description: "Example of the shorcuts",
     level: "Apprentice",
     category: "General",
-    iconName: "DollarSign",
+    iconName: "Gift",
     challenges: [
       singleStep({ description: "Bold", keys: ["control", "b"], macKeys: [['meta','b'],['control','b']], iconName: "Bold", gridEffect: { action: 'APPLY_STYLE_BOLD' }, initialGridState: createGridState(bigTable,0,2,0) }),
       singleStep({description: "Open Find dialog",keys: ["control", "f"], macKeys: ['control','f'],iconName: "Search",dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } }, initialGridState: createGridState(bigTable,0,2,0) }),

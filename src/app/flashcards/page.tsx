@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, Filter, Lock, GalleryVerticalEnd, Sparkles, Award, Medal, Trophy, Zap, ClipboardPaste, Wand2, Palette, DollarSign, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ClipboardCopy, ArrowRightLeft, MousePointerSquareDashed, Pilcrow, FunctionSquare, ArrowRight, Layers, Filter, Lock, GalleryVerticalEnd, Sparkles, Award, Medal, Trophy, Zap, ClipboardPaste, Wand2, Palette, DollarSign, ShieldCheck, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CHALLENGE_SETS } from '@/lib/challenges';
@@ -33,6 +33,7 @@ const iconMap: Record<string, ElementType> = {
     Palette,
     DollarSign,
     ShieldCheck,
+    Gift,
 };
 
 export default function FlashcardsPage() {

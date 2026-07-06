@@ -7,9 +7,14 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "./auth-provider";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
-import { BookOpen, Check, ArrowRight, Zap, X } from "lucide-react";
+import {
+  BookOpen, Check, ArrowRight, Zap, X,
+  Layers, Target, Dumbbell, Timer, Repeat, Trophy, Heart, RotateCcw,
+  TrendingUp, Moon,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-type ItemId = "ctrl" | "alt" | "arrows" | "numbers" | "fn" | "special" | "mac" | "nogo";
+type ItemId = "howto" | "learn" | "ctrl" | "alt" | "arrows" | "numbers" | "fn" | "special" | "mac" | "nogo";
 type AnimMode = "combo" | "sequence";
 
 interface Example {
@@ -42,12 +47,12 @@ interface NogoRow {
 
 interface ItemData {
   id: ItemId;
-  glyph: string;
   label: string;
   hint: string;
   title: string;
   sub: React.ReactNode;
   warn?: boolean;
+  body?: React.ReactNode;
   sections?: Section[];
   nogo?: NogoRow[];
 }
@@ -473,19 +478,6 @@ function Ring({ value, size = 56, thickness = 6, children }: { value: number; si
   );
 }
 
-// Glyph chip used in nav + detail header
-function GlyphChip({ g, warn, size = 34 }: { g: string; warn?: boolean; size?: number }) {
-  return (
-    <span style={{
-      width: size, height: size, borderRadius: 8, display: "grid", placeItems: "center", flexShrink: 0,
-      fontFamily: "ui-monospace, monospace", fontWeight: 700, fontSize: Math.round(size * 0.44), lineHeight: 1,
-      background: warn ? C.amberSoft : C.primarySoft,
-      color: warn ? C.amberFg : C.primaryFg,
-      border: warn ? `1px solid ${C.amberBorder}` : "none",
-    }}>{g}</span>
-  );
-}
-
 // Category cards — reuses the user's existing per-section content.
 function SectionCards({ sections }: { sections: Section[] }) {
   return (
@@ -567,13 +559,319 @@ function NoGoTable({ rows }: { rows: NogoRow[] }) {
   );
 }
 
+// ── Orientation pages (How to use / How to learn) ──────────────────────────
+// Two visual directions are built side-by-side so the winner can be picked from
+// a live demo. Variant "A" loops subtle animations; variant "B" is static with
+// only hover / fade-in. Both share the same layout + copy.
+
+type NewPageVariant = "A" | "B";
+
+const NEW_KEYFRAMES = `
+@keyframes bysBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+@keyframes bysPulseDot { 0%,100%{opacity:.4;transform:scale(1)} 50%{opacity:1;transform:scale(1.35)} }
+@keyframes bysFadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+`;
+
+// Loops 0..count (the extra terminal step is a brief "all done" pause). Honours
+// reduced-motion by resting on the finished state.
+function usePhaseLoop(count: number, stepMs: number): number {
+  const [i, setI] = React.useState(0);
+  React.useEffect(() => {
+    const reduce = typeof window !== "undefined"
+      && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) { setI(count); return; }
+    const id = setInterval(() => setI(p => (p + 1) % (count + 1)), stepMs);
+    return () => clearInterval(id);
+  }, [count, stepMs]);
+  return i;
+}
+
+function Keyframes() {
+  return <style>{NEW_KEYFRAMES}</style>;
+}
+
+function OrientCard({ Icon, title, children, tint = false }: {
+  Icon: LucideIcon; title: string; children: React.ReactNode; tint?: boolean;
+}) {
+  return (
+    <div style={{
+      position: "relative", padding: "14px 16px 14px 20px",
+      border: "1px solid hsl(var(--border))", borderRadius: 12,
+      background: tint ? C.primarySoft : "hsl(var(--card))",
+      display: "flex", flexDirection: "column", gap: 8,
+    }}>
+      <span style={{ position: "absolute", left: 0, top: 14, bottom: 14, width: 3, background: C.primary, borderRadius: "0 3px 3px 0", opacity: 0.85 }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+        <span style={{ width: 24, height: 24, borderRadius: 7, background: tint ? "white" : C.primarySoft, color: C.primaryFg, display: "grid", placeItems: "center", flexShrink: 0 }}>
+          <Icon size={14} />
+        </span>
+        <span style={{ fontWeight: 700, fontSize: 14.5, letterSpacing: "-0.015em" }}>{title}</span>
+      </div>
+      <div style={{ fontSize: 13, lineHeight: 1.55, opacity: 0.85 }}>{children}</div>
+    </div>
+  );
+}
+
+// ── Page 1: flow pipeline ──
+const FLOW: { Icon: LucideIcon; label: string; sub: string }[] = [
+  { Icon: Layers, label: "Flashcards", sub: "Learn" },
+  { Icon: Target, label: "Challenges", sub: "Train · Time" },
+  { Icon: Repeat, label: "Drills", sub: "No slips" },
+  { Icon: Trophy, label: "Next level", sub: "Certified" },
+];
+
+function FlowArrow({ lit }: { lit: boolean }) {
+  return (
+    <span style={{ display: "grid", placeItems: "center", alignSelf: "center", flexShrink: 0, color: lit ? C.primary : "hsl(var(--muted-foreground))", transition: "color 300ms" }}>
+      <svg width={14} height={14} viewBox="0 0 10 10" aria-hidden>
+        <path d="M2 5h5M5 3l2 2-2 2" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </span>
+  );
+}
+
+function FlowPipeline({ animated }: { animated: boolean }) {
+  const phase = usePhaseLoop(FLOW.length, 850);
+  return (
+    <div style={{ display: "flex", alignItems: "stretch", gap: 5, flexWrap: "wrap" }}>
+      {FLOW.map((n, i) => {
+        const done = animated ? (phase > i || phase === FLOW.length) : true;
+        const glow = animated && phase === i;
+        const on = done || glow;
+        return (
+          <React.Fragment key={n.label}>
+            {i > 0 && <FlowArrow lit={animated ? phase >= i : true} />}
+            <div style={{
+              flex: "1 1 0", minWidth: 84, display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
+              padding: "12px 6px", borderRadius: 10,
+              border: `1.5px solid ${on ? C.primary : "hsl(var(--border))"}`,
+              background: glow ? C.primarySoft : "hsl(var(--card))",
+              boxShadow: glow ? "0 0 0 3px rgba(22,163,74,0.18)" : "none",
+              transition: "all 300ms ease",
+            }}>
+              <span style={{
+                width: 30, height: 30, borderRadius: 8, display: "grid", placeItems: "center",
+                background: on ? C.primary : "hsl(var(--muted))",
+                color: on ? "#fff" : "hsl(var(--muted-foreground))",
+                transition: "all 300ms ease",
+              }}>
+                <n.Icon size={16} />
+              </span>
+              <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "-0.01em" }}>{n.label}</span>
+              <span style={{ fontSize: 9, color: "hsl(var(--muted-foreground))", fontFamily: "ui-monospace, monospace", textTransform: "uppercase", letterSpacing: "0.05em" }}>{n.sub}</span>
+            </div>
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+function SubPill({ Icon, label, desc }: { Icon: LucideIcon; label: string; desc: string }) {
+  return (
+    <div style={{ padding: "9px 10px", borderRadius: 9, background: "hsl(var(--muted)/0.5)", border: "1px solid hsl(var(--border))" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+        <Icon size={12} style={{ color: C.primaryFg }} />
+        <span style={{ fontSize: 12, fontWeight: 700 }}>{label}</span>
+      </div>
+      <div style={{ fontSize: 11.5, lineHeight: 1.4, color: "hsl(var(--muted-foreground))" }}>{desc}</div>
+    </div>
+  );
+}
+
+function DrillMeter({ animated }: { animated: boolean }) {
+  const BUDGET = 3;
+  const phase = usePhaseLoop(BUDGET + 1, 700);
+  const lost = animated ? Math.min(phase, BUDGET) : 0;
+  const resetting = animated && phase === BUDGET;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8, padding: "9px 12px", borderRadius: 9, background: C.amberBg, border: `1px solid ${C.amberBorder}`, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 4 }}>
+        {Array.from({ length: BUDGET }).map((_, i) => {
+          const gone = i < lost;
+          return <Heart key={i} size={15} style={{ color: gone ? "hsl(var(--muted-foreground))" : "hsl(0 72% 50%)", fill: gone ? "transparent" : "hsl(0 72% 50%)", opacity: gone ? 0.4 : 1, transition: "all 250ms" }} />;
+        })}
+      </div>
+      <span style={{ fontSize: 11.5, color: C.amberFg, fontWeight: 600 }}>Limited mistakes</span>
+      <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, color: C.amberFg, fontWeight: 700 }}>
+        <RotateCcw size={13} style={{ transform: resetting ? "rotate(-320deg)" : "rotate(0deg)", transition: "transform 500ms ease" }} />
+        resets to start
+      </span>
+    </div>
+  );
+}
+
+function HowToUseBody({ variant }: { variant: NewPageVariant }) {
+  const animated = variant === "A";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <Keyframes />
+      <FlowPipeline animated={animated} />
+      <OrientCard Icon={Layers} title="Flashcards — start here">
+        Before any challenge, flip through the cards and learn each shortcut. Only
+        move on once you can recall <em>all</em> of them from memory.
+      </OrientCard>
+      <OrientCard Icon={Target} title="Challenges — Training, then Timed">
+        Two stages, same shortcuts:
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
+          <SubPill Icon={Dumbbell} label="Training" desc="A no-pressure run to confirm they really stuck." />
+          <SubPill Icon={Timer} label="Timed" desc="Solid? Now prove it against the clock." />
+        </div>
+      </OrientCard>
+      <OrientCard Icon={Repeat} title="Drills — precision, no slip-ups">
+        Once every challenge is done, drills push you with a strict error budget.
+        Go over it and the drill resets to the very start.
+        <DrillMeter animated={animated} />
+      </OrientCard>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderRadius: 12, background: C.primary, color: "#fff" }}>
+        <Trophy size={18} style={{ flexShrink: 0, animation: animated ? "bysBob 2.2s ease-in-out infinite" : undefined }} />
+        <span style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.45 }}>
+          Clear all of that and the level is complete — on to the next level.
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ── Page 2: how to learn ──
+function MuscleMemory({ animated }: { animated: boolean }) {
+  const STEPS = 12;
+  const phase = usePhaseLoop(STEPS, 230);
+  const pct = animated ? 32 + (phase / STEPS) * 68 : 100;
+  return (
+    <div style={{ padding: "14px 16px", border: "1px solid hsl(var(--border))", borderRadius: 12, background: "hsl(var(--card))" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+        <span style={{ width: 24, height: 24, borderRadius: 7, background: C.primarySoft, color: C.primaryFg, display: "grid", placeItems: "center", flexShrink: 0 }}><TrendingUp size={14} /></span>
+        <span style={{ fontWeight: 700, fontSize: 14 }}>Muscle memory</span>
+        <span style={{ marginLeft: "auto", fontSize: 10.5, color: "hsl(var(--muted-foreground))", fontFamily: "ui-monospace, monospace" }}>built by reps, not by finishing</span>
+      </div>
+      <div style={{ position: "relative", height: 12, borderRadius: 6, background: "hsl(142 40% 92%)", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, width: `${pct}%`, background: C.primary, borderRadius: 6, transition: "width 200ms linear" }} />
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontSize: 11, color: "hsl(var(--muted-foreground))" }}>
+        <span>Each rep strengthens it…</span>
+        <span>…stop, and it fades.</span>
+      </div>
+    </div>
+  );
+}
+
+const REP_DAYS: { day: string; Icon: LucideIcon; label: string; note: string; rest?: boolean }[] = [
+  { day: "Day 1", Icon: BookOpen, label: "Learn it", note: "flashcards on" },
+  { day: "Wait", Icon: Moon, label: "A day or two", note: "let it settle", rest: true },
+  { day: "Day 3", Icon: Repeat, label: "Repeat it", note: "no flashcards" },
+];
+
+function SpacedRepeat({ animated }: { animated: boolean }) {
+  const phase = usePhaseLoop(REP_DAYS.length, 950);
+  return (
+    <div style={{ padding: "14px 16px", border: "1px solid hsl(var(--border))", borderRadius: 12, background: "hsl(var(--card))" }}>
+      <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "hsl(var(--muted-foreground))", fontFamily: "ui-monospace, monospace", marginBottom: 10 }}>
+        Space your repetitions
+      </div>
+      <div style={{ display: "flex", alignItems: "stretch", gap: 5 }}>
+        {REP_DAYS.map((d, i) => {
+          const active = animated ? phase === i : true;
+          return (
+            <React.Fragment key={d.day}>
+              {i > 0 && <FlowArrow lit={animated ? phase >= i : true} />}
+              <div style={{
+                flex: "1 1 0", minWidth: 78, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                padding: "11px 6px", borderRadius: 10,
+                border: `1.5px solid ${active ? C.primary : "hsl(var(--border))"}`,
+                background: active ? C.primarySoft : "hsl(var(--card))",
+                boxShadow: animated && phase === i ? "0 0 0 3px rgba(22,163,74,0.16)" : "none",
+                transition: "all 300ms ease",
+              }}>
+                <span style={{ fontSize: 9, fontWeight: 700, fontFamily: "ui-monospace, monospace", letterSpacing: "0.05em", textTransform: "uppercase", color: "hsl(var(--muted-foreground))" }}>{d.day}</span>
+                <span style={{ width: 26, height: 26, borderRadius: 7, display: "grid", placeItems: "center", background: d.rest ? "hsl(var(--muted))" : C.primary, color: d.rest ? "hsl(var(--muted-foreground))" : "#fff", transition: "all 300ms" }}>
+                  <d.Icon size={14} />
+                </span>
+                <span style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "-0.01em", textAlign: "center" }}>{d.label}</span>
+                <span style={{ fontSize: 9.5, color: i === REP_DAYS.length - 1 ? C.primaryFg : "hsl(var(--muted-foreground))", fontWeight: i === REP_DAYS.length - 1 ? 700 : 500, fontFamily: "ui-monospace, monospace", textAlign: "center" }}>{d.note}</span>
+              </div>
+            </React.Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const LEARN_CALLOUTS: { Icon: LucideIcon; title: string; text: React.ReactNode }[] = [
+  { Icon: Timer, title: "Don't do it in one sitting", text: "Finished a level? Don't jump straight to the next. Wait a day or two, then repeat it — this time without flashcards to jog your memory. Same for drills." },
+  { Icon: Dumbbell, title: "A training window, not a race", text: "Your week or month isn't there to rush the challenges — it's time to drill them the way an athlete or a real ninja would, until the moves are automatic." },
+  { Icon: Trophy, title: "The certificate isn't the finish line", text: "Earned it after every level? Start over. Ninjas keep training the moves they've already “learned”." },
+];
+
+function HowToLearnBody({ variant }: { variant: NewPageVariant }) {
+  const animated = variant === "A";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <Keyframes />
+      <MuscleMemory animated={animated} />
+      <SpacedRepeat animated={animated} />
+      {LEARN_CALLOUTS.map((c, i) => (
+        <div key={i} style={{
+          display: "flex", gap: 11, padding: "13px 15px",
+          border: "1px solid hsl(var(--border))", borderRadius: 12, background: "hsl(var(--card))",
+          animation: animated ? `bysFadeUp 400ms ease both ${i * 90}ms` : undefined,
+        }}>
+          <span style={{ width: 26, height: 26, borderRadius: 7, background: C.primarySoft, color: C.primaryFg, display: "grid", placeItems: "center", flexShrink: 0 }}>
+            <c.Icon size={15} />
+          </span>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 2, letterSpacing: "-0.01em" }}>{c.title}</div>
+            <div style={{ fontSize: 12.5, lineHeight: 1.5, color: "hsl(var(--muted-foreground))" }}>{c.text}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Meta for the two orientation pages, referenced by BYS_DATA below.
+const NEW_PAGE_META = {
+  howto: {
+    label: "How to use the app",
+    hint: "Your path from zero to certified",
+    title: "How Excel Ninja works",
+    sub: "Every level follows the same path: learn the shortcuts cold, prove them under pressure, then drill them until they're automatic.",
+  },
+  learn: {
+    label: "How to learn",
+    hint: "Repetition is the whole point",
+    title: "How to actually get faster",
+    sub: "Speed comes from muscle memory, and muscle memory only comes from repetition. Here's how to train — instead of just passing.",
+  },
+} as const;
+
+// Visual style for the orientation pages: "A" = subtle looping animation
+// (chosen), "B" = static with fade-in only.
+const NEW_PAGE_VARIANT: NewPageVariant = "A";
+
 // ── Data ──
 // Order = a natural learning progression, ending on the Mac & no-go heads-ups.
 
 const BYS_DATA: ItemData[] = [
   {
+    id: "howto",
+    label: NEW_PAGE_META.howto.label,
+    hint: NEW_PAGE_META.howto.hint,
+    title: NEW_PAGE_META.howto.title,
+    sub: NEW_PAGE_META.howto.sub,
+    body: <HowToUseBody variant={NEW_PAGE_VARIANT} />,
+  },
+  {
+    id: "learn",
+    label: NEW_PAGE_META.learn.label,
+    hint: NEW_PAGE_META.learn.hint,
+    title: NEW_PAGE_META.learn.title,
+    sub: NEW_PAGE_META.learn.sub,
+    body: <HowToLearnBody variant={NEW_PAGE_VARIANT} />,
+  },
+  {
     id: "ctrl",
-    glyph: "⌃",
     label: "Ctrl / Cmd",
     hint: "The workhorse modifier",
     title: "The workhorse modifier",
@@ -604,7 +902,6 @@ const BYS_DATA: ItemData[] = [
   },
   {
     id: "alt",
-    glyph: "⌥",
     label: "Alt key",
     hint: "Two modes, one key",
     title: "Two modes, one key",
@@ -635,7 +932,6 @@ const BYS_DATA: ItemData[] = [
   },
   {
     id: "arrows",
-    glyph: "↓",
     label: "Arrow keys",
     hint: "Navigate & extend",
     title: "Navigation powerhouse",
@@ -660,7 +956,6 @@ const BYS_DATA: ItemData[] = [
   },
   {
     id: "numbers",
-    glyph: "1",
     label: "Number keys",
     hint: "Mostly formatting",
     title: "Mostly formatting",
@@ -675,7 +970,6 @@ const BYS_DATA: ItemData[] = [
   },
   {
     id: "fn",
-    glyph: "F",
     label: "Function keys",
     hint: "F1 – F12",
     title: "F1 – F12",
@@ -705,7 +999,6 @@ const BYS_DATA: ItemData[] = [
   },
   {
     id: "special",
-    glyph: "↵",
     label: "Esc · Enter · Tab",
     hint: "Confirm & cancel",
     title: "Confirm, cancel & navigate",
@@ -730,7 +1023,6 @@ const BYS_DATA: ItemData[] = [
   },
   {
     id: "mac",
-    glyph: "⌘",
     label: "Mac shortcuts",
     hint: "Mostly the same — with gaps",
     title: "On a Mac: mostly the same, with gaps",
@@ -784,7 +1076,6 @@ const BYS_DATA: ItemData[] = [
   },
   {
     id: "nogo",
-    glyph: "⚠",
     label: "No-go shortcuts",
     hint: "These hit your browser",
     title: "These hit your browser, not Excel",
@@ -881,11 +1172,22 @@ function PrimerModal({
         <div style={{ display: "flex", minHeight: 0, flex: 1 }}>
           {/* Nav */}
           <div style={{ width: 220, borderRight: "1px solid hsl(var(--border))", padding: 8, background: "hsl(var(--muted)/0.4)", overflowY: "auto", flexShrink: 0 }}>
-            {BYS_DATA.map(x => {
+            {BYS_DATA.map((x, i) => {
               const done = read.has(x.id), active = sel === x.id;
               return (
+                <React.Fragment key={x.id}>
+                {x.id === "ctrl" && (
+                  <div style={{
+                    padding: "12px 10px 5px", marginTop: 6,
+                    borderTop: "1px solid hsl(var(--border))",
+                    fontSize: 9.5, fontWeight: 700, letterSpacing: "0.11em",
+                    textTransform: "uppercase", fontFamily: "ui-monospace, monospace",
+                    color: "hsl(var(--muted-foreground))", opacity: 0.55,
+                  }}>
+                    Power keys
+                  </div>
+                )}
                 <button
-                  key={x.id}
                   onClick={() => selectItem(x.id)}
                   style={{
                     all: "unset", boxSizing: "border-box", width: "100%",
@@ -899,29 +1201,28 @@ function PrimerModal({
                     width: 22, height: 22, borderRadius: "50%", flexShrink: 0, display: "grid", placeItems: "center",
                     background: done ? C.primary : x.warn ? C.amberBg : "hsl(var(--muted))",
                     color: done ? "#fff" : x.warn ? C.amberFg : "hsl(var(--muted-foreground))",
-                    fontSize: 10, fontWeight: 700, fontFamily: "ui-monospace, monospace",
+                    fontSize: 9.5, fontWeight: 700, fontFamily: "ui-monospace, monospace",
                     border: done ? "none" : x.warn ? `1px solid ${C.amberBorder}` : "none",
                   }}>
-                    {done ? <Check size={12} /> : x.glyph}
+                    {done ? <Check size={12} /> : String(i + 1).padStart(2, "0")}
                   </span>
                   <span style={{ fontSize: 13, fontWeight: active ? 700 : 500, color: x.warn ? C.amberFg : "hsl(var(--foreground))", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{x.label}</span>
                 </button>
+                </React.Fragment>
               );
             })}
           </div>
 
           {/* Detail */}
           <div style={{ flex: 1, padding: 24, overflowY: "auto", minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
-              <GlyphChip g={item.glyph} warn={item.warn} size={40} />
-              <div>
-                <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em", color: item.warn ? C.amberFg : "hsl(var(--foreground))" }}>{item.title}</div>
-                <div style={{ fontSize: 12.5, color: "hsl(var(--muted-foreground))" }}>{item.hint}</div>
-              </div>
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em", color: item.warn ? C.amberFg : "hsl(var(--foreground))" }}>{item.title}</div>
+              <div style={{ fontSize: 12.5, color: "hsl(var(--muted-foreground))" }}>{item.hint}</div>
             </div>
             <p style={{ fontSize: 13.5, color: item.warn ? C.amberFg : "hsl(var(--foreground))", lineHeight: 1.6, marginBottom: 16, opacity: item.warn ? 1 : 0.85 }}>{item.sub}</p>
 
-            {item.nogo ? <NoGoTable rows={item.nogo} />
+            {item.body ? item.body
+              : item.nogo ? <NoGoTable rows={item.nogo} />
               : item.sections ? <SectionCards sections={item.sections} />
               : null}
           </div>
@@ -947,7 +1248,7 @@ function PrimerModal({
             </Button>
           ) : (
             <Button onClick={markNext} className="font-bold">
-              Mark read &amp; continue <ArrowRight className="ml-1.5 h-4 w-4" />
+              Next <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
           )}
         </div>
