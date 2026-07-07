@@ -16,7 +16,7 @@ export interface DrillStep {
   warningMessage?: string;
 }
 
-const warningSequence = "If you are experiencing  issues  -  press 'Cntr'/'Command' last."
+const warningSequence = "Doesn't work?  Press Power Key (Alt/Cmd/Control/Option) last."
 
 const createGridState = (data: string[][], activeSheetIndex: number = 0, Row: number = 0, Col: number = 0, totalRows: number = 0): GridState => {
     const finalData = data.map(r => [...r]); // deep copy
@@ -144,8 +144,8 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   jumpStart: { description: 'Go to Start', keys: ['control', 'home'], windowsOnly: true, iconName: 'ArrowUpLeft', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'topLeft' } } },
   jumpEnd: { description: 'Go to End', keys: ['control', 'end'], windowsOnly: true, iconName: 'ArrowDownRight', gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'end' } } },
   // Jumping sheets/pages
-  nextSheet: { description: 'Next worksheet', keys: ['control', 'pagedown'], macKeys: ['alt', 'arrowright'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } } },
-  prevSheet: { description: 'Previous worksheet', keys: ['control', 'pageup'], macKeys: ['alt', 'arrowleft'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } } },
+  nextSheet: { description: 'Next worksheet', keys: ['control', 'pagedown'], macKeys: ['alt', 'arrowright'], iconName: 'ArrowRightToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'next' } }, warningMessage: warningSequence },
+  prevSheet: { description: 'Previous worksheet', keys: ['control', 'pageup'], macKeys: ['alt', 'arrowleft'], iconName: 'ArrowLeftToLine', gridEffect: { action: 'SWITCH_SHEET', payload: { direction: 'previous' } }, warningMessage: warningSequence },
   pageDown: { description: 'Page down', keys: ['pagedown'], macKeys: ['pagedown'], iconName: 'ArrowDownToLine', gridEffect: { action: 'SCROLL_PAGE_DOWN' } },
   pageUp: { description: 'Page up', keys: ['pageup'], macKeys: ['pageup'], iconName: 'ArrowUpToLine', gridEffect: { action: 'SCROLL_PAGE_UP' } },
   // other

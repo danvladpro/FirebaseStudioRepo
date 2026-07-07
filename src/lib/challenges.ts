@@ -42,7 +42,7 @@ const createGridState = (data: string[][], activeSheetIndex: number = 0, Row: nu
     };
 };
 
-const warningSequence = "If you are experiencing  issues  -  press 'Cntr'/'Command' last."
+const warningSequence = "Doesn't work?  Press Power Key (Alt/Cmd/Control/Option) last."
 
 
 
