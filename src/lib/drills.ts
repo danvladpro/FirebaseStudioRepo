@@ -16,7 +16,7 @@ export interface DrillStep {
   warningMessage?: string;
 }
 
-const warningSequence = "Internet Browser Limitation -  press 'Cntr'/'Command' last."
+const warningSequence = "If you are experiencing  issues  -  press 'Cntr'/'Command' last."
 
 const createGridState = (data: string[][], activeSheetIndex: number = 0, Row: number = 0, Col: number = 0, totalRows: number = 0): GridState => {
     const finalData = data.map(r => [...r]); // deep copy

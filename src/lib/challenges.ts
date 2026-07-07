@@ -42,7 +42,7 @@ const createGridState = (data: string[][], activeSheetIndex: number = 0, Row: nu
     };
 };
 
-const warningSequence = "Internet Browser Limitation -  press 'Cntr'/'Command' last."
+const warningSequence = "If you are experiencing  issues  -  press 'Cntr'/'Command' last."
 
 
 
@@ -277,7 +277,7 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
         initialGridState: createGridState([['A', 'B'], ['1', '2']], 0, 1, 1),
         steps: [
           {description: "Edit the cell formula",keys: ["f2"], macKeys: [['control','u'],['f2']],iconName: "Pencil",gridEffect: { action: 'START_EDITING', payload: { formula: '=A1' } },},
-          {description: "Toggl formula reference",keys: ["f4"], macKeys: [['meta','t'],['f4']],iconName: "Anchor",gridEffect: { action: 'TOGGLE_ABS_REF' },},
+          {description: "Toggle formula reference",keys: ["f4"], macKeys: [['meta','t'],['f4']],iconName: "Anchor",gridEffect: { action: 'TOGGLE_ABS_REF' },},
         ]
       },
       singleStep({ description: 'Recalculate Workbook', keys: ['f9'], macKeys: [['meta','='],['f9']], iconName: 'RefreshCw' , initialGridState: createGridState(bigTable,0,2,0) }),
