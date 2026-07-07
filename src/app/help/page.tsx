@@ -39,11 +39,11 @@ const faqSections = [
             },
             {
                 question: "How do I switch between Windows and Mac shortcuts?",
-                answer: "Excel Ninja guesses your platform from your browser, but you can override it. Go to your Dashboard → Edit Profile → Keyboard and choose Windows (Ctrl / Alt) or Mac (⌘ / ⌥). This is handy when the detection is wrong — for example, a Mac with an external Windows keyboard, or vice versa."
+                answer: "Excel Ninja guesses your platform from your browser, but you can override it. Go to your Dashboard → Settings → Keyboard and choose Windows (Ctrl / Alt) or Mac (⌘ / ⌥). This is handy when the detection is wrong — for example, a Mac with an external Windows keyboard, or vice versa."
             },
             {
                 question: "My keyboard has no Home / End / Page Up / Page Down. What do I do?",
-                answer: "Many compact keyboards — most Macs included — don't have dedicated Home, End, Page Up, or Page Down keys. When a step needs a key you don't have, Excel Ninja opens the on-screen keyboard so you can click it. On a Mac this happens automatically for those keys, and you can also use the Fn chords: Fn + ← / → for Home and End, and Fn + ↑ / ↓ for Page Up and Page Down. If you're on another compact keyboard, tell us which keys you're missing under Edit Profile and we'll surface the on-screen keyboard for those steps too."
+                answer: "Many compact keyboards — most Macs included — don't have dedicated Home, End, Page Up, or Page Down keys. When a step needs a key you don't have, Excel Ninja opens the on-screen keyboard so you can click it. On a Mac this happens automatically for those keys, and you can also use the Fn chords: Fn + ← / → for Home and End, and Fn + ↑ / ↓ for Page Up and Page Down. If you're on another compact keyboard, tell us which keys you're missing under Settings and we'll surface the on-screen keyboard for those steps too."
             },
             {
                 question: "Why is a shortcut labelled “Windows-only”?",
@@ -56,7 +56,7 @@ const faqSections = [
         items: [
             {
                 question: "I pressed the right keys but it was marked wrong. Why?",
-                answer: "Check these in order: (1) Platform — if the app thinks you're on the wrong OS, the expected keys differ; set it under Edit Profile. (2) Combo vs sequence — hold the keys together when a combo is expected, or press them one by one for a sequence. (3) The browser stole it — shortcuts like Ctrl+W or F5 are intercepted by your browser before the app sees them, so use the on-screen keyboard instead. If none of these help, it may be a bug — please hit Contact Support."
+                answer: "Check these in order: (1) Platform — if the app thinks you're on the wrong OS, the expected keys differ; set it under Settings. (2) Combo vs sequence — hold the keys together when a combo is expected, or press them one by one for a sequence. (3) The browser stole it — shortcuts like Ctrl+W or F5 are intercepted by your browser before the app sees them, so use the on-screen keyboard instead. If none of these help, it may be a bug — please hit Contact Support."
             },
             {
                 question: "What's the difference between a combo and a sequence?",

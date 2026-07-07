@@ -18,7 +18,7 @@ interface EditProfileModalProps {
     onOpenChange: (isOpen: boolean) => void;
 }
 
-const availableKeys = ['Home', 'End', 'PageUp', 'PageDown', 'Insert', 'F-Keys (F1-F12)'];
+const availableKeys = ['Home', 'End', 'PageUp', 'PageDown', 'F-Keys (F1-F12)'];
 
 export function EditProfileModal({ isOpen, onOpenChange }: EditProfileModalProps) {
     const { user, userProfile } = useAuth();
@@ -72,7 +72,7 @@ export function EditProfileModal({ isOpen, onOpenChange }: EditProfileModalProps
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Edit Profile</DialogTitle>
+                    <DialogTitle>Settings</DialogTitle>
                     <DialogDescription>
                         Make changes to your profile here. Click save when you're done.
                     </DialogDescription>

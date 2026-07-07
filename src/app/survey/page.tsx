@@ -55,7 +55,7 @@ const surveySteps = [
     id: 'missingKeys',
     title: 'Keyboard Configuration',
     description: 'Select any keys that are NOT on your keyboard. This will help us tailor challenges for you.',
-    options: ['Home', 'End', 'PageUp', 'PageDown', 'Insert', 'F-Keys (F1-F12)'],
+    options: ['Home', 'End', 'PageUp', 'PageDown', 'F-Keys (F1-F12)'],
     type: 'checkbox',
   },
 ];
