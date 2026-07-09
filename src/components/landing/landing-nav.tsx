@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { Suspense } from "react";
-import { useAuth } from "@/components/auth-provider";
+import { useAuth, useAuthHint } from "@/components/auth-provider";
 import { UserMenu } from "@/components/user-menu";
 import { Logo } from "@/components/logo";
 import styles from "./landing.module.css";
 
 function NavContent() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const authHint = useAuthHint();
 
   return (
     <nav className={styles.nav}>
@@ -24,6 +25,8 @@ function NavContent() {
         <div className={styles["nav-actions"]}>
           {user ? (
             <UserMenu />
+          ) : loading && authHint ? (
+            <div className={styles["nav-avatar-placeholder"]} aria-hidden="true" />
           ) : (
             <>
               <Link href="/login" className={`${styles.btn} ${styles["btn-ghost"]}`}>
