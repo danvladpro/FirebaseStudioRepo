@@ -29,7 +29,7 @@ import { LegalSheet } from './legal-sheet';
  * Renders nothing when no user is signed in.
  */
 export function UserMenu() {
-  const { user, userProfile, isPremium } = useAuth();
+  const { user, userProfile, isPremium, loading } = useAuth();
   const router = useRouter();
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = React.useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = React.useState(false);
@@ -88,6 +88,12 @@ export function UserMenu() {
   };
 
   if (!user) return null;
+
+  // Profile (name, premium status) hasn't arrived yet — render a neutral
+  // circle instead of wrong initials / a missing premium ring popping in.
+  if (loading) {
+    return <div className="h-10 w-10 rounded-full bg-muted animate-pulse" aria-hidden="true" />;
+  }
 
   return (
     <>
