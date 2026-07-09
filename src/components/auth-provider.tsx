@@ -126,3 +126,16 @@ export const useIsMac = (): boolean => {
   if (userProfile?.platform) return userProfile.platform === 'mac';
   return navIsMac;
 };
+
+// Optimistic auth hint: was this browser signed in last time? Reads the
+// `auth-present` cookie that AuthProvider maintains (also used by
+// middleware.ts). Returns false on the server and on the first client
+// render so statically rendered pages hydrate cleanly, then reflects the
+// cookie one frame after mount — long before Firebase resolves the session.
+export const useAuthHint = (): boolean => {
+  const [hint, setHint] = useState(false);
+  useEffect(() => {
+    setHint(document.cookie.split('; ').includes('auth-present=1'));
+  }, []);
+  return hint;
+};
