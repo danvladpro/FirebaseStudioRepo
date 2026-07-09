@@ -26,7 +26,8 @@ import { LegalSheet } from './legal-sheet';
 /**
  * The signed-in user avatar + dropdown menu. Shared by the dashboard header
  * (`app-header`) and the landing page nav so both show the same menu.
- * Renders nothing when no user is signed in.
+ * Renders nothing when no user is signed in, and a neutral placeholder
+ * circle while the user's profile is still loading.
  */
 export function UserMenu() {
   const { user, userProfile, isPremium, loading } = useAuth();

@@ -35,11 +35,13 @@ const iconMap: Record<string, ElementType> = {
 
 
 export function FlashcardSetPageContent({ challengeSet }: { challengeSet: ChallengeSet }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const Icon = iconMap[challengeSet.iconName];
 
 
-  if (!user) {
+  // While auth is resolving, fall through and render the page — the
+  // FlashcardClientPage inside shows its own skeleton until loading ends.
+  if (!user && !loading) {
     return (
         <div className="flex min-h-screen w-full flex-col items-center justify-center bg-muted/40">
             <p>Please log in to study flashcards.</p>
