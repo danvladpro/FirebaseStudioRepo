@@ -94,7 +94,7 @@ export function UserMenu() {
   // Profile (name, premium status) hasn't arrived yet — render a neutral
   // circle instead of wrong initials / a missing premium ring popping in.
   if (loading) {
-    return <div className="h-10 w-10 rounded-full bg-muted animate-pulse" aria-hidden="true" />;
+    return <div className="h-10 w-10 rounded-full bg-emerald-50 border border-emerald-200 animate-pulse" aria-hidden="true" />;
   }
 
   return (
@@ -111,7 +111,10 @@ export function UserMenu() {
                   isPremium && "p-0.5 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
                 )}>
                   <div className={cn("w-full h-full rounded-full flex items-center justify-center", isPremium && "bg-background")}>
-                    <AvatarFallback>{getInitials(userProfile?.name)}</AvatarFallback>
+                    <AvatarFallback className={cn(
+                      "bg-emerald-100 text-emerald-800 font-semibold",
+                      !isPremium && "border border-emerald-200"
+                    )}>{getInitials(userProfile?.name)}</AvatarFallback>
                   </div>
               </div>
             </Avatar>
