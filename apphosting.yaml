@@ -64,18 +64,22 @@ env:
       - RUNTIME
 
   - variable: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-    value: pk_test_51SIzPG1NkaH9ToJzQknuIWXpmdLW2kUshIHiTfW0MSsWJdTwu0Ano3ZiOHm3ZBNK8SM4S9mjbMOZj1KdAL2WJ2zL00wgH1gHYu
+    value: pk_live_51SIzP41krntNVoIoW6Hq41yMqQUBvpwIcdXLirJh2zbCPlEAeWsyuwptRaiv81I2caBZUcHjh1CPg5G2uooP9rxI00WlbogdLr
     availability:
       - BUILD
       - RUNTIME
 
+
   # --- Non-secret server config (runtime) ---------------------------------
   # Stripe price IDs are not sensitive; plain values keep them visible in config.
   - variable: STRIPE_ONE_WEEK_PRICE_ID
-    value: price_1TkL7d1NkaH9ToJzYEvjEm5I
+    #value: price_1TkL7d1NkaH9ToJzYEvjEm5I
+    value: price_1Tnmi51krntNVoIoSJ9Gx6D5 #PROD
+
 
   - variable: STRIPE_ONE_MONTH_PRICE_ID
-    value: price_1TkL9V1NkaH9ToJzk1BhDsdo
+    #value: price_1TkL9V1NkaH9ToJzk1BhDsdo
+    value: price_1Tnmi51krntNVoIoLS0PdT1K # PROD
 
   # --- Secrets (Secret Manager, runtime only) -----------------------------
   - variable: FIREBASE_SERVICE_ACCOUNT_KEY

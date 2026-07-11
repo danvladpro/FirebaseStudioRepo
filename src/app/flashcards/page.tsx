@@ -13,6 +13,7 @@ import { useAuth } from '@/components/auth-provider';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PremiumModal } from '@/components/premium-modal';
+import { Skeleton } from '@/components/ui/skeleton';
 import React from 'react';
 
 const iconMap: Record<string, ElementType> = {
@@ -37,8 +38,35 @@ const iconMap: Record<string, ElementType> = {
 };
 
 export default function FlashcardsPage() {
-    const { isPremium } = useAuth();
+    const { isPremium, loading } = useAuth();
     const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
+
+    if (loading) {
+        return (
+            <div className="flex min-h-screen w-full flex-col bg-muted/40">
+                <AppHeader />
+                <main className="flex-1 container py-8 md:py-12 mt-16">
+                    <header className="mb-8 md:mb-12 flex items-center justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold">Flashcard Decks</h1>
+                            <Skeleton className="h-4 w-80 max-w-full mt-2" />
+                        </div>
+                        <Button asChild variant="outline">
+                            <Link href="/dashboard">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back to Dashboard
+                            </Link>
+                        </Button>
+                    </header>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <Skeleton key={i} className="h-56 rounded-xl" />
+                        ))}
+                    </div>
+                </main>
+            </div>
+        );
+    }
 
     const isLimited = !isPremium;
 

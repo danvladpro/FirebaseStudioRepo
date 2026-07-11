@@ -382,7 +382,7 @@ export function LandingContent() {
                 </li>
               </ul>
               <Link href="/signup" className={cx("pricing-cta", "cta-border")}>
-                Get 7-Day Access
+                Try for Free
               </Link>
             </div>
 
@@ -411,7 +411,7 @@ export function LandingContent() {
                 </li>
               </ul>
               <Link href="/signup" className={cx("pricing-cta", "cta-green")}>
-                Get 1-Month Access
+                Try for Free
               </Link>
             </div>
 

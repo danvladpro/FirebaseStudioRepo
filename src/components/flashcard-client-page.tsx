@@ -5,6 +5,7 @@ import { useState, ElementType, useMemo } from "react";
 import { Challenge, ChallengeSet, GridState, ChallengeStep } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { VisualKeyboard } from "./visual-keyboard";
 import * as icons from "lucide-react";
@@ -41,7 +42,7 @@ interface FlashcardItem {
 export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnswerShown, setIsAnswerShown] = useState(false);
-    const { isPremium } = useAuth();
+    const { isPremium, loading } = useAuth();
     const isMac = useIsMac();
 
     const isLimited = !isPremium;
@@ -65,6 +66,14 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
         return allFlashcards;
     }, [set.challenges, isLimited]);
 
+    if (loading) {
+        return (
+            <div className="w-full max-w-4xl flex flex-col items-center gap-4">
+                <Skeleton className="h-[420px] w-full rounded-xl" />
+                <Skeleton className="h-10 w-64" />
+            </div>
+        );
+    }
 
     const currentFlashcard = flashcards[currentIndex];
     const initialGridState = currentFlashcard?.initialGridState ?? null;

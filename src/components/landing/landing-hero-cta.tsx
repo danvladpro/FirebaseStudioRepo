@@ -2,15 +2,19 @@
 
 import Link from "next/link";
 import { Suspense } from "react";
-import { useAuth } from "@/components/auth-provider";
+import { useAuth, useAuthHint } from "@/components/auth-provider";
 import styles from "./landing.module.css";
 
 const cx = (...keys: string[]) => keys.map((k) => styles[k]).filter(Boolean).join(" ");
 
 function HeroPrimaryCtaInner() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const authHint = useAuthHint();
 
-  if (user) {
+  // Optimistic: show the signed-in CTA while Firebase is still resolving if
+  // this browser was signed in last time. A stale hint is harmless —
+  // /dashboard is middleware-protected and bounces to /login.
+  if (user || (loading && authHint)) {
     return (
       <Link href="/dashboard" className={cx("btn", "btn-primary-lg")}>
         Go to Dashboard

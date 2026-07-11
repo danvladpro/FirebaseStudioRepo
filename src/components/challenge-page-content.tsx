@@ -11,7 +11,7 @@ import { ChallengePreloader } from './challenge-preloader';
 type ChallengeMode = 'timed' | 'training';
 
 export function ChallengePageContent({ challengeSet }: { challengeSet: ChallengeSet }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<ChallengeMode | null>(null);
 
@@ -22,7 +22,9 @@ export function ChallengePageContent({ challengeSet }: { challengeSet: Challenge
     }
   }, [searchParams]);
 
-  if (!user) {
+  // While auth is resolving, fall through and render the page — the challenge
+  // start screen has no premium-gated content, so it's safe to show early.
+  if (!user && !loading) {
     return (
         <div className="flex min-h-screen w-full flex-col items-center justify-center bg-muted/40">
             <p>Please log in to start a challenge.</p>

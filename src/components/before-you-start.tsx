@@ -10,11 +10,11 @@ import { doc, updateDoc } from "firebase/firestore";
 import {
   BookOpen, Check, ArrowRight, Zap, X,
   Layers, Target, Dumbbell, Timer, Repeat, Trophy, Heart, RotateCcw,
-  TrendingUp, Moon,
+  TrendingUp, Moon, Keyboard, MousePointerClick, SlidersHorizontal,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-type ItemId = "howto" | "learn" | "ctrl" | "alt" | "arrows" | "numbers" | "fn" | "special" | "mac" | "nogo";
+type ItemId = "howto" | "learn" | "ctrl" | "alt" | "arrows" | "numbers" | "fn" | "fnmod" | "special" | "mac" | "nogo";
 type AnimMode = "combo" | "sequence";
 
 interface Example {
@@ -23,6 +23,7 @@ interface Example {
   action: string;
   visual?: VisualSpec;
   outcome?: "fail";
+  accentKeys?: string[];
 }
 
 interface Section {
@@ -85,18 +86,21 @@ function Kbd({ children, size = "sm" }: { children: React.ReactNode; size?: "sm"
   );
 }
 
-function AKbd({ children, active = false, danger = false }: { children: React.ReactNode; active?: boolean; danger?: boolean }) {
-  const accent = danger ? "hsl(0 72% 50%)" : C.primary;
-  const glow = danger ? "rgba(220,38,38,0.22)" : "rgba(22,163,74,0.2)";
+function AKbd({ children, active = false, danger = false, amber = false }: { children: React.ReactNode; active?: boolean; danger?: boolean; amber?: boolean }) {
+  const accent = danger ? "hsl(0 72% 50%)" : amber ? C.amberFg : C.primary;
+  const glow = danger ? "rgba(220,38,38,0.22)" : amber ? "rgba(245,158,11,0.25)" : "rgba(22,163,74,0.2)";
+  const restBorder = amber ? C.amberBorder : "hsl(var(--border))";
+  const restBg = amber ? C.amberSoft : "white";
+  const restFg = amber ? C.amberFg : "hsl(var(--foreground))";
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", justifyContent: "center",
       minWidth: 20, height: 20, padding: "0 6px",
       borderRadius: 5, fontFamily: "ui-monospace, monospace",
       fontSize: 10.5, fontWeight: 600,
-      border: `1px solid ${active ? accent : "hsl(var(--border))"}`,
-      background: active ? accent : "white",
-      color: active ? "white" : "hsl(var(--foreground))",
+      border: `1px solid ${active ? accent : restBorder}`,
+      background: active ? accent : restBg,
+      color: active ? "white" : restFg,
       boxShadow: active ? `0 0 0 3px ${glow}` : "0 1px 0 hsl(var(--border))",
       transform: active ? "scale(1.07) translateY(-1px)" : "scale(1) translateY(0px)",
       lineHeight: 1, whiteSpace: "nowrap" as const,
@@ -184,7 +188,7 @@ function AnimExRow({ ex }: { ex: Example }) {
               )
               : <span style={{ color: "hsl(var(--muted-foreground))", fontSize: 11, fontFamily: "ui-monospace, monospace", fontWeight: 500 }}>+</span>
             )}
-            <AKbd active={isSeq ? keyPhase === i : keyPhase === 0}>{k}</AKbd>
+            <AKbd active={isSeq ? keyPhase === i : keyPhase === 0} amber={ex.accentKeys?.includes(k)}>{k}</AKbd>
           </React.Fragment>
         ))}
       </span>
@@ -850,6 +854,208 @@ const NEW_PAGE_META = {
 // (chosen), "B" = static with fade-in only.
 const NEW_PAGE_VARIANT: NewPageVariant = "A";
 
+// ── Fn button section ──────────────────────────────────────────────────────
+// Explains the Fn *modifier* (distinct from the F1–F12 "Function keys" section).
+// The "no key at all" case has two builds selected by FNMOD_VARIANT: "full"
+// shows an animated (non-interactive) on-screen keyboard; "text" is prose only.
+// Nothing here is clickable — animation only. Flip the const to pick a winner.
+const FNMOD_VARIANT: "full" | "text" = "full";
+
+// A chunkier, physical-looking keycap for the "check your keyboard" illustration.
+function PhysKey({ children, accent = false, small = false }: { children: React.ReactNode; accent?: boolean; small?: boolean }) {
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", justifyContent: "center",
+      minWidth: small ? 30 : 42, height: small ? 26 : 34, padding: "0 9px",
+      borderRadius: 7, fontFamily: "ui-monospace, monospace",
+      fontSize: small ? 11 : 12.5, fontWeight: 700, lineHeight: 1, whiteSpace: "nowrap" as const,
+      border: `1px solid ${accent ? C.amberBorder : "hsl(var(--border))"}`,
+      background: accent ? C.amberSoft : "white",
+      color: accent ? C.amberFg : "hsl(var(--foreground))",
+      boxShadow: `0 2px 0 ${accent ? C.amberBorder : "hsl(var(--border))"}`,
+    }}>{children}</span>
+  );
+}
+
+// A physical keycap with two legends: the main glyph, plus a smaller secondary
+// label engraved in the corner (amber = the function Fn unlocks).
+function DualKey({ main, corner }: { main: React.ReactNode; corner: string }) {
+  return (
+    <span style={{
+      position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center",
+      width: 40, height: 40, borderRadius: 7,
+      border: "1px solid hsl(var(--border))", background: "white",
+      boxShadow: "0 2px 0 hsl(var(--border))",
+      fontFamily: "ui-monospace, monospace", fontSize: 15, fontWeight: 700,
+      color: "hsl(var(--foreground))", flexShrink: 0,
+    }}>
+      {main}
+      <span style={{
+        position: "absolute", top: 3, right: 4,
+        fontSize: 7.5, fontWeight: 800, lineHeight: 1, letterSpacing: "-0.02em",
+        color: C.amberFg,
+      }}>{corner}</span>
+    </span>
+  );
+}
+
+function FnKeyIllustration() {
+  return (
+    <div style={{
+      display: "flex", flexDirection: "column", gap: 12,
+      padding: "14px 16px", border: "1px solid hsl(var(--border))",
+      borderRadius: 12, background: "hsl(var(--card))",
+    }}>
+      <div style={{ fontSize: 13.5, lineHeight: 1.5, opacity: 0.85 }}>
+        Look for a second label printed small in the corner of a key — on many keyboards
+        Home, Page Up and Page Down live on the arrow keys. Hold <Kbd>Fn</Kbd> and that
+        corner label fires instead of the main one.
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" as const }}>
+        <PhysKey small accent>Fn</PhysKey>
+        <span style={{ color: "hsl(var(--muted-foreground))", fontFamily: "ui-monospace, monospace", fontSize: 13, fontWeight: 600 }}>+</span>
+        <DualKey main="←" corner="Home" />
+        <DualKey main="↑" corner="PgUp" />
+        <DualKey main="↓" corner="PgDn" />
+        <DualKey main="→" corner="End" />
+      </div>
+    </div>
+  );
+}
+
+// Card wrapper for the three mini-subsections (badge can be an icon or text).
+function FnSub({ badge, title, children }: { badge: React.ReactNode; title: string; children: React.ReactNode }) {
+  return (
+    <div style={{
+      position: "relative", padding: "14px 16px 14px 20px",
+      border: "1px solid hsl(var(--border))", borderRadius: 12,
+      background: "hsl(var(--card))", display: "flex", flexDirection: "column", gap: 9,
+    }}>
+      <span style={{ position: "absolute", left: 0, top: 14, bottom: 14, width: 3, background: C.primary, borderRadius: "0 3px 3px 0", opacity: 0.85 }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+        <span style={{
+          minWidth: 24, height: 24, padding: "0 6px", borderRadius: 7,
+          background: C.primarySoft, color: C.primaryFg, display: "grid", placeItems: "center",
+          flexShrink: 0, fontSize: 11, fontWeight: 800, fontFamily: "ui-monospace, monospace",
+        }}>{badge}</span>
+        <span style={{ fontWeight: 700, fontSize: 14.5, letterSpacing: "-0.015em" }}>{title}</span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function SettingsChip() {
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 4, padding: "1px 7px",
+      borderRadius: 6, background: C.primarySoft, color: C.primaryFg,
+      fontSize: 11.5, fontWeight: 700, whiteSpace: "nowrap" as const,
+    }}>
+      <SlidersHorizontal size={11} /> Settings → Missing Keys
+    </span>
+  );
+}
+
+// Non-interactive mock of the real on-screen keyboard. Ctrl reads as "held" on
+// the physical keyboard; Page Up gets a looping tap-pulse to show the click.
+function MiniVirtualKeyboard() {
+  const phase = usePhaseLoop(1, 900);
+  const tapped = phase === 1;
+  const keys = ["Ctrl", "End", "Home", "Page Up", "Page Down"];
+  return (
+    <div style={{ borderRadius: 10, overflow: "hidden", border: "1px solid hsl(var(--border))", background: "hsl(var(--muted)/0.4)" }}>
+      <div style={{
+        padding: "7px 10px", borderBottom: "1px solid hsl(var(--border))",
+        fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" as const,
+        fontFamily: "ui-monospace, monospace", color: C.primaryFg,
+      }}>
+        Virtual Keyboard — click to press
+      </div>
+      <div style={{ display: "flex", gap: 5, padding: 10, flexWrap: "wrap" as const, alignItems: "center" }}>
+        {keys.map(k => {
+          const held = k === "Ctrl";
+          const target = k === "Page Up";
+          const on = held || (target && tapped);
+          return (
+            <span key={k} style={{ position: "relative", display: "inline-flex" }}>
+              <span style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                height: 28, padding: "0 9px", borderRadius: 6,
+                fontFamily: "ui-monospace, monospace", fontSize: 11, fontWeight: 700,
+                border: `1px solid ${on ? C.primary : "hsl(var(--border))"}`,
+                background: on ? C.primary : "white",
+                color: on ? "white" : "hsl(var(--foreground))",
+                boxShadow: on ? "0 0 0 3px rgba(22,163,74,0.2)" : "0 1px 0 hsl(var(--border))",
+                transform: target && tapped ? "translateY(1px) scale(0.96)" : "none",
+                transition: "all 150ms ease",
+              }}>{k}</span>
+              {held && (
+                <span style={{
+                  position: "absolute", top: -7, left: "50%", transform: "translateX(-50%)",
+                  fontSize: 7.5, fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase" as const,
+                  color: C.primaryFg, background: C.primarySoft, borderRadius: 3, padding: "1px 4px",
+                  whiteSpace: "nowrap" as const, fontFamily: "ui-monospace, monospace",
+                }}>held</span>
+              )}
+              {target && (
+                <MousePointerClick size={13} aria-hidden style={{
+                  position: "absolute", right: -6, bottom: -6, color: C.primaryFg,
+                  opacity: tapped ? 1 : 0.45, transform: tapped ? "scale(1)" : "scale(0.85)",
+                  transition: "all 150ms ease",
+                }} />
+              )}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function FnModBody({ variant }: { variant: "full" | "text" }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <Keyframes />
+      <FnKeyIllustration />
+      <FnSub badge={<Keyboard size={14} />} title="Standard keyboard">
+        <div style={{ fontSize: 13, lineHeight: 1.5, opacity: 0.82 }}>
+          Has a dedicated Page Up key? Just press the combo.
+        </div>
+        <AnimExRow ex={{ keys: ["Ctrl", "Page Up"], mode: "combo", action: "Previous worksheet" }} />
+      </FnSub>
+      <FnSub badge="Fn" title="Via the Fn button">
+        <div style={{ fontSize: 13, lineHeight: 1.5, opacity: 0.82 }}>
+          No dedicated key? Hold <Kbd>Fn</Kbd> to reach it — it&apos;s a secondary function
+          printed on another key.
+        </div>
+        <AnimExRow ex={{ keys: ["Ctrl", "Fn", "Page Up"], mode: "combo", action: "Previous worksheet", accentKeys: ["Fn"] }} />
+      </FnSub>
+      <FnSub badge={<MousePointerClick size={14} />} title="No Fn — and no key at all">
+        {variant === "full" ? (
+          <>
+            <div style={{ fontSize: 13, lineHeight: 1.5, opacity: 0.82 }}>
+              Tick the key under <SettingsChip /> and an on-screen keyboard appears in every
+              drill. You don&apos;t have to click everything — hold what your keyboard has and
+              tap only what it&apos;s missing:
+            </div>
+            <MiniVirtualKeyboard />
+            <div style={{ fontSize: 12, color: "hsl(var(--muted-foreground))", lineHeight: 1.45 }}>
+              Here: hold <Kbd>Ctrl</Kbd> on your keyboard, click <Kbd>Page Up</Kbd> on-screen.
+            </div>
+          </>
+        ) : (
+          <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.85, display: "flex", flexDirection: "column", gap: 7 }}>
+            <div>1. Tick the key under <SettingsChip /> — this tells us your keyboard is missing it.</div>
+            <div>2. An on-screen keyboard then appears in every drill and challenge.</div>
+            <div>3. You can mix inputs: hold <Kbd>Ctrl</Kbd> on your real keyboard and click <Kbd>Page Up</Kbd> on-screen.</div>
+          </div>
+        )}
+      </FnSub>
+    </div>
+  );
+}
+
 // ── Data ──
 // Order = a natural learning progression, ending on the Mac & no-go heads-ups.
 
@@ -996,6 +1202,20 @@ const BYS_DATA: ItemData[] = [
         examples: [{ keys: ["⇧", "F11"], mode: "combo", action: "Insert new worksheet" }],
       },
     ],
+  },
+  {
+    id: "fnmod",
+    label: "Fn button",
+    hint: "Reaching Home & Page keys",
+    title: "The Fn button",
+    sub: (
+      <>
+        Many laptops and compact keyboards have no dedicated <Kbd>Home</Kbd>,{" "}
+        <Kbd>Page Up</Kbd> or <Kbd>Page Down</Kbd> keys — but almost all can still
+        fire them through the <Kbd>Fn</Kbd> button.
+      </>
+    ),
+    body: <FnModBody variant={FNMOD_VARIANT} />,
   },
   {
     id: "special",

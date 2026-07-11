@@ -58,7 +58,7 @@ const PROGRESSION_LEVELS = [
 
 export function HomePageClient() {
   const { isLoaded, stats } = usePerformanceTracker();
-  const { user, userProfile, isPremium } = useAuth();
+  const { user, userProfile, isPremium, loading } = useAuth();
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = React.useState(false);
   const isAdmin = userProfile?.preview === true;
@@ -267,6 +267,33 @@ export function HomePageClient() {
   const getDashboardSubtitle = () => {
     if (isPremium) return "Master the keyboard, boost your productivity, and leave the mouse behind.";
     return "Learn the basics and upgrade to unlock your full potential.";
+  }
+
+  // Auth/profile still resolving — render skeletons instead of guessing at
+  // the locked/unlocked state (premium users must never see locked cards).
+  if (loading) {
+    return (
+      <div className="flex min-h-screen w-full flex-col bg-background">
+        <AppHeader />
+        <main className="flex-1 container py-10 md:py-14 mt-16">
+          <header className="mb-8 md:mb-10">
+            <Skeleton className="h-9 w-96 max-w-full mb-2" />
+            <Skeleton className="h-4 w-72 max-w-full" />
+          </header>
+          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8">
+            <aside>
+              <Skeleton className="h-[420px] rounded-xl" />
+            </aside>
+            <div className="flex flex-col gap-4">
+              <Skeleton className="h-24 rounded-xl" />
+              <Skeleton className="h-44 rounded-xl" />
+              <Skeleton className="h-44 rounded-xl" />
+              <Skeleton className="h-44 rounded-xl" />
+            </div>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
