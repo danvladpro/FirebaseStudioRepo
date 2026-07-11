@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useAuth } from './auth-provider';
@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { Crown, Settings, Clock, LifeBuoy, HelpCircle, ScrollText } from 'lucide-react';
+import { Crown, Settings, Clock, LifeBuoy, HelpCircle, ScrollText, LayoutDashboard } from 'lucide-react';
 import React from 'react';
 import { EditProfileModal } from './edit-profile-modal';
 import { differenceInDays, formatDistanceToNow } from 'date-fns';
@@ -32,6 +32,7 @@ import { LegalSheet } from './legal-sheet';
 export function UserMenu() {
   const { user, userProfile, isPremium, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = React.useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = React.useState(false);
   const [isLegalSheetOpen, setIsLegalSheetOpen] = React.useState(false);
@@ -136,6 +137,15 @@ export function UserMenu() {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          {/* On the landing page the header has no other way into the app. */}
+          {pathname === '/' && (
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard">
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                Go to Dashboard
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onSelect={() => setIsEditProfileModalOpen(true)}>
             <Settings className="mr-2 h-4 w-4" />
             Settings
