@@ -1,6 +1,7 @@
 import Link from "next/link";
 import styles from "./landing.module.css";
 import { HeroPrimaryCta } from "./landing-hero-cta";
+import { ContactSalesCta, ContactFooterLink } from "./contact-modal";
 
 const cx = (...keys: string[]) => keys.map((k) => styles[k]).filter(Boolean).join(" ");
 
@@ -439,9 +440,7 @@ export function LandingContent() {
                   <span className={styles["pf-check"]}><Check /></span> Bulk certificate reporting
                 </li>
               </ul>
-              <a href="mailto:hello@excelninja.app" className={cx("pricing-cta", "cta-border")}>
-                Contact Sales
-              </a>
+              <ContactSalesCta />
             </div>
           </div>
           <p className={styles["pricing-note"]}>
@@ -484,7 +483,7 @@ export function LandingContent() {
             <div className={styles["footer-col"]}>
               <h4>Support</h4>
               <Link href="/help">Help Center</Link>
-              <a href="mailto:hello@excelninja.app">Contact</a>
+              <ContactFooterLink />
             </div>
           </div>
           <div className={styles["footer-bottom"]}>
