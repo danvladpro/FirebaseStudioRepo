@@ -13,7 +13,7 @@ The site currently exposes a single indexable page (`/`) with bare-minimum metad
 | Decision | Value |
 |---|---|
 | Canonical production domain | `https://ninjashortcuts.com` |
-| SEO site/brand name | **Excel Shortcuts Ninja** (visible UI logo still says "Excel Ninja" — out of scope, flagged) |
+| SEO site/brand name | **Excel Shortcuts Ninja** — and the visible UI brand is renamed to match (see §7) |
 | OG image | Code-generated via Next `ImageResponse` (`opengraph-image.tsx`) |
 | Help/FAQ page | Stays auth-gated; excluded from index via robots disallow |
 | Approach | Native Next.js 15 file conventions + small SEO constants module |
@@ -74,6 +74,29 @@ Next-native `MetadataRoute.Robots`:
 - Fonts: load Inter TTFs from `public/` via `fs.readFile` (already in repo: `Inter-Bold.ttf`, `Inter-SemiBold.ttf`, `Inter-Regular.ttf`)
 - Next auto-injects `og:image` / `twitter:image` tags from this file; no manual wiring
 
+### 7. Brand rename in the UI: "Excel Ninja" → "Excel Shortcuts Ninja"
+
+**Rule:** occurrences that name the *product/brand* are renamed; occurrences that describe a *person or rank* (the aspirational "ninja") are kept.
+
+Rename (product/brand):
+- `src/components/logo.tsx` — shared header logo text (used by app-header and landing nav)
+- `src/components/landing/landing-content.tsx` — footer logo text and the © line
+- `src/components/landing/contact-modal.tsx` — modal descriptions and mail subjects
+- `src/app/help/page.tsx` — all FAQ copy referring to the product (~10 occurrences)
+- `src/components/before-you-start.tsx` — "How Excel Ninja works" title + browser-shortcut copy
+- `src/components/landing-donation.tsx` — "Support Excel Ninja"
+- `src/lib/legal-content.tsx` — every reference to the Service (~8 occurrences, incl. the "Excel Ninja ('the Service')" definition)
+- `src/app/certificate/page.tsx` — logo alt text and "The Excel Ninja Team" signature
+- `src/lib/utils.ts` — LinkedIn certificate name → "Excel Shortcuts Ninja: Certificate of Mastery"
+- `src/components/challenge-preloader.tsx` — image alt text
+
+Keep (persona/rank, not brand):
+- `src/app/signup/page.tsx` — "Start your journey to becoming an Excel Ninja"
+- `landing-content.tsx` — Level3 rank alt "Excel Ninja", "Individual learner becoming an Excel Ninja", "A team of Excel Ninjas"
+- `src/components/certificate-modal.tsx` — "Excel Ninja" as fallback *user name* on the certificate
+
+The repo-internal name (folder `ExcelNinja`, CLAUDE.md project title) is untouched.
+
 ## Error handling
 
 - `opengraph-image.tsx` font loading uses `path.join(process.cwd(), 'public', …)` — works in dev and in the Firebase App Hosting build. If font read fails at runtime the route errors; verify it renders in dev and production build (`npm run build`) before shipping.
@@ -98,6 +121,5 @@ Next-native `MetadataRoute.Robots`:
 ## Out of scope (explicitly)
 
 - Making `/help` public (declined for this pass)
-- Renaming visible "Excel Ninja" branding in the UI to "Excel Shortcuts Ninja"
 - Public `/shortcuts/[slug]` content pages (the big traffic lever — separate project)
 - Any redirect/canonicalization of the Firebase `*.hosted.app` URL to the custom domain (hosting-level concern)
