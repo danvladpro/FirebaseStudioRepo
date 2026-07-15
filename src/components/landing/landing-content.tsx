@@ -24,7 +24,7 @@ export function LandingContent() {
               Excel Shortcuts Training
             </div>
             <h1>
-              Learn Excel Shorcuts.
+              Learn Excel Shortcuts.
               <br />
               <em>Stop wasting time</em>
             </h1>
@@ -203,7 +203,7 @@ export function LandingContent() {
                 </svg>
               </div>
               <h3>Drills - Learning by doing</h3>
-              <p>Achieve muscle memory though repetitive drills executed directly on your keyboard.</p>
+              <p>Achieve muscle memory through repetitive drills executed directly on your keyboard.</p>
             </div>
           </div>
         </div>
@@ -268,7 +268,7 @@ export function LandingContent() {
                 </span>
                 <span className={styles["benefit-role-label"]}>For Individuals</span>
               </div>
-              <h2>Work faster with fever mistakes</h2>
+              <h2>Work faster with fewer mistakes</h2>
               <p>Master shortcuts and reclaim that lost time for real analysis — working faster, with sharper focus and fewer mistakes.</p>
               <ul className={styles["check-list"]}>
                 <li>
@@ -487,7 +487,7 @@ export function LandingContent() {
             </div>
           </div>
           <div className={styles["footer-bottom"]}>
-            <p>&copy; 2025 Excel Ninja. All rights reserved.</p>
+            <p>&copy; 2026 Excel Ninja. All rights reserved.</p>
             <p style={{ color: "rgba(255,255,255,0.2)", fontSize: "0.75rem" }}>Built for people who live in spreadsheets.</p>
           </div>
         </div>
