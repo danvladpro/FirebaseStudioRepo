@@ -14,7 +14,7 @@ export function LegalContent() {
             <p>
               By creating an account or completing a purchase, you confirm that you have
               read and agree to these Terms &amp; Conditions ("Terms") and our Privacy
-              Policy. If you do not agree, please do not use Excel Ninja ("the Service").
+              Policy. If you do not agree, please do not use Excel Shortcuts Ninja ("the Service").
               You must be at least 13 years old to use the Service.
             </p>
           </div>
@@ -22,7 +22,7 @@ export function LegalContent() {
           <div>
             <h3 className="font-semibold mb-2">2. Description of Service</h3>
             <p>
-              Excel Ninja is a web-based training tool that helps you learn and practice
+              Excel Shortcuts Ninja is a web-based training tool that helps you learn and practice
               Microsoft Excel keyboard shortcuts through interactive flashcards, drills, and
               challenges. The Service is provided "as is" for educational purposes only.
             </p>
@@ -37,7 +37,7 @@ export function LegalContent() {
             <ul className="space-y-3 list-none pl-0">
               <li>
                 <span className="font-medium">Browser environment.</span>{" "}
-                Excel Ninja runs inside a web browser, not inside Microsoft Excel itself.
+                Excel Shortcuts Ninja runs inside a web browser, not inside Microsoft Excel itself.
                 Some keyboard shortcuts may behave differently, be only partially supported,
                 or not function at all due to browser restrictions. This is a known
                 limitation of the browser environment, not a defect in the Service. We have
@@ -77,7 +77,7 @@ export function LegalContent() {
               </li>
               <li>
                 <span className="font-medium">Practice in real Excel.</span>{" "}
-                Excel Ninja is a training aid, not a replacement for real-world practice.
+                Excel Shortcuts Ninja is a training aid, not a replacement for real-world practice.
                 Keyboard shortcuts are learned through repetition. The most effective way to
                 retain them is to use them in your actual Excel work — in your projects, at
                 your job, in your day-to-day spreadsheets. The app gives you the foundation;
@@ -101,7 +101,7 @@ export function LegalContent() {
           <div>
             <h3 className="font-semibold mb-2">4. No Affiliation with Microsoft</h3>
             <p>
-              Excel Ninja is an independent product. It is not affiliated with, endorsed by,
+              Excel Shortcuts Ninja is an independent product. It is not affiliated with, endorsed by,
               sponsored by, or connected to Microsoft Corporation in any way. "Microsoft
               Excel" and "Microsoft" are registered trademarks of Microsoft Corporation. All
               references to Excel are for descriptive and educational purposes only.
@@ -150,7 +150,7 @@ export function LegalContent() {
             </p>
             <p className="mb-2">
               <span className="font-medium">Waiver for immediate access.</span>{" "}
-              Excel Ninja is a digital service provided immediately upon purchase. At
+              Excel Shortcuts Ninja is a digital service provided immediately upon purchase. At
               checkout you may expressly request immediate performance and acknowledge that
               by doing so you lose your right of withdrawal once performance has begun. If
               you tick this acknowledgement at checkout, your 14-day withdrawal right ends
@@ -275,7 +275,7 @@ export function LegalContent() {
           <div>
             <h3 className="font-semibold mb-2">1. Who We Are</h3>
             <p>
-              Excel Ninja is operated by{" "}
+              Excel Shortcuts Ninja is operated by{" "}
               <span className="font-medium">[Your full legal name]</span>, a sole trader
               (<em>eenmanszaak</em>) registered in the Netherlands.
             </p>

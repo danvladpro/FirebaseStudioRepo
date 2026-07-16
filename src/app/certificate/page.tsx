@@ -142,7 +142,7 @@ function CertificateContent() {
                      <Image
                       style={styles.logo}
                       src="/logo.svg"
-                      alt="Excel Ninja Logo"
+                      alt="Excel Shortcuts Ninja Logo"
                       width={50}
                       height={50}
                     />
@@ -169,7 +169,7 @@ function CertificateContent() {
                 <div style={styles.footer}>
                     <div style={styles.signatureContainer}>
                         <div style={styles.signatureLine} />
-                        <p style={styles.signatureTitle}>The Excel Ninja Team</p>
+                        <p style={styles.signatureTitle}>The Excel Shortcuts Ninja Team</p>
                     </div>
                     <div style={styles.dateContainer}>
                          <p style={styles.dateText}>{date}</p>

@@ -839,7 +839,7 @@ const NEW_PAGE_META = {
   howto: {
     label: "How to use the app",
     hint: "Your path from zero to certified",
-    title: "How Excel Ninja works",
+    title: "How Excel Shortcuts Ninja works",
     sub: "Every level follows the same path: learn the shortcuts cold, prove them under pressure, then drill them until they're automatic.",
   },
   learn: {
@@ -1302,7 +1302,7 @@ const BYS_DATA: ItemData[] = [
     warn: true,
     sub: (
       <>
-        You&apos;re using Excel Ninja in a browser. These combos are claimed by the browser before
+        You&apos;re using Excel Shortcuts Ninja in a browser. These combos are claimed by the browser before
         Excel sees them — the tabs you see are part of the app, so{" "}
         <Kbd>Ctrl</Kbd>&thinsp;+&thinsp;<Kbd>W</Kbd> will close the whole thing.
       </>
