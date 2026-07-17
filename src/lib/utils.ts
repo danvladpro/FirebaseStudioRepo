@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
 export const buildLinkedInUrl = (user: User, certId: string) => {
     if (!user) return "";
 
-    const certName = "Excel Ninja: Certificate of Mastery";
+    const certName = "Excel Shortcuts Ninja: Certificate of Mastery";
     const issueDate = new Date();
     const issueYear = issueDate.getFullYear();
     const issueMonth = issueDate.getMonth() + 1;

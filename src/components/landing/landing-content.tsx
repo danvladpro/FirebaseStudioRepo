@@ -463,7 +463,7 @@ export function LandingContent() {
                     <path d="M30 18L35 32" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
                   </svg>
                 </div>
-                <span className={styles["logo-text"]}>Excel Ninja</span>
+                <span className={styles["logo-text"]}>Excel Shortcuts Ninja</span>
               </div>
               <p>Master Excel shortcuts through practice, not memorization.</p>
             </div>
@@ -487,7 +487,7 @@ export function LandingContent() {
             </div>
           </div>
           <div className={styles["footer-bottom"]}>
-            <p>&copy; 2026 Excel Ninja. All rights reserved.</p>
+            <p>&copy; 2026 Excel Shortcuts Ninja. All rights reserved.</p>
             <p style={{ color: "rgba(255,255,255,0.2)", fontSize: "0.75rem" }}>Built for people who live in spreadsheets.</p>
           </div>
         </div>

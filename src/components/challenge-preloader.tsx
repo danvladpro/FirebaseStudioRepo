@@ -39,7 +39,7 @@ export function ChallengePreloader({ challengeSet, onStart }: ChallengePreloader
               <div className="flex flex-col items-center gap-4 py-4">
                 <Image
                   src="/NinjaTying.svg"
-                  alt="Excel Ninja Typing"
+                  alt="Excel Shortcuts Ninja Typing"
                   width={220}
                   height={220}
                   priority

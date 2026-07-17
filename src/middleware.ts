@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Pages that do NOT require authentication
-const PUBLIC_PATHS = ['/', '/login', '/signup', '/verify', '/certificate', '/auth-action', '/verify-email', '/checkout'];
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/verify', '/certificate', '/auth-action', '/verify-email', '/checkout', '/opengraph-image'];
 
 export function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
