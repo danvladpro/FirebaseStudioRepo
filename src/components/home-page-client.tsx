@@ -337,7 +337,7 @@ export function HomePageClient() {
                                         <p className="text-2xl font-extrabold text-primary tracking-tight leading-none">
                                             {totalXP}
                                             <span className="text-sm font-medium text-muted-foreground ml-1">
-                                                / {xpForNextLevel || '∞'} XP
+                                                {nextUserLevelName ? `/ ${xpForNextLevel} XP` : 'XP'}
                                             </span>
                                         </p>
                                     </div>

@@ -83,7 +83,8 @@ export async function updateUserPerformance(input: z.infer<typeof UpdateUserPerf
             if (allItemsPassed && !userData?.masteryCertificateId) {
                 const certificateId = generateCertificateId();
                 transaction.update(userDocRef, {
-                    masteryCertificateId: certificateId
+                    masteryCertificateId: certificateId,
+                    masteryCertificateDate: new Date().toISOString(),
                 });
             }
         });

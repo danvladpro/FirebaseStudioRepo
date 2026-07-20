@@ -22,38 +22,32 @@ async function verifyCertificate(id: string): Promise<VerificationResult> {
         return { status: 'error', message: 'No certificate ID provided.' };
     }
 
+    if (!id.startsWith('cert-') || id.length < 10) {
+        return { status: 'invalid', message: 'This certificate ID is not in a valid format.' };
+    }
+
     try {
-        const parts = id.split('-');
-        if (parts.length < 3 || parts[1] !== 'mastery') {
-            return { status: 'invalid', message: 'This certificate ID is not in a valid format.' };
-        }
-        
-        const userId = parts[0];
-        const timestamp = parts[parts.length - 1];
+        const snapshot = await adminDb.collection('users')
+            .where('masteryCertificateId', '==', id)
+            .limit(1)
+            .get();
 
-        if (!userId || !timestamp) {
-            return { status: 'invalid', message: 'This certificate ID is malformed.' };
-        }
-
-        const userDocRef = adminDb.collection('users').doc(userId);
-        const userDoc = await userDocRef.get();
-
-        if (!userDoc.exists) {
-            return { status: 'invalid', message: 'The user associated with this certificate could not be found.' };
-        }
-
-        const userData = userDoc.data() as UserProfile;
-        
-        if (userData.masteryCertificateId === id) {
-            return {
-                status: 'valid',
-                userName: userData.name,
-                date: new Date(parseInt(timestamp)).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-                message: 'This Certificate of Mastery is valid and has been successfully verified.',
-            };
-        } else {
+        if (snapshot.empty) {
             return { status: 'invalid', message: 'This certificate is not valid or could not be found in our records.' };
         }
+
+        const userData = snapshot.docs[0].data() as UserProfile;
+
+        const date = userData.masteryCertificateDate
+            ? new Date(userData.masteryCertificateDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+            : undefined;
+
+        return {
+            status: 'valid',
+            userName: userData.name,
+            date,
+            message: 'This Certificate of Mastery is valid and has been successfully verified.',
+        };
 
     } catch (err) {
         console.error("Verification error:", err);
@@ -124,7 +118,7 @@ export default async function VerifyPage({ searchParams }: { searchParams: Promi
                     )}
                     <CardFooter>
                         <Button asChild className="w-full">
-                            <Link href="/dashboard">Return to Dashboard</Link>
+                            <Link href="/">Visit Excel Shortcuts Ninja</Link>
                         </Button>
                     </CardFooter>
                 </Card>

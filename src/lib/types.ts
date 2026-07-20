@@ -249,6 +249,7 @@ export interface UserProfile {
   subscription?: Subscription;
   performance?: UserStats;
   masteryCertificateId?: string | null;
+  masteryCertificateDate?: string | null;
   missingKeys?: string[];
   // User's keyboard platform. Drives Mac vs Windows shortcuts and the on-screen
   // keyboard. When unset, the app falls back to user-agent detection.
