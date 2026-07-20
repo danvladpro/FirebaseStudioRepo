@@ -179,7 +179,7 @@ function CertificateContent() {
                 </div>
                 {certificateId && (
                   <div style={styles.certificateId}>
-                    Verify at: excel-ninja.app/verify?id={certificateId} <br/>
+                    Verify at: ninjashortcuts.com/verify?id={certificateId} <br/>
                     Certificate ID: {certificateId}
                   </div>
                 )}
