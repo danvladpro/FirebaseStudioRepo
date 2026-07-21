@@ -20,8 +20,7 @@ export const buildLinkedInUrl = (user: User, certId: string) => {
     const linkedInUrl = new URL("https://www.linkedin.com/profile/add");
     linkedInUrl.searchParams.append("startTask", "CERTIFICATION_NAME");
     linkedInUrl.searchParams.append("name", certName);
-    // You can register your organization on LinkedIn and get an ID
-    // linkedInUrl.searchParams.append("organizationId", "YOUR_LINKEDIN_ORG_ID");
+    linkedInUrl.searchParams.append("organizationId", "136183987");
     linkedInUrl.searchParams.append("issueYear", issueYear.toString());
     linkedInUrl.searchParams.append("issueMonth", issueMonth.toString());
     linkedInUrl.searchParams.append("certId", certId);
