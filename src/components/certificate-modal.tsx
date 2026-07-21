@@ -16,26 +16,34 @@ export function CertificateModal({ isOpen, onOpenChange }: CertificateModalProps
     const { user, userProfile } = useAuth();
     const certId = userProfile?.masteryCertificateId;
 
+    // Prefer the date the certificate was actually earned (stored in Firestore);
+    // fall back to today for certificates that predate that field. Format in UTC
+    // so a value stored at T00:00:00.000Z doesn't roll back a day in browsers
+    // behind UTC.
+    const certDate = userProfile?.masteryCertificateDate
+        ? new Date(userProfile.masteryCertificateDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
+        : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
     const handleDownload = () => {
         if (!user || !userProfile || !certId) return;
-        
+
         const params = new URLSearchParams({
             name: userProfile.name || "Excel Ninja",
-            date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+            date: certDate,
             certId: certId,
         });
-        
+
         const url = `/certificate?${params.toString()}`;
         window.open(url, '_blank');
         onOpenChange(false);
     };
-    
+
     const handleShareImage = () => {
         if (!user || !userProfile) return;
 
         const params = new URLSearchParams({
             name: userProfile.name || "Excel Ninja",
-            date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+            date: certDate,
         });
 
         const url = `/certificate/social?${params.toString()}`;

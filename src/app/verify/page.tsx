@@ -39,7 +39,7 @@ async function verifyCertificate(id: string): Promise<VerificationResult> {
         const userData = snapshot.docs[0].data() as UserProfile;
 
         const date = userData.masteryCertificateDate
-            ? new Date(userData.masteryCertificateDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+            ? new Date(userData.masteryCertificateDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
             : undefined;
 
         return {
