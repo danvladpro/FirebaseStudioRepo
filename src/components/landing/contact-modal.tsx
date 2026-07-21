@@ -111,8 +111,8 @@ export function ContactSalesCta() {
     <ContactTrigger
       className={cx("pricing-cta", "cta-border")}
       title="Contact Sales"
-      description="Interested in Excel Shortcuts Ninja for your team? Send us a note and we'll get back to you with custom pricing."
-      mailSubject="Excel Shortcuts Ninja — Team Inquiry"
+      description="Interested in Ninja Shortcuts for your team? Send us a note and we'll get back to you with custom pricing."
+      mailSubject="Ninja Shortcuts — Team Inquiry"
     >
       Contact Sales
     </ContactTrigger>
@@ -124,7 +124,7 @@ export function ContactFooterLink() {
     <ContactTrigger
       title="Get in Touch"
       description="Questions, feedback, or anything else — we'd love to hear from you."
-      mailSubject="Excel Shortcuts Ninja — Contact"
+      mailSubject="Ninja Shortcuts — Contact"
     >
       Contact
     </ContactTrigger>

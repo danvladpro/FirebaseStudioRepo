@@ -118,7 +118,7 @@ export default async function VerifyPage({ searchParams }: { searchParams: Promi
                     )}
                     <CardFooter>
                         <Button asChild className="w-full">
-                            <Link href="/">Visit Excel Shortcuts Ninja</Link>
+                            <Link href="/">Visit Ninja Shortcuts</Link>
                         </Button>
                     </CardFooter>
                 </Card>
