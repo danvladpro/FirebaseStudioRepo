@@ -3,7 +3,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
-import { Download, Linkedin } from "lucide-react";
+import { Download, Linkedin, Share2 } from "lucide-react";
 import { useAuth } from "./auth-provider";
 import { buildLinkedInUrl } from "@/lib/utils";
 
@@ -30,6 +30,19 @@ export function CertificateModal({ isOpen, onOpenChange }: CertificateModalProps
         onOpenChange(false);
     };
     
+    const handleShareImage = () => {
+        if (!user || !userProfile) return;
+
+        const params = new URLSearchParams({
+            name: userProfile.name || "Excel Ninja",
+            date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        });
+
+        const url = `/certificate/social?${params.toString()}`;
+        window.open(url, '_blank');
+        onOpenChange(false);
+    };
+
     const handleShare = () => {
         if (!user || !certId) return;
         const url = buildLinkedInUrl(user, certId);
@@ -51,9 +64,13 @@ export function CertificateModal({ isOpen, onOpenChange }: CertificateModalProps
                         <Download className="mr-2 h-4 w-4" />
                         Download as PDF
                     </Button>
+                    <Button onClick={handleShareImage} variant="outline" size="lg" disabled={!certId}>
+                        <Share2 className="mr-2 h-4 w-4" />
+                        Save Image to Share
+                    </Button>
                     <Button onClick={handleShare} variant="secondary" size="lg" className="bg-[#0A66C2] hover:bg-[#0A66C2]/90 text-white" disabled={!certId}>
                         <Linkedin className="mr-2 h-4 w-4" />
-                        Share on LinkedIn
+                        Add to LinkedIn Profile
                     </Button>
                 </div>
             </DialogContent>

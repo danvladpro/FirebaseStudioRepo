@@ -1,197 +1,135 @@
-
 "use client";
+
+// "Classic & prestigious" certificate design.
+// Assets required in /public: mono-emerald.svg, seal.svg.
 
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Printer, BadgeCheck } from 'lucide-react';
+import { Printer } from 'lucide-react';
 import Image from 'next/image';
+import { Cormorant_Garamond, Inter } from 'next/font/google';
 
-const styles = {
+const serif = Cormorant_Garamond({ subsets: ['latin'], weight: ['500', '600', '700'], style: ['normal', 'italic'] });
+const sans = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
+
+const S = {
   page: {
-    backgroundColor: '#FFFFFF',
-    padding: '40px',
-    fontFamily: 'Helvetica, Arial, sans-serif',
-    border: '10px solid #3F51B5', // Primary Color
+    backgroundColor: '#FDFBF5',
     width: '29.7cm',
     height: '21cm',
+    boxSizing: 'border-box' as const,
+    padding: '26px',
     display: 'flex',
-    flexDirection: 'column' as 'column',
-    color: '#333',
-    boxSizing: 'border-box' as 'border-box',
-    position: 'relative' as 'relative',
+    position: 'relative' as const,
   },
-  content: {
-    margin: 'auto',
-    textAlign: 'center' as 'center',
+  frame: {
+    flex: 1,
+    border: '1.5px solid #B3BDB4',
+    outline: '4px solid #065F46',
+    outlineOffset: '-12px',
     display: 'flex',
-    flexDirection: 'column' as 'column',
+    flexDirection: 'column' as const,
     alignItems: 'center',
-    justifyContent: 'center',
+    boxSizing: 'border-box' as const,
+    padding: '56px 90px 44px',
+    position: 'relative' as const,
   },
-  logo: {
-    width: '50px',
-    height: '50px',
-    marginBottom: '20px',
+  brandRow: { display: 'flex', alignItems: 'center', gap: '12px' },
+  brandName: { fontSize: '20px', fontWeight: 700, letterSpacing: '-0.02em', color: '#0F172A' },
+  kicker: {
+    fontSize: '14px', fontWeight: 500, letterSpacing: '0.34em',
+    textTransform: 'uppercase' as const, color: '#8A8271', marginTop: '40px',
   },
-  headerText: {
-    fontSize: '32px',
-    fontWeight: 'bold' as 'bold',
-    color: '#333333',
-    marginBottom: '20px',
-  },
-  subtitle: {
-    fontSize: '20px',
-    color: '#555555',
-    marginBottom: '20px',
-  },
-  name: {
-    fontSize: '48px',
-    fontWeight: 'bold' as 'bold',
-    color: '#3F51B5', // Primary Color
-    borderBottom: '2px solid #FFAB40', // Accent Color
-    paddingBottom: '8px',
-    marginBottom: '30px',
-  },
-  bodyText: {
-    fontSize: '16px',
-    color: '#333333',
-    width: '80%',
-    lineHeight: 1.6,
-    marginBottom: '40px',
-  },
-  examsContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '40px',
-    marginBottom: '30px',
-  },
-  examItem: {
-    display: 'flex',
-    flexDirection: 'column' as 'column',
-    alignItems: 'center' as 'center',
-    color: '#059669',
-  },
-  examText: {
-    marginTop: '8px',
-    fontSize: '14px',
-    fontWeight: 'bold' as 'bold',
+  goldRuleShort: { width: '64px', height: '1px', backgroundColor: '#C9A24B', margin: '18px 0 30px' },
+  certify: { fontStyle: 'italic' as const, fontWeight: 500, fontSize: '26px', color: '#57534E' },
+  name: { fontWeight: 700, fontSize: '76px', color: '#064E3B', margin: '14px 0 6px', lineHeight: 1.05 },
+  goldRuleLong: { width: '340px', height: '1px', backgroundColor: '#C9A24B' },
+  body: {
+    fontWeight: 500, fontSize: '21px', color: '#44403C', maxWidth: '640px',
+    textAlign: 'center' as const, lineHeight: 1.55, margin: '28px 0 0',
+    textWrap: 'pretty' as const,
   },
   footer: {
-    marginTop: 'auto',
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    paddingTop: '20px'
+    marginTop: 'auto', width: '100%', display: 'flex',
+    justifyContent: 'space-between', alignItems: 'flex-end', position: 'relative' as const,
   },
-  signatureContainer: {
-    alignItems: 'center' as 'center',
+  sigBlock: { textAlign: 'center' as const },
+  sigName: { fontStyle: 'italic' as const, fontWeight: 600, fontSize: '24px', color: '#1C1917' },
+  sigDate: { fontWeight: 600, fontSize: '22px', color: '#1C1917' },
+  sigLine: { width: '220px', height: '1px', backgroundColor: '#A8A29E', margin: '6px auto' },
+  sigLabel: {
+    fontSize: '11px', fontWeight: 500, letterSpacing: '0.14em',
+    textTransform: 'uppercase' as const, color: '#78716C',
   },
-  signatureLine: {
-    width: '200px',
-    height: '2px',
-    backgroundColor: '#333333',
-    marginTop: '4px',
-    marginBottom: '4px',
+  seal: { width: '150px', height: 'auto', marginBottom: '-8px' },
+  certId: {
+    position: 'absolute' as const, bottom: '14px', left: 0, right: 0,
+    textAlign: 'center' as const, fontSize: '10px', color: '#A8A29E', letterSpacing: '0.05em',
   },
-  signatureTitle: {
-    fontSize: '12px',
-    color: '#555555',
-  },
-  dateContainer: {
-     alignItems: 'center' as 'center',
-  },
-  dateText: {
-      fontSize: '14px',
-      fontWeight: 'bold' as 'bold',
-  },
-  seal: {
-    width: '80px',
-    height: '80px',
-    position: 'absolute' as 'absolute',
-    right: '60px',
-    bottom: '60px',
-  },
-  certificateId: {
-    position: 'absolute' as 'absolute',
-    bottom: '10px',
-    left: '40px',
-    fontSize: '10px',
-    color: '#999999',
-  }
 };
 
 function CertificateContent() {
-    const searchParams = useSearchParams();
-    const name = searchParams.get('name') || 'Valued User';
-    const date = searchParams.get('date') || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const certificateId = searchParams.get('certId');
+  const searchParams = useSearchParams();
+  const name = searchParams.get('name') || 'Valued User';
+  const date =
+    searchParams.get('date') ||
+    new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const certificateId = searchParams.get('certId');
 
-    return (
-        <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 print:bg-white print:p-0">
-             <div className="print-controls mb-4 print:hidden flex items-center justify-center flex-col gap-4">
-                <h2 className="text-lg font-semibold">Certificate Preview</h2>
-                <Button onClick={() => window.print()}>
-                    <Printer className="mr-2 h-4 w-4" />
-                    Print or Save as PDF
-                </Button>
+  return (
+    <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 print:bg-white print:p-0">
+      <style>{'@page { size: A4 landscape; margin: 0; }'}</style>
+      <div className="print-controls mb-4 print:hidden flex items-center justify-center flex-col gap-4">
+        <h2 className="text-lg font-semibold">Certificate Preview</h2>
+        <Button onClick={() => window.print()}>
+          <Printer className="mr-2 h-4 w-4" />
+          Print or Save as PDF
+        </Button>
+      </div>
+      <div style={S.page} className={sans.className} id="certificate">
+        <div style={S.frame}>
+          <div style={S.brandRow}>
+            <Image src="/mono-emerald.svg" alt="Ninja Shortcuts" width={40} height={40} />
+            <span style={S.brandName}>Ninja Shortcuts</span>
+          </div>
+          <div style={S.kicker}>Certificate of Mastery</div>
+          <div style={S.goldRuleShort} />
+          <div className={serif.className} style={S.certify}>This is to certify that</div>
+          <div className={serif.className} style={S.name}>{name}</div>
+          <div style={S.goldRuleLong} />
+          <p className={serif.className} style={S.body}>
+            has achieved Excel Shortcuts mastery — conquering every challenge and timed drill, and
+            demonstrating true command of essential Excel shortcuts and workflows.
+          </p>
+          <div style={S.footer}>
+            <div style={S.sigBlock}>
+              <div className={serif.className} style={S.sigName}>Ninja Shortcuts</div>
+              <div style={S.sigLine} />
+              <div style={S.sigLabel}>Issued by</div>
             </div>
-            <div style={styles.page} id="certificate">
-                <div style={styles.content}>
-                     <Image
-                      style={styles.logo}
-                      src="/logo.svg"
-                      alt="Excel Shortcuts Ninja Logo"
-                      width={50}
-                      height={50}
-                    />
-                    <h1 style={styles.headerText}>Certificate of Mastery</h1>
-                    <p style={styles.subtitle}>This is to certify that</p>
-                    <h2 style={styles.name}>{name}</h2>
-                    <p style={styles.bodyText}>
-                        has successfully mastered all challenges and drills, demonstrating true expertise in essential Excel shortcuts and workflows.
-                    </p>
-                     <div style={styles.examsContainer}>
-                        <div style={styles.examItem}>
-                            <BadgeCheck size={60} />
-                            <span style={styles.examText}>All Challenges & Drills Mastered</span>
-                        </div>
-                    </div>
-                </div>
-                 <Image
-                    style={styles.seal}
-                    src="/seal.svg"
-                    alt="Official Seal"
-                    width={80}
-                    height={80}
-                />
-                <div style={styles.footer}>
-                    <div style={styles.signatureContainer}>
-                        <div style={styles.signatureLine} />
-                        <p style={styles.signatureTitle}>The Excel Shortcuts Ninja Team</p>
-                    </div>
-                    <div style={styles.dateContainer}>
-                         <p style={styles.dateText}>{date}</p>
-                         <div style={styles.signatureLine} />
-                        <p style={styles.signatureTitle}>Date of Completion</p>
-                    </div>
-                </div>
-                {certificateId && (
-                  <div style={styles.certificateId}>
-                    Verify at: ninjashortcuts.com/verify?id={certificateId} <br/>
-                    Certificate ID: {certificateId}
-                  </div>
-                )}
+            <Image src="/seal.svg" alt="Official Seal" width={150} height={100} style={S.seal} />
+            <div style={S.sigBlock}>
+              <div className={serif.className} style={S.sigDate}>{date}</div>
+              <div style={S.sigLine} />
+              <div style={S.sigLabel}>Date of completion</div>
             </div>
+          </div>
+          {certificateId && (
+            <div style={S.certId}>
+              Verify this certificate at ninjashortcuts.com/verify?id={certificateId}
+            </div>
+          )}
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
 export default function CertificatePage() {
-    return (
-        <Suspense>
-            <CertificateContent />
-        </Suspense>
-    )
+  return (
+    <Suspense>
+      <CertificateContent />
+    </Suspense>
+  );
 }

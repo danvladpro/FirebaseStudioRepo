@@ -4,7 +4,7 @@ import type { CSSProperties } from 'react';
 import { SITE_NAME } from '@/lib/seo';
 
 export const alt =
-  'Excel Shortcuts Ninja — Learn Excel Shortcuts. Stop wasting time.';
+  'Ninja Shortcuts — Learn Excel Shortcuts. Stop wasting time.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 

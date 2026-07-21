@@ -18,7 +18,7 @@ const faqSections = [
         items: [
             {
                 question: "How do challenges, drills, and flashcards differ?",
-                answer: "Excel Shortcuts Ninja gives you three ways to practice. Challenges put you in a real-world scenario and ask you to perform a shortcut, step by step — get it right and you advance. Drills repeat a small set of shortcuts so they become muscle memory. Flashcards let you study at your own pace, with an on-screen keyboard that highlights exactly which keys to press. Challenges marked as Scenarios chain several shortcuts together into a full workflow."
+                answer: "Ninja Shortcuts gives you three ways to practice. Challenges put you in a real-world scenario and ask you to perform a shortcut, step by step — get it right and you advance. Drills repeat a small set of shortcuts so they become muscle memory. Flashcards let you study at your own pace, with an on-screen keyboard that highlights exactly which keys to press. Challenges marked as Scenarios chain several shortcuts together into a full workflow."
             },
             {
                 question: "How is my score calculated?",
@@ -35,15 +35,15 @@ const faqSections = [
         items: [
             {
                 question: "I'm on a Mac — why doesn't Ctrl work like on Windows?",
-                answer: "On a Mac, Excel uses ⌘ (Command) where Windows uses Ctrl, and ⌥ (Option) where Windows uses Alt. Excel Shortcuts Ninja detects your operating system automatically and shows the correct keys — so a card that reads Ctrl+B on Windows shows ⌘+B on a Mac. A few shortcuts have no Mac equivalent and are clearly marked as Windows-only."
+                answer: "On a Mac, Excel uses ⌘ (Command) where Windows uses Ctrl, and ⌥ (Option) where Windows uses Alt. Ninja Shortcuts detects your operating system automatically and shows the correct keys — so a card that reads Ctrl+B on Windows shows ⌘+B on a Mac. A few shortcuts have no Mac equivalent and are clearly marked as Windows-only."
             },
             {
                 question: "How do I switch between Windows and Mac shortcuts?",
-                answer: "Excel Shortcuts Ninja guesses your platform from your browser, but you can override it. Go to your Dashboard → Settings → Keyboard and choose Windows (Ctrl / Alt) or Mac (⌘ / ⌥). This is handy when the detection is wrong — for example, a Mac with an external Windows keyboard, or vice versa."
+                answer: "Ninja Shortcuts guesses your platform from your browser, but you can override it. Go to your Dashboard → Settings → Keyboard and choose Windows (Ctrl / Alt) or Mac (⌘ / ⌥). This is handy when the detection is wrong — for example, a Mac with an external Windows keyboard, or vice versa."
             },
             {
                 question: "My keyboard has no Home / End / Page Up / Page Down. What do I do?",
-                answer: "Many compact keyboards — most Macs included — don't have dedicated Home, End, Page Up, or Page Down keys. When a step needs a key you don't have, Excel Shortcuts Ninja opens the on-screen keyboard so you can click it. On a Mac this happens automatically for those keys, and you can also use the Fn chords: Fn + ← / → for Home and End, and Fn + ↑ / ↓ for Page Up and Page Down. If you're on another compact keyboard, tell us which keys you're missing under Settings and we'll surface the on-screen keyboard for those steps too."
+                answer: "Many compact keyboards — most Macs included — don't have dedicated Home, End, Page Up, or Page Down keys. When a step needs a key you don't have, Ninja Shortcuts opens the on-screen keyboard so you can click it. On a Mac this happens automatically for those keys, and you can also use the Fn chords: Fn + ← / → for Home and End, and Fn + ↑ / ↓ for Page Up and Page Down. If you're on another compact keyboard, tell us which keys you're missing under Settings and we'll surface the on-screen keyboard for those steps too."
             },
             {
                 question: "Why is a shortcut labelled “Windows-only”?",
@@ -64,7 +64,7 @@ const faqSections = [
             },
             {
                 question: "Some shortcuts close my tab or reload the page (Ctrl+W, Ctrl+T, F5…).",
-                answer: "Some shortcuts belong to your browser and fire before Excel Shortcuts Ninja can see them — common ones are Ctrl+W (close tab), Ctrl+T (new tab), Ctrl+N (new window), and Ctrl+R / F5 (reload). When a step uses one of these, use the on-screen keyboard: hold the physical modifier and click the remaining key on screen."
+                answer: "Some shortcuts belong to your browser and fire before Ninja Shortcuts can see them — common ones are Ctrl+W (close tab), Ctrl+T (new tab), Ctrl+N (new window), and Ctrl+R / F5 (reload). When a step uses one of these, use the on-screen keyboard: hold the physical modifier and click the remaining key on screen."
             },
             {
                 question: "Ctrl+W closed my tab — did I lose my progress?",
@@ -72,7 +72,7 @@ const faqSections = [
             },
             {
                 question: "I switched apps mid-challenge and a key felt stuck.",
-                answer: "If you Alt-Tab or click away mid-challenge, Excel Shortcuts Ninja resets the keys it's tracking, so nothing stays stuck. Click back onto the page and keep going — releasing and re-pressing the keys clears any leftover highlight."
+                answer: "If you Alt-Tab or click away mid-challenge, Ninja Shortcuts resets the keys it's tracking, so nothing stays stuck. Click back onto the page and keep going — releasing and re-pressing the keys clears any leftover highlight."
             },
             {
                 question: "How do I use the on-screen keyboard?",
@@ -80,11 +80,11 @@ const faqSections = [
             },
             {
                 question: "Do non-US keyboard layouts (UK / AZERTY / ISO) work?",
-                answer: "Right now Excel Shortcuts Ninja is tuned for the US QWERTY layout. Other layouts (UK, AZERTY, ISO variants) may register keys unexpectedly. Broader layout support is on our list but isn't available yet."
+                answer: "Right now Ninja Shortcuts is tuned for the US QWERTY layout. Other layouts (UK, AZERTY, ISO variants) may register keys unexpectedly. Broader layout support is on our list but isn't available yet."
             },
             {
-                question: "Can I use Excel Shortcuts Ninja on my phone or tablet?",
-                answer: "Excel Shortcuts Ninja is built for desktop browsers (we recommend Chrome). It's all about physical keyboard shortcuts, which don't translate to touch screens, so phones and tablets aren't supported and the layout may look broken there."
+                question: "Can I use Ninja Shortcuts on my phone or tablet?",
+                answer: "Ninja Shortcuts is built for desktop browsers (we recommend Chrome). It's all about physical keyboard shortcuts, which don't translate to touch screens, so phones and tablets aren't supported and the layout may look broken there."
             },
         ],
     },
@@ -101,7 +101,7 @@ const faqSections = [
             },
             {
                 question: "I verified my email but still can't get in, or I need to reset my password.",
-                answer: "New accounts must confirm their email before training unlocks — check your inbox for the verification link after signing up. Forgot your password? Use the Forgot password link on the login screen and follow the emailed reset link. Both links open inside Excel Shortcuts Ninja."
+                answer: "New accounts must confirm their email before training unlocks — check your inbox for the verification link after signing up. Forgot your password? Use the Forgot password link on the login screen and follow the emailed reset link. Both links open inside Ninja Shortcuts."
             },
         ],
     },
