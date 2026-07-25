@@ -4,21 +4,47 @@ import type { CSSProperties } from 'react';
 import { SITE_NAME } from '@/lib/seo';
 
 export const alt =
-  'Ninja Shortcuts — Learn Excel Shortcuts. Stop wasting time.';
+  'Ninja Shortcuts — You can be a lot faster in Excel. Learn shortcuts.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-const keycap: CSSProperties = {
+// Brand accent (default from the "Link Preview Redesign" handoff).
+const ACCENT = '#16a673';
+
+// Small spreadsheet / key-row mark, matching the site logo in the OG card.
+function BrandMark({ box, glyph }: { box: number; glyph: number }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: box,
+        height: box,
+        borderRadius: box * 0.28,
+        backgroundColor: ACCENT,
+      }}
+    >
+      <svg width={glyph} height={glyph} viewBox="0 0 24 24" fill="none">
+        <rect x="2" y="5" width="20" height="14" rx="3" fill="#ffffff" opacity="0.95" />
+        <rect x="5" y="9" width="2.4" height="2.4" rx="0.6" fill={ACCENT} />
+        <rect x="9" y="9" width="2.4" height="2.4" rx="0.6" fill={ACCENT} />
+        <rect x="13" y="9" width="2.4" height="2.4" rx="0.6" fill={ACCENT} />
+        <rect x="17" y="9" width="2.4" height="2.4" rx="0.6" fill={ACCENT} />
+        <rect x="6" y="13.5" width="12" height="2.4" rx="1.2" fill={ACCENT} />
+      </svg>
+    </div>
+  );
+}
+
+const keycapBase: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '14px 28px',
-  borderRadius: 12,
-  border: '2px solid #334155',
-  backgroundColor: '#1e293b',
-  color: '#f8fafc',
-  fontSize: 36,
-  fontWeight: 600,
+  padding: '16px 30px',
+  borderRadius: 14,
+  fontSize: 34,
+  fontWeight: 700,
 };
 
 export default function OgImage() {
@@ -31,56 +57,46 @@ export default function OgImage() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          backgroundColor: '#0b1220',
-          padding: 72,
+          backgroundColor: '#ffffff',
+          padding: '76px 84px',
         }}
       >
+        {/* Brand row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 64,
-              height: 64,
-              borderRadius: 16,
-              backgroundColor: '#10b981',
-            }}
-          >
-            <svg width="44" height="44" viewBox="0 0 50 50" fill="none">
-              <path d="M15 18H25" stroke="white" strokeWidth="3" strokeLinecap="round" />
-              <path d="M15 25H35" stroke="white" strokeWidth="3" strokeLinecap="round" />
-              <path d="M15 32H25" stroke="white" strokeWidth="3" strokeLinecap="round" />
-              <path d="M30 18L35 32" stroke="white" strokeWidth="3" strokeLinecap="round" />
-            </svg>
-          </div>
-          <div style={{ display: 'flex', color: '#f8fafc', fontSize: 40, fontWeight: 600 }}>
+          <BrandMark box={72} glyph={34} />
+          <div style={{ display: 'flex', color: '#15201b', fontSize: 40, fontWeight: 700 }}>
             {SITE_NAME}
           </div>
         </div>
 
+        {/* Headline + subtitle */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', color: '#f8fafc', fontSize: 84, fontWeight: 700, lineHeight: 1.05 }}>
-            Learn Excel Shortcuts.
+          <div style={{ display: 'flex', color: '#15201b', fontSize: 58, fontWeight: 800, lineHeight: 1.15 }}>
+            You can be a lot faster in Excel.
           </div>
-          <div style={{ display: 'flex', color: '#34d399', fontSize: 84, fontWeight: 700, lineHeight: 1.05 }}>
-            Stop wasting time.
+          <div style={{ display: 'flex', color: ACCENT, fontSize: 58, fontWeight: 800, lineHeight: 1.15 }}>
+            Learn shortcuts.
+          </div>
+          <div style={{ display: 'flex', color: '#4c5750', fontSize: 32, fontWeight: 500, marginTop: 24 }}>
+            The most interactive Excel Shortcuts trainer on the market.
           </div>
         </div>
 
+        {/* Key-cap example */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <div style={keycap}>Ctrl</div>
-          <div style={{ display: 'flex', color: '#64748b', fontSize: 36 }}>+</div>
           <div
             style={{
-              ...keycap,
-              backgroundColor: '#10b981',
-              border: '2px solid #34d399',
+              ...keycapBase,
+              backgroundColor: '#ffffff',
+              border: '2px solid #d7ddd8',
+              color: '#15201b',
             }}
           >
-            D
+            Ctrl
           </div>
-          <div style={{ display: 'flex', color: '#94a3b8', fontSize: 28, marginLeft: 14 }}>
+          <div style={{ display: 'flex', color: '#8a938c', fontSize: 34, fontWeight: 700 }}>+</div>
+          <div style={{ ...keycapBase, backgroundColor: ACCENT, color: '#ffffff' }}>D</div>
+          <div style={{ display: 'flex', color: '#6b746d', fontSize: 28, marginLeft: 16 }}>
             Fill Down — one of 100+ shortcuts you&apos;ll master
           </div>
         </div>
