@@ -8,10 +8,37 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { CheckCircle2, ArrowRight, Loader2, AlertTriangle, Clock } from 'lucide-react';
 import { useAuth } from '@/components/auth-provider';
 import Confetti from 'react-confetti';
+import { trackPurchase } from '@/lib/analytics';
 
 type Status = 'polling' | 'success' | 'processing' | 'error';
 
 const POLLING_TIMEOUT = 10000; // 10 seconds before we ask Stripe what's going on
+
+/** Session ids already reported, so a page reload can't double-count a sale. */
+const REPORTED_KEY = 'reportedPurchaseSessions';
+
+function alreadyReported(sessionId: string): boolean {
+  try {
+    const raw = localStorage.getItem(REPORTED_KEY);
+    return raw ? (JSON.parse(raw) as string[]).includes(sessionId) : false;
+  } catch {
+    return false;
+  }
+}
+
+function markReported(sessionId: string): void {
+  try {
+    const raw = localStorage.getItem(REPORTED_KEY);
+    const ids = raw ? (JSON.parse(raw) as string[]) : [];
+    // Keep the list short — only recent sessions can plausibly be re-visited.
+    localStorage.setItem(
+      REPORTED_KEY,
+      JSON.stringify([...ids, sessionId].slice(-20))
+    );
+  } catch {
+    /* localStorage unavailable (private mode) — Google dedupes on transaction_id */
+  }
+}
 
 function SuccessContent() {
   const { isPremium, loading: authLoading } = useAuth();
@@ -29,6 +56,42 @@ function SuccessContent() {
       setShowConfetti(true);
     }
   }, [isPremium, authLoading]);
+
+  // Report the conversion only once premium access actually exists — i.e. the
+  // Stripe webhook has confirmed payment. Landing on this URL is not proof of
+  // purchase, so this deliberately keys off `isPremium` rather than page load.
+  // The real charged amount comes from Stripe so the reported value is correct
+  // whichever plan was bought (and if a coupon ever reduces it).
+  useEffect(() => {
+    if (!isPremium || !sessionId) return;
+    if (alreadyReported(sessionId)) return;
+
+    markReported(sessionId);
+
+    let cancelled = false;
+    (async () => {
+      let value: number | null = null;
+      let currency = 'EUR';
+      try {
+        const res = await fetch(
+          `/api/stripe/session-status?session_id=${encodeURIComponent(sessionId)}`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data.amount === 'number') value = data.amount;
+          if (typeof data.currency === 'string') currency = data.currency;
+        }
+      } catch {
+        /* fall through — a conversion without a value beats no conversion */
+      }
+      if (cancelled) return;
+      trackPurchase({ value: value ?? 0, currency, transactionId: sessionId });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isPremium, sessionId]);
 
   // If access hasn't appeared within the timeout, don't guess from the clock —
   // ask Stripe whether the payment is genuinely processing (async, e.g. iDEAL)

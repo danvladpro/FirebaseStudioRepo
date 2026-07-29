@@ -376,10 +376,20 @@ export function LegalContent() {
               </li>
               <li>
                 <span className="font-medium">Google Analytics (Google LLC, United States).</span>{" "}
-                If you consent to analytics cookies, we use Google Analytics with IP
-                anonymisation enabled and advertising features disabled, solely to
-                understand aggregate use of the Service. Same transfer safeguards as above
-                apply.
+                If you consent to analytics cookies, we use Google Analytics to understand
+                aggregate use of the Service. Same transfer safeguards as above apply.
+              </li>
+              <li>
+                <span className="font-medium">Google Ads (Google Ireland Limited / Google LLC).</span>{" "}
+                If you consent to marketing cookies, we use Google Ads conversion tracking
+                to measure which advertisements lead to sign-ups and purchases, and to
+                build remarketing audiences. Same transfer safeguards as above apply.
+              </li>
+              <li>
+                <span className="font-medium">Cookiebot (Usercentrics A/S, Denmark).</span>{" "}
+                Provides our cookie consent banner and stores a record of the consent
+                choices you make, so that we can demonstrate compliance. Processed within
+                the EU.
               </li>
               <li>
                 We do <span className="font-medium">not</span> sell your personal data to
@@ -462,14 +472,18 @@ export function LegalContent() {
               </li>
               <li>
                 <span className="font-medium">Analytics cookies.</span>{" "}
-                Used by Google Analytics (configured with IP anonymisation and without
-                advertising features) to understand how visitors use the Service. These are
-                only placed with your consent, which you can provide or withdraw via the
-                cookie banner or the cookie settings link.
+                Used by Google Analytics to understand how visitors use the Service — for
+                example, which steps of sign-up people drop out of. These are only placed
+                with your consent, which you can provide or withdraw via the cookie banner
+                or the cookie settings link.
               </li>
               <li>
-                We do <span className="font-medium">not</span> use advertising, tracking,
-                or profiling cookies.
+                <span className="font-medium">Marketing cookies.</span>{" "}
+                Used by Google Ads to measure whether a visit that began with one of our
+                advertisements resulted in a sign-up or purchase, and to build remarketing
+                audiences. These are only placed with your consent. We do not sell this
+                data, and we do not use it to build profiles beyond measuring and targeting
+                our own advertising.
               </li>
             </ul>
             <p className="mt-3">

@@ -8,6 +8,7 @@ import { useAuth } from '@/components/auth-provider';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
+import { trackEvent } from '@/lib/analytics';
 import { RefreshCw, Mail } from 'lucide-react';
 
 const COOLDOWN_KEY = 'verifyEmailCooldownExpiry';
@@ -51,6 +52,7 @@ export default function VerifyEmailPage() {
     try {
       await user.reload();
       if (auth.currentUser?.emailVerified) {
+        trackEvent('email_verified');
         router.push('/survey');
       } else {
         toast({
@@ -69,6 +71,7 @@ export default function VerifyEmailPage() {
     if (!user || cooldown > 0) return;
     try {
       await sendEmailVerification(user);
+      trackEvent('verification_email_resent');
       const expiry = Date.now() + COOLDOWN_SECONDS * 1000;
       sessionStorage.setItem(COOLDOWN_KEY, String(expiry));
       setCooldown(COOLDOWN_SECONDS);

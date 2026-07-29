@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/logo';
+import { trackEvent } from '@/lib/analytics';
 import { CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 
 type PageState =
@@ -92,6 +93,9 @@ export default function AuthActionClient() {
 
   useEffect(() => {
     if (pageState !== 'verify-success') return;
+    // The primary verification path — clicking the link in the email lands
+    // here, not on the /verify-email "check now" button.
+    trackEvent('email_verified');
     const tid = setTimeout(() => {
       router.push(auth.currentUser ? '/survey' : '/login?verified=true');
     }, 2000);

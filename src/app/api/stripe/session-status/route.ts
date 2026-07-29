@@ -35,6 +35,10 @@ export async function GET(req: NextRequest) {
       paymentState,
       paymentStatus: session.payment_status,
       status: session.status,
+      // Reported as the Google Ads / GA4 conversion value. Stripe returns minor
+      // units, so cents → euros here rather than at the call site.
+      amount: session.amount_total != null ? session.amount_total / 100 : null,
+      currency: session.currency?.toUpperCase() ?? 'EUR',
     });
   } catch (err: any) {
     console.error(`❌ Failed to retrieve checkout session: ${err.message}`);

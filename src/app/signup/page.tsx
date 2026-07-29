@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { trackEvent } from '@/lib/analytics';
 import { ArrowLeft } from 'lucide-react';
 
 export default function SignupPage() {
@@ -41,6 +42,7 @@ export default function SignupPage() {
       return;
     }
     setLoading(true);
+    trackEvent('signup_started');
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -49,6 +51,8 @@ export default function SignupPage() {
 
       const token = await user.getIdToken();
       await createUserProfile(token, user.email ?? '');
+
+      trackEvent('signup_completed');
 
       sessionStorage.setItem('verifyEmailCooldownExpiry', String(Date.now() + 60_000));
       router.push('/verify-email');

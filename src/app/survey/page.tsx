@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { trackEvent } from '@/lib/analytics';
 import { ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -161,6 +162,7 @@ export default function SurveyPage() {
         platform: platform === 'Mac' ? 'mac' : 'windows',
         analytics: analyticsData
       });
+      trackEvent('survey_completed');
       router.push('/dashboard');
     } catch (error: any) {
       toast({

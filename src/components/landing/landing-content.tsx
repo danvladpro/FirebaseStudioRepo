@@ -2,6 +2,7 @@ import Link from "next/link";
 import styles from "./landing.module.css";
 import { HeroPrimaryCta } from "./landing-hero-cta";
 import { ContactSalesCta, ContactFooterLink } from "./contact-modal";
+import { LandingLegalLinks } from "./landing-legal-links";
 
 const cx = (...keys: string[]) => keys.map((k) => styles[k]).filter(Boolean).join(" ");
 
@@ -484,6 +485,10 @@ export function LandingContent() {
               <h4>Support</h4>
               <Link href="/help">Help Center</Link>
               <ContactFooterLink />
+            </div>
+            <div className={styles["footer-col"]}>
+              <h4>Legal</h4>
+              <LandingLegalLinks />
             </div>
           </div>
           <div className={styles["footer-bottom"]}>

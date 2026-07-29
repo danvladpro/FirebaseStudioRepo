@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -12,6 +12,7 @@ import { useAuth } from "./auth-provider";
 import { toast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
 import { LegalSheet } from "./legal-sheet";
+import { PLAN_VALUES, trackEvent } from "@/lib/analytics";
 
 interface PremiumModalProps {
     isOpen: boolean;
@@ -25,6 +26,12 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
     const [legalSheetOpen, setLegalSheetOpen] = useState(false);
     const { user } = useAuth();
 
+    // Every upgrade entry point routes through this modal, so it is the single
+    // place the paywall impression can be counted.
+    useEffect(() => {
+        if (isOpen) trackEvent('paywall_viewed');
+    }, [isOpen]);
+
     const handleCheckout = async () => {
         if (!user || !user.email) {
             toast({
@@ -36,6 +43,11 @@ export function PremiumModal({ isOpen, onOpenChange }: PremiumModalProps) {
         }
 
         setIsLoading(true);
+        trackEvent('checkout_started', {
+            plan: selectedPlan,
+            value: PLAN_VALUES[selectedPlan],
+            currency: 'EUR',
+        });
 
         try {
             const result = await createCheckoutSession({

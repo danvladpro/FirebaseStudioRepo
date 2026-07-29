@@ -3,6 +3,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { AuthProvider } from '@/components/auth-provider';
 import { Toaster } from '@/components/ui/toaster';
+import { AnalyticsScripts } from '@/components/analytics/analytics-scripts';
+import { AnalyticsListener } from '@/components/analytics/analytics-listener';
 import { Suspense } from 'react';
 import { SITE_URL, SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from '@/lib/seo';
 
@@ -48,11 +50,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Consent defaults must execute in <head> before anything Google
+            loads. Raw <script> tags here so document order is guaranteed —
+            see analytics-scripts.tsx for why next/script doesn't work. */}
+        <AnalyticsScripts />
+      </head>
       <body>
         <AuthProvider>
           {children}
         </AuthProvider>
         <Toaster />
+        <AnalyticsListener />
       </body>
     </html>
   );

@@ -69,6 +69,34 @@ env:
       - BUILD
       - RUNTIME
 
+  # --- Analytics / ads (public IDs, not secrets) ---------------------------
+  # Cookiebot consent banner. Omit to render no banner and no tags at all.
+  - variable: NEXT_PUBLIC_COOKIEBOT_CBID
+    value: 5f825b6b-9404-41b3-8cad-9afd69496b73
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_GA4_ID
+    value: G-786RXYD5CC
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_GOOGLE_ADS_ID
+    value: AW-18838211690
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # Conversion label for the "Purchase" conversion action in Google Ads. The
+  # full send_to target is `${NEXT_PUBLIC_GOOGLE_ADS_ID}/${this}`.
+  - variable: NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL
+    value: BhcZCIWL49gcEOrOq6hE
+    availability:
+      - BUILD
+      - RUNTIME
+
 
   # --- Non-secret server config (runtime) ---------------------------------
   # Stripe price IDs are not sensitive; plain values keep them visible in config.

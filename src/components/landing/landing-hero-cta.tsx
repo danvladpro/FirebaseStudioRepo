@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { useAuth, useAuthHint } from "@/components/auth-provider";
+import { trackEvent } from "@/lib/analytics";
 import styles from "./landing.module.css";
 
 const cx = (...keys: string[]) => keys.map((k) => styles[k]).filter(Boolean).join(" ");
@@ -22,8 +23,21 @@ function HeroPrimaryCtaInner() {
     );
   }
 
+  return <SignupCta />;
+}
+
+/**
+ * The hero CTA is the first measurable step of the paid funnel — landing →
+ * signup. Rendered in both the resolved and Suspense-fallback states so the
+ * click is counted either way.
+ */
+function SignupCta() {
   return (
-    <Link href="/signup" className={cx("btn", "btn-primary-lg")}>
+    <Link
+      href="/signup"
+      className={cx("btn", "btn-primary-lg")}
+      onClick={() => trackEvent('landing_cta_click', { location: 'hero' })}
+    >
       Start Free — No Card Needed
     </Link>
   );
@@ -31,13 +45,7 @@ function HeroPrimaryCtaInner() {
 
 export function HeroPrimaryCta() {
   return (
-    <Suspense
-      fallback={
-        <Link href="/signup" className={cx("btn", "btn-primary-lg")}>
-          Start Free — No Card Needed
-        </Link>
-      }
-    >
+    <Suspense fallback={<SignupCta />}>
       <HeroPrimaryCtaInner />
     </Suspense>
   );
