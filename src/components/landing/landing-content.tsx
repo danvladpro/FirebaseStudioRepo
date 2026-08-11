@@ -368,7 +368,7 @@ export function LandingContent() {
               <h3>1-Week Access</h3>
               <p className={styles["pricing-desc"]}>Perfect for a focused sprint before an interview or deadline.</p>
               <div className={styles["pricing-price"]}>
-                <span className={styles["price-amount"]}>€9.99</span>
+                <span className={styles["price-amount"]}>€2.99</span>
                 <span className={styles["price-period"]}>/ 7 days</span>
               </div>
               <ul className={styles["pricing-features"]}>
@@ -394,7 +394,7 @@ export function LandingContent() {
               <h3>1-Month Access</h3>
               <p className={styles["pricing-desc"]}>The sweet spot — enough time to build real muscle memory and earn your certificate.</p>
               <div className={styles["pricing-price"]}>
-                <span className={styles["price-amount"]}>€14.99</span>
+                <span className={styles["price-amount"]}>€9.99</span>
                 <span className={styles["price-period"]}>/ month</span>
               </div>
               <ul className={styles["pricing-features"]}>

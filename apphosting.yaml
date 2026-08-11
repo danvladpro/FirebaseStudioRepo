@@ -74,12 +74,12 @@ env:
   # Stripe price IDs are not sensitive; plain values keep them visible in config.
   - variable: STRIPE_ONE_WEEK_PRICE_ID
     #value: price_1TkL7d1NkaH9ToJzYEvjEm5I
-    value: price_1Tnmi51krntNVoIoSJ9Gx6D5 #PROD
+    value: price_1U3Lfi1krntNVoIo8LxJfv2O #PROD
 
 
   - variable: STRIPE_ONE_MONTH_PRICE_ID
     #value: price_1TkL9V1NkaH9ToJzk1BhDsdo
-    value: price_1Tnmi51krntNVoIoLS0PdT1K # PROD
+    value: price_1U3Lbk1krntNVoIojopU4QdT # PROD
 
   # --- Secrets (Secret Manager, runtime only) -----------------------------
   - variable: FIREBASE_SERVICE_ACCOUNT_KEY

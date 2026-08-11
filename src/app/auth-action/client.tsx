@@ -61,6 +61,8 @@ export default function AuthActionClient() {
     if (mode === 'verifyEmail') {
       applyActionCode(auth, oobCode)
         .then(async () => {
+          // Firebase Auth's own record is the single source of truth for
+          // verification — nothing is mirrored onto the Firestore profile.
           await auth.currentUser?.reload();
           setPageState('verify-success');
         })

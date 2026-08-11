@@ -37,7 +37,8 @@ src/
     flashcards/         # Flashcard browser + runner
     login / signup /    # Auth pages
     survey /            # Onboarding survey
-    verify /            # Email verification
+    verify /            # Public certificate verification (by certificate id)
+    auth-action /       # Firebase action handler (password reset)
     api/stripe/webhook/ # Stripe webhook handler
     actions/            # Server Actions (profile, performance, support)
   components/           # All React UI components
@@ -233,6 +234,8 @@ After deploying, configure the action URL in Firebase Console → **Authenticati
 For local development, set both to `http://localhost:9002/auth-action`.
 
 Without this, verification and reset emails link to Firebase's default hosted page instead of the app.
+
+**Verification state is never mirrored into Firestore.** Firebase Auth's own `user.emailVerified` is the single source of truth, and every gate in `auth-provider.tsx` reads it directly. There is deliberately no `emailVerified` field on the profile document — an earlier attempt to keep one in sync was unreliable, and since the survey gate sits behind the verification gate, a profile carrying a `survey` object has necessarily passed verification. The profile instead records `signUpMethod: 'email' | 'google'`, derived server-side from the Auth provider record (`src/lib/sign-up-method.ts`), never writable by the client, and backfilled onto older profiles by `syncSignUpMethod`.
 
 ```
 # Firebase (client)

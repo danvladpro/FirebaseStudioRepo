@@ -1,12 +1,14 @@
 
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useRouter, usePathname } from 'next/navigation';
 import { UserProfile } from '@/lib/types';
+import { syncSignUpMethod } from '@/app/actions/sync-sign-up-method';
+import { createUserProfile } from '@/app/actions/create-user-profile';
 import { isFuture } from 'date-fns';
 
 interface AuthContextType {
@@ -24,6 +26,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  // uids we've already attempted a signUpMethod backfill for this session, so
+  // the sync fires at most once per user rather than on every snapshot.
+  const syncedSignUpMethodUids = useRef<Set<string>>(new Set());
+  // uids we've already attempted a missing-profile backfill for this session.
+  const ensuredProfileUids = useRef<Set<string>>(new Set());
+  // Held outside the auth callback on purpose — see the note in the effect.
+  const unsubscribeSnapshotRef = useRef<(() => void) | null>(null);
 
   const sub = userProfile?.subscription;
   const isPremium = 
@@ -35,29 +44,73 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       setLoading(true);
+
+      // Detach the previous session's profile listener before doing anything
+      // else. This CANNOT be done by returning a cleanup from this callback:
+      // onAuthStateChanged discards its callback's return value, so a listener
+      // left attached here survives sign-out, re-runs the security rules with
+      // revoked credentials, and throws `permission-denied` into the console.
+      unsubscribeSnapshotRef.current?.();
+      unsubscribeSnapshotRef.current = null;
+
       if (user) {
         document.cookie = 'auth-present=1; path=/; SameSite=Strict';
         setUser(user);
         const userDocRef = doc(db, 'users', user.uid);
-        const unsubscribeSnapshot = onSnapshot(userDocRef, (docSnap) => {
+        unsubscribeSnapshotRef.current = onSnapshot(userDocRef, (docSnap) => {
           if (docSnap.exists()) {
             const profileData = docSnap.data() as UserProfile;
             setUserProfile(profileData);
+
+            // Backfill: profiles created before `signUpMethod` existed don't
+            // carry it. Fire once per uid; the server reads the real auth
+            // record's providers rather than trusting anything from here.
+            if (!profileData.signUpMethod
+              && !syncedSignUpMethodUids.current.has(user.uid)) {
+              syncedSignUpMethodUids.current.add(user.uid);
+              user.getIdToken()
+                .then(token => syncSignUpMethod(token))
+                .catch(() => {
+                  // Non-fatal; allow a retry on the next sign-in.
+                  syncedSignUpMethodUids.current.delete(user.uid);
+                });
+            }
           } else {
             setUserProfile(null);
+
+            // Signed in but no profile document. This is the normal state for
+            // the split second after a Google popup closes (signInWithPopup
+            // creates no Firestore doc), and the permanent state if that write
+            // was ever interrupted. Backfill it from the Admin SDK auth record
+            // — the same server action the signup flows call, which no-ops if
+            // the document turns out to already exist.
+            if (!ensuredProfileUids.current.has(user.uid)) {
+              ensuredProfileUids.current.add(user.uid);
+              user.getIdToken()
+                .then(token => createUserProfile(token, user.email ?? ''))
+                .catch(() => {
+                  // Non-fatal; allow a retry on the next sign-in.
+                  ensuredProfileUids.current.delete(user.uid);
+                });
+            }
           }
           setLoading(false);
         });
-        return () => unsubscribeSnapshot();
       } else {
         document.cookie = 'auth-present=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
+        syncedSignUpMethodUids.current.clear();
+        ensuredProfileUids.current.clear();
         setUser(null);
         setUserProfile(null);
         setLoading(false);
       }
     });
 
-    return () => unsubscribeAuth();
+    return () => {
+      unsubscribeSnapshotRef.current?.();
+      unsubscribeSnapshotRef.current = null;
+      unsubscribeAuth();
+    };
   }, []);
 
   useEffect(() => {

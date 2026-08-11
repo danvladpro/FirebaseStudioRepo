@@ -13,12 +13,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
+import { GoogleSignInButton, AuthDivider } from '@/components/google-sign-in-button';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -84,6 +86,8 @@ export default function SignupPage() {
             <CardDescription>Start your journey to becoming an Excel Ninja</CardDescription>
         </CardHeader>
         <CardContent>
+          <GoogleSignInButton label="Sign up with Google" disabled={loading} onBusyChange={setGoogleBusy} />
+          <AuthDivider />
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -116,7 +120,7 @@ export default function SignupPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading || googleBusy}>
               {loading ? 'Creating account...' : 'Create Account'}
             </Button>
           </form>

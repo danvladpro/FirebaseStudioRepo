@@ -6,19 +6,23 @@ service cloud.firestore {
     // Users can read and write their own document only.
     // The 'preview' and 'subscription' fields are NOT writable by the client.
     // 'masteryCertificateId' is only set by the server after earning mastery.
+    // 'signUpMethod' is derived from the Firebase Auth provider record by the
+    // server (Admin SDK) — a client must never be able to claim it.
     match /users/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
 
       allow create: if request.auth != null
         && request.auth.uid == userId
         && !('preview' in request.resource.data)
-        && !('subscription' in request.resource.data);
+        && !('subscription' in request.resource.data)
+        && !('signUpMethod' in request.resource.data);
 
       allow update: if request.auth != null
         && request.auth.uid == userId
         && !('preview' in request.resource.data.diff(resource.data).affectedKeys())
         && !('subscription' in request.resource.data.diff(resource.data).affectedKeys())
-        && !('masteryCertificateId' in request.resource.data.diff(resource.data).affectedKeys());
+        && !('masteryCertificateId' in request.resource.data.diff(resource.data).affectedKeys())
+        && !('signUpMethod' in request.resource.data.diff(resource.data).affectedKeys());
     }
 
     // Support tickets: authenticated users can create only.

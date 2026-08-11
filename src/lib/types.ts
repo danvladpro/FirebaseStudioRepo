@@ -234,17 +234,24 @@ export interface Subscription {
 }
 
 
+// The onboarding survey only collects what the app needs to configure itself.
+// Its presence on the profile is also the "onboarding complete" flag that
+// auth-provider gates on, so it is always written as a non-empty object.
+// Older documents may still carry removed profiling fields (excelLevel,
+// seniority, field) — those are ignored.
 export interface UserSurvey {
-  excelLevel: 'Never used' | 'Beginner' | 'Intermediate' | 'Advanced';
-  seniority: 'Intern' | 'Junior' | 'Associate' | 'Senior' | 'Manager' | 'Director' | 'C-Level';
-  field: 'Finance' | 'Marketing' | 'Analytics' | 'Sales' | 'Research' | 'Business' | 'Other';
   missingKeys?: string[];
+  completedAt?: string;
 }
 
 export interface UserProfile {
   email: string;
   name?: string;
-  emailVerified?: boolean;
+  // How this account was created, derived server-side from the Firebase Auth
+  // provider record. Set at profile creation and backfilled for older profiles.
+  signUpMethod?: 'email' | 'google';
+  // Avatar from a federated provider (Google). Null for email/password users.
+  photoURL?: string | null;
   survey?: UserSurvey;
   subscription?: Subscription;
   performance?: UserStats;

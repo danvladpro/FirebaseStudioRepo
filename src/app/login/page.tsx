@@ -12,11 +12,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import { ForgotPasswordModal } from '@/components/forgot-password-modal';
+import { GoogleSignInButton, AuthDivider } from '@/components/google-sign-in-button';
 
 function LoginContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -75,6 +77,8 @@ function LoginContent() {
             <CardDescription>Enter your credentials to access your account</CardDescription>
           </CardHeader>
           <CardContent>
+            <GoogleSignInButton disabled={loading} onBusyChange={setGoogleBusy} />
+            <AuthDivider />
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -93,6 +97,7 @@ function LoginContent() {
                   <button
                     type="button"
                     onClick={() => setForgotOpen(true)}
+                    disabled={googleBusy}
                     className="text-xs text-primary hover:underline underline-offset-2"
                   >
                     Forgot password?
@@ -106,7 +111,7 @@ function LoginContent() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full" disabled={loading || googleBusy}>
                 {loading ? 'Signing in...' : 'Login'}
               </Button>
             </form>

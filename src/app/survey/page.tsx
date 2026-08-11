@@ -12,104 +12,96 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { cn } from '@/lib/utils';
 
-const surveySteps = [
+type Platform = 'Windows' | 'Mac';
+
+const PLATFORM_OPTIONS: { value: Platform; label: string; hint: string }[] = [
+  { value: 'Windows', label: 'Windows', hint: 'Ctrl / Alt shortcuts' },
+  { value: 'Mac', label: 'Mac', hint: '⌘ / ⌥ shortcuts' },
+];
+
+// Keep this list in sync with `availableKeys` in src/components/edit-profile-modal.tsx.
+const MISSING_KEY_OPTIONS = ['Home', 'End', 'PageUp', 'PageDown', 'F-Keys (F1-F12)'];
+
+interface SurveyStep {
+  id: 'name' | 'keyboard';
+  title: string;
+  description: string;
+}
+
+const surveySteps: SurveyStep[] = [
   {
     id: 'name',
     title: 'Your Name',
-    description: 'What should we call you?',
-    type: 'input',
+    description: 'What should we call you? This is the name that will appear on your certificate.',
   },
   {
-    id: 'excelLevel',
-    title: 'Excel Proficiency',
-    description: 'How would you rate your Excel skills?',
-    options: ['Never used', 'Beginner', 'Intermediate', 'Advanced'],
-    type: 'radio',
-  },
-  {
-    id: 'seniority',
-    title: 'Seniority Level',
-    description: 'What is your current career level?',
-    options: ['Intern', 'Junior', 'Associate', 'Senior', 'Manager', 'Director', 'C-Level'],
-    type: 'radio',
-  },
-  {
-    id: 'field',
-    title: 'Your Field',
-    description: 'What field do you primarily work in?',
-    options: ['Finance', 'Marketing', 'Analytics', 'Sales', 'Research', 'Business', 'Other'],
-    type: 'radio',
-  },
-  {
-    id: 'platform',
+    id: 'keyboard',
     title: 'Your Keyboard',
-    description: 'Which keyboard do you use? This sets whether we show Mac (⌘ / ⌥) or Windows (Ctrl / Alt) shortcuts. You can change it later in Settings.',
-    options: ['Windows', 'Mac'],
-    type: 'radio',
-  },
-  {
-    id: 'missingKeys',
-    title: 'Keyboard Configuration',
-    description: 'Select any keys that are NOT on your keyboard. This will help us tailor challenges for you.',
-    options: ['Home', 'End', 'PageUp', 'PageDown', 'F-Keys (F1-F12)'],
-    type: 'checkbox',
+    description: "Two quick answers and we'll tailor every shortcut, drill and on-screen keyboard to your setup. You can change this later in Settings.",
   },
 ];
 
 export default function SurveyPage() {
   const [step, setStep] = useState(0);
-  const [surveyData, setSurveyData] = useState<Record<string, string | string[]>>({});
+  const [name, setName] = useState('');
+  const [platform, setPlatform] = useState<Platform | ''>('');
+  const [missingKeys, setMissingKeys] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [analyticsData, setAnalyticsData] = useState<Record<string, string | undefined>>({});
   const router = useRouter();
   const { user, loading } = useAuth();
   const { toast } = useToast();
 
+  // Google accounts arrive with a real display name — pre-fill it so those
+  // users only have to confirm it. Email/password users have no displayName,
+  // so this is a no-op for them. Never overwrites what the user has typed.
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const getOS = () => {
-        const userAgent = window.navigator.userAgent;
-        if (userAgent.indexOf("Win") !== -1) return "Windows";
-        if (userAgent.indexOf("Mac") !== -1) return "MacOS";
-        if (userAgent.indexOf("Linux") !== -1) return "Linux";
-        return "Other";
-      };
+    const displayName = user?.displayName?.trim();
+    if (displayName) setName(prev => prev || displayName);
+  }, [user]);
 
-      const getBrowser = () => {
-        const userAgent = window.navigator.userAgent;
-        if (userAgent.indexOf("Firefox") > -1) return "Firefox";
-        if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) return "Opera";
-        if (userAgent.indexOf("Trident") > -1) return "Internet Explorer";
-        if (userAgent.indexOf("Edge") > -1) return "Edge";
-        if (userAgent.indexOf("Chrome") > -1) return "Chrome";
-        if (userAgent.indexOf("Safari") > -1) return "Safari";
-        return "Other";
-      };
-      
-      const getCountry = async () => {
-          return "Not Detected";
-      };
-      
-      const os = getOS();
-      // Pre-select the keyboard platform from the detected OS (user can change it).
-      setSurveyData(prev => (prev.platform ? prev : { ...prev, platform: os === 'MacOS' ? 'Mac' : 'Windows' }));
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
 
-      getCountry().then(country => {
-          setAnalyticsData({
-              os,
-              browser: getBrowser(),
-              country,
-          });
-      });
-    }
+    const getOS = () => {
+      const userAgent = window.navigator.userAgent;
+      if (userAgent.indexOf("Win") !== -1) return "Windows";
+      if (userAgent.indexOf("Mac") !== -1) return "MacOS";
+      if (userAgent.indexOf("Linux") !== -1) return "Linux";
+      return "Other";
+    };
+
+    const getBrowser = () => {
+      const userAgent = window.navigator.userAgent;
+      if (userAgent.indexOf("Firefox") > -1) return "Firefox";
+      if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) return "Opera";
+      if (userAgent.indexOf("Trident") > -1) return "Internet Explorer";
+      if (userAgent.indexOf("Edge") > -1) return "Edge";
+      if (userAgent.indexOf("Chrome") > -1) return "Chrome";
+      if (userAgent.indexOf("Safari") > -1) return "Safari";
+      return "Other";
+    };
+
+    const os = getOS();
+    // Pre-select the keyboard platform from the detected OS (user can change it).
+    setPlatform(prev => prev || (os === 'MacOS' ? 'Mac' : 'Windows'));
+
+    setAnalyticsData({
+      os,
+      browser: getBrowser(),
+      country: "Not Detected",
+    });
   }, []);
 
   const handleNextStep = () => {
     const currentStepInfo = surveySteps[step];
-    if (currentStepInfo.type !== 'checkbox' && !surveyData[currentStepInfo.id]) {
+
+    if (currentStepInfo.id === 'name' && !name.trim()) {
       toast({
         title: "Please provide an answer",
         description: "You must provide an answer to continue.",
@@ -117,6 +109,16 @@ export default function SurveyPage() {
       });
       return;
     }
+
+    if (currentStepInfo.id === 'keyboard' && !platform) {
+      toast({
+        title: "Please pick a keyboard",
+        description: "Choose Windows or Mac so we show you the right shortcuts.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (step < surveySteps.length - 1) {
       setStep(step + 1);
     } else {
@@ -130,16 +132,8 @@ export default function SurveyPage() {
     }
   };
 
-  const handleValueChange = (id: string, value: string | string[]) => {
-    setSurveyData(prev => ({ ...prev, [id]: value }));
-  };
-
-  const handleCheckboxChange = (id: string, option: string, checked: boolean) => {
-    const currentSelection = (surveyData[id] as string[] | undefined) || [];
-    const newSelection = checked
-      ? [...currentSelection, option]
-      : currentSelection.filter(item => item !== option);
-    handleValueChange(id, newSelection);
+  const handleMissingKeyChange = (option: string, checked: boolean) => {
+    setMissingKeys(prev => (checked ? [...prev, option] : prev.filter(item => item !== option)));
   };
 
   const handleSubmit = async () => {
@@ -151,18 +145,24 @@ export default function SurveyPage() {
       });
       return;
     }
+    setIsSubmitting(true);
     try {
       const userDocRef = doc(db, 'users', user.uid);
-      const { name, platform, ...restOfSurveyData } = surveyData;
       await updateDoc(userDocRef, {
-        name: name as string,
-        survey: restOfSurveyData,
-        missingKeys: surveyData.missingKeys || [],
+        name: name.trim(),
+        // `survey` doubles as the completion flag that auth-provider gates on,
+        // so it must always be written as a non-empty object.
+        survey: {
+          missingKeys,
+          completedAt: new Date().toISOString(),
+        },
+        missingKeys,
         platform: platform === 'Mac' ? 'mac' : 'windows',
-        analytics: analyticsData
+        analytics: analyticsData,
       });
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch {
+      setIsSubmitting(false);
       toast({
         title: "Submission Failed",
         description: "There was an error saving your responses. Please try again.",
@@ -170,7 +170,7 @@ export default function SurveyPage() {
       });
     }
   };
-  
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>
   }
@@ -181,68 +181,122 @@ export default function SurveyPage() {
   }
 
   const currentStep = surveySteps[step];
+  const isLastStep = step === surveySteps.length - 1;
   const progress = ((step + 1) / surveySteps.length) * 100;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
       <Card className="w-full max-w-lg">
-        <CardHeader>
-          <Progress value={progress} className="mb-4" />
-          <CardTitle>{currentStep.title}</CardTitle>
-          <CardDescription>{currentStep.description}</CardDescription>
+        <CardHeader className="space-y-3">
+          <div className="space-y-2">
+            <Progress value={progress} />
+            <p className="text-xs font-medium text-muted-foreground">
+              Step {step + 1} of {surveySteps.length}
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <CardTitle>{currentStep.title}</CardTitle>
+            <CardDescription>{currentStep.description}</CardDescription>
+          </div>
         </CardHeader>
-        <CardContent>
-          {currentStep.type === 'radio' && currentStep.options && (
-            <RadioGroup
-              value={surveyData[currentStep.id] as string}
-              onValueChange={(value) => handleValueChange(currentStep.id, value)}
-              className="space-y-2"
-            >
-              {currentStep.options.map((option) => (
-                <div key={option} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option} id={option} />
-                  <Label htmlFor={option} className="flex-1 cursor-pointer p-3 rounded-md hover:bg-muted/50">
-                    {option}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          )}
-          {currentStep.type === 'input' && (
+
+        <CardContent className="min-h-[280px]">
+          {currentStep.id === 'name' && (
             <div className="space-y-2">
-              <Label htmlFor={currentStep.id}>Name</Label>
+              <Label htmlFor="name">Name</Label>
               <Input
-                id={currentStep.id}
+                id="name"
                 type="text"
                 placeholder="e.g. Jane Doe"
-                value={surveyData[currentStep.id] as string || ''}
-                onChange={(e) => handleValueChange(currentStep.id, e.target.value)}
+                autoFocus
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleNextStep();
+                }}
               />
+              <p className="text-sm text-muted-foreground">
+                Use the name you&apos;d be happy to show on a certificate.
+              </p>
             </div>
           )}
-          {currentStep.type === 'checkbox' && currentStep.options && (
-            <div className="space-y-2">
-              {currentStep.options.map((option) => (
-                <div key={option} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={option}
-                    checked={(surveyData[currentStep.id] as string[] | undefined)?.includes(option)}
-                    onCheckedChange={(checked) => handleCheckboxChange(currentStep.id, option, !!checked)}
-                  />
-                  <Label htmlFor={option} className="flex-1 cursor-pointer p-3 rounded-md hover:bg-muted/50">
-                    {option}
-                  </Label>
+
+          {currentStep.id === 'keyboard' && (
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Which keyboard do you use?</Label>
+                <RadioGroup
+                  value={platform}
+                  onValueChange={(value) => setPlatform(value as Platform)}
+                  className="grid grid-cols-2 gap-3"
+                >
+                  {PLATFORM_OPTIONS.map((option) => (
+                    <Label
+                      key={option.value}
+                      htmlFor={`platform-${option.value}`}
+                      className={cn(
+                        "flex cursor-pointer items-center gap-3 rounded-md border p-3 transition-colors hover:bg-muted/50",
+                        platform === option.value && "border-primary bg-primary/5"
+                      )}
+                    >
+                      <RadioGroupItem value={option.value} id={`platform-${option.value}`} />
+                      <span className="flex flex-col">
+                        <span className="font-medium">{option.label}</span>
+                        <span className="text-xs font-normal text-muted-foreground">{option.hint}</span>
+                      </span>
+                    </Label>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-sm font-semibold">Any keys missing from your keyboard?</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Tick anything your keyboard doesn&apos;t have — we&apos;ll show you an alternative
+                    route for those shortcuts. Leave it empty if you have a full-size keyboard.
+                  </p>
                 </div>
-              ))}
+                <div className="grid grid-cols-2 gap-2">
+                  {MISSING_KEY_OPTIONS.map((option) => (
+                    <Label
+                      key={option}
+                      htmlFor={`key-${option}`}
+                      className={cn(
+                        "flex cursor-pointer items-center gap-3 rounded-md border p-3 font-normal transition-colors hover:bg-muted/50",
+                        missingKeys.includes(option) && "border-primary bg-primary/5"
+                      )}
+                    >
+                      <Checkbox
+                        id={`key-${option}`}
+                        checked={missingKeys.includes(option)}
+                        onCheckedChange={(checked) => handleMissingKeyChange(option, !!checked)}
+                      />
+                      {option}
+                    </Label>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </CardContent>
+
         <CardFooter className="flex justify-between">
-          <Button variant="outline" onClick={handlePreviousStep} disabled={step === 0}>
+          <Button variant="outline" onClick={handlePreviousStep} disabled={step === 0 || isSubmitting}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Previous
           </Button>
-          <Button onClick={handleNextStep}>
-            {step === surveySteps.length - 1 ? 'Finish' : 'Next'}
+          <Button onClick={handleNextStep} disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving
+              </>
+            ) : isLastStep ? (
+              'Finish'
+            ) : (
+              <>
+                Next <ArrowRight className="ml-2 h-4 w-4" />
+              </>
+            )}
           </Button>
         </CardFooter>
       </Card>

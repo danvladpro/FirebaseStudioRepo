@@ -44,13 +44,13 @@ const jsonLd = {
         {
           '@type': 'Offer',
           name: '1-Week Access',
-          price: '9.99',
+          price: '2.99',
           priceCurrency: 'EUR',
         },
         {
           '@type': 'Offer',
           name: '1-Month Access',
-          price: '14.99',
+          price: '9.99',
           priceCurrency: 'EUR',
         },
       ],
