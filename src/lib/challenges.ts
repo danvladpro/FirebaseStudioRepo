@@ -150,10 +150,16 @@ export const CHALLENGE_SETS: ChallengeSet[] = [
     iconName: "Gift",
     challenges: [
       singleStep({ description: "Bold", keys: ["control", "b"], macKeys: [['meta','b'],['control','b']], iconName: "Bold", gridEffect: { action: 'APPLY_STYLE_BOLD' }, initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({description: "Open Find dialog",keys: ["control", "f"], macKeys: ['control','f'],iconName: "Search",dialogEffect: { action: 'SHOW', payload: { activeTab: 'find' } }, initialGridState: createGridState(bigTable,0,2,0) }),
-      singleStep({ description: "Center align", keys: ["alt", "h", "a", "c"], macKeys: ['meta','e'], iconName: "AlignCenter", isSequential: true, initialGridState: createGridState(bigTable,0,2,0), gridEffect: { action: 'APPLY_STYLE_CENTER_ALIGN' } }),
+      singleStep({ description: "Repeat last action (Bold)", keys: ["f4"], macKeys: [['meta','y'],['f4']], iconName: "Repeat", initialGridState: createGridState(bigTable,0,2,0),gridEffect: { action: 'APPLY_STYLE_BOLD' },}),
+      singleStep({ description: "Move 1 Cell down", keys: [ "arrowdown"], macKeys: ['arrowdown'], iconName: "MoveDown",  gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'down' } }, initialGridState: createGridState(bigTable, 0, 2, 0) }),
+      singleStep({ description: "Move 1 Cell right", keys: ["arrowright"], macKeys: ['arrowright'], iconName: "MoveRight",  gridEffect: { action: 'MOVE_SELECTION', payload: { direction: 'right' } }, initialGridState: createGridState(bigTable, 0, 2, 0) }),
+      singleStep({ description: "Jump down to edge", keys: ["control", "arrowdown"], macKeys: ['meta','arrowdown'], iconName: "MoveDown", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeDown' } }, initialGridState: createGridState(bigTable, 0, 2, 0) }),
+      singleStep({ description: "Jump to the right edge", keys: ["control", "arrowright"], macKeys: ['meta','arrowright'], iconName: "MoveRight", gridEffect: { action: 'MOVE_SELECTION_ADVANCED', payload: { to: 'edgeRight' } }, initialGridState: createGridState(bigTable, 0, 2, 0) })
     ],
   },
+
+
+
   {
     id: "daily-basics",
     name: "Daily Basics",

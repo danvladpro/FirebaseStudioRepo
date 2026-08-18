@@ -71,6 +71,12 @@ const bigTableEmptyRow = [['ID', 'Name', 'Date', 'Amount',''],
     ['', '', '', '','']
 ]
 
+const trialTable = [['This is ', 'a free trial', '',''],
+    ['', '', '', ''],
+    ['Go "Premium"', 'to unlock', 'more drills',''],
+    ['', '', '', '']
+]
+
 const dirtyTable = [['Share', '', 'Amount', '',''],
     ['100%', '', '$100', '',''],
     ['200%', '', '$200', '',''],
@@ -232,7 +238,8 @@ export const ALL_DRILL_STEPS: Record<string, DrillStep> = {
   // Formatting - Workarounds
   applyDateFormatFromGeneral: { description: 'Apply Date format', keys: ['control', 'shift', '3'], macKeys: ['control', 'shift', '3'], iconName: 'Calendar' , gridEffect: { action: 'PASTE_STATIC_VALUE', payload: { value:'02-Mar-26' } } },
   repeatFormattingGeneral:  { description: 'Repeat formatting', keys: ['f4'], macKeys: [['meta', 'y'], ['f4']], iconName: 'RotateCw', gridEffect: { action: 'APPLY_STYLE_GENERAL' } },
-
+  repeatItalic:  { description: 'Repeat formatting', keys: ['f4'], macKeys: [['meta', 'y'], ['f4']], iconName: 'RotateCw', gridEffect: { action: 'APPLY_STYLE_ITALIC' } },
+  repeatBold:  { description: 'Repeat formatting', keys: ['f4'], macKeys: [['meta', 'y'], ['f4']], iconName: 'RotateCw', gridEffect: { action: 'APPLY_STYLE_BOLD' } },
   // Data & Formulas 
   editFormula: { description: 'Edit formula', keys: ['f2'], macKeys: [['control', 'u'], ['f2']], iconName: 'Edit3', gridEffect: { action: 'START_EDITING', payload: { formula: '=Z4' } } },
   toggleAbsRef: { description: 'Toggle absolute reference', keys: ['f4'], macKeys: [['meta', 't'], ['f4']], iconName: 'Lock', gridEffect: { action: 'TOGGLE_ABS_REF' } },
@@ -317,6 +324,19 @@ const drills: Drill[] = [
   // LEVEL 1: APPRENTICE (Warp Speed)
   // Focus: Navigation, Selection, & Basic Moves
   // ==========================================
+  
+  {
+    id: 'free-trial-drill',
+    level: 'Apprentice',
+    name: 'Free Drill',
+    description: 'Format key cells in Bold using your keyboard',
+    repetitions: 5, mistakeLimit: 3,
+    initialGridState: createGridState(trialTable),
+    steps: ['moveRight','bold','jumpBottom','moveLeft','repeatBold','jumpRight','repeatBold']
+  },
+  
+
+  
   {
     id: 'strikethrough-undo',
     level: 'Apprentice',

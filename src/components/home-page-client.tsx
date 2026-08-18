@@ -646,7 +646,7 @@ export function HomePageClient() {
                             return stats[c.id]?.bestScore !== 100;
                         });
                         const nextIncompleteDrill = drillsForLevel.find(d => {
-                            if (!isPremium && !isAdmin && d.id !== 'strikethrough-undo') return false;
+                            if (!isPremium && !isAdmin && d.id !== 'free-trial-drill') return false;
                             return stats[d.id]?.bestScore !== 100;
                         });
                         const nextItem = nextIncompleteChallenge || nextIncompleteDrill;
@@ -908,7 +908,7 @@ export function HomePageClient() {
                                                         const firstIncompleteDrillIndex = drillsForLevel.findIndex(d => stats[d.id]?.bestScore !== 100);
                                                         const isDrillLocked = (() => {
                                                             if (isAdmin) return false;
-                                                            if (!isPremium) return drill.id !== 'strikethrough-undo';
+                                                            if (!isPremium) return drill.id !== 'free-trial-drill';
                                                             if (!areChallengesForLevelPassed) return true;
                                                             if (firstIncompleteDrillIndex === -1) return false;
                                                             return index > firstIncompleteDrillIndex;

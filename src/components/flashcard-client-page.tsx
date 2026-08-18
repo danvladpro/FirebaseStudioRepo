@@ -49,7 +49,8 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
     
     const flashcards = useMemo((): FlashcardItem[] => {
         const allFlashcards: FlashcardItem[] = [];
-        const sourceChallenges = isLimited ? set.challenges.slice(0, 5) : set.challenges;
+        // The designated free set is fully unlocked; every other set shows a 5-card teaser.
+        const sourceChallenges = isLimited && set.id !== 'free-trial' ? set.challenges.slice(0, 5) : set.challenges;
 
         sourceChallenges.forEach(challenge => {
             challenge.steps.forEach((step, stepIndex) => {
@@ -64,7 +65,7 @@ export function FlashcardClientPage({ set }: { set: ChallengeSet }) {
             });
         });
         return allFlashcards;
-    }, [set.challenges, isLimited]);
+    }, [set.challenges, set.id, isLimited]);
 
     if (loading) {
         return (
